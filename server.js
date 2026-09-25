@@ -27,7 +27,12 @@ const FormData = require('form-data');   // r2-proxy: use form-data for correct 
 // ─── Module Architecture ─────────────────────────────────────────────
 const ModuleLoader = require('./module-loader');
 const createCoreAPI = require('./core-api-contract');
-const { createPreviewRouter } = require('./preview-environment');
+let createPreviewRouter;
+try {
+  ({ createPreviewRouter } = require('./preview-environment'));
+} catch (err) {
+  console.log('[Info] Preview environment module omitted in production');
+}
 const { moduleErrorHandler } = require('./module-error-boundary');
 
 // ─── Phase Zero Deadline & Lockout ───────────────────────────────────
@@ -32051,10 +32056,11 @@ async function initializeModuleArchitecture() {
     await moduleLoader.mountModules(app);
 
     // Mount preview environment (requires moduleLoader)
-    const previewRouter = createPreviewRouter(pool, moduleLoader);
-    app.use('/preview', previewRouter);
-
-    console.log('[Modules] Preview environment mounted at /preview');
+    if (typeof createPreviewRouter === 'function') {
+      const previewRouter = createPreviewRouter(pool, moduleLoader);
+      app.use('/preview', previewRouter);
+      console.log('[Modules] Preview environment mounted at /preview');
+    }
 
     // Global module error handler (catches all module errors)
     app.use(moduleErrorHandler);
