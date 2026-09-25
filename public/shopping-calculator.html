@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Shopping Calculator — FACTS</title>
+  <meta name="description" content="GPS-powered grocery shopping. Compare prices, build lists, sweep savings into your buckets.">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0a0a'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' fill='%2339ff14'%3E🛒%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0a0a0a', surface: '#111111', surface2: '#1a1a1a',
+            border: '#2a2a2a', text: '#e8e8e8', textDim: '#666',
+            neon: '#39ff14', neonDim: '#1a7a0a', warn: '#f59e0b', danger: '#ef4444', blue: '#3b82f6',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace; box-sizing: border-box; }
+    body { background: #0a0a0a; color: #e8e8e8; margin: 0; min-height: 100dvh; font-size: 18px; }
+
+    .neon-text { color: #39ff14; text-shadow: 0 0 20px rgba(57,255,20,0.3); }
+    .neon-border { border-color: #39ff14; box-shadow: 0 0 8px rgba(57,255,20,0.15); }
+    .card { background: #111111; border: 1px solid #2a2a2a; border-radius: 0.875rem; }
+    .card-neon { background: #111111; border: 1px solid #1a7a0a; border-radius: 0.875rem; box-shadow: 0 0 12px rgba(57,255,20,0.1); }
+    .card-warn { background: linear-gradient(135deg,#1a1500,#1a1200); border: 1px solid rgba(245,158,11,0.3); border-radius: 0.875rem; }
+    .card-emerald { background: linear-gradient(135deg,#001a0f,#001408); border: 1px solid rgba(52,211,153,0.25); border-radius: 0.875rem; }
+    .input-dark { background: #0a0a0a; border: 1px solid #2a2a2a; color: #e8e8e8; border-radius: 0.5rem; padding: 0.75rem 1rem; width: 100%; transition: border-color 0.2s; font-size: 15px; }
+    .input-dark:focus { outline: none; border-color: rgba(57,255,20,0.5); }
+    .btn-neon { background: #39ff14; color: #000; font-weight: 800; border: none; cursor: pointer; transition: opacity 0.2s; }
+    .btn-neon:hover { opacity: 0.85; }
+    .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; cursor: pointer; transition: background 0.2s; font-size: 13px; font-weight: 600; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.09); color: #e2e8f0; }
+    .btn-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #f87171; cursor: pointer; font-weight: 600; }
+    .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.15); border-top-color: #39ff14; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%) translateY(120%); background: #1a2235; border: 1px solid rgba(57,255,20,0.3); padding: 0.75rem 1.25rem; border-radius: 0.75rem; color: #e8e8e8; z-index: 9999; transition: transform 0.3s; font-size: 14px; letter-spacing: 1px; white-space: nowrap; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .modal { background: #13192a; border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; width: 100%; max-width: 480px; padding: 1.5rem; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; display: none; align-items: flex-end; justify-content: center; padding: 0; }
+    .modal-overlay.open { display: flex; }
+    .badge-gas { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 11px; }
+    .badge-grocery { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 11px; }
+    .badge-warehouse { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 11px; }
+    .badge-convenience { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 11px; }
+    .badge-bigbox { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 11px; }
+    .badge-local { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 11px; }
+    .category-icon { font-size: 1.5rem; }
+    .radius-btn { padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 13px; cursor: pointer; border: 1px solid #2a2a2a; background: transparent; color: #666; transition: all 0.2s; font-weight: 600; }
+    .radius-btn.active { border-color: #39ff14; color: #39ff14; background: rgba(57,255,20,0.05); }
+    .search-result-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1.1rem; border-bottom: 1px solid rgba(42,42,42,0.5); cursor: pointer; transition: background 0.15s; }
+    .search-result-row:hover { background: rgba(57,255,20,0.05); }
+    .list-item-row { display: flex; align-items: center; padding: 0.85rem 1.1rem; border-bottom: 1px solid rgba(42,42,42,0.4); gap: 0.5rem; }
+    .list-item-row.checked { opacity: 0.5; text-decoration: line-through; }
+    .sweep-banner { background: linear-gradient(135deg, #1a1500 0%, #0d1a14 100%); border: 1px solid rgba(57,255,20,0.25); border-radius: 0.875rem; padding: 1rem; margin: 0.75rem; }
+    .sweep-banner-warn { background: linear-gradient(135deg, #1a1000 0%, #1a1500 100%); border: 1px solid rgba(245,158,11,0.3); border-radius: 0.875rem; padding: 1rem; margin: 0.75rem; }
+    .upgrade-banner { background: linear-gradient(135deg, #1a1a2e, #0a1a0a); border: 1px solid rgba(201,162,39,0.3); border-radius: 0.875rem; padding: 1rem; margin: 0.75rem; }
+    ::-webkit-scrollbar { width: 2px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a2a; }
+    @media (max-width: 640px) {
+      .modal { border-radius: 1rem 1rem 0 0; }
+      .modal-overlay { align-items: flex-end; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Main App -->
+<div id="app" style="max-width:480px;margin:0 auto;min-height:100dvh;position:relative;display:flex;flex-direction:column;">
+
+  <!-- Header -->
+  <div style="background:#0a0a0a;border-bottom:1px solid #2a2a2a;padding:12px 16px 10px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <span style="font-size:12px;letter-spacing:3px;color:#666;text-transform:uppercase;font-weight:700;">◈ Shopping Calculator</span>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span id="trip-badge" class="badge-grocery" style="display:none;">Shopping Mode</span>
+        <span id="total-header" style="font-size:4rem;font-weight:900;color:#39ff14;text-shadow:0 0 20px rgba(57,255,20,0.5);line-height:1;letter-spacing:-1px;">$0.00</span>
+      </div>
+    </div>
+    <div id="location-bar" style="display:flex;align-items:center;gap:6px;font-size:10px;color:#666;margin-top:2px;">
+      <span id="location-text" style="font-size:13px;font-weight:600;">Detecting location...</span>
+      <span class="spinner" id="location-spinner" style="width:12px;height:12px;border-width:1.5px;"></span>
+    </div>
+    <!-- Manual location fallback (hidden until GPS denied) -->
+    <div id="manual-location" style="display:none;margin-top:6px;">
+      <div style="font-size:10px;color:#444;margin-bottom:4px;letter-spacing:1px;">— OR ENTER ZIP —</div>
+      <div style="display:flex;gap:6px;">
+        <input id="zip-input" type="text" placeholder="92054" maxlength="5" class="input-dark" style="width:80px;font-size:11px;height:28px;" onkeydown="if(event.key==='Enter')applyZip()">
+        <button onclick="applyZip()" class="btn-neon" style="height:28px;padding:0 12px;font-size:9px;letter-spacing:1px;border-radius:0.4rem;">GO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Nav -->
+  <div style="display:flex;background:#0a0a0a;border-bottom:1px solid #2a2a2a;flex-shrink:0;padding:0 16px;gap:0;">
+    <button class="tab-btn" id="tab-radar" onclick="switchTab('radar')" style="flex:1;padding:12px 0;border:none;background:transparent;color:#666;font-size:13px;font-weight:700;letter-spacing:1.5px;font-family:inherit;cursor:pointer;text-transform:uppercase;border-bottom:2px solid transparent;transition:all 0.2s;">🗺 Radar</button>
+    <button class="tab-btn" id="tab-search" onclick="switchTab('search')" style="flex:1;padding:12px 0;border:none;background:transparent;color:#666;font-size:13px;font-weight:700;letter-spacing:1.5px;font-family:inherit;cursor:pointer;text-transform:uppercase;border-bottom:2px solid transparent;transition:all 0.2s;">🔍 Search</button>
+    <button class="tab-btn" id="tab-list" onclick="switchTab('list')" style="flex:1;padding:12px 0;border:none;background:transparent;color:#666;font-size:13px;font-weight:700;letter-spacing:1.5px;font-family:inherit;cursor:pointer;text-transform:uppercase;border-bottom:2px solid transparent;transition:all 0.2s;">📋 List</button>
+    <button class="tab-btn" id="tab-compare" onclick="switchTab('compare')" style="flex:1;padding:12px 0;border:none;background:transparent;color:#666;font-size:13px;font-weight:700;letter-spacing:1.5px;font-family:inherit;cursor:pointer;text-transform:uppercase;border-bottom:2px solid transparent;transition:all 0.2s;">⚖ Compare</button>
+  </div>
+
+  <!-- Content Area -->
+  <div id="content" style="flex:1;overflow-y:auto;padding:0 0 80px;">
+
+    <!-- RADAR TAB -->
+    <div id="view-radar" class="tab-view">
+      <div style="padding:12px 16px;background:#111;border-bottom:1px solid #2a2a2a;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:13px;letter-spacing:2px;color:#666;text-transform:uppercase;font-weight:700;">Nearby Stores</span>
+          <div style="display:flex;gap:4px;">
+            <button class="radius-btn" id="r1" onclick="setRadius(1)">1 mi</button>
+            <button class="radius-btn" id="r2" onclick="setRadius(2)">2 mi</button>
+            <button class="radius-btn active" id="r5" onclick="setRadius(5)">5 mi</button>
+          </div>
+        </div>
+        <div id="category-filters" style="display:flex;gap:4px;flex-wrap:wrap;">
+          <button class="radius-btn active" id="cat-all" onclick="setCategory('all')">All</button>
+          <button class="radius-btn" id="cat-grocery" onclick="setCategory('grocery')">🛒 Grocery</button>
+          <button class="radius-btn" id="cat-warehouse" onclick="setCategory('warehouse')">📦 Warehouse</button>
+          <button class="radius-btn" id="cat-big_box" onclick="setCategory('big_box')">🏬 Big Box</button>
+          <button class="radius-btn" id="cat-gas_station" onclick="setCategory('gas_station')">⛽ Gas</button>
+        </div>
+      </div>
+
+      <div id="stores-list" style="padding:8px 16px;">
+        <div style="text-align:center;padding:2rem;color:#666;font-size:11px;letter-spacing:2px;">
+          <div class="spinner" style="margin:0 auto 12px;"></div>
+          LOCATING STORES...
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH TAB -->
+    <div id="view-search" class="tab-view" style="display:none;">
+      <div style="padding:16px;background:#111;border-bottom:1px solid #2a2a2a;">
+        <div style="display:flex;gap:8px;">
+          <input id="search-input" type="text" placeholder="Search products..." class="input-dark" style="flex:1;" oninput="handleSearch(this.value)">
+          <button onclick="clearSearch()" style="background:#1a1a1a;border:1px solid #2a2a2a;color:#666;padding:0 12px;border-radius:0.5rem;font-size:11px;cursor:pointer;letter-spacing:1px;">✕</button>
+        </div>
+        <div id="search-results" style="margin-top:8px;"></div>
+      </div>
+      <div id="search-tips" style="padding:1rem 16px;color:#666;font-size:10px;letter-spacing:1px;">
+        Type a product name to search. Tap to add to your list.
+      </div>
+    </div>
+
+    <!-- LIST TAB -->
+    <div id="view-list" class="tab-view" style="display:none;">
+      <div style="padding:12px 16px;background:#111;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div id="list-name" style="font-size:18px;font-weight:800;">My List</div>
+          <div id="list-meta" style="font-size:14px;color:#666;margin-top:3px;font-weight:600;">0 items · $0.00</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="openReceiptScan()" style="background:#1a1a1a;border:1px solid #2a2a2a;color:#39ff14;padding:10px 16px;border-radius:0.5rem;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;">📷 Scan</button>
+          <button onclick="clearList()" style="background:#1a1a1a;border:1px solid #2a2a2a;color:#666;padding:10px 16px;border-radius:0.5rem;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;">🗑 Clear</button>
+        </div>
+      </div>
+
+      <!-- Manual item entry with predictive autocomplete -->
+      <div style="padding:10px 16px 6px;background:#111;border-bottom:1px solid #2a2a2a;position:relative;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input id="list-add-input" type="text" placeholder="Add item..." class="input-dark" style="flex:1;height:46px;font-size:17px;font-weight:700;letter-spacing:0.5px;" autocomplete="off" oninput="handleListAddInput(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmListAdd()}" onblur="setTimeout(()=>hideSuggestions(),200)">
+          <button onclick="confirmListAdd()" class="btn-neon" style="padding:0 20px;height:46px;font-size:15px;font-weight:800;letter-spacing:2px;border-radius:0.5rem;flex-shrink:0;">ADD</button>
+        </div>
+        <div id="suggestions-dropdown" style="display:none;position:absolute;top:100%;left:16px;right:16px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:0.5rem;z-index:100;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
+      </div>
+
+      <!-- Sweep CTA Banner (hidden until needed) -->
+      <div id="sweep-cta" class="sweep-banner" style="display:none;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div id="sweep-icon" style="font-size:1.5rem;flex-shrink:0;">💰</div>
+          <div style="flex:1;">
+            <div id="sweep-headline" style="font-size:18px;font-weight:800;color:#39ff14;margin-bottom:6px;"></div>
+            <div id="sweep-body" style="font-size:15px;color:#94a3b8;line-height:1.5;margin-bottom:12px;font-weight:500;"></div>
+            <div style="display:flex;gap:6px;">
+              <button onclick="executeSweep()" id="sweep-cta-btn" class="btn-neon" style="flex:1;padding:10px 14px;font-size:12px;letter-spacing:1px;border-radius:0.5rem;">🔄 Sweep into <span id="sweep-bucket-name"></span> →</button>
+              <button onclick="dismissSweep()" style="background:transparent;border:1px solid #2a2a2a;color:#666;padding:10px 14px;font-size:12px;cursor:pointer;border-radius:0.5rem;font-weight:600;">Not now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upgrade Banner -->
+      <div id="upgrade-banner" class="upgrade-banner" style="display:none;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.5rem;">🔒</span>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:#c9a227;margin-bottom:4px;">Free Tier Limit</div>
+            <div style="font-size:12px;color:#94a3b8;line-height:1.5;">Your list is capped at 10 items. <strong style="color:#e8e8e8;">FACTS Pro</strong> unlocks unlimited lists, receipt scan, and store comparison.</div>
+          </div>
+          <button onclick="goUpgrade()" class="btn-neon" style="padding:8px 12px;font-size:12px;letter-spacing:1px;border-radius:0.5rem;white-space:nowrap;">Get FACTS</button>
+        </div>
+      </div>
+
+      <div id="list-items" style="padding:4px 0;">
+        <div id="empty-list" style="text-align:center;padding:2rem;color:#444;font-size:16px;font-weight:700;letter-spacing:3px;">◈ &nbsp; EMPTY LIST &nbsp; ◈</div>
+      </div>
+
+      <div id="list-actions" style="padding:12px 16px;display:flex;gap:8px;">
+        <button onclick="selectStoreForList()" class="btn-ghost" style="flex:1;padding:14px;font-size:14px;letter-spacing:1.5px;border-radius:0.5rem;font-weight:700;">📍 Select Store</button>
+        <button onclick="goCompare()" class="btn-neon" style="flex:1;padding:14px;font-size:14px;letter-spacing:1.5px;border-radius:0.5rem;font-weight:800;">⚖ Compare Stores</button>
+      </div>
+    </div>
+
+    <!-- COMPARE TAB -->
+    <div id="view-compare" class="tab-view" style="display:none;">
+      <div style="padding:12px 16px;background:#111;border-bottom:1px solid #2a2a2a;">
+        <div style="font-size:13px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:700;">Store Comparison</div>
+        <div id="compare-placeholder" style="text-align:center;padding:2rem;color:#444;font-size:11px;letter-spacing:2px;">Add items to your list to compare store totals.</div>
+      </div>
+      <div id="compare-results"></div>
+    </div>
+
+  </div>
+
+  <!-- Footer: Quick Add -->
+  <div id="quick-add-bar" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#111;border-top:1px solid #2a2a2a;padding:8px 16px;flex-shrink:0;z-index:40;display:none;">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input id="quick-add-input" type="text" placeholder="Add item..." class="input-dark" style="flex:1;height:36px;font-size:12px;" onkeydown="if(event.key==='Enter')quickAddItem()">
+      <button onclick="quickAddItem()" class="btn-neon" style="padding:8px 16px;height:36px;font-size:10px;letter-spacing:1px;border-radius:0.5rem;">ADD</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Modal: Price Entry -->
+<div class="modal-overlay" id="price-modal">
+  <div class="modal" style="border-radius:1rem 1rem 0 0;">
+    <div style="font-size:10px;letter-spacing:3px;color:#666;text-transform:uppercase;margin-bottom:8px;">◈ ENTER PRICE</div>
+    <div id="price-item-name" style="font-size:14px;font-weight:700;margin-bottom:12px;color:#e8e8e8;"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <span style="font-size:24px;color:#666;">$</span>
+      <input id="price-input" type="number" step="0.01" min="0" placeholder="0.00" class="input-dark" style="font-size:28px;font-weight:700;text-align:left;padding:8px 12px;">
+    </div>
+    <button onclick="submitPrice()" class="btn-neon" style="width:100%;padding:12px;font-size:11px;letter-spacing:2px;border-radius:0.5rem;margin-bottom:6px;">CONFIRM PRICE</button>
+    <button onclick="closePriceModal()" style="width:100%;background:transparent;border:1px solid #2a2a2a;color:#666;padding:10px;font-size:10px;cursor:pointer;border-radius:0.5rem;">CANCEL</button>
+  </div>
+</div>
+
+<!-- Modal: Receipt Scan -->
+<div class="modal-overlay" id="receipt-modal">
+  <div class="modal" style="border-radius:1rem 1rem 0 0;">
+    <div style="font-size:10px;letter-spacing:3px;color:#666;text-transform:uppercase;margin-bottom:8px;">◈ SCAN RECEIPT</div>
+
+    <div id="receipt-capture" style="text-align:center;">
+      <div id="camera-preview" style="background:#0a0a0a;border:2px dashed rgba(57,255,20,0.3);border-radius:0.75rem;height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;cursor:pointer;" onclick="triggerCamera()">
+        <div style="text-align:center;color:#666;">
+          <div style="font-size:2rem;margin-bottom:8px;">📷</div>
+          <div style="font-size:11px;letter-spacing:1px;">TAP TO CAPTURE</div>
+        </div>
+      </div>
+      <input type="file" id="receipt-camera" accept="image/*" capture="environment" style="display:none;" onchange="handleReceiptFile(this)">
+      <button onclick="triggerCamera()" class="btn-ghost" style="width:100%;padding:10px;font-size:10px;letter-spacing:1.5px;border-radius:0.5rem;margin-bottom:8px;">📷 Open Camera</button>
+      <p style="font-size:10px;color:#444;text-align:center;margin:0;">Receipt OCR powered by OpenAI Vision. Prices are parsed and matched to your list.</p>
+    </div>
+
+    <div id="receipt-results" style="display:none;">
+      <div id="receipt-parsed" style="max-height:280px;overflow-y:auto;margin-bottom:12px;"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button onclick="retakeReceipt()" class="btn-ghost" style="flex:1;padding:9px;font-size:10px;letter-spacing:1px;border-radius:0.5rem;">📷 Retake</button>
+        <button onclick="confirmAllPrices()" class="btn-neon" style="flex:1;padding:9px;font-size:10px;letter-spacing:1.5px;border-radius:0.5rem;">✓ Confirm All</button>
+      </div>
+      <button onclick="closeReceiptModal()" class="btn-ghost" style="width:100%;padding:8px;font-size:10px;letter-spacing:1px;border-radius:0.5rem;margin-top:6px;">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Store Picker -->
+<div class="modal-overlay" id="store-modal">
+  <div class="modal" style="border-radius:1rem 1rem 0 0;">
+    <div style="font-size:10px;letter-spacing:3px;color:#666;text-transform:uppercase;margin-bottom:12px;">◈ SELECT STORE</div>
+    <div id="store-options" style="max-height:300px;overflow-y:auto;"></div>
+    <button onclick="closeStoreModal()" class="btn-ghost" style="width:100%;padding:10px;font-size:10px;letter-spacing:1.5px;border-radius:0.5rem;margin-top:12px;">CANCEL</button>
+  </div>
+</div>
+
+<!-- Modal: Comparison -->
+<div class="modal-overlay" id="compare-modal">
+  <div class="modal" style="border-radius:1rem 1rem 0 0;">
+    <div style="font-size:10px;letter-spacing:3px;color:#666;text-transform:uppercase;margin-bottom:12px;">◈ TRIP SAVINGS</div>
+    <div id="compare-modal-content"></div>
+    <button onclick="closeCompareModal()" class="btn-ghost" style="width:100%;padding:10px;font-size:10px;letter-spacing:1.5px;border-radius:0.5rem;margin-top:12px;">CLOSE</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── Zip → Coords lookup (major US metro areas) ────────────────────────────
+const ZIP_TO_COORDS = {
+  '92054': { lat: 33.1952, lng: -117.3793, city: 'Oceanside, CA' },
+  '92055': { lat: 33.1988, lng: -117.3823, city: 'Oceanside, CA' },
+  '92008': { lat: 33.1189, lng: -117.2810, city: 'Carlsbad, CA' },
+  '92009': { lat: 33.0978, lng: -117.2632, city: 'Carlsbad, CA' },
+  '92024': { lat: 33.0538, lng: -117.3039, city: 'Encinitas, CA' },
+  '92101': { lat: 32.7194, lng: -117.1618, city: 'San Diego, CA' },
+  '92102': { lat: 32.7128, lng: -117.1270, city: 'San Diego, CA' },
+  '92672': { lat: 33.4297, lng: -117.5936, city: 'San Clemente, CA' },
+  '92624': { lat: 33.4770, lng: -117.6681, city: 'Capistrano Beach, CA' },
+  '93101': { lat: 34.4208, lng: -119.6982, city: 'Santa Barbara, CA' },
+  '93105': { lat: 34.4378, lng: -119.7362, city: 'Santa Barbara, CA' },
+  '93458': { lat: 35.2827, lng: -120.6596, city: 'San Luis Obispo, CA' },
+  '93003': { lat: 34.1977, lng: -119.1770, city: 'Ventura, CA' },
+  '93001': { lat: 34.2806, lng: -119.2935, city: 'Ventura, CA' },
+  '90210': { lat: 34.0901, lng: -118.4065, city: 'Beverly Hills, CA' },
+  '90001': { lat: 33.9425, lng: -118.2551, city: 'Los Angeles, CA' },
+  '94102': { lat: 37.7792, lng: -122.4191, city: 'San Francisco, CA' },
+  '98101': { lat: 47.6062, lng: -122.3321, city: 'Seattle, WA' },
+  '97201': { lat: 45.5152, lng: -122.6784, city: 'Portland, OR' },
+  '80202': { lat: 39.7539, lng: -104.9961, city: 'Denver, CO' },
+  '78701': { lat: 30.2672, lng: -97.7431, city: 'Austin, TX' },
+  '33101': { lat: 25.7617, lng: -80.1918, city: 'Miami, FL' },
+  '10001': { lat: 40.7484, lng: -73.9967, city: 'New York, NY' },
+  '60601': { lat: 41.8819, lng: -87.6278, city: 'Chicago, IL' },
+};
+
+// ── State ─────────────────────────────────────────────────────────────────
+const STATE = {
+  lat: null,
+  lng: null,
+  radius: 5,
+  category: 'all',
+  stores: [],
+  products: [],
+  listId: null,
+  listItems: [],
+  selectedStore: null,
+  shoppingMode: false,
+  sweepData: null,
+  isFactsUser: false,
+  loadingLocation: true,
+  currentTab: 'radar',
+  lastSearch: '',
+  searchDebounce: null,
+};
+
+// ── API helpers ────────────────────────────────────────────────────────────
+async function api(url, opts = {}) {
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json', ...opts.headers },
+    ...opts,
+    body: opts.body ? (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body)) : undefined,
+  });
+  return res.json();
+}
+
+async function getUser() {
+  try {
+    const data = await api('/api/auth/me');
+    STATE.isFactsUser = data.authenticated && ['individual','family','business','bundle','elite','sovereign'].includes((data.tier || '').toLowerCase());
+  } catch {
+    STATE.isFactsUser = false;
+  }
+}
+
+// ── Location ───────────────────────────────────────────────────────────────
+async function detectLocation() {
+  if (!navigator.geolocation) {
+    setLocationText('Geolocation unavailable');
+    showManualLocation();
+    document.getElementById('location-spinner').style.display = 'none';
+    STATE.lat = 33.1952;
+    STATE.lng = -117.3793;
+    loadStores();
+    return;
+  }
+
+  // Safety timeout — if geolocation hangs, fallback after 10s
+  const safetyTimer = setTimeout(() => {
+    if (STATE.loadingLocation) {
+      document.getElementById('location-spinner').style.display = 'none';
+      setLocationText('Location timeout — using default');
+      showManualLocation();
+      STATE.lat = 33.1952;
+      STATE.lng = -117.3793;
+      STATE.loadingLocation = false;
+      loadStores();
+    }
+  }, 10000);
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      clearTimeout(safetyTimer);
+      STATE.lat = pos.coords.latitude;
+      STATE.lng = pos.coords.longitude;
+      const areaName = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+      setLocationText(`${areaName} — ${STATE.lat.toFixed(3)}°, ${STATE.lng.toFixed(3)}°`);
+      document.getElementById('location-spinner').style.display = 'none';
+      STATE.loadingLocation = false;
+      loadStores();
+    },
+    async () => {
+      clearTimeout(safetyTimer);
+      document.getElementById('location-spinner').style.display = 'none';
+      setLocationText('Location access denied — using default');
+      showManualLocation();
+      STATE.lat = 33.1952;
+      STATE.lng = -117.3793;
+      STATE.loadingLocation = false;
+      loadStores();
+    },
+    { timeout: 8000, maximumAge: 300000 }
+  );
+}
+
+// Simple reverse geocode using a demo lookup table
+async function reverseGeocode(lat, lng) {
+  // Known coordinates for demo areas
+  const areas = [
+    { lat: 33.19, lng: -117.38, name: 'Oceanside' },
+    { lat: 33.09, lng: -117.28, name: 'Carlsbad' },
+    { lat: 33.12, lng: -117.30, name: 'Encinitas' },
+    { lat: 32.77, lng: -117.25, name: 'San Diego' },
+    { lat: 33.44, lng: -117.62, name: 'San Clemente' },
+    { lat: 34.42, lng: -119.70, name: 'Santa Barbara' },
+  ];
+  for (const a of areas) {
+    const d = Math.sqrt((lat - a.lat) ** 2 + (lng - a.lng) ** 2);
+    if (d < 0.3) return a.name;
+  }
+  return `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+}
+
+function showManualLocation() {
+  document.getElementById('manual-location').style.display = 'block';
+  document.getElementById('location-spinner').style.display = 'none';
+}
+
+function applyZip() {
+  const zip = document.getElementById('zip-input').value.trim();
+  if (!/^\\d{5}$/.test(zip)) { showToast('Enter a 5-digit US zip code'); return; }
+  const coords = ZIP_TO_COORDS[zip];
+  if (!coords) { showToast('Zip code not found — try Oceanside area (92054)'); return; }
+  STATE.lat = coords.lat;
+  STATE.lng = coords.lng;
+  setLocationText(`${zip} — ${coords.city}`);
+  document.getElementById('manual-location').style.display = 'none';
+  document.getElementById('location-spinner').style.display = 'none';
+  STATE.loadingLocation = false;
+  loadStores();
+}
+
+function setLocationText(txt) {
+  document.getElementById('location-text').textContent = txt;
+}
+
+// ── Load Stores ────────────────────────────────────────────────────────────
+async function loadStores() {
+  if (!STATE.lat || !STATE.lng) return;
+  const container = document.getElementById('stores-list');
+  container.innerHTML = '<div style="text-align:center;padding:2rem;color:#666;font-size:13px;letter-spacing:2px;"><div class="spinner" style="margin:0 auto 12px;"></div>LOADING STORES...</div>';
+
+  try {
+    const data = await api(`/api/mod_shopping/stores/nearby?lat=${STATE.lat}&lng=${STATE.lng}&radius=${STATE.radius}`);
+    STATE.stores = data.stores || [];
+    document.getElementById('location-spinner').style.display = 'none';
+    renderStores();
+  } catch (e) {
+    document.getElementById('location-spinner').style.display = 'none';
+    container.innerHTML = '<div style="text-align:center;padding:2rem;color:#ef4444;font-size:13px;letter-spacing:1px;">Failed to load stores. Tap to retry.</div>';
+  }
+}
+
+function renderStores() {
+  const container = document.getElementById('stores-list');
+  if (!STATE.stores.length) {
+    container.innerHTML = '<div style="text-align:center;padding:2rem;color:#666;font-size:11px;letter-spacing:2px;">No stores found in this radius.</div>';
+    return;
+  }
+
+  container.innerHTML = STATE.stores.map(store => {
+    const catBadge = getCategoryBadge(store.category);
+    const stars = getStoreStars(store.price_count);
+    return `<div class="card card-neon" style="margin-bottom:8px;padding:14px;cursor:pointer;" onclick="selectStore(${store.id})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div>
+          <div style="font-size:17px;font-weight:800;color:#e8e8e8;">🏬 ${store.name}</div>
+          ${stars}
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10px;color:#666;">${store.distance.toFixed(1)} mi</div>
+          <div style="margin-top:4px;">${catBadge}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#666;margin-bottom:4px;">${store.address || ''}</div>
+      <div style="font-size:10px;color:#444;margin-top:4px;">💰 ${store.price_count || 0} prices contributed</div>
+    </div>`;
+  }).join('');
+}
+
+function getCategoryBadge(cat) {
+  const map = {
+    grocery: '🛒 Grocery', warehouse: '📦 Warehouse', big_box: '🏬 Big Box',
+    gas_station: '⛽ Gas', convenience: '🏪 Convenience', local_indie: '🏡 Local'
+  };
+  return `<span class="badge-${cat}">${map[cat] || cat}</span>`;
+}
+
+function getStoreStars(count) {
+  const stars = Math.min(5, Math.ceil((count || 0) / 4));
+  return '<div style="color:#c9a227;font-size:12px;margin-top:3px;">' + '⭐'.repeat(stars) + '</div>';
+}
+
+// ── Store Selection ────────────────────────────────────────────────────────
+async function selectStore(storeId) {
+  const store = STATE.stores.find(s => s.id === storeId);
+  if (!store) return;
+
+  STATE.selectedStore = store;
+  STATE.shoppingMode = true;
+
+  // Create/update shopping list with store
+  if (!STATE.listId) {
+    const data = await api('/api/mod_shopping/list', { method: 'POST', body: { name: 'Shopping Trip' } });
+    STATE.listId = data.list?.id;
+  }
+  if (STATE.listId) {
+    await api(`/api/mod_shopping/list/${STATE.listId}/store`, { method: 'PATCH', body: { store_id: storeId } });
+  }
+
+  document.getElementById('trip-badge').style.display = 'inline';
+  document.getElementById('trip-badge').textContent = `📍 ${store.name}`;
+  document.getElementById('quick-add-bar').style.display = 'block';
+
+  showToast(`Shopping mode: ${store.name}`);
+  switchTab('list');
+}
+
+async function selectStoreForList() {
+  if (!STATE.stores.length) { showToast('No stores loaded yet'); return; }
+  const html = STATE.stores.map(s => `<div class="list-item-row" style="cursor:pointer;" onclick="selectStore(${s.id});closeStoreModal();">
+    <span style="font-size:1.2rem;">🏬</span>
+    <div style="flex:1;">
+      <div style="font-size:12px;font-weight:600;">${s.name}</div>
+      <div style="font-size:10px;color:#666;">${s.distance.toFixed(1)} mi · ${s.address || ''}</div>
+    </div>
+  </div>`).join('');
+  document.getElementById('store-options').innerHTML = html;
+  document.getElementById('store-modal').classList.add('open');
+}
+
+function closeStoreModal() {
+  document.getElementById('store-modal').classList.remove('open');
+}
+
+// ── Search ─────────────────────────────────────────────────────────────────
+let searchTimer;
+function handleSearch(q) {
+  clearTimeout(searchTimer);
+  if (q.length < 2) {
+    document.getElementById('search-results').innerHTML = '';
+    return;
+  }
+  searchTimer = setTimeout(() => doSearch(q), 300);
+}
+
+async function doSearch(q) {
+  document.getElementById('search-results').innerHTML = '<div style="padding:1rem;text-align:center;color:#666;font-size:11px;"><div class="spinner" style="margin:0 auto;"></div></div>';
+  try {
+    const data = await api(`/api/mod_shopping/search?q=${encodeURIComponent(q)}`);
+    renderSearchResults(data.products || []);
+  } catch {
+    document.getElementById('search-results').innerHTML = '<div style="padding:1rem;color:#ef4444;font-size:11px;">Search failed.</div>';
+  }
+}
+
+function renderSearchResults(products) {
+  if (!products.length) {
+    document.getElementById('search-results').innerHTML = '<div style="padding:1rem;color:#666;font-size:11px;letter-spacing:1px;">No products found.</div>';
+    return;
+  }
+  document.getElementById('search-results').innerHTML = products.map(p => `
+    <div class="search-result-row" data-name="${btoa(unescape(encodeURIComponent(p.name)))}" data-brand="${btoa(unescape(encodeURIComponent(p.brand)))}" data-upc="${p.upc || ''}" data-cat="${p.category || ''}" onclick="handleSearchRowClick(this)">
+      <div>
+        <div style="font-size:12px;font-weight:600;">${escapeHtml(p.name)}</div>
+        <div style="font-size:10px;color:#666;margin-top:2px;">${escapeHtml(p.brand)}${p.upc ? ' · UPC: ' + p.upc : ''}</div>
+      </div>
+      <div style="margin-left:auto;color:#39ff14;font-size:11px;letter-spacing:1px;">+ ADD</div>
+    </div>`).join('');
+}
+
+function handleSearchRowClick(el) {
+  try {
+    const name = decodeURIComponent(atob(el.dataset.name));
+    const brand = decodeURIComponent(atob(el.dataset.brand));
+    addProductToList(name, brand, el.dataset.upc || '', el.dataset.cat || '');
+  } catch(e) { showToast('Error adding item'); }
+}
+
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-results').innerHTML = '';
+}
+
+function escapeHtml(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── List Management ───────────────────────────────────────────────────────
+async function addProductToList(name, brand, upc, category) {
+  if (!STATE.listId) {
+    const data = await api('/api/mod_shopping/list', { method: 'POST', body: { name: 'Shopping Trip' } });
+    STATE.listId = data.list?.id;
+  }
+
+  try {
+    const result = await api(`/api/mod_shopping/list/${STATE.listId}/items`, {
+      method: 'POST',
+      body: { name, brand, upc, category, quantity: 1 }
+    });
+
+    if (result.upgrade_required) {
+      showUpgradeBanner();
+      return;
+    }
+
+    STATE.listItems.push(result.item);
+    showToast(`Added: ${name}`);
+    renderList();
+    switchTab('list');
+  } catch (e) {
+    showToast('Failed to add item');
+  }
+}
+
+async function quickAddItem() {
+  const input = document.getElementById('quick-add-input');
+  const name = input.value.trim();
+  if (!name) return;
+  input.value = '';
+  await addProductToList(name, '', '', '');
+}
+
+function showUpgradeBanner() {
+  document.getElementById('upgrade-banner').style.display = 'block';
+  showToast('Free tier limit (10 items)');
+}
+
+function goUpgrade() {
+  window.location.href = '/pricing.html';
+}
+
+async function loadList() {
+  if (!STATE.listId) return;
+  try {
+    const data = await api(`/api/mod_shopping/list/${STATE.listId}`);
+    STATE.listItems = data.items || [];
+    renderList();
+  } catch {}
+}
+
+function renderList() {
+  const container = document.getElementById('list-items');
+  const emptyEl = document.getElementById('empty-list');
+  const listNameEl = document.getElementById('list-name');
+  const listMetaEl = document.getElementById('list-meta');
+
+  listNameEl.textContent = STATE.selectedStore ? `${STATE.selectedStore.name} — Shopping` : 'My List';
+
+  if (!STATE.listItems.length) {
+    emptyEl.style.display = 'block';
+    container.innerHTML = '';
+    if (emptyEl.parentNode !== container) {
+      container.innerHTML = '';
+      container.appendChild(emptyEl);
+    }
+    listMetaEl.textContent = '0 items · $0.00';
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  const total = STATE.listItems.filter(i => i.confirmed).reduce((s, i) => s + (i.entered_price_cents || 0), 0);
+  listMetaEl.textContent = `${STATE.listItems.length} items · ${formatDollars(total)}`;
+
+  container.innerHTML = STATE.listItems.map(item => {
+    const checkedClass = item.checked ? 'checked' : '';
+    const qty = item.quantity || 1;
+    const lineTotal = item.entered_price_cents ? item.entered_price_cents * qty : 0;
+    const priceDisplay = item.entered_price_cents ? formatDollars(item.entered_price_cents) : '— —';
+    const lineTotalDisplay = lineTotal > 0 ? formatDollars(lineTotal) : '';
+    return `<div class="list-item-row ${checkedClass}" style="cursor:pointer;" onclick="openPriceModal(${item.id}, '${escapeHtml(item.name.replace(/'/g, "\\'"))}')">
+      <div style="width:20px;text-align:center;color:${item.checked ? '#39ff14' : '#444'};font-size:14px;">${item.checked ? '✓' : '○'}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:19px;font-weight:700;">${escapeHtml(item.name)}</div>
+        ${item.brand ? `<div style="font-size:12px;color:#666;">${escapeHtml(item.brand)}</div>` : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+        <button onclick="event.stopPropagation();adjustQty(${item.id},-1)" style="background:#1a1a1a;border:1px solid #2a2a2a;color:#666;width:24px;height:24px;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;">−</button>
+        <span style="font-size:13px;font-weight:700;color:#e8e8e8;min-width:20px;text-align:center;">${qty}</span>
+        <button onclick="event.stopPropagation();adjustQty(${item.id},1)" style="background:#1a1a1a;border:1px solid #2a2a2a;color:#666;width:24px;height:24px;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;">+</button>
+      </div>
+      <div style="text-align:right;flex-shrink:0;min-width:52px;">
+        <div style="font-size:16px;color:${item.entered_price_cents ? '#39ff14' : '#666'};font-weight:700;">${priceDisplay}</div>
+        ${lineTotalDisplay ? `<div style="font-size:12px;color:#888;font-weight:600;">${lineTotalDisplay}</div>` : ''}
+      </div>
+      <button onclick="event.stopPropagation();removeListItem(${item.id})" style="background:none;border:none;color:#444;font-size:16px;cursor:pointer;padding:0 4px;flex-shrink:0;">×</button>
+    </div>`;
+  }).join('');
+
+  document.getElementById('list-actions').style.display = 'flex';
+}
+
+function clearList() {
+  if (!confirm('Clear all items from your list?')) return;
+  STATE.listItems = [];
+  renderList();
+  showToast('List cleared');
+}
+
+async function removeListItem(itemId) {
+  if (!STATE.listId) return;
+  await api(`/api/mod_shopping/list/${STATE.listId}/items/${itemId}`, { method: 'DELETE' });
+  STATE.listItems = STATE.listItems.filter(i => i.id !== itemId);
+  renderList();
+}
+
+// ── Predictive Suggestions ─────────────────────────────────────────────────
+let _suggestDebounce = null;
+let _pendingSuggest = null;
+
+function handleListAddInput(q) {
+  clearTimeout(_suggestDebounce);
+  const dropdown = document.getElementById('suggestions-dropdown');
+  if (q.length < 1) { dropdown.style.display = 'none'; return; }
+
+  _suggestDebounce = setTimeout(async () => {
+    try {
+      const data = await api(`/api/mod_shopping/suggest?q=${encodeURIComponent(q)}`);
+      renderSuggestions(data.suggestions || []);
+    } catch { dropdown.style.display = 'none'; }
+  }, 200);
+}
+
+function renderSuggestions(suggestions) {
+  const dropdown = document.getElementById('suggestions-dropdown');
+  if (!suggestions.length) { dropdown.style.display = 'none'; return; }
+
+  dropdown.innerHTML = suggestions.map(s => `
+    <div class="search-result-row" style="font-size:14px;cursor:pointer;" onclick="fillSuggestion('${escapeHtml(s.name.replace(/'/g, "\\'"))}', '${s.source}')">
+      <div style="flex:1;">
+        <div style="font-weight:600;">${escapeHtml(s.name)}</div>
+        ${s.brand ? `<div style="font-size:11px;color:#666;">${escapeHtml(s.brand)}</div>` : ''}
+      </div>
+      <div style="font-size:10px;padding:2px 6px;border-radius:999px;${s.source === 'personal' ? 'background:rgba(57,255,20,0.1);color:#39ff14;' : 'background:rgba(255,255,255,0.05);color:#666;'}">${s.source === 'personal' ? 'personal' : 'catalog'}</div>
+    </div>`).join('');
+
+  dropdown.style.display = 'block';
+}
+
+function fillSuggestion(name, source) {
+  document.getElementById('list-add-input').value = name;
+  document.getElementById('suggestions-dropdown').style.display = 'none';
+  _pendingSuggest = name;
+}
+
+function hideSuggestions() {
+  document.getElementById('suggestions-dropdown').style.display = 'none';
+}
+
+async function confirmListAdd() {
+  const input = document.getElementById('list-add-input');
+  const name = (input.value.trim() || (_pendingSuggest || '')).trim();
+  if (!name) return;
+  _pendingSuggest = null;
+  input.value = '';
+  hideSuggestions();
+
+  // Save to personal items
+  try {
+    await api('/api/mod_shopping/personal-items', { method: 'POST', body: { item_name: name } });
+  } catch { /* non-fatal */ }
+
+  // Add to list
+  await addProductToList(name, '', '', '');
+}
+
+// ── Quantity adjustment ────────────────────────────────────────────────────
+async function adjustQty(itemId, delta) {
+  const item = STATE.listItems.find(i => i.id === itemId);
+  if (!item || !STATE.listId) return;
+  const newQty = Math.max(1, (item.quantity || 1) + delta);
+  await api(`/api/mod_shopping/list/${STATE.listId}/items/${itemId}`, {
+    method: 'PATCH',
+    body: { quantity: newQty }
+  });
+  item.quantity = newQty;
+  renderList();
+}
+
+// ── Price Entry ───────────────────────────────────────────────────────────
+function openPriceModal(itemId, itemName) {
+  const item = STATE.listItems.find(i => i.id === itemId);
+  if (!item) return;
+  window._priceItemId = itemId;
+  document.getElementById('price-item-name').textContent = itemName;
+  document.getElementById('price-input').value = '';
+  document.getElementById('price-modal').classList.add('open');
+  document.getElementById('price-input').focus();
+}
+
+function closePriceModal() {
+  document.getElementById('price-modal').classList.remove('open');
+}
+
+async function submitPrice() {
+  const price = parseFloat(document.getElementById('price-input').value);
+  if (!price || price <= 0) { showToast('Enter a valid price'); return; }
+  const cents = Math.round(price * 100);
+  const itemId = window._priceItemId;
+  if (!itemId || !STATE.listId) return;
+
+  const result = await api(`/api/mod_shopping/list/${STATE.listId}/items/${itemId}`, {
+    method: 'PATCH',
+    body: { checked: true, entered_price_cents: cents, confirmed: true }
+  });
+
+  const idx = STATE.listItems.findIndex(i => i.id === itemId);
+  if (idx !== -1) STATE.listItems[idx] = result.item;
+
+  closePriceModal();
+  renderList();
+  updateHeaderTotal();
+  checkSweepConditions();
+}
+
+function updateHeaderTotal() {
+  const total = STATE.listItems.filter(i => i.confirmed && i.entered_price_cents).reduce((s, i) => s + i.entered_price_cents * (i.quantity || 1), 0);
+  document.getElementById('total-header').textContent = formatDollars(total);
+}
+
+// ── Sweep CTA ──────────────────────────────────────────────────────────────
+async function checkSweepConditions() {
+  if (!STATE.listId || !STATE.selectedStore) return;
+  const total = STATE.listItems.filter(i => i.confirmed && i.entered_price_cents).reduce((s, i) => s + (i.entered_price_cents || 0), 0);
+  if (total < 500) return; // Only show after spending at least $5
+
+  try {
+    const [analysis, sweepDest] = await Promise.all([
+      api(`/api/mod_shopping/trip-analysis/${STATE.listId}`),
+      api('/api/mod_shopping/sweep-destination'),
+    ]);
+    if (analysis.has_prices) {
+      STATE.sweepData = { ...sweepDest, analysis };
+      showSweepCTA(STATE.sweepData);
+    }
+  } catch {}
+}
+
+async function showSweepCTA(sweepData) {
+  const { analysis, bucket, shortfall_pct } = sweepData;
+  const el = document.getElementById('sweep-cta');
+  el.style.display = 'block';
+
+  const isGoodDeal = analysis && analysis.trip_savings_cents > 0;
+  el.className = isGoodDeal ? 'sweep-banner' : 'sweep-banner-warn';
+
+  if (isGoodDeal) {
+    const savings = analysis.trip_savings_cents;
+    document.getElementById('sweep-icon').textContent = '💰';
+    document.getElementById('sweep-headline').textContent = `You saved ${formatDollars(savings)} vs your neighbors!`;
+    document.getElementById('sweep-body').textContent = `Your ${bucket} bucket is ${shortfall_pct}% behind this month. That ${formatDollars(savings)} goes directly there.`;
+  } else {
+    const overspend = Math.abs(analysis?.trip_savings_cents || 240);
+    document.getElementById('sweep-icon').textContent = '⚠️';
+    document.getElementById('sweep-headline').textContent = `You paid ${formatDollars(overspend)} more than average this trip.`;
+    document.getElementById('sweep-body').textContent = `Your ${bucket} bucket is ${shortfall_pct}% behind. Make up the difference — sweep it back.`;
+  }
+
+  document.getElementById('sweep-bucket-name').textContent = bucket.charAt(0).toUpperCase() + bucket.slice(1);
+}
+
+async function executeSweep() {
+  const total = STATE.listItems.filter(i => i.confirmed && i.entered_price_cents).reduce((s, i) => s + (i.entered_price_cents || 0), 0);
+  if (!STATE.sweepData) return;
+
+  const tripSavings = Math.abs(STATE.sweepData.analysis?.trip_savings_cents || 0);
+
+  try {
+    await api('/api/mod_shopping/sweep', {
+      method: 'POST',
+      body: {
+        bucket: STATE.sweepData.bucket,
+        amount_cents: total,
+        trip_savings_cents: tripSavings,
+        store_id: STATE.selectedStore?.id
+      }
+    });
+    showToast(`✓ Swept ${formatDollars(total)} into ${STATE.sweepData.bucket}`);
+    dismissSweep();
+  } catch {
+    showToast('Sweep failed — login to save');
+    goUpgrade();
+  }
+}
+
+function dismissSweep() {
+  document.getElementById('sweep-cta').style.display = 'none';
+}
+
+// ── Compare ────────────────────────────────────────────────────────────────
+async function goCompare() {
+  if (!STATE.listId) { showToast('Add items first'); return; }
+  if (STATE.listItems.length === 0) { showToast('List is empty'); return; }
+
+  const btn = document.querySelector('[onclick="goCompare()"]');
+  if (btn) { btn.textContent = '⏳ Loading...'; btn.disabled = true; }
+
+  try {
+    // FACTS user → full /optimize endpoint
+    if (STATE.isFactsUser) {
+      const latParam = STATE.lat ? `&lat=${STATE.lat}&lng=${STATE.lng}` : '';
+      const data = await api(`/api/mod_shopping/optimize/${STATE.listId}${latParam}`);
+      renderOptimizeResults(data);
+    } else {
+      // Free tier → cheapest-per-item
+      const data = await api(`/api/mod_shopping/optimize/${STATE.listId}/cheapest-per-item`);
+      renderFreeTierCompare(data);
+    }
+  } catch (e) {
+    showToast('Comparison failed');
+  } finally {
+    if (btn) { btn.textContent = '⚖ Compare Stores'; btn.disabled = false; }
+  }
+}
+
+function renderFreeTierCompare(data) {
+  const results = document.getElementById('compare-results');
+  const items = data.items || [];
+
+  if (!items.length) {
+    results.innerHTML = `
+      <div style="padding:16px;text-align:center;color:#444;font-size:11px;letter-spacing:1px;">
+        <div style="margin-bottom:8px;">💬</div>
+        Not priced near you yet — be the first to contribute!
+      </div>`;
+    switchTab('compare');
+    return;
+  }
+
+  const emojiMap = { grocery: '🛒', warehouse: '📦', big_box: '🏬', gas_station: '⛽', convenience: '🏪', unknown: '🏪' };
+
+  results.innerHTML = `
+    <div style="padding:12px 16px;">
+      <div style="font-size:13px;letter-spacing:2px;color:#666;margin-bottom:12px;font-weight:700;">CHEAPEST PICK PER ITEM</div>
+
+      <div style="margin-bottom:12px;">
+        ${items.map(item => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1a;">
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:600;">${escapeHtml(item.name)}</div>
+              <div style="font-size:10px;color:#666;margin-top:2px;">${emojiMap[item.category] || '🛒'} ${escapeHtml(item.store_name)}</div>
+            </div>
+            <div style="font-size:14px;font-weight:700;color:#39ff14;">${item.price_display}</div>
+          </div>`).join('')}
+      </div>
+
+      <div style="background:linear-gradient(135deg,#1a1a2e,#0a1a0a);border:1px solid rgba(201,162,39,0.3);border-radius:0.875rem;padding:14px;">
+        <div style="font-size:11px;color:#c9a227;font-weight:700;margin-bottom:6px;">⚠️ Going to multiple stores?</div>
+        <div style="font-size:10px;color:#94a3b8;line-height:1.5;margin-bottom:10px;">
+          FACTS Pro finds the <strong style="color:#e8e8e8;">ONE store</strong> that gives you the cheapest total trip — automatically.
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="font-size:11px;color:#34d399;">→ Get FACTS Free →</div>
+          <button onclick="goUpgrade()" class="btn-neon" style="padding:7px 12px;font-size:10px;letter-spacing:1px;border-radius:0.5rem;margin-left:auto;">Upgrade</button>
+        </div>
+      </div>
+    </div>`;
+
+  switchTab('compare');
+}
+
+function renderOptimizeResults(data) {
+  const results = document.getElementById('compare-results');
+
+  // Edge cases
+  if (data.edge_case === 'empty_list') {
+    results.innerHTML = '<div style="text-align:center;padding:2rem;color:#666;font-size:11px;letter-spacing:1px;">Add items to your list to compare stores.</div>';
+    switchTab('compare');
+    return;
+  }
+  if (data.edge_case === 'no_prices_nearby') {
+    results.innerHTML = `
+      <div style="padding:16px;text-align:center;color:#666;font-size:11px;line-height:1.6;">
+        <div style="font-size:1.5rem;margin-bottom:8px;">📍</div>
+        Not priced near you yet — be the first to contribute!<br>
+        <span style="color:#444;font-size:10px;">Add prices at stores you visit to enable comparisons.</span>
+      </div>`;
+    switchTab('compare');
+    return;
+  }
+
+  const stores = data.stores_ranked || [];
+  const cheapest = data.cheapest_store;
+  const sweep = data.sweep;
+
+  if (!stores.length) {
+    results.innerHTML = '<div style="text-align:center;padding:2rem;color:#666;font-size:11px;">No price data available yet.</div>';
+    switchTab('compare');
+    return;
+  }
+
+  const badgeMap = { grocery: '🛒 Grocery', warehouse: '📦 Warehouse', big_box: '🏬 Big Box', gas_station: '⛽ Gas', convenience: '🏪 Conv.', unknown: '🏪' };
+
+  let html = `<div style="padding:12px 16px;">`;
+
+  // ── Cheapest Store Hero ────────────────────────────────────────────────
+  const savingDisplay = data.savings_display || `$${(data.savings_vs_worst_cents / 100).toFixed(2)}`;
+  const annDisplay = data.annualized_display || `$${data.annualized_savings_cents || 0}`;
+
+  html += `
+    <div style="background:linear-gradient(135deg,#001a0f,#001408);border:1px solid rgba(52,211,153,0.25);border-radius:0.875rem;padding:14px;margin-bottom:12px;">
+      <div style="font-size:10px;letter-spacing:2px;color:#34d399;margin-bottom:6px;">CHEAPEST TRIP</div>
+      <div style="font-size:20px;font-weight:700;color:#34d399;">${escapeHtml(cheapest?.store_name || '?')}</div>
+      <div style="font-size:13px;color:#e8e8e8;margin-top:2px;">${cheapest?.total_cart_cost || '$0.00'} <span style="color:#666;font-size:11px;">total</span></div>
+
+      ${data.savings_vs_worst_cents > 0 ? `
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(52,211,153,0.15);">
+        <div style="font-size:11px;color:#666;margin-bottom:2px;">Saves you</div>
+        <div style="font-size:22px;font-weight:700;color:#39ff14;">${savingDisplay}</div>
+        <div style="font-size:10px;color:#666;margin-top:2px;">vs most expensive · <strong style="color:#e8e8e8;">${annDisplay}/year</strong> (2 trips/mo)</div>
+      </div>` : ''}
+    </div>`;
+
+  // ── FACTS Sweep CTA Card ───────────────────────────────────────────────
+  if (sweep && sweep.per_year > 0) {
+    const gapDisplay = sweep.gap_display || `$${(sweep.gap_cents / 100).toFixed(2)}`;
+    const shortfallDisplay = `${sweep.shortfall_pct}%`;
+    html += `
+      <div style="background:linear-gradient(135deg,#0a1a08,#0a0a0a);border:1px solid rgba(57,255,20,0.2);border-radius:0.875rem;padding:14px;margin-bottom:12px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="font-size:1.4rem;flex-shrink:0;">🪣</div>
+          <div style="flex:1;">
+            <div style="font-size:11px;font-weight:700;color:#39ff14;margin-bottom:4px;">FACTS sweeps ${sweep.per_year}/year into your ${sweep.bucket_display || sweep.bucket} bucket</div>
+            <div style="font-size:10px;color:#94a3b8;line-height:1.5;margin-bottom:8px;">
+              You're <strong style="color:#e8e8e8;">${shortfallDisplay} behind</strong> this month. That's <strong style="color:#e8e8e8;">${gapDisplay}</strong> needed to close the gap.
+            </div>
+            <div style="font-size:9px;color:#444;line-height:1.5;margin-bottom:10px;padding:8px;background:#0a0a0a;border-radius:0.5rem;">
+              Every dollar you save on groceries is working for your future, not just your next trip.
+            </div>
+            <button onclick="executeSweepFromCompare('${sweep.bucket}')" class="btn-neon" style="width:100%;padding:9px;font-size:10px;letter-spacing:1.5px;border-radius:0.5rem;">→ Sweep into ${sweep.bucket_display || sweep.bucket} →</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── All Stores Ranked ───────────────────────────────────────────────
+  html += `<div style="font-size:10px;letter-spacing:2px;color:#666;margin-bottom:8px;">ALL STORES</div>`;
+  html += stores.map((s, i) => {
+    const isWinner = i === 0;
+    const badge = badgeMap[s.category] || '🏪';
+    const savings = data.savings_vs_worst_cents > 0 && !isWinner
+      ? `<div style="font-size:9px;color:#666;">Save ${savingDisplay} vs here</div>`
+      : '';
+    return `
+      <div class="${isWinner ? 'card-emerald' : 'card'}" style="padding:10px 12px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:12px;font-weight:600;">${isWinner ? '🥇 ' : ''}${escapeHtml(s.store_name || '')}</div>
+            <div style="font-size:10px;color:#666;margin-top:2px;">${badge} ${s.store_address || ''}</div>
+            ${savings}
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:14px;font-weight:700;color:${isWinner ? '#34d399' : '#e8e8e8'};">$${s.total_cart_cost}</div>
+            ${s.items_unavailable && s.items_unavailable.length > 0 ? `<div style="font-size:9px;color:#444;">${s.items_unavailable.length} no price</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  html += `</div>`;
+
+  results.innerHTML = html;
+  switchTab('compare');
+}
+
+async function executeSweepFromCompare(bucket) {
+  if (!STATE.listId) return;
+  // Re-run sweep CTA logic
+  try {
+    await api('/api/mod_shopping/sweep', {
+      method: 'POST',
+      body: {
+        bucket: bucket,
+        amount_cents: 0,
+        trip_savings_cents: 0,
+        store_id: STATE.selectedStore?.id || null
+      }
+    });
+    showToast(`✓ Sweep ready: ${bucket}`);
+  } catch {
+    showToast('Login to enable sweep');
+  }
+}
+
+// ── Receipt Scan ───────────────────────────────────────────────────────────
+function openReceiptScan() {
+  document.getElementById('receipt-modal').classList.add('open');
+  document.getElementById('receipt-capture').style.display = 'block';
+  document.getElementById('receipt-results').style.display = 'none';
+}
+
+function triggerCamera() {
+  document.getElementById('receipt-camera').click();
+}
+
+function handleReceiptFile(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+
+  // Show preview
+  const preview = document.getElementById('camera-preview');
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    preview.innerHTML = `<img src="${e.target.result}" style="max-width:100%;max-height:200px;border-radius:0.75rem;object-fit:contain;">`;
+    scanReceipt(file);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function scanReceipt(file) {
+  const formData = new FormData();
+  formData.append('receipt', file);
+  if (STATE.listId) formData.append('list_id', STATE.listId);
+  if (STATE.selectedStore?.id) formData.append('store_id', STATE.selectedStore.id);
+
+  try {
+    const res = await fetch('/api/mod_shopping/receipt-scan', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    renderReceiptResults(data);
+  } catch {
+    showToast('Receipt scan failed');
+  }
+}
+
+function renderReceiptResults(data) {
+  document.getElementById('receipt-capture').style.display = 'none';
+  document.getElementById('receipt-results').style.display = 'block';
+
+  const parsed = data.parsed_items || [];
+  window._lastScanId = data.scan_id;
+
+  // Build side-by-side: your list vs receipt
+  const listItemsMap = {};
+  STATE.listItems.forEach(item => {
+    listItemsMap[item.name.toLowerCase()] = item;
+  });
+
+  document.getElementById('receipt-parsed').innerHTML = `
+    <div style="margin-bottom:10px;font-size:10px;color:#666;letter-spacing:2px;text-transform:uppercase;">📷 Receipt Scan Results</div>
+
+    <!-- Header row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;">
+      <div style="font-size:9px;letter-spacing:1px;color:#444;text-transform:uppercase;">Your List</div>
+      <div style="font-size:9px;letter-spacing:1px;color:#444;text-transform:uppercase;">Receipt</div>
+    </div>
+
+    ${parsed.map(item => {
+      const matched = listItemsMap[item.name.toLowerCase()];
+      const matchIcon = matched ? '✓' : '???';
+      const matchColor = matched ? '#39ff14' : '#f59e0b';
+      return `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 0;border-bottom:1px solid #1a1a1a;align-items:center;">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:${matched ? '#e8e8e8' : '#f59e0b'};">${escapeHtml(item.name)}</div>
+          <div style="font-size:10px;color:#666;">${matched ? escapeHtml(matched.brand || '—') : 'Not in your list'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="font-size:12px;color:${matchColor};font-weight:700;flex:1;">${matchIcon}</div>
+          <div style="font-size:13px;color:#39ff14;font-weight:700;">${formatDollars(item.price_cents)}</div>
+          <input type="checkbox" data-name="${escapeHtml(item.name)}" data-price="${item.price_cents}" ${matched ? 'checked' : ''} style="accent-color:#39ff14;width:18px;height:18px;cursor:pointer;">
+        </div>
+      </div>`;
+    }).join('')}
+    ${parsed.length === 0 ? '<div style="text-align:center;padding:1rem;color:#666;font-size:11px;">No items parsed — try again with clearer photo.</div>' : ''}
+
+    <div style="padding:10px 0;font-size:10px;color:#444;text-align:center;border-top:1px solid #1a1a1a;margin-top:6px;">${data.note || 'Review each price. Checkbox = confirm.'}</div>
+  `;
+
+  window._parsedItems = parsed;
+}
+
+function confirmAllPrices() {
+  const checkboxes = document.querySelectorAll('#receipt-parsed input[type="checkbox"]');
+  const items = Array.from(checkboxes).map(cb => ({
+    name: decodeURIComponent(atob(cb.dataset.name)),
+    price_cents: parseInt(cb.dataset.price),
+    confirmed: cb.checked
+  }));
+
+  api('/api/mod_shopping/receipt-confirm', {
+    method: 'POST',
+    body: { scan_id: window._lastScanId, list_id: STATE.listId, items }
+  }).then(() => {
+    showToast('Prices confirmed');
+    closeReceiptModal();
+    loadList();
+    checkSweepConditions();
+  }).catch(() => {
+    showToast('Failed to confirm — login to save prices');
+    goUpgrade();
+  });
+}
+
+function retakeReceipt() {
+  document.getElementById('receipt-capture').style.display = 'block';
+  document.getElementById('receipt-results').style.display = 'none';
+  document.getElementById('receipt-camera').value = '';
+  document.getElementById('camera-preview').innerHTML = `<div style="text-align:center;color:#666;">
+    <div style="font-size:2rem;margin-bottom:8px;">📷</div>
+    <div style="font-size:11px;letter-spacing:1px;">TAP TO CAPTURE</div>
+  </div>`;
+}
+
+function closeReceiptModal() {
+  document.getElementById('receipt-modal').classList.remove('open');
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  STATE.currentTab = tab;
+  document.querySelectorAll('.tab-view').forEach(el => el.style.display = 'none');
+  document.getElementById(`view-${tab}`).style.display = 'block';
+
+  // Update active tab styling
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.style.color = '#666';
+    btn.style.borderBottomColor = 'transparent';
+    btn.style.borderBottom = '2px solid transparent';
+  });
+  const activeBtn = document.getElementById(`tab-${tab}`);
+  if (activeBtn) {
+    activeBtn.style.color = '#39ff14';
+    activeBtn.style.borderBottom = '2px solid #39ff14';
+  }
+
+  if (tab === 'compare') loadCompareTab();
+  if (tab === 'list') loadList();
+}
+
+function loadCompareTab() {
+  if (STATE.listItems.length === 0) {
+    document.getElementById('compare-placeholder').style.display = 'block';
+    document.getElementById('compare-results').innerHTML = '';
+  } else {
+    document.getElementById('compare-placeholder').style.display = 'none';
+  }
+}
+
+// ── Radius / Category filters ─────────────────────────────────────────────
+function setRadius(r) {
+  STATE.radius = r;
+  document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById(`r${r}`);
+  if (btn) btn.classList.add('active');
+  loadStores();
+}
+
+function setCategory(cat) {
+  STATE.category = cat;
+  document.querySelectorAll('[id^="cat-"]').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById(`cat-${cat}`);
+  if (btn) btn.classList.add('active');
+  loadStores();
+}
+
+// ── Utilities ──────────────────────────────────────────────────────────────
+function formatDollars(cents) {
+  return '$' + (cents / 100).toFixed(2);
+}
+
+let _toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ── Init ────────────────────────────────────────────────────────────────────
+(async function init() {
+  await getUser();
+  detectLocation();
+
+  // Check for existing list
+  try {
+    const data = await api('/api/mod_shopping/list');
+    if (data.lists && data.lists.length) {
+      STATE.listId = data.lists[0].id;
+      await loadList();
+    }
+  } catch {}
+
+  switchTab('radar');
+})();
+</script>
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

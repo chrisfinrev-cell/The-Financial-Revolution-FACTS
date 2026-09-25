@@ -1,0 +1,3417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings — FACTS</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-deep: #0a0f1a;
+      --bg-card: #111827;
+      --bg-elevated: #1a2332;
+      --accent-green: #10b981;
+      --accent-gold: #f59e0b;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-rose: #f43f5e;
+      --accent-cyan: #06b6d4;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #1e293b;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, h5 { font-family: 'Space Grotesk', sans-serif; }
+
+    /* ─── Header ─── */
+    .settings-header {
+      background: rgba(10,15,26,0.97);
+      border-bottom: 1px solid rgba(201,162,39,0.14);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 100;
+      padding: 0 24px;
+      display: flex; align-items: center; gap: 16px;
+      height: 56px;
+    }
+    .settings-header .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--text-secondary); text-decoration: none;
+      font-size: 0.85rem; font-weight: 500;
+      padding: 6px 10px; border-radius: 7px;
+      transition: all 0.15s ease;
+    }
+    .settings-header .back-link:hover {
+      color: #e8c96a; background: rgba(201,162,39,0.08);
+    }
+    .settings-header .header-title {
+      font-size: 1rem; font-weight: 600; color: var(--text-primary);
+    }
+
+    /* ─── Layout ─── */
+    .settings-layout {
+      max-width: 900px; margin: 0 auto;
+      padding: 32px 24px 80px;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .settings-layout {
+        grid-template-columns: 1fr;
+        padding: 20px 16px 80px;
+        gap: 0;
+      }
+    }
+
+    /* ─── Sidebar Nav ─── */
+    .settings-nav {
+      position: sticky; top: 72px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    @media (max-width: 768px) {
+      .settings-nav {
+        position: static;
+        display: flex; overflow-x: auto;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        scrollbar-width: none;
+      }
+      .settings-nav::-webkit-scrollbar { display: none; }
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px;
+      font-size: 0.875rem; font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid var(--border);
+      background: none; border-top: none; border-right: none;
+      text-align: left; width: 100%; text-decoration: none;
+    }
+    .nav-item:last-child { border-bottom: none; }
+    .nav-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.03); }
+    .nav-item.active {
+      color: var(--accent-green);
+      background: rgba(16,185,129,0.06);
+      border-left-color: var(--accent-green);
+    }
+    .nav-item.danger { color: var(--accent-rose); }
+    .nav-item.danger:hover { background: rgba(244,63,94,0.06); }
+    .nav-item.danger.active { color: var(--accent-rose); border-left-color: var(--accent-rose); background: rgba(244,63,94,0.06); }
+
+    @media (max-width: 768px) {
+      .nav-item {
+        border-left: none; border-bottom: none;
+        border-right: 1px solid var(--border);
+        flex-shrink: 0; white-space: nowrap;
+        border-bottom: 3px solid transparent;
+        padding: 10px 14px;
+        border-top: none;
+      }
+      .nav-item:last-child { border-right: none; }
+      .nav-item.active {
+        border-left-color: transparent;
+        border-bottom-color: var(--accent-green);
+        border-right: 1px solid var(--border);
+      }
+      .nav-item.danger.active { border-bottom-color: var(--accent-rose); }
+    }
+
+    /* ─── Sections ─── */
+    .settings-content { display: flex; flex-direction: column; gap: 24px; }
+
+    .settings-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      scroll-margin-top: 80px;
+    }
+
+    .section-header {
+      padding: 20px 24px 0;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-icon {
+      font-size: 1.25rem;
+      width: 40px; height: 40px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-title-group { flex: 1; }
+    .section-title {
+      font-size: 1rem; font-weight: 700; color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .section-subtitle {
+      font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;
+    }
+    .section-body { padding: 20px 24px 24px; }
+
+    /* ─── Form Elements ─── */
+    .form-group { margin-bottom: 18px; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label, .form-label {
+      display: block; font-size: 0.82rem; font-weight: 600;
+      color: var(--text-secondary); margin-bottom: 7px;
+      letter-spacing: 0.01em;
+    }
+    @media (max-width: 600px) {
+      .form-row-grid { grid-template-columns: 1fr !important; }
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .form-input:focus {
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 10px 20px; border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.875rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s ease;
+      border: none;
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--accent-green); color: #000;
+    }
+    .btn-primary:hover:not(:disabled) { background: #0ea271; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: var(--bg-elevated); color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.08); }
+
+    .btn-danger {
+      background: rgba(244,63,94,0.12); color: var(--accent-rose);
+      border: 1px solid rgba(244,63,94,0.25);
+    }
+    .btn-danger:hover:not(:disabled) { background: rgba(244,63,94,0.2); }
+
+    .btn-outline-green {
+      background: transparent; color: var(--accent-green);
+      border: 1.5px solid var(--accent-green);
+    }
+    .btn-outline-green:hover:not(:disabled) { background: rgba(16,185,129,0.1); }
+
+    /* ─── Alerts / Messages ─── */
+    .alert {
+      padding: 10px 14px; border-radius: 8px;
+      font-size: 0.85rem; line-height: 1.4; margin-top: 14px;
+      display: none;
+    }
+    .alert-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: var(--accent-green); }
+    .alert-error { background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.25); color: var(--accent-rose); }
+    .alert-info { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); color: #93c5fd; }
+    .alert-warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: var(--accent-gold); }
+    .alert.show { display: block; }
+
+    /* ─── Avatar ─── */
+    .avatar-section {
+      display: flex; align-items: center; gap: 20px;
+      flex-wrap: wrap;
+    }
+    .avatar-preview {
+      width: 72px; height: 72px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; font-weight: 700; color: #000;
+      background: var(--accent-green);
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.1);
+      position: relative;
+    }
+    .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+    .avatar-colors {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;
+    }
+    .color-swatch {
+      width: 28px; height: 28px; border-radius: 50%;
+      cursor: pointer; transition: transform 0.15s ease;
+      border: 2px solid transparent;
+    }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.selected { border-color: #fff; transform: scale(1.1); }
+
+    /* ─── Toggle Switch ─── */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .toggle-row:first-child { padding-top: 0; }
+    .toggle-info { flex: 1; padding-right: 24px; }
+    .toggle-label {
+      font-size: 0.9rem; font-weight: 600; color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+    .toggle-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+
+    .toggle-switch { position: relative; flex-shrink: 0; }
+    .toggle-switch input[type="checkbox"] {
+      opacity: 0; width: 0; height: 0; position: absolute;
+    }
+    .toggle-slider {
+      display: block; width: 44px; height: 24px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 24px; cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      position: relative;
+    }
+    .toggle-slider::after {
+      content: ''; position: absolute;
+      left: 3px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--text-muted);
+      transition: left 0.2s ease, background 0.2s ease;
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: rgba(16,185,129,0.2);
+      border-color: var(--accent-green);
+    }
+    .toggle-switch input:checked + .toggle-slider::after {
+      left: calc(100% - 19px);
+      background: var(--accent-green);
+    }
+
+    /* ─── Plan Card ─── */
+    .plan-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .plan-card.active-plan {
+      border-color: rgba(16,185,129,0.35);
+      background: rgba(16,185,129,0.04);
+    }
+    .plan-name { font-weight: 700; font-size: 0.95rem; }
+    .plan-price { font-size: 0.85rem; color: var(--text-secondary); margin-top: 3px; }
+    .plan-badge-active {
+      background: rgba(16,185,129,0.2); color: var(--accent-green);
+      font-size: 0.72rem; font-weight: 700;
+      padding: 3px 8px; border-radius: 20px;
+      border: 1px solid rgba(16,185,129,0.3);
+    }
+
+    /* ─── Plaid Account Row ─── */
+    .plaid-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .plaid-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .plaid-row:first-child { padding-top: 0; }
+    .plaid-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .plaid-info { flex: 1; }
+    .plaid-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+    .plaid-meta { font-size: 0.78rem; color: var(--text-muted); }
+
+    /* ─── Coming Soon Badge ─── */
+    .badge-coming-soon {
+      display: inline-block;
+      background: rgba(139,92,246,0.12);
+      color: var(--accent-purple);
+      border: 1px solid rgba(139,92,246,0.25);
+      font-size: 0.72rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px;
+      letter-spacing: 0.03em;
+    }
+
+    /* ─── Danger Zone ─── */
+    .danger-zone {
+      border-color: rgba(244,63,94,0.2);
+    }
+    .danger-zone .section-icon { background: rgba(244,63,94,0.08); border-color: rgba(244,63,94,0.2); }
+    .danger-item {
+      display: flex; align-items: start; justify-content: space-between;
+      gap: 16px; padding: 16px 0;
+      border-bottom: 1px solid var(--border); flex-wrap: wrap;
+    }
+    .danger-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .danger-item:first-child { padding-top: 0; }
+    .danger-item-info h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
+    .danger-item-info p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; max-width: 380px; }
+
+    /* ─── Delete Confirm Modal ─── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 1000;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      width: 100%; max-width: 440px;
+      padding: 28px;
+    }
+    .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+    .modal-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
+    .modal-warning-list {
+      background: rgba(244,63,94,0.06);
+      border: 1px solid rgba(244,63,94,0.18);
+      border-radius: 8px; padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+    .modal-warning-list li {
+      font-size: 0.82rem; color: var(--text-secondary);
+      margin-bottom: 4px; list-style: none; padding-left: 0;
+    }
+    .modal-warning-list li::before { content: '• '; color: var(--accent-rose); }
+
+    /* ─── Loading Spinner ─── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Pro Gate ─── */
+    .pro-gate {
+      text-align: center; padding: 32px;
+      background: linear-gradient(135deg, rgba(139,92,246,0.06), rgba(59,130,246,0.06));
+      border-radius: 12px;
+    }
+    .pro-gate h4 { margin-bottom: 8px; }
+    .pro-gate p { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 16px; }
+
+    /* ─── Photo Upload ─── */
+    .photo-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px; text-align: center;
+      cursor: pointer; transition: border-color 0.15s ease;
+      margin-top: 12px;
+    }
+    .photo-upload-area:hover { border-color: var(--accent-green); }
+    .photo-upload-area input[type="file"] { display: none; }
+
+    /* ─── Divider ─── */
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* ─── Responsive helpers ─── */
+    .flex-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .ml-auto { margin-left: auto; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="settings-header">
+  <a href="/app" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Dashboard
+  </a>
+  <div class="header-title">⚙️ Account Settings</div>
+  <div id="header-user-name" style="margin-left:auto;font-size:0.8rem;color:var(--text-muted);"></div>
+</header>
+
+<div class="settings-layout">
+  <!-- Sidebar Nav -->
+  <nav class="settings-nav" id="settings-nav">
+    <button class="nav-item active" onclick="scrollTo('profile')">👤 Profile</button>
+    <button class="nav-item" onclick="scrollTo('email')">✉️ Change Email</button>
+    <button class="nav-item" onclick="scrollTo('password')">🔑 Password</button>
+    <button class="nav-item" onclick="scrollTo('subscription')">💳 Subscription</button>
+    <button class="nav-item" onclick="scrollTo('notifications')">🔔 Notifications</button>
+    <button class="nav-item" onclick="scrollTo('connected')">🏦 Connected Accounts</button>
+    <button class="nav-item" onclick="scrollTo('security')">🛡️ Security</button>
+    <button class="nav-item" onclick="scrollTo('succession')" id="nav-succession" style="display:none;">⚜️ Future Generations</button>
+    <button class="nav-item" onclick="scrollTo('heir')" id="nav-heir" style="display:none;">🗝️ Succession Key</button>
+    <button class="nav-item" onclick="scrollTo('vantage')" id="nav-vantage">👁 Vantage Point</button>
+    <button class="nav-item" onclick="scrollTo('disclaimer')">⚖️ Disclaimer</button>
+    <button class="nav-item danger" onclick="scrollTo('danger')">⚠️ Danger Zone</button>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="settings-content">
+
+    <!-- ═══ 1. PROFILE ═══ -->
+    <div class="settings-section" id="section-profile">
+      <div class="section-header">
+        <div class="section-icon">👤</div>
+        <div class="section-title-group">
+          <div class="section-title">Profile</div>
+          <div class="section-subtitle">Your name and avatar shown throughout the app</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- Avatar -->
+        <div class="form-group">
+          <label>Profile Avatar</label>
+          <div class="avatar-section">
+            <div class="avatar-preview" id="avatar-preview">
+              <span id="avatar-initials">?</span>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:10px;">
+                Choose a color for your initials avatar, or upload a photo.
+              </div>
+              <div class="avatar-colors" id="avatar-colors">
+                <div class="color-swatch selected" data-color="#10b981" style="background:#10b981;" onclick="selectColor('#10b981', this)" title="Green"></div>
+                <div class="color-swatch" data-color="#3b82f6" style="background:#3b82f6;" onclick="selectColor('#3b82f6', this)" title="Blue"></div>
+                <div class="color-swatch" data-color="#8b5cf6" style="background:#8b5cf6;" onclick="selectColor('#8b5cf6', this)" title="Purple"></div>
+                <div class="color-swatch" data-color="#f59e0b" style="background:#f59e0b;" onclick="selectColor('#f59e0b', this)" title="Amber"></div>
+                <div class="color-swatch" data-color="#f43f5e" style="background:#f43f5e;" onclick="selectColor('#f43f5e', this)" title="Rose"></div>
+                <div class="color-swatch" data-color="#06b6d4" style="background:#06b6d4;" onclick="selectColor('#06b6d4', this)" title="Cyan"></div>
+                <div class="color-swatch" data-color="#84cc16" style="background:#84cc16;" onclick="selectColor('#84cc16', this)" title="Lime"></div>
+                <div class="color-swatch" data-color="#ec4899" style="background:#ec4899;" onclick="selectColor('#ec4899', this)" title="Pink"></div>
+              </div>
+
+              <!-- Photo upload -->
+              <div class="photo-upload-area" id="photo-upload-area" onclick="document.getElementById('photo-file-input').click()" style="margin-top:12px;">
+                <input type="file" id="photo-file-input" accept="image/*" onchange="handlePhotoUpload(this)">
+                <div style="font-size:1.5rem;margin-bottom:6px;">📷</div>
+                <div style="font-size:0.82rem;color:var(--text-secondary);">Click to upload a photo</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">JPG, PNG, GIF — max 500KB</div>
+              </div>
+              <div id="photo-remove" style="display:none;margin-top:8px;">
+                <button class="btn btn-secondary" onclick="removePhoto()" style="font-size:0.8rem;padding:6px 12px;">✕ Remove photo</button>
+              </div>
+            </div>
+          </div>
+          <div id="avatar-alert" class="alert"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Display Name -->
+        <div class="form-group">
+          <label for="display-name-input">Display Name</label>
+          <input type="text" id="display-name-input" class="form-input"
+            placeholder="How you want to appear in the app (e.g. CJ, Carlos)"
+            maxlength="100">
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">
+            Leave blank to show your full name or email instead.
+          </div>
+        </div>
+
+        <div class="flex-row">
+          <button class="btn btn-primary" id="save-profile-btn" onclick="saveProfile()">Save Profile</button>
+          <div id="profile-alert" class="alert" style="margin-top:0;flex:1;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 2. CHANGE EMAIL ═══ -->
+    <div class="settings-section" id="section-email">
+      <div class="section-header">
+        <div class="section-icon">✉️</div>
+        <div class="section-title-group">
+          <div class="section-title">Change Email</div>
+          <div class="section-subtitle">Requires password confirmation and email verification</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="form-group">
+          <label>Current Email</label>
+          <div id="current-email-display" style="font-size:0.9rem;color:var(--text-secondary);padding:10px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;">
+            Loading…
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="new-email-input">New Email Address</label>
+          <input type="email" id="new-email-input" class="form-input" placeholder="your@newemail.com">
+        </div>
+        <div class="form-group">
+          <label for="email-password-input">Confirm Your Password</label>
+          <input type="password" id="email-password-input" class="form-input" placeholder="Enter your current password">
+        </div>
+        <button class="btn btn-primary" id="change-email-btn" onclick="requestEmailChange()">Send Verification Email</button>
+        <div id="email-alert" class="alert"></div>
+      </div>
+    </div>
+
+    <!-- ═══ 3. CHANGE PASSWORD ═══ -->
+    <div class="settings-section" id="section-password">
+      <div class="section-header">
+        <div class="section-icon">🔑</div>
+        <div class="section-title-group">
+          <div class="section-title">Change Password</div>
+          <div class="section-subtitle">Minimum 10 characters, must include a letter and a number</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="form-group">
+          <label for="current-password-input">Current Password</label>
+          <input type="password" id="current-password-input" class="form-input" placeholder="Your current password">
+        </div>
+        <div class="form-group">
+          <label for="new-password-input">New Password</label>
+          <input type="password" id="new-password-input" class="form-input" placeholder="At least 10 characters">
+        </div>
+        <div class="form-group">
+          <label for="confirm-password-input">Confirm New Password</label>
+          <input type="password" id="confirm-password-input" class="form-input" placeholder="Repeat your new password"
+            onkeydown="if(event.key==='Enter')changePassword()">
+        </div>
+        <button class="btn btn-primary" id="change-password-btn" onclick="changePassword()">Update Password</button>
+        <div id="password-alert" class="alert"></div>
+      </div>
+    </div>
+
+    <!-- ═══ 4. SUBSCRIPTION & PAYMENT ═══ -->
+    <div class="settings-section" id="section-subscription">
+      <div class="section-header">
+        <div class="section-icon">💳</div>
+        <div class="section-title-group">
+          <div class="section-title">Subscription & Payment</div>
+          <div class="section-subtitle">Manage your subscription and payment method</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div id="subscription-content">
+          <div style="text-align:center;padding:24px;color:var(--text-muted);">
+            <div class="spinner" style="margin:0 auto 12px;"></div>Loading…
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 5. NOTIFICATIONS ═══ -->
+    <div class="settings-section" id="section-notifications">
+      <div class="section-header">
+        <div class="section-icon">🔔</div>
+        <div class="section-title-group">
+          <div class="section-title">Email Notifications</div>
+          <div class="section-subtitle">Choose which emails you receive from FACTS</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div id="notif-rows">
+          <!-- Bill Due Reminders -->
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Bill Due Reminders</div>
+              <div class="toggle-desc">Email reminders when bills are coming up</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notif-bill" onchange="saveNotif()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <!-- Budget Overspend -->
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Budget Overspend Warnings</div>
+              <div class="toggle-desc">Alert when a spending category exceeds its allocation</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notif-budget" onchange="saveNotif()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <!-- Subscription Renewal -->
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Subscription Renewal Reminders</div>
+              <div class="toggle-desc">Remind me before my subscription renews</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notif-renewal" onchange="saveNotif()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <!-- FG Commission -->
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Future Generations Commission Notifications</div>
+              <div class="toggle-desc">Alert when you earn affiliate commissions</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notif-fg" onchange="saveNotif()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <!-- Product Updates -->
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Product Updates & New Features</div>
+              <div class="toggle-desc">Occasional emails about new FACTS features</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notif-updates" onchange="saveNotif()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div id="notif-alert" class="alert" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <!-- ═══ 6. CONNECTED ACCOUNTS ═══ -->
+    <div class="settings-section" id="section-connected">
+      <div class="section-header" style="display:flex;align-items:center;gap:12px;padding:20px 24px 0;">
+        <div class="section-icon">🏦</div>
+        <div class="section-title-group" style="flex:1;">
+          <div class="section-title">Bank Connectivity</div>
+          <div class="section-subtitle">Connect your bank via Plaid for verified balances and transaction sync</div>
+        </div>
+        <!-- SovereignSyncButton (injected by JS) -->
+        <div id="sovereign-sync-container" style="flex-shrink:0;"></div>
+      </div>
+      <div class="section-body">
+        <!-- Zero-Knowledge Badge -->
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.15);border-radius:10px;margin-bottom:16px;">
+          <span style="font-size:0.85rem;">🔒</span>
+          <span style="font-size:0.78rem;color:var(--text-muted);">FACTS never sees your bank credentials — Plaid handles authentication directly</span>
+        </div>
+
+        <!-- Stale Data Warning -->
+        <div id="stale-data-warning" style="display:none;padding:10px 14px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span>⚠️</span>
+            <div>
+              <div style="font-size:0.82rem;font-weight:600;color:#f59e0b;">Stale Data Warning</div>
+              <div style="font-size:0.78rem;color:var(--text-muted);">Your bank data is over 7 days old. Sync to keep your Sovereign Health Score accurate.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Plaid content (connections list + connect button) -->
+        <div id="plaid-accounts-content">
+          <div style="text-align:center;padding:24px;color:var(--text-muted);">
+            <div class="spinner" style="margin:0 auto 12px;"></div>Loading…
+          </div>
+        </div>
+        <div id="plaid-alert" class="alert" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- ═══ 7. SECURITY ═══ -->
+    <div class="settings-section" id="section-security">
+      <div class="section-header">
+        <div class="section-icon">🛡️</div>
+        <div class="section-title-group">
+          <div class="section-title">Security</div>
+          <div class="section-subtitle">Two-factor authentication and account protection</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- Zero-Knowledge Security Badge -->
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.18);border-radius:10px;margin-bottom:16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span style="font-size:0.78rem;color:#64748b;font-weight:500;">🔒 Zero-Knowledge Security — Your financial data is encrypted and never shared</span>
+        </div>
+
+        <!-- Auto-logout Timeout Setting -->
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;">
+          <div style="display:flex;align-items:start;gap:12px;margin-bottom:16px;">
+            <div style="font-size:1.5rem;">⏰</div>
+            <div style="flex:1;">
+              <div style="font-size:0.9rem;font-weight:700;margin-bottom:4px;">Auto-logout Timer</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.5;">Choose how long you can be inactive before being automatically logged out for security.</div>
+            </div>
+          </div>
+          <div style="margin-bottom:12px;">
+            <label for="settings-timeout-select" style="display:block;font-size:0.82rem;font-weight:500;color:var(--text-muted);margin-bottom:8px;">Inactivity timeout</label>
+            <select id="settings-timeout-select" onchange="saveTimeoutPreferenceSetting()"
+              style="width:100%;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:0.9rem;cursor:pointer;">
+              <option value="5">5 minutes</option>
+              <option value="10">10 minutes</option>
+              <option value="15" selected>15 minutes (default)</option>
+              <option value="30">30 minutes</option>
+              <option value="60">60 minutes</option>
+            </select>
+          </div>
+          <div id="settings-timeout-success" style="display:none;padding:8px 12px;background:rgba(16,185,129,0.1);border:1px solid var(--accent-green);border-radius:8px;color:var(--accent-green);font-size:0.82rem;text-align:center;margin-bottom:12px;">
+            ✓ Timeout preference saved
+          </div>
+          <div style="padding:10px 14px;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:8px;">
+            <p style="font-size:0.79rem;color:var(--text-muted);line-height:1.4;margin:0;">
+              <strong style="color:#60a5fa;">💡 Security Tip:</strong> You'll receive a 60-second warning before auto-logout.
+            </p>
+          </div>
+        </div>
+
+        <!-- 2FA Setting -->
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;" id="settings-twofa-card">
+          <div style="display:flex;align-items:start;gap:12px;margin-bottom:16px;">
+            <div style="font-size:1.5rem;">🔐</div>
+            <div style="flex:1;">
+              <div style="font-size:0.9rem;font-weight:700;margin-bottom:4px;">Two-Factor Authentication</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.5;">Add a layer of security. When enabled, a 6-digit code is sent to your email each time you sign in.</div>
+            </div>
+          </div>
+          <div id="settings-twofa-badge" style="display:none;padding:8px 12px;border-radius:8px;font-size:0.85rem;font-weight:500;margin-bottom:16px;text-align:center;"></div>
+          <div id="settings-twofa-toggle-area">
+            <button id="settings-twofa-btn" onclick="showTwofaModalSettings()"
+              style="width:100%;padding:11px 16px;border-radius:8px;font-family:inherit;font-weight:600;font-size:0.9rem;cursor:pointer;transition:all 0.2s ease;border:2px solid;">
+            </button>
+          </div>
+          <!-- Confirm modal (inline) -->
+          <div id="settings-twofa-modal" style="display:none;margin-top:16px;padding:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;">
+            <p id="settings-twofa-modal-desc" style="font-size:0.875rem;color:var(--text-muted);margin-bottom:12px;line-height:1.5;"></p>
+            <div style="margin-bottom:12px;">
+              <label style="display:block;font-size:0.82rem;font-weight:500;color:var(--text-muted);margin-bottom:6px;">Your password</label>
+              <input type="password" id="settings-twofa-password" placeholder="Enter your password to confirm"
+                style="width:100%;padding:10px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;outline:none;box-sizing:border-box;"
+                onkeydown="if(event.key==='Enter')confirmTwofaSettings()">
+            </div>
+            <div id="settings-twofa-error" style="display:none;padding:8px 12px;background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.4);border-radius:8px;color:#f43f5e;font-size:0.82rem;margin-bottom:12px;"></div>
+            <div style="display:flex;gap:8px;">
+              <button id="settings-twofa-confirm-btn" onclick="confirmTwofaSettings()"
+                style="flex:1;padding:10px;border:none;border-radius:8px;font-family:inherit;font-weight:600;font-size:0.875rem;cursor:pointer;background:var(--accent-green);color:#000;transition:all 0.2s ease;">
+                Confirm
+              </button>
+              <button onclick="hideTwofaModalSettings()"
+                style="padding:10px 16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.875rem;color:var(--text-muted);cursor:pointer;">
+                Cancel
+              </button>
+            </div>
+          </div>
+          <!-- Verification Method Selector — visible when 2FA is ON -->
+          <div id="settings-verify-method-section" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+            <div style="font-size:0.85rem;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Verification Method</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+              <label id="verify-method-email-label" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:10px 14px;border-radius:8px;border:2px solid #10b981;background:var(--bg-card);transition:border-color 0.2s ease;">
+                <input type="radio" name="verify_method" id="verify-method-email" value="email" onchange="onVerifyMethodChange()" style="accent-color:#10b981;width:16px;height:16px;cursor:pointer;">
+                <div>
+                  <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);">📧 Email OTP</div>
+                  <div style="font-size:0.77rem;color:var(--text-muted);margin-top:2px;">6-digit code sent to your registered email</div>
+                </div>
+              </label>
+              <label id="verify-method-sms-label" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:10px 14px;border-radius:8px;border:2px solid var(--border);background:var(--bg-card);transition:border-color 0.2s ease;">
+                <input type="radio" name="verify_method" id="verify-method-sms" value="sms" onchange="onVerifyMethodChange()" style="accent-color:#10b981;width:16px;height:16px;cursor:pointer;">
+                <div>
+                  <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);">📱 SMS OTP</div>
+                  <div style="font-size:0.77rem;color:var(--text-muted);margin-top:2px;">6-digit code sent to your mobile number</div>
+                </div>
+              </label>
+            </div>
+            <!-- Phone number input — shown for SMS only -->
+            <div id="verify-method-phone-section" style="display:none;margin-bottom:14px;">
+              <label style="display:block;font-size:0.82rem;font-weight:500;color:var(--text-muted);margin-bottom:6px;">Mobile number</label>
+              <input type="tel" id="verify-method-phone" placeholder="+12025551234"
+                style="width:100%;padding:10px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;outline:none;box-sizing:border-box;"
+                onkeydown="if(event.key==='Enter')saveVerificationMethod()">
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:5px;">Include country code, e.g. +1 for US/Canada. Note: VoIP numbers (Google Voice) may not receive SMS.</div>
+            </div>
+            <div id="verify-method-error" style="display:none;padding:8px 12px;background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.4);border-radius:8px;color:#f43f5e;font-size:0.82rem;margin-bottom:10px;"></div>
+            <div id="verify-method-success" style="display:none;padding:8px 12px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;color:#10b981;font-size:0.82rem;margin-bottom:10px;"></div>
+            <button onclick="saveVerificationMethod()" id="verify-method-save-btn"
+              style="width:100%;padding:10px 16px;border:none;border-radius:8px;font-family:inherit;font-weight:600;font-size:0.875rem;cursor:pointer;background:#10b981;color:#000;transition:opacity 0.2s ease;">
+              Save Verification Method
+            </button>
+          </div>
+
+          <div style="margin-top:12px;padding:10px 14px;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);border-radius:8px;">
+            <p style="font-size:0.79rem;color:var(--text-muted);line-height:1.4;margin:0;">
+              <strong style="color:#f59e0b;">🔒 When enabled:</strong> A 6-digit code via email or SMS is required on each sign-in.
+            </p>
+          </div>
+        </div>
+
+        <!-- MFA Placeholder -->
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:18px 20px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:200px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span style="font-size:0.9rem;font-weight:700;">📱 Authenticator App (TOTP)</span>
+                <span class="badge-coming-soon">Coming Soon</span>
+              </div>
+              <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.5;margin-bottom:12px;">
+                Use Google Authenticator, Authy, or any TOTP app for stronger two-factor authentication.
+              </div>
+              <!-- Notify Me -->
+              <div id="totp-notify-form">
+                <div style="display:flex;gap:7px;flex-wrap:wrap;">
+                  <input id="totp-email" type="email" placeholder="your@email.com"
+                    style="flex:1;min-width:160px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card-bg);color:var(--text-primary);font-size:0.82rem;outline:none;box-sizing:border-box;">
+                  <button onclick="submitSettingsWaitlist('totp_authenticator','totp-email','totp-notify-form','totp-confirm')"
+                    style="padding:8px 14px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:8px;color:#a78bfa;font-size:0.82rem;font-weight:700;cursor:pointer;white-space:nowrap;">🔔 Notify Me</button>
+                </div>
+              </div>
+              <div id="totp-confirm" style="display:none;font-size:0.82rem;color:#10b981;font-weight:600;margin-top:6px;">✓ You're on the list!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 8. FUTURE GENERATIONS — SUCCESSION ═══ -->
+    <div class="settings-section" id="section-succession" style="display:none;">
+      <div class="section-header">
+        <div class="section-icon">⚜️</div>
+        <div class="section-title-group">
+          <div class="section-title">Future Generations</div>
+          <div class="section-subtitle" id="succ-section-subtitle">Designate a successor for your affiliate position</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- ── Retail User: Unlock Affiliate Panel ──────────────────────── -->
+        <!-- Shown when the user is FACTS certified, chose retail, and isn't  -->
+        <!-- yet an affiliate. Lets them change their mind at any time.       -->
+        <div id="unlock-affiliate-panel" style="display:none;">
+          <div style="background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.25);border-radius:14px;padding:20px 22px;margin-bottom:20px;">
+            <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+              <div style="font-size:2rem;flex-shrink:0;margin-top:2px;">🔗</div>
+              <div style="flex:1;min-width:220px;">
+                <div style="font-weight:700;font-size:0.95rem;color:#e8c96a;margin-bottom:6px;">Unlock Your Future Generations Link</div>
+                <div style="font-size:0.83rem;color:#9ca3af;line-height:1.6;margin-bottom:14px;">
+                  You previously chose to remain a Retail user — and that's perfectly fine.
+                  If you'd like to unlock your referral link and earn a 16% Service Commission,
+                  you can do that here at any time.
+                </div>
+                <button onclick="showUnlockAffiliateForm()" id="unlock-affiliate-btn"
+                  style="padding:10px 22px;background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;border:none;border-radius:9px;font-weight:800;font-size:0.85rem;cursor:pointer;font-family:inherit;transition:opacity 0.2s;"
+                  onmouseover="this.style.opacity='0.85'"
+                  onmouseout="this.style.opacity='1'">
+                  🔓 Unlock My Affiliate Link
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inline oath + join form (hidden until button clicked) -->
+          <div id="unlock-affiliate-form" style="display:none;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px 22px;margin-bottom:20px;">
+            <div style="font-weight:700;font-size:0.9rem;color:#f1f5f9;margin-bottom:10px;display:flex;align-items:center;gap:8px;">⚜️ Sign the Sovereign Oath</div>
+            <div style="font-size:0.8rem;color:#6b7280;line-height:1.7;font-style:italic;background:rgba(201,162,39,0.04);border:1px solid rgba(201,162,39,0.15);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
+              "I affirm that I am an active FACTS subscriber in good standing. I commit to promoting this program honestly, leading with the software's value — not the income opportunity."
+            </div>
+
+            <div id="unlock-aff-error" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:0.82rem;color:#fca5a5;"></div>
+            <div id="unlock-aff-success" style="display:none;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:14px 16px;margin-bottom:12px;"></div>
+
+            <div style="margin-bottom:14px;">
+              <label style="display:block;font-size:0.79rem;font-weight:600;color:#9ca3af;margin-bottom:6px;">Type your full legal name to sign</label>
+              <input type="text" id="unlock-aff-signature"
+                placeholder="Your full legal name"
+                style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#f1f5f9;font-family:inherit;font-size:0.9rem;outline:none;box-sizing:border-box;transition:border-color 0.2s;"
+                onfocus="this.style.borderColor='rgba(201,162,39,0.4)'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+              />
+            </div>
+
+            <div style="display:flex;gap:10px;">
+              <button onclick="cancelUnlockAffiliateForm()"
+                style="flex:0 0 auto;padding:10px 18px;background:transparent;color:#6b7280;border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-weight:600;font-size:0.82rem;cursor:pointer;font-family:inherit;transition:background 0.2s;"
+                onmouseover="this.style.background='rgba(255,255,255,0.05)'"
+                onmouseout="this.style.background='transparent'">
+                Cancel
+              </button>
+              <button onclick="submitUnlockAffiliate()" id="unlock-aff-submit-btn"
+                style="flex:1;padding:10px;background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;border:none;border-radius:8px;font-weight:800;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:opacity 0.2s;"
+                onmouseover="this.style.opacity='0.85'"
+                onmouseout="this.style.opacity='1'">
+                ⚜️ Activate My Link
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- END Unlock Affiliate Panel -->
+
+        <!-- Active Transfer Banner -->
+        <div id="active-transfer-banner" style="display:none;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+          <div style="font-weight:700;color:#fcd34d;margin-bottom:6px;">⏳ Transfer in Progress</div>
+          <div id="active-transfer-info" style="font-size:0.85rem;color:var(--text-secondary);line-height:1.5;"></div>
+        </div>
+
+        <!-- Current Designation Display -->
+        <div id="succession-current" style="display:none;background:var(--bg-elevated);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            <div style="font-weight:700;color:var(--accent-green);font-size:0.9rem;">✅ Succession Plan Active</div>
+            <button class="btn btn-secondary" style="font-size:0.78rem;padding:6px 12px;" onclick="document.getElementById('succession-form-wrap').style.display='block';document.getElementById('succession-current').style.display='none'">Edit</button>
+          </div>
+          <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">
+            <div><strong>Beneficiary:</strong> <span id="succ-display-name">—</span></div>
+            <div><strong>Email:</strong> <span id="succ-display-email">—</span></div>
+            <div><strong>Relationship:</strong> <span id="succ-display-rel">—</span></div>
+            <div><strong>Authorized:</strong> <span id="succ-display-date">—</span></div>
+          </div>
+        </div>
+
+        <!-- Sovereign Oath — Legacy Vault Document -->
+        <div id="oath-vault-card" style="display:none;background:rgba(201,162,39,0.06);border:1px solid rgba(201,162,39,0.2);border-radius:14px;padding:20px 22px;margin-bottom:22px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+            <div style="font-size:1.5rem;">📜</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:0.9rem;color:#e8c96a;margin-bottom:2px;">Sovereign Oath — Signed</div>
+              <div style="font-size:0.77rem;color:#9ca3af;">Your signed compliance agreement is on file in your Legacy Vault.</div>
+            </div>
+            <div id="oath-vault-status-badge" style="font-size:0.72rem;font-weight:700;color:#34d399;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);border-radius:999px;padding:3px 11px;">✓ Signed</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 16px;font-size:0.82rem;color:#9ca3af;line-height:1.8;">
+            <div><span style="color:#64748b;font-weight:600;">Signed by:</span> <span id="oath-vault-name" style="color:#f1f5f9;font-style:italic;font-family:'Georgia',serif;">—</span></div>
+            <div><span style="color:#64748b;font-weight:600;">Date:</span> <span id="oath-vault-date" style="color:#f1f5f9;">—</span></div>
+            <div><span style="color:#64748b;font-weight:600;">Agreement:</span> <span style="color:#f1f5f9;">Sovereign Oath &amp; Affiliate Compliance Agreement</span></div>
+            <div><span style="color:#64748b;font-weight:600;">Version:</span> <span id="oath-vault-version" style="color:#f1f5f9;">v1</span></div>
+          </div>
+          <div style="margin-top:12px;">
+            <a href="/sovereign-oath.html" style="font-size:0.78rem;color:#c9a227;font-weight:600;text-decoration:none;">
+              View Full Agreement →
+            </a>
+          </div>
+        </div>
+
+        <!-- Succession Form -->
+        <div id="succession-form-wrap">
+          <div style="background:rgba(201,162,39,0.06);border:1px solid rgba(201,162,39,0.2);border-radius:12px;padding:16px 18px;margin-bottom:20px;font-size:0.83rem;color:#e8c96a;line-height:1.6;">
+            🏛️ <strong>Legacy Vault:</strong> Designate who will receive your entire organization and recurring commissions. This person will take over your position upon an approved voluntary transfer or corporate override.
+          </div>
+
+          <div id="succession-alert" class="alert"></div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="form-row-grid">
+            <div>
+              <label class="form-label">Primary Beneficiary Name</label>
+              <input type="text" id="succ-name-input" placeholder="Full legal name" class="form-input" />
+            </div>
+            <div>
+              <label class="form-label">Successor Email</label>
+              <input type="email" id="succ-email-input" placeholder="successor@example.com" class="form-input" />
+            </div>
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label class="form-label">Relationship</label>
+            <select id="succ-relationship-input" class="form-input" style="color:var(--text-primary);background:var(--bg-elevated);">
+              <option value="">— Select relationship —</option>
+              <option value="child">Child</option>
+              <option value="grandchild">Grandchild</option>
+              <option value="spouse">Spouse</option>
+              <option value="sibling">Sibling</option>
+              <option value="trust">Trust</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label class="form-label">Digital Signature — Type your full legal name to authorize</label>
+            <input type="text" id="succ-signature-input" placeholder="Your full legal name" class="form-input" />
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">By signing, you authorize this designation as your legally binding succession plan.</div>
+          </div>
+
+          <button class="btn btn-primary" id="save-succession-btn" onclick="saveSuecessionPlan()">
+            ⚜️ Save Succession Plan
+          </button>
+        </div>
+
+        <!-- Voluntary Transfer Section -->
+        <div id="succession-transfer-section" style="display:none;margin-top:28px;padding-top:24px;border-top:1px solid var(--border);">
+          <div style="font-size:1rem;font-weight:700;margin-bottom:8px;">🤝 Initiate Voluntary Transfer</div>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;">
+            Transfer your affiliate position at any time. Both you and your successor must digitally sign. Corporate approval is required.
+          </p>
+
+          <div id="transfer-init-alert" class="alert"></div>
+
+          <div style="margin-bottom:16px;">
+            <label class="form-label">Confirm Your Signature to Initiate Transfer</label>
+            <input type="text" id="transfer-signature-input" placeholder="Type your full legal name to confirm" class="form-input" />
+          </div>
+
+          <button class="btn" id="initiate-transfer-btn"
+            onclick="initiateVoluntaryTransfer()"
+            style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:#fcd34d;width:100%;">
+            ⚠️ Initiate Voluntary Transfer
+          </button>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;text-align:center;">
+            You will lose your affiliate status and become a Retail subscriber upon execution. This action requires corporate approval.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ 9. SUCCESSION KEY — HEIR DESIGNATION ═══ -->
+    <div class="settings-section" id="section-heir" style="display:none;">
+      <div class="section-header">
+        <div class="section-icon">🗝️</div>
+        <div class="section-title-group">
+          <div class="section-title">Succession Key</div>
+          <div class="section-subtitle">Legacy &amp; Heir Transfer — Designate who inherits your node</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- Intro card -->
+        <div style="background:rgba(201,162,39,0.06);border:1px solid rgba(201,162,39,0.18);border-radius:14px;padding:18px 20px;margin-bottom:22px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <div style="font-size:1.6rem;flex-shrink:0;line-height:1;">⚖️</div>
+            <div>
+              <div style="font-weight:700;font-size:0.92rem;color:#e8c96a;margin-bottom:6px;">Your affiliate position is a legacy asset</div>
+              <div style="font-size:0.83rem;color:#9ca3af;line-height:1.65;">
+                Designate a FACTS account holder as your heir. Upon succession activation, they inherit your full width, depth, and rank — including the 16/8/4/2/1 commission engine.<br><br>
+                <strong style="color:#f1f5f9;">Requirement:</strong> Your heir must maintain an <strong style="color:#e8c96a;">active paid subscription</strong> to sustain the commission engine. If they lapse, commissions pause — not forfeit. They can reactivate at any time.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current designation display -->
+        <div id="heir-current-display" style="display:none;background:var(--bg-elevated);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+            <div style="font-weight:700;color:var(--accent-green);font-size:0.9rem;">✅ Heir Designated</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-secondary" style="font-size:0.78rem;padding:6px 12px;"
+                onclick="document.getElementById('heir-form-wrap').style.display='block';document.getElementById('heir-current-display').style.display='none'">Edit</button>
+              <button class="btn btn-secondary" style="font-size:0.78rem;padding:6px 12px;color:var(--accent-rose);border-color:rgba(244,63,94,0.3);"
+                onclick="revokeHeirDesignation()">Revoke</button>
+            </div>
+          </div>
+          <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8;">
+            <div><strong>Heir:</strong> <span id="heir-display-name">—</span></div>
+            <div><strong>Email:</strong> <span id="heir-display-email">—</span></div>
+            <div><strong>Relationship:</strong> <span id="heir-display-rel">—</span></div>
+            <div><strong>Status:</strong> <span id="heir-display-status">—</span></div>
+            <div><strong>Heir Subscription:</strong> <span id="heir-display-sub">Checking…</span></div>
+            <div><strong>Commission Engine:</strong> <span id="heir-display-commission">—</span></div>
+          </div>
+        </div>
+
+        <!-- Commission paused warning -->
+        <div id="heir-paused-warning" style="display:none;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:14px 16px;margin-bottom:18px;">
+          <div style="font-weight:700;color:#fcd34d;font-size:0.88rem;margin-bottom:4px;">⚠️ Commission Engine Paused</div>
+          <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">Your heir's paid subscription has lapsed. Commissions are frozen — not forfeited. Once they reactivate their subscription, the commission engine will resume automatically.</div>
+        </div>
+
+        <!-- Activation Banner (shown when succession is activated) -->
+        <div id="heir-activated-banner" style="display:none;background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.3);border-radius:12px;padding:14px 16px;margin-bottom:18px;">
+          <div style="font-weight:700;color:#e8c96a;font-size:0.88rem;margin-bottom:4px;">👑 Succession Activated</div>
+          <div style="font-size:0.82rem;color:var(--text-secondary);">Your heir has taken ownership of this node. The Legacy Transfer is complete.</div>
+        </div>
+
+        <!-- Designation form -->
+        <div id="heir-form-wrap">
+          <div id="heir-alert" class="alert"></div>
+
+          <div class="form-group">
+            <label class="form-label">Heir's FACTS Email Address <span style="color:var(--accent-rose);">*</span></label>
+            <input type="email" id="heir-email-input" class="form-input"
+              placeholder="heir@example.com — must have an active FACTS account" />
+            <div class="form-hint">Must be a registered FACTS account holder</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Relationship (optional)</label>
+            <select id="heir-relationship-select" class="form-input" style="appearance:auto;">
+              <option value="">Select relationship…</option>
+              <option value="child">Child</option>
+              <option value="grandchild">Grandchild</option>
+              <option value="spouse">Spouse / Partner</option>
+              <option value="sibling">Sibling</option>
+              <option value="trust">Trust / Estate</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary" id="save-heir-btn" onclick="saveHeirDesignation()">
+            🗝️ Save Heir Designation
+          </button>
+          <div style="font-size:0.76rem;color:var(--text-muted);margin-top:8px;">
+            Succession is only activated by FACTS Corporate (requires death certificate or authorized admin action).
+          </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div id="heir-log-section" style="display:none;margin-top:28px;padding-top:22px;border-top:1px solid var(--border);">
+          <div style="font-size:0.88rem;font-weight:700;margin-bottom:12px;color:var(--text-secondary);">Succession Activity Log</div>
+          <div id="heir-log-list"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ 10. THE VANTAGE POINT ═══ -->
+    <div class="settings-section" id="section-vantage">
+      <div class="section-header">
+        <div class="section-icon">👁</div>
+        <div class="section-title-group">
+          <div class="section-title">The Vantage Point</div>
+          <div class="section-subtitle">Share a read-only view of your financial data with heirs or advisors</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- Intro -->
+        <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.18);border-radius:14px;padding:18px 20px;margin-bottom:22px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <div style="font-size:1.6rem;flex-shrink:0;line-height:1;">🔭</div>
+            <div>
+              <div style="font-weight:700;font-size:0.92rem;color:#93c5fd;margin-bottom:6px;">Give visibility without giving access</div>
+              <div style="font-size:0.83rem;color:#9ca3af;line-height:1.65;">
+                Create a secure, shareable link that lets a designated heir or financial advisor view your FACTS ledger, debt position, allocation percentages, net worth dashboard, and affiliate tree — without ever logging in or making changes.
+                <br><br><strong style="color:#f1f5f9;">Links expire when you set them to</strong> and can be revoked instantly.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create new share form -->
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:22px;">
+          <div style="font-weight:700;font-size:0.88rem;margin-bottom:14px;color:var(--text-primary);">Create New Share Link</div>
+
+          <div id="vantage-create-alert" class="alert"></div>
+
+          <div class="form-group">
+            <label class="form-label">Recipient Email <span style="color:var(--accent-rose);">*</span></label>
+            <input type="email" id="vantage-email-input" class="form-input"
+              placeholder="advisor@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Label (optional)</label>
+            <input type="text" id="vantage-label-input" class="form-input"
+              placeholder="e.g. Estate Attorney, Son — Jake" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Expires After</label>
+            <select id="vantage-expires-select" class="form-input" style="appearance:auto;">
+              <option value="">Never (revoke manually)</option>
+              <option value="7">7 days</option>
+              <option value="30">30 days</option>
+              <option value="90">90 days</option>
+              <option value="365">1 year</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="margin-bottom:10px;">What's Visible</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;">
+                <input type="checkbox" id="perm-ledger" checked style="accent-color:var(--accent-blue);">
+                <span>FACTS Ledger</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;">
+                <input type="checkbox" id="perm-debt" checked style="accent-color:var(--accent-blue);">
+                <span>Debt Position</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;">
+                <input type="checkbox" id="perm-alloc" checked style="accent-color:var(--accent-blue);">
+                <span>Allocation %</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;">
+                <input type="checkbox" id="perm-nw" checked style="accent-color:var(--accent-blue);">
+                <span>Net Worth</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;cursor:pointer;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;">
+                <input type="checkbox" id="perm-aff" checked style="accent-color:var(--accent-blue);">
+                <span>Affiliate Tree</span>
+              </label>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="create-vantage-btn" onclick="createVantageShare()"
+            style="background:linear-gradient(135deg,rgba(59,130,246,0.9),rgba(37,99,235,0.9));border:none;">
+            👁 Create Vantage Point Link
+          </button>
+        </div>
+
+        <!-- Share link copy overlay -->
+        <div id="vantage-link-result" style="display:none;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:16px 18px;margin-bottom:22px;">
+          <div style="font-weight:700;color:var(--accent-green);font-size:0.88rem;margin-bottom:10px;">✅ Share Link Created</div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <code id="vantage-link-url" style="font-size:0.78rem;color:var(--text-secondary);word-break:break-all;flex:1;"></code>
+            <button onclick="copyVantageLink()" class="btn btn-secondary" style="font-size:0.78rem;padding:6px 12px;flex-shrink:0;">Copy</button>
+          </div>
+          <div style="font-size:0.76rem;color:var(--text-muted);margin-top:8px;">Send this link to your recipient. They can view your financial data without logging in.</div>
+        </div>
+
+        <!-- Active shares list -->
+        <div style="font-weight:700;font-size:0.88rem;margin-bottom:12px;color:var(--text-secondary);">Active Shares</div>
+        <div id="vantage-shares-list">
+          <div style="font-size:0.85rem;color:var(--text-muted);text-align:center;padding:20px;">Loading shares…</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ 11. PLATFORM DISCLAIMER ═══ -->
+    <div class="settings-section" id="section-disclaimer">
+      <div class="section-header">
+        <div class="section-icon">⚖️</div>
+        <div class="section-title-group">
+          <div class="section-title">Platform Disclaimer</div>
+          <div class="section-subtitle">Educational platform — read before using financial tools</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <!-- NON-DISMISSIBLE compliance notice — required per platform policy -->
+        <div style="background:rgba(201,162,39,0.07);border:2px solid rgba(201,162,39,0.4);border-radius:14px;padding:24px 22px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <h3 style="font-size:1rem;font-weight:700;color:#c9a227;">Educational Platform Notice</h3>
+          </div>
+          <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.7;margin-bottom:14px;">
+            <strong style="color:var(--text-primary);">FACTS is an educational intelligence platform.</strong>
+            We do not provide licensed financial, legal, or tax advice. We do not guarantee specific outcomes.
+            All strategies, including the FACTS methodology, are implemented at the user's sole risk as a
+            private Peer-to-Peer resource.
+          </p>
+          <div style="background:rgba(201,162,39,0.05);border:1px solid rgba(201,162,39,0.15);border-radius:8px;padding:12px 14px;">
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;margin:0;">
+              FACTS is a People-to-People (P2P) Educational SaaS and Financial Logic Layer.
+              Strictly non-custodial — we do not hold, move, or manage user funds.
+              All banking/brokerage connections are "Read-Only." We are not a bank, RIA, or broker-dealer.
+              All financial decisions are made solely by the user.
+            </p>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span style="font-size:0.8rem;color:#10b981;font-weight:600;">Acknowledged — this notice is on file for your account</span>
+          </div>
+        </div>
+
+        <!-- Reminder frequency control -->
+        <div style="margin-top:18px;background:rgba(99,179,237,0.05);border:1px solid rgba(99,179,237,0.18);border-radius:12px;padding:18px 20px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#63b3ed" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span style="font-size:0.88rem;font-weight:600;color:#93c5fd;">Reminder Frequency</span>
+          </div>
+          <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.55;margin-bottom:14px;">
+            The educational notice re-appears every <strong id="edu-interval-display" style="color:#f1f5f9;">30</strong> days.
+            Adjust how often you'd like to be reminded (30–180 days).
+          </p>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <input
+              type="range"
+              id="edu-interval-slider"
+              min="30" max="180" step="30"
+              value="30"
+              style="flex:1;accent-color:#3b82f6;cursor:pointer;"
+              aria-label="Educational disclaimer reminder frequency in days"
+            >
+            <span style="font-size:0.82rem;color:var(--text-secondary);white-space:nowrap;min-width:60px;" id="edu-interval-label">30 days</span>
+          </div>
+          <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
+            <button
+              id="edu-interval-save-btn"
+              style="padding:7px 20px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:opacity 0.2s;"
+              onclick="saveEduInterval()"
+            >Save Preference</button>
+            <span id="edu-interval-status" style="font-size:0.78rem;color:#10b981;display:none;">✓ Saved</span>
+          </div>
+        </div>
+
+        <!-- Restart Walkthrough -->
+        <div style="margin-top:18px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.18);border-radius:12px;padding:18px 20px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            <span style="font-size:0.88rem;font-weight:600;color:#6ee7b7;">Guided Walkthrough</span>
+          </div>
+          <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.55;margin-bottom:14px;">
+            Replay the onboarding tour that highlights the FACTS allocation system, tools, and navigation.
+            It will start automatically on your next visit to the dashboard.
+          </p>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <button
+              id="restart-tour-btn"
+              onclick="restartTour()"
+              style="padding:8px 20px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);color:#10b981;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;"
+              onmouseover="this.style.background='rgba(16,185,129,0.2)'"
+              onmouseout="this.style.background='rgba(16,185,129,0.12)'"
+            >↩ Restart Walkthrough</button>
+            <span id="restart-tour-status" style="font-size:0.78rem;color:#10b981;display:none;">✓ Tour queued — visit your dashboard to begin</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ 12. DANGER ZONE ═══ -->
+    <div class="settings-section danger-zone" id="section-danger">
+      <div class="section-header">
+        <div class="section-icon">⚠️</div>
+        <div class="section-title-group">
+          <div class="section-title" style="color:var(--accent-rose);">Danger Zone</div>
+          <div class="section-subtitle">Permanent, irreversible actions</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="danger-item">
+          <div class="danger-item-info">
+            <h4>Delete Account</h4>
+            <p>Permanently delete your account and all financial data. This cannot be undone. Your active subscription will be cancelled and any Future Generations commissions will be forfeited.</p>
+          </div>
+          <button class="btn btn-danger" onclick="openDeleteModal()" style="flex-shrink:0;">Delete Account</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.settings-content -->
+</div><!-- /.settings-layout -->
+
+<!-- ═══ DELETE ACCOUNT MODAL ═══ -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal-box">
+    <div class="modal-title" style="color:var(--accent-rose);">⚠️ Delete Your Account</div>
+    <div class="modal-desc">This action is permanent and cannot be undone. Everything will be deleted immediately.</div>
+
+    <ul class="modal-warning-list">
+      <li>All transactions, allocations, and financial data erased</li>
+      <li>Active subscription will be cancelled</li>
+      <li>Future Generations commissions will be forfeited</li>
+      <li>family memberships will be removed</li>
+      <li>Your email cannot be recovered or reused for 30 days</li>
+    </ul>
+
+    <div class="form-group">
+      <label for="delete-password-input">Enter your password to confirm</label>
+      <input type="password" id="delete-password-input" class="form-input" placeholder="Your current password">
+    </div>
+
+    <div class="form-group">
+      <label for="delete-confirm-input">Type <strong style="color:var(--accent-rose);">DELETE</strong> to confirm</label>
+      <input type="text" id="delete-confirm-input" class="form-input"
+        placeholder="DELETE"
+        style="border-color:rgba(244,63,94,0.3);">
+    </div>
+
+    <div id="delete-alert" class="alert"></div>
+
+    <div class="flex-row" style="margin-top:20px;">
+      <button class="btn btn-danger" id="delete-confirm-btn" onclick="deleteAccount()">Permanently Delete</button>
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ─── State ───────────────────────────────────────────────────
+let settingsData = null;
+let selectedAvatarColor = '#10b981';
+let pendingAvatarUrl = null; // set when a photo is uploaded but not yet saved
+let notifSaveTimeout = null;
+
+// ─── Init ────────────────────────────────────────────────────
+async function init() {
+  // Check for email confirmation token in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const action = urlParams.get('action');
+  const token = urlParams.get('token');
+
+  if (action === 'confirm-email' && token) {
+    await handleEmailConfirmation(token);
+  }
+
+  // Load settings
+  const ok = await loadSettings();
+  if (!ok) return; // Redirected to login
+}
+
+async function loadSettings() {
+  try {
+    const res = await fetch('/api/settings/all', { credentials: 'same-origin' });
+    if (res.status === 401) {
+      window.location.href = '/login.html?next=/settings';
+      return false;
+    }
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed to load');
+    settingsData = data;
+    renderSettings(data);
+    return true;
+  } catch (err) {
+    console.error('loadSettings error', err);
+    return false;
+  }
+}
+
+function renderSettings(data) {
+  const { user, notification_prefs, subscription, plaid_accounts, has_pro } = data;
+
+  // Header
+  const headerName = document.getElementById('header-user-name');
+  if (headerName) headerName.textContent = user.display_name || user.name || user.email;
+
+  // ─── Profile ───
+  const displayNameInput = document.getElementById('display-name-input');
+  if (displayNameInput) displayNameInput.value = user.display_name || '';
+  selectedAvatarColor = user.avatar_color || '#10b981';
+  updateAvatarPreview(user);
+  updateColorSwatches(selectedAvatarColor);
+
+  // ─── Email ───
+  const emailDisplay = document.getElementById('current-email-display');
+  if (emailDisplay) emailDisplay.textContent = user.email;
+
+  // ─── Notifications ───
+  const defaults = { bill_due_reminders: true, budget_overspend: true, subscription_renewal: true, fg_commission: true, product_updates: false };
+  const prefs = Object.assign({}, defaults, notification_prefs);
+  setToggle('notif-bill', prefs.bill_due_reminders);
+  setToggle('notif-budget', prefs.budget_overspend);
+  setToggle('notif-renewal', prefs.subscription_renewal);
+  setToggle('notif-fg', prefs.fg_commission);
+  setToggle('notif-updates', prefs.product_updates);
+
+  // ─── Subscription ───
+  renderSubscription(user, subscription, has_pro, data.stripe_monthly_link, data.stripe_annual_link, data.pricing, data.family, data.family_plan);
+
+  // ─── Plaid Bank Connectivity ───
+  initPlaidSection();
+
+  // ─── Succession (affiliates only) ───
+  loadSuccessionPlan();
+
+  // ─── Sovereign Oath — Legacy Vault (anyone who has signed) ───
+  loadOathVault();
+
+  // ─── Succession Key — Heir Designation (all users) ───
+  loadHeirDesignation();
+
+  // ─── Vantage Point shares (all users) ───
+  loadVantageShares();
+
+  // ─── Security ───
+  loadTwofaStatusSettings();
+  loadTimeoutPreferenceSetting();
+}
+
+function setToggle(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.checked = !!val;
+}
+
+// ─── Avatar ──────────────────────────────────────────────────
+function updateAvatarPreview(user) {
+  const preview = document.getElementById('avatar-preview');
+  const initialsEl = document.getElementById('avatar-initials');
+  if (!preview) return;
+
+  const displayLabel = user.display_name || user.name || user.email;
+  const initials = (displayLabel || '?').split(/\s+/).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+  if (pendingAvatarUrl || user.avatar_url) {
+    const imgUrl = pendingAvatarUrl || user.avatar_url;
+    if (initialsEl) initialsEl.style.display = 'none';
+    preview.style.backgroundImage = `url(${imgUrl})`;
+    preview.style.backgroundSize = 'cover';
+    preview.style.backgroundPosition = 'center';
+    const removeBtn = document.getElementById('photo-remove');
+    if (removeBtn) removeBtn.style.display = 'block';
+  } else {
+    if (initialsEl) { initialsEl.textContent = initials; initialsEl.style.display = ''; }
+    preview.style.backgroundImage = '';
+    preview.style.background = selectedAvatarColor;
+    const removeBtn = document.getElementById('photo-remove');
+    if (removeBtn) removeBtn.style.display = 'none';
+  }
+}
+
+function selectColor(color, el) {
+  selectedAvatarColor = color;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  // Update preview
+  const preview = document.getElementById('avatar-preview');
+  if (preview && !pendingAvatarUrl && !(settingsData && settingsData.user.avatar_url)) {
+    preview.style.background = color;
+  }
+}
+
+function updateColorSwatches(color) {
+  document.querySelectorAll('.color-swatch').forEach(s => {
+    s.classList.toggle('selected', s.dataset.color === color);
+  });
+}
+
+function handlePhotoUpload(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  if (file.size > 500 * 1024) {
+    showAlert('avatar-alert', 'error', 'Image is too large. Max size is 500KB.');
+    input.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    pendingAvatarUrl = e.target.result;
+    const preview = document.getElementById('avatar-preview');
+    const initialsEl = document.getElementById('avatar-initials');
+    if (preview) {
+      preview.style.backgroundImage = `url(${pendingAvatarUrl})`;
+      preview.style.backgroundSize = 'cover';
+      preview.style.backgroundPosition = 'center';
+      preview.style.background = '';
+    }
+    if (initialsEl) initialsEl.style.display = 'none';
+    const removeBtn = document.getElementById('photo-remove');
+    if (removeBtn) removeBtn.style.display = 'block';
+    showAlert('avatar-alert', 'info', 'Photo ready. Click Save Profile to apply.');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto() {
+  pendingAvatarUrl = null;
+  const input = document.getElementById('photo-file-input');
+  if (input) input.value = '';
+  const removeBtn = document.getElementById('photo-remove');
+  if (removeBtn) removeBtn.style.display = 'none';
+  // Reset preview to initials
+  if (settingsData) {
+    settingsData.user.avatar_url = null;
+    updateAvatarPreview(settingsData.user);
+  }
+  showAlert('avatar-alert', 'info', 'Photo removed. Click Save Profile to apply.');
+}
+
+// ─── Save Profile ─────────────────────────────────────────────
+async function saveProfile() {
+  const btn = document.getElementById('save-profile-btn');
+  const displayName = document.getElementById('display-name-input').value.trim();
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Saving…';
+
+  try {
+    // 1. Save display name + color
+    const profileRes = await fetch('/api/settings/profile', {
+      method: 'PUT',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ display_name: displayName || null, avatar_color: selectedAvatarColor })
+    });
+    const profileData = await profileRes.json();
+    if (!profileRes.ok) throw new Error(profileData.error || 'Failed to save profile');
+
+    // 2. If there's a pending avatar change, save it
+    if (pendingAvatarUrl !== null) {
+      const avatarPayload = pendingAvatarUrl === 'remove' ? null : pendingAvatarUrl;
+      const avatarRes = await fetch('/api/settings/avatar', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar_url: avatarPayload })
+      });
+      const avatarData = await avatarRes.json();
+      if (!avatarRes.ok) throw new Error(avatarData.error || 'Failed to save avatar');
+      if (settingsData) settingsData.user.avatar_url = avatarData.avatar_url;
+      pendingAvatarUrl = null;
+    }
+
+    // Update local state
+    if (settingsData) {
+      settingsData.user.display_name = profileData.display_name;
+      settingsData.user.avatar_color = profileData.avatar_color;
+    }
+
+    showAlert('profile-alert', 'success', '✓ Profile saved successfully');
+    const headerName = document.getElementById('header-user-name');
+    if (headerName) headerName.textContent = profileData.display_label;
+  } catch (err) {
+    showAlert('profile-alert', 'error', err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Profile';
+  }
+}
+
+// ─── Email Change ─────────────────────────────────────────────
+async function requestEmailChange() {
+  const btn = document.getElementById('change-email-btn');
+  const newEmail = document.getElementById('new-email-input').value.trim();
+  const password = document.getElementById('email-password-input').value;
+
+  if (!newEmail) return showAlert('email-alert', 'error', 'New email address is required');
+  if (!password) return showAlert('email-alert', 'error', 'Password is required');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Sending…';
+
+  try {
+    const res = await fetch('/api/settings/change-email/request', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ new_email: newEmail, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to send request');
+    showAlert('email-alert', 'success', '✓ ' + data.message);
+    document.getElementById('new-email-input').value = '';
+    document.getElementById('email-password-input').value = '';
+  } catch (err) {
+    showAlert('email-alert', 'error', err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Verification Email';
+  }
+}
+
+async function handleEmailConfirmation(token) {
+  try {
+    const res = await fetch(`/api/settings/change-email/confirm?token=${encodeURIComponent(token)}`, {
+      credentials: 'same-origin'
+    });
+    const data = await res.json();
+    if (data.success) {
+      // Show success message after settings loads
+      setTimeout(() => {
+        showAlert('email-alert', 'success', `✓ Email updated to ${data.new_email}`);
+        scrollTo('email');
+      }, 500);
+    } else {
+      setTimeout(() => {
+        showAlert('email-alert', 'error', data.error || 'Email confirmation failed');
+        scrollTo('email');
+      }, 500);
+    }
+    // Clean URL
+    window.history.replaceState({}, '', '/settings');
+  } catch (err) {
+    console.error('Email confirmation error', err);
+  }
+}
+
+// ─── Change Password ──────────────────────────────────────────
+async function changePassword() {
+  const btn = document.getElementById('change-password-btn');
+  const current = document.getElementById('current-password-input').value;
+  const newPass = document.getElementById('new-password-input').value;
+  const confirm = document.getElementById('confirm-password-input').value;
+
+  if (!current || !newPass || !confirm) {
+    return showAlert('password-alert', 'error', 'All password fields are required');
+  }
+  if (newPass !== confirm) {
+    return showAlert('password-alert', 'error', 'New passwords do not match');
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Updating…';
+
+  try {
+    const res = await fetch('/api/settings/change-password', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_password: current, new_password: newPass, confirm_password: confirm })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to change password');
+    showAlert('password-alert', 'success', '✓ Password changed successfully');
+    document.getElementById('current-password-input').value = '';
+    document.getElementById('new-password-input').value = '';
+    document.getElementById('confirm-password-input').value = '';
+  } catch (err) {
+    showAlert('password-alert', 'error', err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Update Password';
+  }
+}
+
+// ─── Subscription ─────────────────────────────────────────────
+function renderSubscription(user, subscription, hasPro, monthlyLink, annualLink, pricing, family, familyPlan) {
+  const container = document.getElementById('subscription-content');
+  if (!container) return;
+
+  const monthlyPrice = pricing ? (pricing.monthly_cents / 100).toFixed(2) : '25.00';
+  const annualPrice = pricing ? (pricing.annual_cents / 100).toFixed(2) : '300.00';
+  const familyMonthlyPrice = familyPlan ? (familyPlan.monthly_cents / 100).toFixed(2) : '25.00';
+  const familyAnnualPrice = familyPlan ? (familyPlan.annual_cents / 100).toFixed(2) : '300.00';
+  const familyMonthlyLink = familyPlan ? familyPlan.stripe_monthly_link : '#';
+  const familyAnnualLink = familyPlan ? familyPlan.stripe_annual_link : '#';
+
+  // Helper: render Family Plan banner for family members
+  function renderHouseholdBanner() {
+    if (!family) return '';
+    const roleName = family.is_owner ? 'Owner' : (family.role === 'co_admin' ? 'Co-Admin' : 'Member');
+    const graceNote = family.cancelled_at && family.grace_ends_at
+      ? `<div style="font-size:0.78rem;color:#f59e0b;margin-top:6px;">⚠️ Plan cancelled — grace period ends ${new Date(family.grace_ends_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>`
+      : '';
+    return `
+      <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.25);border-radius:12px;padding:18px 20px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:1.1rem;">👨‍👩‍👧‍👦</span>
+              <span style="font-weight:700;font-size:0.95rem;color:#a78bfa;">Family Plan</span>
+              <span class="plan-badge-active" style="background:rgba(139,92,246,0.15);color:#a78bfa;border-color:rgba(139,92,246,0.3);">ACTIVE</span>
+            </div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);">
+              ${family.name || 'Family'} · ${roleName}
+              ${!family.is_owner ? ` · Owner: ${family.owner_name || family.owner_email}` : ''}
+            </div>
+            ${graceNote}
+          </div>
+          <a href="/family-settings.html" class="btn btn-secondary" style="text-decoration:none;font-size:0.8rem;padding:7px 14px;">Manage Family →</a>
+        </div>
+        <!-- Family seat icons — populated by loadFamilySeatGrid() -->
+        <div id="hh-seats-grid" style="margin-top:16px;border-top:1px solid rgba(139,92,246,0.15);padding-top:14px;">
+          <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);text-align:center;">Loading seats…</div>
+        </div>
+      </div>`;
+  }
+
+  // Helper: render Family Plan upgrade card (shown to non-family users)
+  function renderFamilyPlanCards() {
+    return `
+      <h4 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin:24px 0 12px;letter-spacing:0.04em;">👨‍👩‍👧‍👦 FAMILY PLAN</h4>
+      <div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:14px;">
+        One plan covers up to <strong style="color:var(--text-primary)">6 members</strong> — share insights, track budgets together, and build wealth as a unit. Each member keeps their own private data.
+      </div>
+      <!-- Static seat preview for upgrade promo -->
+      <div style="background:rgba(139,92,246,0.04);border:1px solid rgba(139,92,246,0.18);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
+        <div style="font-size:0.68rem;font-weight:700;color:rgba(167,139,250,0.6);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:12px;">👨‍👩‍👧 5 Family Incubator Seats Included</div>
+        <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:nowrap;justify-content:flex-start;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:2px solid rgba(16,185,129,0.6);">🏡</div>
+            <div style="font-size:0.6rem;font-weight:700;color:rgba(255,255,255,0.55);">You</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:42px;height:42px;border-radius:50%;background:rgba(139,92,246,0.10);display:flex;align-items:center;justify-content:center;font-size:1rem;border:2px dashed rgba(139,92,246,0.4);">👤</div>
+            <div style="font-size:0.6rem;color:rgba(167,139,250,0.7);">+ Invite</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:42px;height:42px;border-radius:50%;background:rgba(251,146,60,0.09);display:flex;align-items:center;justify-content:center;font-size:1rem;border:2px dashed rgba(251,146,60,0.4);">👤</div>
+            <div style="font-size:0.6rem;color:rgba(251,146,60,0.65);">+ Invite</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:42px;height:42px;border-radius:50%;background:rgba(56,189,248,0.08);display:flex;align-items:center;justify-content:center;font-size:1rem;border:2px dashed rgba(56,189,248,0.35);">👤</div>
+            <div style="font-size:0.6rem;color:rgba(56,189,248,0.6);">+ Invite</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div style="width:42px;height:42px;border-radius:50%;background:rgba(244,114,182,0.08);display:flex;align-items:center;justify-content:center;font-size:1rem;border:2px dashed rgba(244,114,182,0.35);">👤</div>
+            <div style="font-size:0.6rem;color:rgba(244,114,182,0.6);">+ Invite</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+        <div class="plan-card" style="border-color:rgba(139,92,246,0.25);background:rgba(139,92,246,0.03);">
+          <div>
+            <div class="plan-name" style="color:#a78bfa;">Family Monthly</div>
+            <div class="plan-price">$${familyMonthlyPrice}/month</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">Up to 6 members</div>
+          </div>
+          <a href="${familyMonthlyLink}" class="btn btn-secondary" style="text-decoration:none;font-size:0.8rem;padding:7px 12px;border-color:rgba(139,92,246,0.3);color:#a78bfa;">Get Family Plan →</a>
+        </div>
+        <div class="plan-card" style="border-color:rgba(139,92,246,0.35);background:rgba(139,92,246,0.05);">
+          <div>
+            <div class="plan-name" style="color:#a78bfa;">Family Annual ⭐</div>
+            <div class="plan-price">$${(familyAnnualPrice/12).toFixed(2)}/mo · $${familyAnnualPrice}/yr</div>
+            <div style="font-size:0.72rem;color:#a78bfa;margin-top:3px;">Save 20% vs monthly</div>
+          </div>
+          <a href="${familyAnnualLink}" class="btn btn-primary" style="text-decoration:none;font-size:0.8rem;padding:7px 12px;background:#8b5cf6;color:#fff;">Best Value →</a>
+        </div>
+      </div>`;
+  }
+
+  if (!hasPro) {
+    container.innerHTML = `
+      <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">Currently on <strong>FACTS Free</strong> (Levels 1–3)</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);">Upgrade to unlock automated sync, SDIRA Wealth Hub, debt tools, and more.</div>
+          </div>
+        </div>
+      </div>
+
+      <h4 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin-bottom:12px;letter-spacing:0.04em;">UPGRADE YOUR PLAN</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+        <div class="plan-card" style="border-color:rgba(16,185,129,0.35);background:rgba(16,185,129,0.04);">
+          <div>
+            <div class="plan-name" style="color:var(--accent-green);">Family</div>
+            <div class="plan-price">$25/month</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">Levels 3–6</div>
+          </div>
+          <a href="/pricing.html" class="btn btn-outline-green" style="text-decoration:none;font-size:0.82rem;padding:8px 14px;">Upgrade →</a>
+        </div>
+        <div class="plan-card" style="border-color:rgba(59,130,246,0.35);background:rgba(59,130,246,0.04);">
+          <div>
+            <div class="plan-name" style="color:#3b82f6;">Business</div>
+            <div class="plan-price">$297/mo · $2,970/yr</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">Levels 7–11</div>
+          </div>
+          <a href="/pricing.html" class="btn btn-primary" style="text-decoration:none;font-size:0.82rem;padding:8px 14px;background:#3b82f6;color:#fff;">Upgrade →</a>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="plan-card" style="border-color:rgba(139,92,246,0.35);background:rgba(139,92,246,0.04);">
+          <div>
+            <div class="plan-name" style="color:#a78bfa;">Elite</div>
+            <div class="plan-price">$197/mo · $1,500/yr</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">Levels 7–11</div>
+          </div>
+          <a href="/pricing.html" class="btn btn-secondary" style="text-decoration:none;font-size:0.82rem;padding:8px 14px;border-color:rgba(139,92,246,0.3);color:#a78bfa;">Upgrade →</a>
+        </div>
+        <div class="plan-card" style="border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.04);">
+          <div>
+            <div class="plan-name" style="color:var(--accent-gold);">Sovereign Executive 👑</div>
+            <div class="plan-price">$19,997 one-time</div>
+            <div style="font-size:0.72rem;color:var(--accent-gold);margin-top:3px;">Lifetime access</div>
+          </div>
+          <a href="/pricing.html" class="btn btn-primary" style="text-decoration:none;font-size:0.82rem;padding:8px 14px;background:var(--accent-gold);color:#000;">Learn More →</a>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // Pro user — check if they're on a Family Plan
+  const isOnFamilyPlan = !!family;
+  const paidUntil = user.paid_until ? new Date(user.paid_until) : null;
+  const billingStr = paidUntil ? paidUntil.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Active';
+  // Determine annual vs monthly from amount (annual is ~$300+, monthly varies by tier)
+  const isAnnual = subscription && subscription.amount_cents >= 5000;
+  // Determine if subscription is family plan
+  const isHouseholdSub = subscription && subscription.plan === 'household_pro';
+
+  let html = '';
+
+  // Show Family Plan banner if user is in a family
+  if (isOnFamilyPlan) {
+    html += renderHouseholdBanner();
+  }
+
+  // Show individual Pro status if they have their own subscription (not just family member access)
+  if (!isOnFamilyPlan || (isOnFamilyPlan && family.is_owner)) {
+    const planLabel = isHouseholdSub ? 'Family Plan' : 'Individual Plan';
+    const planColor = isHouseholdSub ? 'rgba(139,92,246,0.06)' : 'rgba(16,185,129,0.06)';
+    const planBorder = isHouseholdSub ? 'rgba(139,92,246,0.2)' : 'rgba(16,185,129,0.2)';
+
+    if (!isOnFamilyPlan) {
+      // Individual Pro user — show their status
+      html += `
+        <div style="background:${planColor};border:1px solid ${planBorder};border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span style="font-weight:700;font-size:0.95rem;">${planLabel}</span>
+                <span class="plan-badge-active">ACTIVE</span>
+              </div>
+              <div style="font-size:0.82rem;color:var(--text-secondary);">
+                ${isAnnual ? `Annual · $${annualPrice}/year` : `Monthly · $${monthlyPrice}/month`}
+                ${paidUntil ? ` · Next renewal <strong>${billingStr}</strong>` : ''}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    html += `
+      <h4 style="font-size:0.875rem;font-weight:700;color:var(--text-secondary);margin-bottom:12px;letter-spacing:0.04em;">SWITCH PLAN</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+        <div class="plan-card ${!isAnnual ? 'active-plan' : ''}">
+          <div>
+            <div class="plan-name">Monthly</div>
+            <div class="plan-price">$${monthlyPrice}/month</div>
+          </div>
+          ${!isAnnual
+            ? '<span class="plan-badge-active">Current</span>'
+            : `<a href="${monthlyLink}" class="btn btn-secondary" style="text-decoration:none;font-size:0.8rem;padding:7px 12px;">Switch</a>`
+          }
+        </div>
+        <div class="plan-card ${isAnnual ? 'active-plan' : ''}" style="${isAnnual ? '' : 'border-color:rgba(245,158,11,0.25);'}">
+          <div>
+            <div class="plan-name" style="${!isAnnual ? 'color:var(--accent-gold)' : ''}">Annual ${!isAnnual ? '⭐' : ''}</div>
+            <div class="plan-price">$${(annualPrice/12).toFixed(2)}/mo · $${annualPrice}/yr</div>
+            ${!isAnnual ? `<div style="font-size:0.72rem;color:var(--accent-gold);margin-top:3px;">Save ${Math.round(100 - (annualPrice / 12 / parseFloat(monthlyPrice) * 100))}% vs monthly</div>` : ''}
+          </div>
+          ${isAnnual
+            ? '<span class="plan-badge-active">Current</span>'
+            : `<a href="${annualLink}" class="btn btn-primary" style="text-decoration:none;font-size:0.8rem;padding:7px 12px;background:var(--accent-gold);color:#000;">Switch</a>`
+          }
+        </div>
+      </div>`;
+  }
+
+  // Show Family Plan upgrade option for individual Pro users not on Family Plan
+  if (!isOnFamilyPlan) {
+    html += renderFamilyPlanCards();
+  }
+
+  html += `
+    <div class="alert alert-info show">
+      💳 <strong>Payment</strong> is securely processed by Stripe. To update your payment method, contact <a href="mailto:admin@factsmoney.com" style="color:#93c5fd;">support</a> or use the Stripe portal link in your receipt email.
+    </div>`;
+
+  container.innerHTML = html;
+
+  // Load family seats if on a Family Plan
+  if (isOnFamilyPlan && family && family.id) {
+    loadFamilySeatGrid(family.id);
+  }
+}
+
+// ─── Family Seat Grid ──────────────────────────────────────────
+// Fetches family members and renders seat icons into #hh-seats-grid.
+async function loadFamilySeatGrid(householdId) {
+  const grid = document.getElementById('hh-seats-grid');
+  if (!grid) return;
+
+  // Seat color palette (indices 0-4 for the 5 non-owner slots)
+  const SEAT_COLORS = [
+    { bg: 'rgba(16,185,129,0.12)',  border: 'rgba(16,185,129,0.55)',  text: '#10b981', solid: '#10b981' },
+    { bg: 'rgba(139,92,246,0.10)',  border: 'rgba(139,92,246,0.45)',  text: '#a78bfa', solid: '#8b5cf6' },
+    { bg: 'rgba(251,146,60,0.09)',  border: 'rgba(251,146,60,0.40)',  text: '#fb923c', solid: '#f97316' },
+    { bg: 'rgba(56,189,248,0.08)',  border: 'rgba(56,189,248,0.38)',  text: '#38bdf8', solid: '#0ea5e9' },
+    { bg: 'rgba(244,114,182,0.08)', border: 'rgba(244,114,182,0.35)', text: '#f472b6', solid: '#ec4899' },
+  ];
+
+  // Avatar emoji for known roles
+  const ROLE_EMOJI = { owner: '👑', co_admin: '⚙️', member: '👤' };
+
+  // Generate initials from name or email
+  function getInitials(name, email) {
+    const src = name || email || '?';
+    const parts = src.trim().split(/\s+/);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return src.slice(0, 2).toUpperCase();
+  }
+
+  try {
+    const res = await fetch(`/api/households/${householdId}/members`, { credentials: 'same-origin' });
+    const data = await res.json();
+
+    if (!data.success) { grid.innerHTML = ''; return; }
+
+    const members = data.members || [];
+    const maxSeats = 5; // 5 sub-account seats (excluding the owner who has their own seat)
+
+    // Sort: owner first, then co_admin, then members
+    const subMembers = members.filter(m => m.role !== 'owner');
+    const ownerMember = members.find(m => m.role === 'owner');
+
+    let html = `
+      <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:12px;">
+        👨‍👩‍👧 Family Incubator Seats — ${subMembers.length}/${maxSeats} Filled
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;">`;
+
+    // Show owner seat
+    if (ownerMember) {
+      const initials = getInitials(ownerMember.name, ownerMember.email);
+      html += `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:50px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:800;color:#fff;border:2px solid rgba(16,185,129,0.7);box-shadow:0 0 10px rgba(16,185,129,0.2);font-family:inherit;flex-shrink:0;" title="${ownerMember.name || ownerMember.email}">
+            ${initials}
+          </div>
+          <div style="font-size:0.62rem;font-weight:700;color:rgba(255,255,255,0.65);max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;" title="${ownerMember.name || ownerMember.email}">
+            ${ownerMember.is_you ? 'You' : (ownerMember.name || ownerMember.email.split('@')[0])}
+          </div>
+          <div style="font-size:0.58rem;color:#10b981;">Owner</div>
+        </div>`;
+    }
+
+    // Show up to 5 sub-account seats
+    for (let i = 0; i < maxSeats; i++) {
+      const col = SEAT_COLORS[i % SEAT_COLORS.length];
+      const member = subMembers[i];
+
+      if (member) {
+        // Filled seat
+        const initials = getInitials(member.name, member.email);
+        const roleLabel = member.role === 'co_admin' ? 'Co-Admin' : 'Member';
+        html += `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:50px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:${col.bg};display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:800;color:${col.text};border:2px solid ${col.border};font-family:inherit;flex-shrink:0;" title="${member.name || member.email}">
+              ${initials}
+            </div>
+            <div style="font-size:0.62rem;font-weight:600;color:rgba(255,255,255,0.6);max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;" title="${member.name || member.email}">
+              ${member.is_you ? 'You' : (member.name || member.email.split('@')[0])}
+            </div>
+            <div style="font-size:0.58rem;color:${col.text};">${roleLabel}</div>
+          </div>`;
+      } else {
+        // Empty seat
+        html += `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:50px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:${col.bg};display:flex;align-items:center;justify-content:center;font-size:1rem;color:${col.text};border:2px dashed ${col.border};cursor:pointer;transition:all 0.15s;flex-shrink:0;" title="Invite a family member" onclick="window.location.href='/family-settings.html'">+</div>
+            <div style="font-size:0.62rem;font-weight:600;color:rgba(255,255,255,0.28);">Seat ${i + 1}</div>
+            <div style="font-size:0.58rem;color:rgba(255,255,255,0.22);">+ Invite</div>
+          </div>`;
+      }
+    }
+
+    html += '</div>';
+    grid.innerHTML = html;
+
+  } catch (err) {
+    console.warn('Could not load family seats:', err.message);
+    grid.innerHTML = '';
+  }
+}
+
+// ─── Plaid Bank Connectivity ───────────────────────────────────
+let plaidLinkHandler = null;
+
+async function initPlaidSection() {
+  const container = document.getElementById('plaid-accounts-content');
+  if (!container) return;
+
+  try {
+    const statusRes = await fetch('/api/mod_plaid/status', { credentials: 'same-origin' });
+    if (!statusRes.ok) throw new Error('Status check failed');
+    const status = await statusRes.json();
+
+    if (!status.can_access_plaid) {
+      container.innerHTML = `
+        <div class="pro-gate">
+          <div style="font-size:2rem;margin-bottom:12px;">🏦</div>
+          <h4 style="margin-bottom:8px;font-size:1rem;">Elite Tier Required</h4>
+          <p>Connect your bank accounts via Plaid for verified balances, transaction sync, and a higher Sovereign Health Score.</p>
+          <a href="/pricing.html" class="btn btn-primary" style="text-decoration:none;font-size:0.875rem;">Upgrade to Elite →</a>
+        </div>
+      `;
+      return;
+    }
+
+    // Show stale warning
+    if (status.is_stale) {
+      document.getElementById('stale-data-warning').style.display = 'block';
+    }
+
+    // Render SovereignSyncButton
+    renderSovereignSyncButton(status);
+
+    // Load connections
+    const connRes = await fetch('/api/mod_plaid/connections', { credentials: 'same-origin' });
+    const connData = connRes.ok ? await connRes.json() : { connections: [] };
+    const connections = connData.connections || [];
+
+    renderPlaidConnections(connections, status);
+
+  } catch (err) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:0.875rem;">
+        Bank connectivity is setting up. Check back shortly.
+      </div>
+    `;
+  }
+}
+
+function renderPlaidConnections(connections, status) {
+  const container = document.getElementById('plaid-accounts-content');
+  const activeConns = connections.filter(c => c.status === 'active');
+
+  let html = '';
+
+  if (activeConns.length === 0) {
+    html = `
+      <div style="text-align:center;padding:28px 0;color:var(--text-muted);">
+        <div style="font-size:2.5rem;margin-bottom:12px;">🏦</div>
+        <div style="font-size:0.875rem;margin-bottom:6px;color:var(--text-secondary);">No bank accounts connected yet.</div>
+        <div style="font-size:0.78rem;margin-bottom:16px;">Connect your bank to verify account balances and unlock the full Sovereign Health Score.</div>
+      </div>
+    `;
+  } else {
+    html = `<div style="margin-bottom:16px;">`;
+    for (const conn of activeConns) {
+      const lastSync = conn.last_sync_at ? new Date(conn.last_sync_at) : null;
+      const isStale = lastSync ? ((Date.now() - lastSync.getTime()) > 7 * 24 * 60 * 60 * 1000) : true;
+      const checkmark = lastSync && !isStale
+        ? '<span title="Verified & fresh" style="color:#f59e0b;font-size:1rem;">✓</span>'
+        : (lastSync ? '<span title="Stale — sync needed" style="color:#64748b;font-size:1rem;">✓</span>' : '');
+      const syncLabel = lastSync
+        ? `Last sync: ${lastSync.toLocaleDateString()}`
+        : 'Never synced';
+
+      html += `
+        <div class="plaid-row" id="plaid-conn-${conn.id}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+          <div style="font-size:1.4rem;">🏦</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.9rem;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
+              ${escHtml(conn.institution_name || 'Bank Account')} ${checkmark}
+            </div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">${syncLabel}</div>
+          </div>
+          <button onclick="disconnectPlaidConnection(${conn.id})" class="btn btn-danger"
+            style="font-size:0.78rem;padding:6px 12px;flex-shrink:0;">
+            Disconnect
+          </button>
+        </div>
+      `;
+    }
+    html += `</div>`;
+  }
+
+  // Connect Bank button
+  if (status.plaid_configured) {
+    html += `
+      <button id="plaid-connect-btn" onclick="openPlaidLink()" class="btn btn-primary"
+        style="display:inline-flex;align-items:center;gap:8px;font-size:0.875rem;padding:10px 20px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        ${activeConns.length > 0 ? 'Connect Another Bank' : 'Connect Bank'}
+      </button>
+    `;
+  } else {
+    html += `
+      <div style="padding:12px 14px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;font-size:0.82rem;color:#f59e0b;">
+        🔧 Bank connectivity is being configured. It will be available soon.
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+}
+
+function renderSovereignSyncButton(status) {
+  const container = document.getElementById('sovereign-sync-container');
+  if (!container) return;
+
+  if (!status.can_access_plaid) return;
+
+  const isSovereignty = status.is_sovereignty;
+  const tierLabel = isSovereignty ? 'Auto-sync active' : null;
+
+  container.innerHTML = `
+    <button id="sovereign-sync-btn" onclick="sovereignSync()"
+      style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;
+             background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(201,162,39,0.12));
+             border:1.5px solid rgba(201,162,39,0.35);border-radius:10px;
+             font-family:inherit;font-size:0.82rem;font-weight:700;
+             color:#f59e0b;cursor:pointer;transition:all 0.2s ease;
+             white-space:nowrap;">
+      <span id="sync-btn-icon">⚡</span>
+      <span id="sync-btn-label">Sovereign Sync</span>
+    </button>
+    ${tierLabel ? `<div style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:3px;">${tierLabel}</div>` : ''}
+  `;
+}
+
+async function sovereignSync() {
+  const btn = document.getElementById('sovereign-sync-btn');
+  const icon = document.getElementById('sync-btn-icon');
+  const label = document.getElementById('sync-btn-label');
+  if (!btn) return;
+
+  btn.disabled = true;
+  if (icon) icon.textContent = '⏳';
+  if (label) label.textContent = 'Syncing…';
+
+  try {
+    // Sync balances + transactions in parallel
+    const [balRes, txRes] = await Promise.all([
+      fetch('/api/mod_plaid/balances', { credentials: 'same-origin' }),
+      fetch('/api/mod_plaid/sync-transactions', { method: 'POST', credentials: 'same-origin' })
+    ]);
+
+    // Award Wallet points (graceful — skip if wallet not ready)
+    try {
+      await fetch('/api/mod_rewards/sync-reward', { method: 'POST', credentials: 'same-origin' });
+    } catch (_) {}
+
+    if (balRes.ok && txRes.ok) {
+      if (icon) icon.textContent = '✓';
+      if (label) label.textContent = 'Synced!';
+      btn.style.borderColor = 'rgba(16,185,129,0.5)';
+      btn.style.color = '#10b981';
+
+      // Reload plaid section to show updated state
+      setTimeout(() => initPlaidSection(), 1500);
+    } else {
+      throw new Error('Sync failed');
+    }
+  } catch (err) {
+    if (icon) icon.textContent = '⚠️';
+    if (label) label.textContent = 'Sync failed';
+    setTimeout(() => {
+      if (btn) { btn.disabled = false; if (icon) icon.textContent = '⚡'; if (label) label.textContent = 'Sovereign Sync'; }
+    }, 2500);
+  }
+}
+
+async function openPlaidLink() {
+  const btn = document.getElementById('plaid-connect-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+  try {
+    const tokenRes = await fetch('/api/mod_plaid/create-link-token', {
+      method: 'POST',
+      credentials: 'same-origin'
+    });
+    if (!tokenRes.ok) throw new Error('Could not create link token');
+    const { link_token } = await tokenRes.json();
+
+    // Load Plaid Link SDK if not already loaded
+    if (!window.Plaid) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.plaid.com/link/v2/stable/link-initialize.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    const handler = window.Plaid.create({
+      token: link_token,
+      onSuccess: async (publicToken, metadata) => {
+        if (btn) { btn.disabled = true; btn.textContent = 'Connecting…'; }
+        try {
+          const exchangeRes = await fetch('/api/mod_plaid/exchange-token', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              public_token: publicToken,
+              institution_id: metadata.institution?.institution_id,
+              institution_name: metadata.institution?.name
+            })
+          });
+          if (exchangeRes.ok) {
+            await initPlaidSection();
+            showAlert('plaid-alert', 'success', `✓ ${metadata.institution?.name || 'Bank'} connected successfully`);
+          } else {
+            const err = await exchangeRes.json();
+            showAlert('plaid-alert', 'error', err.error || 'Connection failed');
+          }
+        } catch (e) {
+          showAlert('plaid-alert', 'error', 'Connection failed: ' + e.message);
+        }
+      },
+      onExit: (err) => {
+        if (btn) { btn.disabled = false; btn.textContent = 'Connect Bank'; }
+        if (err) console.error('[PlaidLink] exit error:', err);
+      },
+      onEvent: (eventName) => {
+        console.log('[PlaidLink] event:', eventName);
+      }
+    });
+
+    handler.open();
+
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Connect Bank'; }
+    showAlert('plaid-alert', 'error', err.message || 'Failed to initialize Plaid');
+  }
+}
+
+async function disconnectPlaidConnection(id) {
+  if (!confirm('Disconnect this bank? Your transaction history will be preserved, but new syncs will stop.')) return;
+
+  const row = document.getElementById(`plaid-conn-${id}`);
+  const btn = row && row.querySelector('button');
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+  try {
+    const res = await fetch('/api/mod_plaid/disconnect', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ connection_id: id })
+    });
+    if (!res.ok) throw new Error('Disconnect failed');
+    if (row) row.remove();
+    await initPlaidSection(); // Refresh
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Disconnect'; }
+    alert('Error: ' + err.message);
+  }
+}
+
+// ─── Notifications ────────────────────────────────────────────
+function saveNotif() {
+  if (notifSaveTimeout) clearTimeout(notifSaveTimeout);
+  notifSaveTimeout = setTimeout(async () => {
+    const prefs = {
+      bill_due_reminders: document.getElementById('notif-bill').checked,
+      budget_overspend: document.getElementById('notif-budget').checked,
+      subscription_renewal: document.getElementById('notif-renewal').checked,
+      fg_commission: document.getElementById('notif-fg').checked,
+      product_updates: document.getElementById('notif-updates').checked
+    };
+    try {
+      const res = await fetch('/api/settings/notifications', {
+        method: 'PUT',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prefs)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to save');
+      showAlert('notif-alert', 'success', '✓ Preferences saved');
+      setTimeout(() => hideAlert('notif-alert'), 2500);
+    } catch (err) {
+      showAlert('notif-alert', 'error', err.message);
+    }
+  }, 600); // Debounce: save 600ms after last toggle
+}
+
+// ─── Delete Account ───────────────────────────────────────────
+function openDeleteModal() {
+  document.getElementById('delete-modal').classList.add('open');
+  document.getElementById('delete-password-input').focus();
+}
+
+function closeDeleteModal() {
+  document.getElementById('delete-modal').classList.remove('open');
+  document.getElementById('delete-password-input').value = '';
+  document.getElementById('delete-confirm-input').value = '';
+  hideAlert('delete-alert');
+}
+
+async function deleteAccount() {
+  const btn = document.getElementById('delete-confirm-btn');
+  const password = document.getElementById('delete-password-input').value;
+  const confirm = document.getElementById('delete-confirm-input').value;
+
+  if (!password) return showAlert('delete-alert', 'error', 'Password is required');
+  if (confirm !== 'DELETE') return showAlert('delete-alert', 'error', 'Please type DELETE (all caps) to confirm');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Deleting…';
+
+  try {
+    const res = await fetch('/api/settings/delete-account', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password, confirmation: 'DELETE' })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to delete account');
+
+    // Account deleted — redirect to home
+    closeDeleteModal();
+    document.body.innerHTML = `
+      <div style="min-height:100vh;min-height:100dvh;display:flex;align-items:flex-start;justify-content:center;background:var(--bg-deep);font-family:DM Sans,sans-serif;text-align:center;padding:40px 20px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+        <div>
+          <div style="font-size:3rem;margin-bottom:16px;">👋</div>
+          <h2 style="font-family:Space Grotesk,sans-serif;margin-bottom:8px;">Account Deleted</h2>
+          <p style="color:#94a3b8;margin-bottom:24px;">Your account and all data have been permanently deleted. Goodbye!</p>
+          <a href="/" style="background:#10b981;color:#000;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;">Return to Home</a>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    showAlert('delete-alert', 'error', err.message);
+    btn.disabled = false;
+    btn.textContent = 'Permanently Delete';
+  }
+}
+
+// ─── Succession Plan ──────────────────────────────────────────
+async function loadSuccessionPlan() {
+  try {
+    // First check graduation status — show section for certified retail users too
+    const gradRes = await fetch('/api/affiliate/graduation-check', { credentials: 'same-origin' });
+    if (gradRes.ok) {
+      const gradData = await gradRes.json();
+      // Show section for retail-choice certified users (so they can unlock anytime)
+      if (gradData.is_certified && gradData.chose_retail && !gradData.is_affiliate) {
+        const section = document.getElementById('section-succession');
+        if (section) section.style.display = '';
+        const navItem = document.getElementById('nav-succession');
+        if (navItem) navItem.style.display = '';
+        const subtitle = document.getElementById('succ-section-subtitle');
+        if (subtitle) subtitle.textContent = 'You\'re FACTS Certified — unlock your affiliate link anytime';
+        const panel = document.getElementById('unlock-affiliate-panel');
+        if (panel) panel.style.display = 'block';
+        // Hide the affiliate-only succession form content
+        const succFormWrap = document.getElementById('succession-form-wrap');
+        if (succFormWrap) succFormWrap.style.display = 'none';
+        const succTransfer = document.getElementById('succession-transfer-section');
+        if (succTransfer) succTransfer.style.display = 'none';
+        return; // Don't try to load affiliate succession data
+      }
+    }
+
+    const res = await fetch('/api/affiliate/succession', { credentials: 'same-origin' });
+    if (!res.ok) return; // Not an affiliate — section stays hidden
+    const data = await res.json();
+    if (!data.success) return;
+
+    // Show the section
+    const section = document.getElementById('section-succession');
+    if (section) section.style.display = '';
+    const navItem = document.getElementById('nav-succession');
+    if (navItem) navItem.style.display = '';
+
+    // Show active transfer if exists
+    if (data.active_transfer) {
+      const banner = document.getElementById('active-transfer-banner');
+      const info = document.getElementById('active-transfer-info');
+      if (banner && info) {
+        banner.style.display = 'block';
+        const t = data.active_transfer;
+        const statusLabels = {
+          pending_successor_signature: '⏳ Waiting for successor to sign',
+          pending_admin_approval: '🔍 Signed — awaiting corporate approval'
+        };
+        info.innerHTML = `
+          <strong>Type:</strong> ${capitalize(t.transfer_type)} transfer &nbsp;|&nbsp;
+          <strong>Status:</strong> ${statusLabels[t.status] || t.status}<br>
+          <strong>Successor:</strong> ${escHtml(t.successor_name || t.successor_email)} (${escHtml(t.successor_email)})
+          ${t.status === 'pending_successor_signature' && t.transfer_id ? `<br><strong>Sign URL:</strong> Send to successor: <code style="font-size:0.78rem;">/succession-sign?token=...</code>` : ''}
+        `;
+        // Hide the initiate button if transfer is active
+        const initBtn = document.getElementById('succession-transfer-section');
+        if (initBtn) initBtn.style.display = 'none';
+      }
+    }
+
+    // If a succession plan exists, show it
+    const plan = data.succession_plan;
+    if (plan && plan.is_designated) {
+      document.getElementById('succ-display-name').textContent = plan.successor_name || '—';
+      document.getElementById('succ-display-email').textContent = plan.successor_email || '—';
+      document.getElementById('succ-display-rel').textContent = capitalize(plan.successor_relationship || '');
+      document.getElementById('succ-display-date').textContent = plan.succession_authorized_date
+        ? new Date(plan.succession_authorized_date).toLocaleDateString() : '—';
+      document.getElementById('succession-current').style.display = 'block';
+      document.getElementById('succession-form-wrap').style.display = 'none';
+
+      // Pre-fill form for editing
+      const nameInput = document.getElementById('succ-name-input');
+      const emailInput = document.getElementById('succ-email-input');
+      const relInput = document.getElementById('succ-relationship-input');
+      if (nameInput) nameInput.value = plan.successor_name || '';
+      if (emailInput) emailInput.value = plan.successor_email || '';
+      if (relInput) relInput.value = plan.successor_relationship || '';
+
+      // Show voluntary transfer section
+      const transferSection = document.getElementById('succession-transfer-section');
+      if (transferSection && !data.active_transfer) transferSection.style.display = 'block';
+    }
+  } catch (err) {
+    // Not an affiliate or error — don't show the section
+  }
+}
+
+// ─── Sovereign Oath — Legacy Vault Viewer ─────────────────────────────────────
+// Shows the signed Sovereign Oath record in the Future Generations section.
+// Runs independently of affiliate status — any user who has signed can view it.
+async function loadOathVault() {
+  try {
+    const res = await fetch('/api/sovereign-oath/view', { credentials: 'same-origin' });
+    if (!res.ok) return; // Not signed — nothing to show
+    const data = await res.json();
+    if (!data.success || !data.signed_at) return;
+
+    // Show the oath vault card
+    const card = document.getElementById('oath-vault-card');
+    if (card) {
+      card.style.display = 'block';
+
+      const nameEl = document.getElementById('oath-vault-name');
+      if (nameEl) nameEl.textContent = data.legal_name || data.signer_name || '—';
+
+      const dateEl = document.getElementById('oath-vault-date');
+      if (dateEl) {
+        const d = new Date(data.signed_at);
+        dateEl.textContent = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      }
+
+      const verEl = document.getElementById('oath-vault-version');
+      if (verEl) verEl.textContent = data.version || 'v1';
+    }
+
+    // Make the succession section visible if it isn't already (so oath is accessible from profile)
+    const section = document.getElementById('section-succession');
+    const navItem = document.getElementById('nav-succession');
+    if (section && section.style.display === 'none') {
+      section.style.display = '';
+    }
+    if (navItem && navItem.style.display === 'none') {
+      navItem.style.display = '';
+    }
+  } catch (err) {
+    // Non-fatal — oath vault display is a bonus feature
+  }
+}
+
+// ─── Unlock Affiliate from Settings (for retail users who change their mind) ──
+
+function showUnlockAffiliateForm() {
+  const form = document.getElementById('unlock-affiliate-form');
+  const btn = document.getElementById('unlock-affiliate-btn');
+  if (form) form.style.display = 'block';
+  if (btn) btn.style.display = 'none';
+  const sig = document.getElementById('unlock-aff-signature');
+  if (sig) { sig.value = ''; sig.focus(); }
+  const errEl = document.getElementById('unlock-aff-error');
+  if (errEl) errEl.style.display = 'none';
+  const succEl = document.getElementById('unlock-aff-success');
+  if (succEl) succEl.style.display = 'none';
+}
+
+function cancelUnlockAffiliateForm() {
+  const form = document.getElementById('unlock-affiliate-form');
+  const btn = document.getElementById('unlock-affiliate-btn');
+  if (form) form.style.display = 'none';
+  if (btn) btn.style.display = '';
+}
+
+async function submitUnlockAffiliate() {
+  const signatureInput = document.getElementById('unlock-aff-signature');
+  const submitBtn = document.getElementById('unlock-aff-submit-btn');
+  const errEl = document.getElementById('unlock-aff-error');
+  const succEl = document.getElementById('unlock-aff-success');
+  const signature_name = (signatureInput ? signatureInput.value : '').trim();
+
+  if (!signature_name || signature_name.length < 2) {
+    if (errEl) {
+      errEl.textContent = 'Please type your full legal name to sign the Sovereign Oath.';
+      errEl.style.display = 'block';
+    }
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Activating…';
+    submitBtn.style.opacity = '0.6';
+  }
+  if (errEl) errEl.style.display = 'none';
+  if (succEl) succEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/affiliate/graduate', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ signature_name })
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      const msg = data.error || 'Something went wrong. Please try again.';
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      return;
+    }
+
+    // Success!
+    const link = data.referral_link || '';
+    if (succEl) {
+      succEl.innerHTML = `
+        <div style="font-weight:700;color:#4ade80;margin-bottom:8px;">🎉 Affiliate link activated!</div>
+        <div style="font-size:0.82rem;color:#9ca3af;margin-bottom:10px;line-height:1.5;">
+          You're now a Future Generations Affiliate. Your referral link is live.
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" value="${escHtml(link)}" readonly
+            id="settings-reflink-display"
+            style="flex:1;padding:9px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(34,197,94,0.3);border-radius:8px;color:#4ade80;font-size:0.8rem;font-family:inherit;outline:none;min-width:0;"
+          />
+          <button onclick="document.getElementById('settings-reflink-display').select();navigator.clipboard.writeText('${escHtml(link)}').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1800)}).catch(()=>{})"
+            style="flex-shrink:0;padding:9px 14px;background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.2);border-radius:8px;font-weight:700;font-size:0.8rem;cursor:pointer;font-family:inherit;white-space:nowrap;">
+            Copy
+          </button>
+        </div>
+        <div style="margin-top:10px;">
+          <a href="/affiliate-dashboard.html" style="color:#c9a227;font-size:0.82rem;font-weight:600;text-decoration:none;">
+            → Open Affiliate Dashboard
+          </a>
+        </div>
+      `;
+      succEl.style.display = 'block';
+    }
+
+    // Hide the form
+    const form = document.getElementById('unlock-affiliate-form');
+    if (form) {
+      const oathSection = form.querySelector('div[style*="italic"]');
+      if (oathSection) oathSection.style.display = 'none';
+    }
+    if (submitBtn) submitBtn.style.display = 'none';
+    const cancelBtn = form ? form.querySelector('button[onclick="cancelUnlockAffiliateForm()"]') : null;
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    const sigLabel = form ? form.querySelector('label') : null;
+    if (sigLabel) sigLabel.style.display = 'none';
+    if (signatureInput) signatureInput.style.display = 'none';
+
+    // Update the panel title
+    const subtitle = document.getElementById('succ-section-subtitle');
+    if (subtitle) subtitle.textContent = 'Your affiliate link is now active';
+
+  } catch (e) {
+    if (errEl) {
+      errEl.textContent = 'Network error. Please check your connection and try again.';
+      errEl.style.display = 'block';
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '⚜️ Activate My Link';
+      submitBtn.style.opacity = '1';
+    }
+  }
+}
+
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+async function saveSuecessionPlan() {
+  const btn = document.getElementById('save-succession-btn');
+  const name = document.getElementById('succ-name-input').value.trim();
+  const email = document.getElementById('succ-email-input').value.trim();
+  const relationship = document.getElementById('succ-relationship-input').value;
+  const signature = document.getElementById('succ-signature-input').value.trim();
+
+  if (!name || !email || !relationship || !signature) {
+    return showAlert('succession-alert', 'error', 'All fields including your digital signature are required.');
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Saving…';
+
+  try {
+    const res = await fetch('/api/affiliate/succession', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        successor_name: name,
+        successor_email: email,
+        successor_relationship: relationship,
+        signature
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to save');
+
+    showAlert('succession-alert', 'success', '✓ Succession plan saved. Your Legacy Vault is now active.');
+    document.getElementById('succ-signature-input').value = '';
+    setTimeout(() => loadSuccessionPlan(), 500);
+  } catch (err) {
+    showAlert('succession-alert', 'error', err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚜️ Save Succession Plan';
+  }
+}
+
+async function initiateVoluntaryTransfer() {
+  const btn = document.getElementById('initiate-transfer-btn');
+  const signature = document.getElementById('transfer-signature-input').value.trim();
+
+  if (!signature) {
+    return showAlert('transfer-init-alert', 'error', 'Please type your full legal name to confirm.');
+  }
+
+  if (!confirm('Are you sure? This will initiate a voluntary transfer of your affiliate position. You will lose your affiliate status when executed.')) {
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Initiating…';
+
+  try {
+    const res = await fetch('/api/affiliate/succession/initiate-transfer', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ signature })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to initiate');
+
+    showAlert('transfer-init-alert', 'success',
+      `✓ Transfer initiated. Send this link to your successor to sign: ${data.successor_sign_url}`);
+    document.getElementById('transfer-signature-input').value = '';
+    setTimeout(() => loadSuccessionPlan(), 1000);
+  } catch (err) {
+    showAlert('transfer-init-alert', 'error', err.message);
+    btn.disabled = false;
+    btn.innerHTML = '⚠️ Initiate Voluntary Transfer';
+  }
+}
+
+// ─── Security: Auto-logout Timer ──────────────────────────────
+async function loadTimeoutPreferenceSetting() {
+  try {
+    const res = await fetch('/api/user/timeout-preference', { credentials: 'same-origin' });
+    if (res.ok) {
+      const data = await res.json();
+      const select = document.getElementById('settings-timeout-select');
+      if (select) select.value = data.timeout_minutes || 15;
+    }
+  } catch (e) { /* ignore */ }
+}
+
+async function saveTimeoutPreferenceSetting() {
+  const select = document.getElementById('settings-timeout-select');
+  if (!select) return;
+  try {
+    const res = await fetch('/api/user/timeout-preference', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ timeout_minutes: parseInt(select.value) })
+    });
+    if (res.ok) {
+      const msg = document.getElementById('settings-timeout-success');
+      if (msg) {
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 3000);
+      }
+    }
+  } catch (e) { /* ignore */ }
+}
+
+// ─── Security: 2FA ────────────────────────────────────────────
+let settingsTwofaEnabled = false;
+
+async function loadTwofaStatusSettings() {
+  try {
+    const res = await fetch('/api/auth/2fa/status', { credentials: 'same-origin' });
+    if (!res.ok) return;
+    const data = await res.json();
+    settingsTwofaEnabled = data.enabled;
+    renderTwofaButtonSettings();
+    if (settingsTwofaEnabled) loadVerificationMethod();
+  } catch (e) { /* ignore */ }
+}
+
+function renderTwofaButtonSettings() {
+  const btn = document.getElementById('settings-twofa-btn');
+  const badge = document.getElementById('settings-twofa-badge');
+  if (!btn) return;
+  if (settingsTwofaEnabled) {
+    btn.textContent = 'Disable 2FA';
+    btn.style.cssText = 'width:100%;padding:11px 16px;border-radius:8px;font-family:inherit;font-weight:600;font-size:0.9rem;cursor:pointer;transition:all 0.2s ease;border:2px solid #f43f5e;background:rgba(244,63,94,0.1);color:#f43f5e;';
+    if (badge) { badge.textContent = '✓ Two-factor authentication is ON'; badge.style.cssText = 'display:block;padding:8px 12px;border-radius:8px;font-size:0.85rem;font-weight:500;margin-bottom:16px;text-align:center;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10b981;'; }
+  } else {
+    btn.textContent = 'Enable 2FA';
+    btn.style.cssText = 'width:100%;padding:11px 16px;border-radius:8px;font-family:inherit;font-weight:600;font-size:0.9rem;cursor:pointer;transition:all 0.2s ease;border:2px solid #10b981;background:rgba(16,185,129,0.1);color:#10b981;';
+    if (badge) { badge.textContent = '○ Two-factor authentication is OFF'; badge.style.cssText = 'display:block;padding:8px 12px;border-radius:8px;font-size:0.85rem;font-weight:500;margin-bottom:16px;text-align:center;background:rgba(100,116,139,0.1);border:1px solid rgba(100,116,139,0.3);color:var(--text-muted);'; }
+  }
+  renderVerifyMethodUI();
+}
+
+function showTwofaModalSettings() {
+  const modal = document.getElementById('settings-twofa-modal');
+  const desc = document.getElementById('settings-twofa-modal-desc');
+  const errEl = document.getElementById('settings-twofa-error');
+  const pwInput = document.getElementById('settings-twofa-password');
+  if (!modal) return;
+  desc.textContent = settingsTwofaEnabled
+    ? 'Enter your password to disable two-factor authentication. You\'ll no longer need a code to sign in.'
+    : 'Enter your password to enable two-factor authentication. Future logins will require a 6-digit code sent to your email or SMS.';
+  errEl.style.display = 'none';
+  pwInput.value = '';
+  modal.style.display = 'block';
+  setTimeout(() => pwInput.focus(), 100);
+}
+
+function hideTwofaModalSettings() {
+  const modal = document.getElementById('settings-twofa-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function confirmTwofaSettings() {
+  const pwInput = document.getElementById('settings-twofa-password');
+  const errEl = document.getElementById('settings-twofa-error');
+  const confirmBtn = document.getElementById('settings-twofa-confirm-btn');
+  const password = pwInput ? pwInput.value : '';
+  if (!password) {
+    if (errEl) { errEl.textContent = 'Password is required.'; errEl.style.display = 'block'; }
+    return;
+  }
+  confirmBtn.textContent = 'Confirming…';
+  confirmBtn.disabled = true;
+  const endpoint = settingsTwofaEnabled ? '/api/auth/2fa/disable' : '/api/auth/2fa/enable';
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ password })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      errEl.textContent = data.error || 'Failed. Please try again.';
+      errEl.style.display = 'block';
+      confirmBtn.textContent = 'Confirm';
+      confirmBtn.disabled = false;
+      return;
+    }
+    settingsTwofaEnabled = !settingsTwofaEnabled;
+    hideTwofaModalSettings();
+    renderTwofaButtonSettings();
+    if (settingsTwofaEnabled) loadVerificationMethod();
+  } catch (e) {
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+    confirmBtn.textContent = 'Confirm';
+    confirmBtn.disabled = false;
+  }
+}
+
+// ─── Verification Method (SMS vs Email OTP) ────────────────────
+let settingsVerifyMethod = 'email';
+let settingsVerifyPhone = null;
+
+async function loadVerificationMethod() {
+  try {
+    const res = await fetch('/api/user/verification-method', { credentials: 'same-origin' });
+    if (!res.ok) return;
+    const data = await res.json();
+    settingsVerifyMethod = data.method || 'email';
+    settingsVerifyPhone = data.phone || '';
+    renderVerifyMethodUI();
+  } catch (e) { /* ignore */ }
+}
+
+function renderVerifyMethodUI() {
+  const section = document.getElementById('settings-verify-method-section');
+  if (!section) return;
+  section.style.display = settingsTwofaEnabled ? 'block' : 'none';
+  if (!settingsTwofaEnabled) return;
+
+  const emailRadio = document.getElementById('verify-method-email');
+  const smsRadio = document.getElementById('verify-method-sms');
+  const phoneSection = document.getElementById('verify-method-phone-section');
+  const phoneInput = document.getElementById('verify-method-phone');
+  const emailLabel = document.getElementById('verify-method-email-label');
+  const smsLabel = document.getElementById('verify-method-sms-label');
+
+  const isSms = settingsVerifyMethod === 'sms';
+  if (emailRadio) emailRadio.checked = !isSms;
+  if (smsRadio) smsRadio.checked = isSms;
+  if (phoneInput && settingsVerifyPhone) phoneInput.value = settingsVerifyPhone;
+  if (phoneSection) phoneSection.style.display = isSms ? 'block' : 'none';
+  if (emailLabel) emailLabel.style.borderColor = !isSms ? '#10b981' : 'var(--border)';
+  if (smsLabel) smsLabel.style.borderColor = isSms ? '#10b981' : 'var(--border)';
+}
+
+function onVerifyMethodChange() {
+  const smsRadio = document.getElementById('verify-method-sms');
+  const phoneSection = document.getElementById('verify-method-phone-section');
+  const errEl = document.getElementById('verify-method-error');
+  const successEl = document.getElementById('verify-method-success');
+  if (errEl) errEl.style.display = 'none';
+  if (successEl) successEl.style.display = 'none';
+
+  const isSms = smsRadio && smsRadio.checked;
+  if (phoneSection) phoneSection.style.display = isSms ? 'block' : 'none';
+
+  const emailLabel = document.getElementById('verify-method-email-label');
+  const smsLabel = document.getElementById('verify-method-sms-label');
+  if (emailLabel) emailLabel.style.borderColor = !isSms ? '#10b981' : 'var(--border)';
+  if (smsLabel) smsLabel.style.borderColor = isSms ? '#10b981' : 'var(--border)';
+
+  if (isSms) {
+    const phoneInput = document.getElementById('verify-method-phone');
+    if (phoneInput) setTimeout(() => phoneInput.focus(), 50);
+  }
+}
+
+async function saveVerificationMethod() {
+  const smsRadio = document.getElementById('verify-method-sms');
+  const phoneInput = document.getElementById('verify-method-phone');
+  const errEl = document.getElementById('verify-method-error');
+  const successEl = document.getElementById('verify-method-success');
+  const saveBtn = document.getElementById('verify-method-save-btn');
+
+  if (errEl) errEl.style.display = 'none';
+  if (successEl) successEl.style.display = 'none';
+
+  const method = smsRadio && smsRadio.checked ? 'sms' : 'email';
+  const phone = phoneInput ? phoneInput.value.trim() : '';
+
+  if (method === 'sms' && !phone) {
+    if (errEl) { errEl.textContent = 'Phone number is required for SMS verification.'; errEl.style.display = 'block'; }
+    return;
+  }
+
+  if (saveBtn) { saveBtn.textContent = 'Saving…'; saveBtn.disabled = true; }
+
+  try {
+    const body = method === 'sms' ? { method, phone } : { method };
+    const res = await fetch('/api/user/verification-method', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      if (errEl) { errEl.textContent = data.error || 'Failed to save. Please try again.'; errEl.style.display = 'block'; }
+    } else {
+      settingsVerifyMethod = method;
+      settingsVerifyPhone = phone || null;
+      if (successEl) { successEl.textContent = data.message || 'Verification method saved.'; successEl.style.display = 'block'; }
+      renderVerifyMethodUI();
+    }
+  } catch (e) {
+    if (errEl) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.style.display = 'block'; }
+  } finally {
+    if (saveBtn) { saveBtn.textContent = 'Save Verification Method'; saveBtn.disabled = false; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SUCCESSION KEY — Heir Designation
+// ═══════════════════════════════════════════════════════════════
+
+async function loadHeirDesignation() {
+  try {
+    const res = await fetch('/api/profile/heir-designation', { credentials: 'same-origin' });
+    if (!res.ok) return; // Not logged in or error — skip silently
+
+    const data = await res.json();
+    if (!data.success) return;
+
+    // Show the section and nav item
+    document.getElementById('section-heir').style.display = 'block';
+    document.getElementById('nav-heir').style.display = 'block';
+
+    const d = data.designation;
+    if (d) {
+      // Show current designation
+      document.getElementById('heir-current-display').style.display = 'block';
+      document.getElementById('heir-form-wrap').style.display = 'none';
+      document.getElementById('heir-display-name').textContent = d.heir_name || '—';
+      document.getElementById('heir-display-email').textContent = d.heir_email || '—';
+      document.getElementById('heir-display-rel').textContent = d.relationship || '—';
+      document.getElementById('heir-display-status').textContent = d.activation_status === 'activated' ? '👑 Activated' : d.activation_status === 'revoked' ? 'Revoked' : '⏳ Pending';
+
+      const subEl = document.getElementById('heir-display-sub');
+      subEl.textContent = d.heir_subscription_active ? '✅ Active' : '⚠️ Not active';
+      subEl.style.color = d.heir_subscription_active ? 'var(--accent-green)' : '#fcd34d';
+
+      const commEl = document.getElementById('heir-display-commission');
+      commEl.textContent = d.commission_paused ? '⏸️ Paused' : '✅ Active';
+      commEl.style.color = d.commission_paused ? '#fcd34d' : 'var(--accent-green)';
+
+      if (d.commission_paused) {
+        document.getElementById('heir-paused-warning').style.display = 'block';
+      }
+      if (d.activation_status === 'activated') {
+        document.getElementById('heir-activated-banner').style.display = 'block';
+      }
+    }
+
+    // Render activity log
+    if (data.activity_log && data.activity_log.length) {
+      document.getElementById('heir-log-section').style.display = 'block';
+      const actionLabels = {
+        designated: '📌 Heir designated',
+        designation_updated: '✏️ Designation updated',
+        designation_revoked: '❌ Designation revoked',
+        succession_activated: '👑 Succession activated',
+        succession_reversed: '↩️ Succession reversed',
+        commission_paused: '⏸️ Commission paused',
+        commission_resumed: '▶️ Commission resumed',
+        heir_subscription_lapsed: '⚠️ Heir subscription lapsed',
+        heir_subscription_restored: '✅ Heir subscription restored'
+      };
+      document.getElementById('heir-log-list').innerHTML = data.activity_log.map(log => `
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(30,41,59,0.6);">
+          <div style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0;padding-top:2px;">${new Date(log.created_at).toLocaleDateString()}</div>
+          <div>
+            <div style="font-size:0.83rem;font-weight:600;color:var(--text-primary);">${actionLabels[log.action] || log.action}</div>
+            ${log.notes ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">${escHtml(log.notes)}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch (e) {
+    console.error('loadHeirDesignation error:', e);
+  }
+}
+
+async function saveHeirDesignation() {
+  const btn = document.getElementById('save-heir-btn');
+  const email = document.getElementById('heir-email-input').value.trim();
+  const rel   = document.getElementById('heir-relationship-select').value;
+
+  if (!email) return showAlert('heir-alert', 'error', 'Heir email is required.');
+
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/profile/heir-designation', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ heir_email: email, relationship: rel || null })
+    });
+    const data = await res.json();
+    if (!data.success) return showAlert('heir-alert', 'error', data.error || 'Failed to save.');
+    showAlert('heir-alert', 'success', data.message || '✓ Heir designated successfully.');
+    setTimeout(() => loadHeirDesignation(), 700);
+  } catch (e) {
+    showAlert('heir-alert', 'error', 'Network error. Please try again.');
+  } finally {
+    btn.textContent = '🗝️ Save Heir Designation'; btn.disabled = false;
+  }
+}
+
+async function revokeHeirDesignation() {
+  if (!confirm('Are you sure you want to revoke this heir designation? This cannot be undone without re-designating.')) return;
+  try {
+    const res = await fetch('/api/profile/heir-designation', {
+      method: 'DELETE',
+      credentials: 'same-origin'
+    });
+    const data = await res.json();
+    if (!data.success) return alert(data.error || 'Failed to revoke.');
+    document.getElementById('heir-current-display').style.display = 'none';
+    document.getElementById('heir-form-wrap').style.display = 'block';
+    document.getElementById('heir-paused-warning').style.display = 'none';
+    document.getElementById('heir-activated-banner').style.display = 'none';
+    showAlert('heir-alert', 'success', '✓ Heir designation revoked.');
+    setTimeout(() => loadHeirDesignation(), 700);
+  } catch (e) {
+    alert('Network error. Please try again.');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// THE VANTAGE POINT — Read-Only Share Management
+// ═══════════════════════════════════════════════════════════════
+
+let currentVantageLink = '';
+
+async function loadVantageShares() {
+  try {
+    const res = await fetch('/api/vantage-point/shares', { credentials: 'same-origin' });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.success) return;
+    renderVantageShares(data.shares || []);
+  } catch (e) {
+    console.error('loadVantageShares error:', e);
+  }
+}
+
+function renderVantageShares(shares) {
+  const container = document.getElementById('vantage-shares-list');
+  if (!shares.length) {
+    container.innerHTML = `<div style="font-size:0.85rem;color:var(--text-muted);text-align:center;padding:24px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;">No active shares. Create one above to get started.</div>`;
+    return;
+  }
+
+  container.innerHTML = shares.map(s => {
+    const isExpired = s.expires_at && new Date(s.expires_at) < new Date();
+    const statusColor = s.revoked ? 'var(--text-muted)' : isExpired ? '#fcd34d' : 'var(--accent-green)';
+    const statusLabel = s.revoked ? 'Revoked' : isExpired ? 'Expired' : '✅ Active';
+    const perms = s.permissions || {};
+    const permList = Object.entries(perms).filter(([,v]) => v).map(([k]) => ({
+      facts_ledger: 'FACTS', debt_position: 'Debt', allocation_percentages: 'Alloc',
+      net_worth: 'Net Worth', affiliate_tree: 'Affiliate'
+    }[k] || k)).join(', ');
+
+    return `<div style="background:var(--bg-elevated);border:1px solid ${s.revoked || isExpired ? 'rgba(30,41,59,0.6)' : 'var(--border)'};border-radius:12px;padding:14px 16px;margin-bottom:10px;opacity:${s.revoked || isExpired ? '0.6' : '1'};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+        <div>
+          <div style="font-weight:700;font-size:0.88rem;">${escHtml(s.label || s.viewer_email)}</div>
+          <div style="font-size:0.78rem;color:var(--text-muted);">${escHtml(s.viewer_email)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <span style="font-size:0.72rem;font-weight:700;color:${statusColor};background:rgba(30,41,59,0.8);border:1px solid rgba(30,41,59,0.9);border-radius:99px;padding:2px 10px;">${statusLabel}</span>
+          ${!s.revoked && !isExpired ? `<button onclick="revokeVantageShare(${s.id})" class="btn btn-secondary" style="font-size:0.72rem;padding:4px 10px;color:var(--accent-rose);border-color:rgba(244,63,94,0.3);">Revoke</button>` : ''}
+        </div>
+      </div>
+      <div style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;">
+        <span>Visible: ${permList || 'None'}</span>
+        ${s.expires_at ? ` &nbsp;·&nbsp; Expires: ${new Date(s.expires_at).toLocaleDateString()}` : ''}
+        ${s.access_count ? ` &nbsp;·&nbsp; Viewed ${s.access_count}×` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function createVantageShare() {
+  const btn = document.getElementById('create-vantage-btn');
+  const email    = document.getElementById('vantage-email-input').value.trim();
+  const label    = document.getElementById('vantage-label-input').value.trim();
+  const expDays  = document.getElementById('vantage-expires-select').value;
+
+  if (!email) return showAlert('vantage-create-alert', 'error', 'Recipient email is required.');
+
+  const perms = {
+    facts_ledger:            document.getElementById('perm-ledger').checked,
+    debt_position:           document.getElementById('perm-debt').checked,
+    allocation_percentages:  document.getElementById('perm-alloc').checked,
+    net_worth:               document.getElementById('perm-nw').checked,
+    affiliate_tree:          document.getElementById('perm-aff').checked
+  };
+
+  btn.textContent = 'Creating…'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/vantage-point/shares', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ viewer_email: email, label: label || null, permissions: perms, expires_days: expDays || null })
+    });
+    const data = await res.json();
+    if (!data.success) return showAlert('vantage-create-alert', 'error', data.error || 'Failed to create.');
+
+    // Show the copy link result
+    currentVantageLink = data.share_url;
+    document.getElementById('vantage-link-url').textContent = data.share_url;
+    document.getElementById('vantage-link-result').style.display = 'block';
+    document.getElementById('vantage-create-alert').className = 'alert';
+    document.getElementById('vantage-email-input').value = '';
+    document.getElementById('vantage-label-input').value = '';
+
+    // Reload list
+    loadVantageShares();
+  } catch (e) {
+    showAlert('vantage-create-alert', 'error', 'Network error. Please try again.');
+  } finally {
+    btn.textContent = '👁 Create Vantage Point Link'; btn.disabled = false;
+  }
+}
+
+function copyVantageLink() {
+  if (!currentVantageLink) return;
+  navigator.clipboard.writeText(currentVantageLink).then(() => {
+    const btn = document.querySelector('[onclick="copyVantageLink()"]');
+    if (btn) { btn.textContent = '✓ Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000); }
+  });
+}
+
+async function revokeVantageShare(id) {
+  if (!confirm('Revoke this share? The recipient will no longer be able to view your data.')) return;
+  try {
+    const res = await fetch('/api/vantage-point/shares/' + id, {
+      method: 'DELETE',
+      credentials: 'same-origin'
+    });
+    const data = await res.json();
+    if (!data.success) return alert(data.error || 'Failed to revoke.');
+    loadVantageShares();
+  } catch (e) {
+    alert('Network error. Please try again.');
+  }
+}
+
+// ─── Nav Scroll ───────────────────────────────────────────────
+function scrollTo(section) {
+  const el = document.getElementById(`section-${section}`);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Update active nav
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    // Find the nav item for this section
+    const navItems = document.querySelectorAll('.nav-item');
+    const sectionMap = { profile: 0, email: 1, password: 2, subscription: 3, notifications: 4, connected: 5, security: 6, succession: 7, heir: 8, vantage: 9, danger: 10 };
+    const idx = sectionMap[section];
+    if (idx !== undefined && navItems[idx]) navItems[idx].classList.add('active');
+  }
+}
+
+// ─── Helpers ──────────────────────────────────────────────────
+function showAlert(id, type, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = `alert alert-${type} show`;
+  el.textContent = msg;
+}
+
+function hideAlert(id) {
+  const el = document.getElementById(id);
+  if (el) { el.className = 'alert'; el.textContent = ''; }
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Close delete modal on backdrop click
+document.getElementById('delete-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+
+// ─── Scroll-spy to update nav ──────────────────────────────────
+const sections = ['profile','email','password','subscription','notifications','connected','security','succession','heir','vantage','disclaimer','danger'];
+function updateActiveNav() {
+  let current = sections[0];
+  for (const s of sections) {
+    const el = document.getElementById(`section-${s}`);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top <= 100) current = s;
+    }
+  }
+  document.querySelectorAll('.nav-item').forEach((item, idx) => {
+    item.classList.toggle('active', sections[idx] === current);
+  });
+}
+window.addEventListener('scroll', updateActiveNav, { passive: true });
+
+// ─── Boot ─────────────────────────────────────────────────────
+init();
+
+// ─── Feature Waitlist Helper (Coming Soon items) ──────────────
+function submitSettingsWaitlist(featureName, emailInputId, formId, confirmId) {
+  var emailEl = document.getElementById(emailInputId);
+  var email = emailEl ? emailEl.value.trim() : '';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (emailEl) { emailEl.style.borderColor = 'var(--accent-rose, #ef4444)'; setTimeout(function(){ emailEl.style.borderColor = ''; }, 2000); }
+    return;
+  }
+  var btn = emailEl ? emailEl.nextElementSibling : null;
+  if (btn) { btn.textContent = '…'; btn.disabled = true; }
+  fetch('/api/waitlist/feature', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') },
+    body: JSON.stringify({ feature_name: featureName, email: email })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function() {
+    var formEl = document.getElementById(formId);
+    var confirmEl = document.getElementById(confirmId);
+    if (formEl) formEl.style.display = 'none';
+    if (confirmEl) confirmEl.style.display = 'block';
+  })
+  .catch(function() {
+    if (btn) { btn.textContent = '🔔 Notify Me'; btn.disabled = false; }
+  });
+}
+
+// ── Educational Disclaimer Frequency ─────────────────────────────────────────
+(function () {
+  var slider      = document.getElementById('edu-interval-slider');
+  var labelEl     = document.getElementById('edu-interval-label');
+  var displayEl   = document.getElementById('edu-interval-display');
+  var statusEl    = document.getElementById('edu-interval-status');
+  if (!slider) return;
+
+  // Load current setting from server
+  fetch('/api/user/educational-disclaimer-status')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      if (!data) return;
+      var days = data.interval_days || 30;
+      // Clamp to valid range and snap to multiple of 30
+      days = Math.min(180, Math.max(30, Math.round(days / 30) * 30));
+      slider.value = days;
+      if (labelEl)   labelEl.textContent   = days + ' days';
+      if (displayEl) displayEl.textContent = days;
+    })
+    .catch(function () {});
+
+  slider.addEventListener('input', function () {
+    var v = parseInt(slider.value, 10);
+    if (labelEl)   labelEl.textContent   = v + ' days';
+    if (displayEl) displayEl.textContent = v;
+    if (statusEl)  statusEl.style.display = 'none';
+  });
+}());
+
+function saveEduInterval() {
+  var slider    = document.getElementById('edu-interval-slider');
+  var saveBtn   = document.getElementById('edu-interval-save-btn');
+  var statusEl  = document.getElementById('edu-interval-status');
+  if (!slider || !saveBtn) return;
+
+  var days = parseInt(slider.value, 10);
+  if (isNaN(days) || days < 30 || days > 180) return;
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+
+  fetch('/api/user/educational-disclaimer-interval', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ interval_days: days })
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Preference';
+      if (data.success && statusEl) {
+        statusEl.style.display = 'inline';
+        setTimeout(function () { statusEl.style.display = 'none'; }, 3000);
+      }
+    })
+    .catch(function () {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Preference';
+    });
+}
+
+// ── Restart Onboarding Tour ────────────────────────────────────────────────────
+function restartTour() {
+  var btn      = document.getElementById('restart-tour-btn');
+  var statusEl = document.getElementById('restart-tour-status');
+  if (!btn) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Resetting…';
+
+  fetch('/api/user/restart-tour', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      btn.disabled = false;
+      btn.textContent = '↩ Restart Walkthrough';
+      if (data.success && statusEl) {
+        statusEl.style.display = 'inline';
+        setTimeout(function () { statusEl.style.display = 'none'; }, 5000);
+      }
+    })
+    .catch(function () {
+      btn.disabled = false;
+      btn.textContent = '↩ Restart Walkthrough';
+    });
+}
+</script>
+
+<!-- nav-bar excluded (app page has its own header) -->
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forensic Scan — FACTS Protocol</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        crimson: '#FF3B30',
+                        platinum: '#A9A9A9',
+                        darkBg: '#0B0F19',
+                        cardBg: '#111827',
+                        goldAccent: '#D4AF37'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body { background: #0B0F19; color: #fff; font-family: system-ui, sans-serif; min-height: 100vh; }
+        input[type="range"] {
+            -webkit-appearance: none; appearance: none;
+            background: #1F2937; height: 6px; border-radius: 9999px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #D4AF37; cursor: pointer;
+            box-shadow: 0 0 10px rgba(212,175,55,0.5);
+        }
+        .btn-yes, .btn-no {
+            flex: 1; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 1rem;
+            letter-spacing: 0.05em; cursor: pointer; transition: all 0.15s;
+            border: 2px solid transparent;
+        }
+        .btn-yes {
+            background: #064e3b; color: #34d399; border-color: #065f46;
+        }
+        .btn-yes:hover, .btn-yes.selected {
+            background: #065f46; box-shadow: 0 0 16px rgba(52,211,153,0.25);
+        }
+        .btn-no {
+            background: #450a0a; color: #fca5a5; border-color: #7f1d1d;
+        }
+        .btn-no:hover, .btn-no.selected {
+            background: #7f1d1d; box-shadow: 0 0 16px rgba(252,165,165,0.25);
+        }
+        .answer-btn.selected { transform: scale(1.04); }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-cardBg rounded-3xl p-6 shadow-2xl border border-gray-800">
+
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <p class="text-xs text-gray-400 tracking-widest uppercase mb-1">FACTS Protocol</p>
+            <h1 class="text-2xl font-bold text-white mb-1">Forensic Wealth Scan</h1>
+            <p class="text-xs text-gray-500">Answer 5 questions. Each unlocks your personalized sovereignty roadmap.</p>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="mb-6">
+            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                <span>Question <span id="q-num">1</span> of 5</span>
+                <span id="q-score"></span>
+            </div>
+            <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full bg-goldAccent transition-all duration-300" style="width:0%"></div>
+            </div>
+        </div>
+
+        <!-- Question card -->
+        <div id="question-card" class="mb-6 p-5 bg-gray-900/50 border border-gray-700 rounded-2xl">
+            <p id="question-text" class="text-base font-semibold text-white leading-relaxed mb-5"></p>
+            <div id="answer-buttons" class="flex gap-3">
+                <button class="btn-yes answer-btn" data-answer="true" id="btn-yes">YES</button>
+                <button class="btn-no answer-btn" data-answer="false" id="btn-no">NO</button>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex gap-3">
+            <button id="btn-back" class="flex-1 py-3 bg-gray-800 text-gray-400 rounded-xl font-semibold text-sm hover:bg-gray-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+                &#8592; Back
+            </button>
+            <button id="btn-next" class="flex-1 py-3 bg-goldAccent text-darkBg font-bold rounded-xl text-sm tracking-wider uppercase hover:brightness-110 transition-all disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+                Next &#8594;
+            </button>
+        </div>
+
+        <!-- Submit row (shown on last question) -->
+        <div id="submit-row" class="hidden mt-3">
+            <button id="btn-submit" class="w-full py-4 bg-gradient-to-r from-goldAccent to-yellow-600 text-darkBg font-bold rounded-xl tracking-widest uppercase text-sm hover:brightness-110 transition-all">
+                Reveal My Sovereignty Roadmap &#8594;
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        const QUESTIONS = [
+            { id: 0, text: "Do you currently carry credit card or revolving debt with an interest rate above 15%?" },
+            { id: 1, text: "Is more than 30% of your gross monthly income consumed by housing costs (rent or mortgage)?" },
+            { id: 2, text: "Are you making only the minimum payment on any loan, credit card, or line of credit?" },
+            { id: 3, text: "Do you have less than 3 months of expenses saved in an accessible emergency fund?" },
+            { id: 4, text: "Have you taken out a personal loan, payday loan, or cash advance in the past 24 months?" }
+        ];
+
+        const answers = new Array(5).fill(null);
+        let currentQ = 0;
+
+        const questionText = document.getElementById('question-text');
+        const qNum         = document.getElementById('q-num');
+        const qScore       = document.getElementById('q-score');
+        const progressBar  = document.getElementById('progress-bar');
+        const btnYes       = document.getElementById('btn-yes');
+        const btnNo        = document.getElementById('btn-no');
+        const btnNext      = document.getElementById('btn-next');
+        const btnBack      = document.getElementById('btn-back');
+        const btnSubmit    = document.getElementById('btn-submit');
+        const submitRow    = document.getElementById('submit-row');
+
+        function renderQuestion(idx) {
+            const q = QUESTIONS[idx];
+            questionText.textContent = q.text;
+            qNum.textContent = idx + 1;
+            progressBar.style.width = `${(idx / 5) * 100}%`;
+
+            // Reset buttons
+            btnYes.classList.remove('selected');
+            btnNo.classList.remove('selected');
+            btnYes.disabled = false;
+            btnNo.disabled = false;
+
+            // Restore prior answer if any
+            if (answers[idx] !== null) {
+                if (answers[idx] === true) btnYes.classList.add('selected');
+                else btnNo.classList.add('selected');
+            }
+
+            // Nav buttons
+            btnBack.disabled = idx === 0;
+            btnNext.disabled = answers[idx] === null;
+
+            // Show submit on last question
+            const isLast = idx === QUESTIONS.length - 1;
+            btnNext.classList.toggle('hidden', isLast);
+            submitRow.classList.toggle('hidden', !isLast);
+            if (isLast) btnNext.disabled = answers[idx] === null;
+
+            // Update score
+            const answered = answers.filter(a => a !== null).length;
+            qScore.textContent = answered > 0 ? `${answered}/5 answered` : '';
+        }
+
+        // Answer selection
+        function selectAnswer(val) {
+            answers[currentQ] = val;
+            btnYes.classList.toggle('selected', val === true);
+            btnNo.classList.toggle('selected', val === false);
+            btnNext.disabled = false;
+
+            // Auto-advance after short delay
+            setTimeout(() => {
+                if (currentQ < QUESTIONS.length - 1) {
+                    currentQ++;
+                    renderQuestion(currentQ);
+                } else {
+                    btnNext.classList.add('hidden');
+                    submitRow.classList.remove('hidden');
+                }
+            }, 300);
+        }
+
+        btnYes.addEventListener('click', () => selectAnswer(true));
+        btnNo.addEventListener('click',  () => selectAnswer(false));
+
+        btnBack.addEventListener('click', () => {
+            if (currentQ > 0) { currentQ--; renderQuestion(currentQ); }
+        });
+
+        btnNext.addEventListener('click', () => {
+            if (currentQ < QUESTIONS.length - 1) {
+                currentQ++;
+                renderQuestion(currentQ);
+            }
+        });
+
+        btnSubmit.addEventListener('click', async () => {
+            const sessionId = sessionStorage.getItem('factsSessionId');
+            const calcState = sessionStorage.getItem('factsCalcState');
+
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Analyzing...';
+
+            // Submit all 5 answers
+            try {
+                for (let i = 0; i < 5; i++) {
+                    await fetch('/api/mod_onboarding/forensic-answer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sessionId: sessionId || null, questionId: i, answer: answers[i] })
+                    });
+                }
+            } catch (_) {}
+
+            // Store answers for the next page
+            sessionStorage.setItem('forensicAnswers', JSON.stringify(answers));
+
+            // Redirect to vault signup (sessionId passed as query param for signup.html to forward)
+            const dest = sessionId
+                ? `/signup.html?session=${encodeURIComponent(sessionId)}`
+                : '/signup.html';
+            window.location.href = dest;
+        });
+
+        // Initialize
+        renderQuestion(0);
+    </script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

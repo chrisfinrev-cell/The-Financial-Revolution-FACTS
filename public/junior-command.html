@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Junior Command Console — Financial Revolution</title>
+  <meta name="description" content="Your personal command console for Junior Revolutionaries. Complete missions, earn XP, and build your fortress!">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23052e16'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' fill='%2322c55e'%3E🏕️%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base:    { 950: '#030a05', 900: '#0a1a0d', 800: '#0f2318', 700: '#162d1e' },
+            jungle:  { 400: '#4ade80', 500: '#22c55e', 600: '#16a34a' },
+            gold:    { 300: '#fde68a', 400: '#fbbf24', 500: '#f59e0b' },
+            rank:    { blue: '#60a5fa', purple: '#a78bfa' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    .font-military { font-family: 'Orbitron', monospace; }
+    body { background: #030a05; color: #f0fdf4; }
+
+    /* Scan lines overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(34,197,94,0.015) 2px, rgba(34,197,94,0.015) 4px);
+    }
+
+    .glow-green { text-shadow: 0 0 10px rgba(34,197,94,0.6), 0 0 20px rgba(34,197,94,0.3); }
+    .glow-gold  { text-shadow: 0 0 10px rgba(251,191,36,0.6), 0 0 20px rgba(251,191,36,0.3); }
+
+    .card-base   { background: linear-gradient(145deg, #0f2318, #0a1a0d); border: 1px solid rgba(34,197,94,0.12); }
+    .card-mission { background: linear-gradient(145deg, #162d1e, #0f2318); border: 1px solid rgba(34,197,94,0.25); border-left: 3px solid #22c55e; }
+    .card-pending { background: linear-gradient(145deg, #1c1a08, #12110a); border: 1px solid rgba(251,191,36,0.3); border-left: 3px solid #f59e0b; }
+    .card-done    { background: linear-gradient(145deg, #0a1a0d, #070f09); border: 1px solid rgba(34,197,94,0.1); opacity: 0.75; }
+
+    .xp-bar-track { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.2); border-radius: 999px; overflow: hidden; }
+    .xp-bar-fill  {
+      height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e, #4ade80);
+      border-radius: 999px; transition: width 1.2s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 0 10px rgba(34,197,94,0.5);
+    }
+
+    /* Badge styles */
+    .badge-card        { background: linear-gradient(145deg, #162d1e, #0f2318); border: 1px solid rgba(34,197,94,0.2); border-radius: 0.75rem; transition: transform 0.2s, box-shadow 0.2s; }
+    .badge-card:hover  { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(34,197,94,0.15); }
+    .badge-card.locked { filter: grayscale(1); opacity: 0.4; }
+
+    /* Fortress */
+    .fortress-stage       { display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: 0.3; transition: all 0.3s; }
+    .fortress-stage.past  { opacity: 0.55; }
+    .fortress-stage.active { opacity: 1; transform: scale(1.12); }
+    .fortress-stage.active .f-emoji { filter: drop-shadow(0 0 12px rgba(34,197,94,0.7)); }
+    .f-emoji { font-size: 2rem; transition: filter 0.3s; }
+    .f-connector { width: 24px; height: 2px; background: rgba(34,197,94,0.3); }
+
+    /* Tab nav */
+    .tab-btn       { padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; color: rgba(240,253,244,0.5); }
+    .tab-btn.active { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .tab-btn:hover  { color: #d1fae5; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeUp 0.35s ease both; }
+
+    /* Celebration overlay */
+    #level-up-overlay {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: rgba(3,10,5,0.95); align-items: center; justify-content: center; flex-direction: column;
+      text-align: center;
+    }
+    #level-up-overlay.show { display: flex; }
+    #level-up-overlay .star-burst { animation: starBurst 0.6s ease forwards; }
+    @keyframes starBurst {
+      0%   { transform: scale(0) rotate(-45deg); opacity: 0; }
+      50%  { transform: scale(1.3) rotate(10deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg);   opacity: 1; }
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh)  rotate(720deg); opacity: 0; }
+    }
+    .confetti-piece {
+      position: absolute; width: 10px; height: 10px; border-radius: 2px;
+      animation: confettiFall 2s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+    .loading-pulse { animation: pulse 1.5s ease infinite; }
+
+    /* Vault scroll aesthetic */
+    .vault-entry { background: linear-gradient(145deg, #1a2e0f, #0f2318); border: 1px solid rgba(34,197,94,0.2); border-radius: 0.75rem; }
+    .vault-entry.locked { background: linear-gradient(145deg, #0a0a0a, #111); border-color: rgba(255,255,255,0.06); }
+
+    /* Mission request animation */
+    @keyframes requestSent {
+      0%   { background: rgba(251,191,36,0.05); }
+      50%  { background: rgba(251,191,36,0.2); }
+      100% { background: rgba(251,191,36,0.05); }
+    }
+    .request-sent { animation: requestSent 0.8s ease; }
+
+    .btn-green   { background: linear-gradient(135deg, #16a34a, #22c55e); color: #030a05; font-weight: 700; transition: opacity 0.2s, transform 0.15s; }
+    .btn-green:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-gold    { background: linear-gradient(135deg, #d97706, #fbbf24); color: #030a05; font-weight: 700; transition: opacity 0.2s; }
+    .btn-gold:hover { opacity: 0.9; }
+    .btn-ghost   { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #d1fae5; transition: background 0.2s; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.09); }
+
+    .rank-badge   { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+    .rank-1 { background: rgba(156,163,175,0.15); border: 1px solid rgba(156,163,175,0.3); color: #9ca3af; }
+    .rank-2 { background: rgba(134,239,172,0.12); border: 1px solid rgba(134,239,172,0.3); color: #86efac; }
+    .rank-3 { background: rgba(96,165,250,0.12);  border: 1px solid rgba(96,165,250,0.3);  color: #93c5fd; }
+    .rank-4 { background: rgba(251,191,36,0.12);  border: 1px solid rgba(251,191,36,0.3);  color: #fbbf24; }
+    .rank-5 { background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.3); color: #c4b5fd; }
+    .rank-6 { background: rgba(251,191,36,0.2);   border: 1px solid rgba(251,191,36,0.5);  color: #fde68a; text-shadow: 0 0 8px rgba(251,191,36,0.5); }
+
+    /* Toast */
+    #toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px); z-index: 200; transition: transform 0.3s ease; border-radius: 0.75rem; padding: 0.75rem 1.5rem; font-weight: 600; font-size: 0.9rem; }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.success { background: #065f46; border: 1px solid #10b981; color: #d1fae5; }
+    #toast.error   { background: #7f1d1d; border: 1px solid #ef4444; color: #fecaca; }
+  </style>
+  <script defer src="/nav-bar.js"></script>
+</head>
+<body class="min-h-screen">
+
+<!-- ── Level-Up Overlay ─────────────────────────────────────────────────── -->
+<div id="level-up-overlay">
+  <div id="lu-emoji" class="star-burst" style="font-size:5rem;margin-bottom:1rem;">🎉</div>
+  <div class="font-military text-3xl sm:text-4xl glow-gold mb-3" id="lu-title" style="color:#fbbf24;">LEVEL UP!</div>
+  <div class="text-xl sm:text-2xl text-emerald-300 mb-6" id="lu-subtitle">You are now a Cadet!</div>
+  <div id="lu-emoji-rank" style="font-size:3.5rem;margin-bottom:1.5rem;">⛺</div>
+  <div class="text-base text-emerald-400 mb-8 max-w-xs" id="lu-desc">Your fortress grows stronger. Keep completing missions!</div>
+  <button onclick="closeLevelUp()" class="btn-green px-8 py-3 rounded-xl text-base">
+    Continue Mission ➔
+  </button>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ── Loading screen ─────────────────────────────────────────────────────── -->
+<div id="loading-screen" class="fixed inset-0 flex flex-col items-center justify-center z-50" style="background:#030a05;">
+  <div class="font-military text-2xl glow-green mb-6" style="color:#22c55e;">LOADING COMMAND CONSOLE...</div>
+  <div style="width:200px;height:6px;" class="xp-bar-track">
+    <div id="boot-bar" class="xp-bar-fill" style="width:0%;"></div>
+  </div>
+</div>
+
+<!-- ── Invalid Access ─────────────────────────────────────────────────────── -->
+<div id="invalid-screen" class="hidden fixed inset-0 flex flex-col items-center justify-center z-50 p-8 text-center" style="background:#030a05;">
+  <div style="font-size:4rem;margin-bottom:1.5rem;">⛔</div>
+  <div class="font-military text-2xl mb-3" style="color:#ef4444;">ACCESS DENIED</div>
+  <p class="text-emerald-300 mb-6 max-w-sm">This console link is invalid or has expired. Ask your parent for the correct link.</p>
+</div>
+
+<!-- ── Main App ────────────────────────────────────────────────────────────── -->
+<div id="app" class="hidden min-h-screen pb-24">
+
+  <!-- Header -->
+  <header class="sticky z-40 px-4 py-3" style="top:44px;background:rgba(3,10,5,0.95);border-bottom:1px solid rgba(34,197,94,0.12);backdrop-filter:blur(10px);">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div id="hdr-avatar" style="font-size:1.6rem;">🧒</div>
+        <div>
+          <div class="font-military text-sm glow-green" style="color:#22c55e;" id="hdr-name">LOADING...</div>
+          <div id="hdr-rank" class="rank-badge rank-1">⚡ Recruit</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="font-military text-lg" style="color:#fbbf24;" id="hdr-xp">0 XP</div>
+        <div class="text-xs text-emerald-600">Total Earned</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- XP Bar -->
+  <div class="px-4 py-3 max-w-xl mx-auto">
+    <div class="flex justify-between text-xs mb-1.5" style="color:rgba(74,222,128,0.7);">
+      <span id="xp-label">Level 1 → Level 2</span>
+      <span id="xp-pct">0%</span>
+    </div>
+    <div class="xp-bar-track" style="height:10px;">
+      <div class="xp-bar-fill" id="xp-bar" style="width:0%;"></div>
+    </div>
+    <div class="text-xs mt-1.5 text-right" style="color:rgba(74,222,128,0.5);" id="xp-detail">0 / 100 XP to next level</div>
+  </div>
+
+  <!-- Tab Nav -->
+  <nav class="px-4 mb-4 max-w-xl mx-auto">
+    <div class="flex gap-1.5 overflow-x-auto pb-1" style="scrollbar-width:none;">
+      <button class="tab-btn active whitespace-nowrap" onclick="switchTab('missions')">⚔️ Missions</button>
+      <button class="tab-btn whitespace-nowrap"        onclick="switchTab('fortress')">🏰 Fortress</button>
+      <button class="tab-btn whitespace-nowrap"        onclick="switchTab('badges')">🏅 Badges</button>
+      <button class="tab-btn whitespace-nowrap"        onclick="switchTab('vault')">📚 Vault</button>
+      <button class="tab-btn whitespace-nowrap"        onclick="switchTab('history')">📜 History</button>
+    </div>
+  </nav>
+
+  <div class="px-4 max-w-xl mx-auto">
+
+    <!-- ──────── MISSIONS TAB ──────── -->
+    <div id="tab-missions" class="tab-content active">
+      <div class="font-military text-sm mb-3 glow-green" style="color:#22c55e;">▶ ACTIVE MISSION ORDERS</div>
+      <div id="missions-list">
+        <div class="card-base rounded-xl p-4 text-center loading-pulse" style="color:rgba(74,222,128,0.4);">Loading missions...</div>
+      </div>
+    </div>
+
+    <!-- ──────── FORTRESS TAB ──────── -->
+    <div id="tab-fortress" class="tab-content">
+      <div class="font-military text-sm mb-4 glow-green" style="color:#22c55e;">▶ YOUR FORTRESS</div>
+      <div class="card-base rounded-2xl p-6 mb-4 text-center">
+        <div id="fortress-main-emoji" style="font-size:5rem;margin-bottom:0.75rem;">🏕️</div>
+        <div class="font-military text-xl glow-green mb-1" style="color:#22c55e;" id="fortress-main-name">Base Camp</div>
+        <div class="text-sm text-emerald-400 mb-4" id="fortress-main-desc">Every great fortress starts with a single camp. Keep earning XP to expand!</div>
+
+        <!-- Stage progression -->
+        <div class="flex items-center justify-center gap-1 mt-6 flex-wrap">
+          <div class="fortress-stage" id="fs-1">
+            <div class="f-emoji">🏕️</div>
+            <div style="font-size:0.55rem;color:rgba(74,222,128,0.6);">Base Camp</div>
+          </div>
+          <div class="f-connector"></div>
+          <div class="fortress-stage" id="fs-2">
+            <div class="f-emoji">⛺</div>
+            <div style="font-size:0.55rem;color:rgba(74,222,128,0.6);">Outpost</div>
+          </div>
+          <div class="f-connector"></div>
+          <div class="fortress-stage" id="fs-3">
+            <div class="f-emoji">🗼</div>
+            <div style="font-size:0.55rem;color:rgba(74,222,128,0.6);">Watchtower</div>
+          </div>
+          <div class="f-connector"></div>
+          <div class="fortress-stage" id="fs-4">
+            <div class="f-emoji">🏯</div>
+            <div style="font-size:0.55rem;color:rgba(74,222,128,0.6);">Border Fort</div>
+          </div>
+          <div class="f-connector"></div>
+          <div class="fortress-stage" id="fs-5">
+            <div class="f-emoji">🏰</div>
+            <div style="font-size:0.55rem;color:rgba(74,222,128,0.6);">Fortress</div>
+          </div>
+          <div class="f-connector"></div>
+          <div class="fortress-stage" id="fs-6">
+            <div class="f-emoji">🏰</div>
+            <div style="font-size:0.55rem;color:rgba(74,222,128,0.6);">Citadel ✨</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-base rounded-xl p-4">
+        <div class="text-xs font-military mb-3" style="color:rgba(74,222,128,0.6);">RANK PROGRESSION</div>
+        <div id="level-roadmap"></div>
+      </div>
+    </div>
+
+    <!-- ──────── BADGES TAB ──────── -->
+    <div id="tab-badges" class="tab-content">
+      <div class="font-military text-sm mb-4 glow-green" style="color:#22c55e;">▶ BADGE COLLECTION</div>
+      <div id="badges-earned-section" class="mb-6"></div>
+      <div class="font-military text-xs mb-3" style="color:rgba(74,222,128,0.4);">LOCKED BADGES</div>
+      <div id="badges-locked-section"></div>
+    </div>
+
+    <!-- ──────── VAULT TAB ──────── -->
+    <div id="tab-vault" class="tab-content">
+      <div class="font-military text-sm mb-2 glow-green" style="color:#22c55e;">▶ KNOWLEDGE VAULT</div>
+      <p class="text-xs text-emerald-600 mb-4">Complete missions and level up to unlock secret knowledge from your parent.</p>
+      <div id="vault-list"></div>
+    </div>
+
+    <!-- ──────── HISTORY TAB ──────── -->
+    <div id="tab-history" class="tab-content">
+      <div class="font-military text-sm mb-4 glow-green" style="color:#22c55e;">▶ MISSION LOG</div>
+      <div id="history-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Vault Entry Modal ──────────────────────────────────────────────────── -->
+<div id="vault-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(3,10,5,0.95);">
+  <div class="w-full max-w-md">
+    <div style="background:#0f2318;border:1px solid rgba(34,197,94,0.3);border-radius:1rem;padding:1.5rem;max-height:80vh;overflow-y:auto;">
+      <div class="flex items-center gap-3 mb-4">
+        <div id="vault-modal-emoji" style="font-size:2rem;">📖</div>
+        <div>
+          <div class="font-military text-sm" style="color:#22c55e;">SECRET KNOWLEDGE</div>
+          <div class="font-bold text-base text-white" id="vault-modal-title"></div>
+        </div>
+      </div>
+      <div class="text-sm text-emerald-100 leading-relaxed whitespace-pre-wrap" id="vault-modal-content"></div>
+      <button onclick="closeVaultModal()" class="btn-ghost w-full mt-6 py-2.5 rounded-xl">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────
+const params  = new URLSearchParams(location.search);
+const KID_ID  = params.get('kid') || params.get('kid_id');
+const CODE    = params.get('code');
+let kidData   = null;
+let allData   = null;
+let prevLevel = 1;
+
+const LEVEL_NAMES    = ['', 'Recruit', 'Cadet', 'Specialist', 'Sergeant', 'Commander', 'General'];
+const LEVEL_EMOJIS   = ['', '🏕️', '⛺', '🗼', '🏯', '🏰', '🏰'];
+const FORTRESS_NAMES = ['', 'Base Camp', 'Forward Outpost', 'Watchtower', 'Border Fort', 'Fortress', 'Grand Citadel'];
+const FORTRESS_DESCS = [
+  '',
+  'Every great fortress starts with a single camp. Complete missions to grow!',
+  'You\'ve set up a forward outpost. Your empire is taking shape!',
+  'A watchtower stands tall. Enemies can see you coming from miles away!',
+  'A real fort now protects your territory. You\'re becoming formidable!',
+  'Your fortress is strong and imposing. You\'ve earned serious respect!',
+  'The Grand Citadel — the most powerful stronghold. You are a LEGEND!'
+];
+
+// ── Boot animation ───────────────────────────────────────────────────────
+let bootPct = 0;
+const bootInterval = setInterval(() => {
+  bootPct = Math.min(bootPct + 12, 90);
+  document.getElementById('boot-bar').style.width = bootPct + '%';
+  if (bootPct >= 90) clearInterval(bootInterval);
+}, 120);
+
+// ── Init ─────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  if (!KID_ID || !CODE) { showInvalid(); return; }
+  try {
+    const res  = await fetch(`/api/junior/kid-dashboard?kid_id=${KID_ID}&code=${encodeURIComponent(CODE)}`);
+    if (!res.ok) { showInvalid(); return; }
+    allData    = await res.json();
+    kidData    = allData.kid;
+    prevLevel  = kidData.level;
+    document.getElementById('boot-bar').style.width = '100%';
+    await new Promise(r => setTimeout(r, 400));
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('app').classList.remove('hidden');
+    renderAll();
+  } catch (e) {
+    showInvalid();
+  }
+});
+
+function showInvalid() {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('invalid-screen').classList.remove('hidden');
+}
+
+// ── Render all ────────────────────────────────────────────────────────────
+function renderAll() {
+  renderHeader();
+  renderXPBar();
+  renderMissions();
+  renderFortress();
+  renderBadges();
+  renderVault();
+  renderHistory();
+}
+
+function renderHeader() {
+  const k = kidData;
+  document.getElementById('hdr-avatar').textContent = k.avatar_emoji || '🧒';
+  document.getElementById('hdr-name').textContent   = k.name.toUpperCase();
+  document.getElementById('hdr-xp').textContent     = k.xp + ' XP';
+  const rb = document.getElementById('hdr-rank');
+  rb.textContent = `${LEVEL_EMOJIS[k.level]} ${LEVEL_NAMES[k.level]}`;
+  rb.className = `rank-badge rank-${k.level}`;
+}
+
+function renderXPBar() {
+  const k = kidData;
+  const n = k.next_xp;
+  const lv = k.level;
+  if (lv >= 6) {
+    document.getElementById('xp-label').textContent  = `Level 6 — MAX RANK`;
+    document.getElementById('xp-pct').textContent    = '100%';
+    document.getElementById('xp-detail').textContent = `Total: ${k.xp} XP — You are a General! 🌟`;
+    document.getElementById('xp-bar').style.width    = '100%';
+  } else {
+    document.getElementById('xp-label').textContent  = `Level ${lv} → Level ${lv + 1}`;
+    document.getElementById('xp-pct').textContent    = n.pct + '%';
+    document.getElementById('xp-detail').textContent = `${n.progress} / ${n.needed} XP to ${LEVEL_NAMES[lv + 1]}`;
+    setTimeout(() => { document.getElementById('xp-bar').style.width = n.pct + '%'; }, 200);
+  }
+}
+
+function renderMissions() {
+  const active  = allData.missions.active;
+  const pending = allData.missions.pending;
+  const el = document.getElementById('missions-list');
+
+  if (!active.length && !pending.length) {
+    el.innerHTML = `<div class="card-base rounded-xl p-8 text-center">
+      <div style="font-size:3rem;margin-bottom:0.75rem;">🎯</div>
+      <div class="font-military text-sm mb-2" style="color:rgba(74,222,128,0.5);">NO ACTIVE MISSIONS</div>
+      <p class="text-sm" style="color:rgba(240,253,244,0.4);">Ask your parent to assign you a new mission!</p>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+
+  if (pending.length) {
+    html += `<div class="font-military text-xs mb-2 mt-1" style="color:#fbbf24;">⏳ AWAITING PARENT CONFIRMATION</div>`;
+    pending.forEach(m => {
+      html += `<div class="card-pending rounded-xl p-4 mb-3" id="m-${m.id}">
+        <div class="flex items-start justify-between gap-2 mb-1">
+          <div class="font-bold text-sm text-yellow-200">${escHtml(m.title)}</div>
+          <span style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;font-size:0.65rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;white-space:nowrap;">⏳ SENT</span>
+        </div>
+        ${m.description ? `<p class="text-xs mb-2" style="color:rgba(240,253,244,0.55);">${escHtml(m.description)}</p>` : ''}
+        <div class="text-xs" style="color:rgba(251,191,36,0.7);">+${m.xp_reward} XP when approved by parent</div>
+      </div>`;
+    });
+  }
+
+  if (active.length) {
+    html += `<div class="font-military text-xs mb-2" style="color:rgba(74,222,128,0.6);">📋 MISSION ORDERS</div>`;
+    active.forEach(m => {
+      html += `<div class="card-mission rounded-xl p-4 mb-3" id="m-${m.id}">
+        <div class="flex items-start justify-between gap-2 mb-1.5">
+          <div class="font-bold text-sm text-white">${escHtml(m.title)}</div>
+          <span style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:#4ade80;font-size:0.65rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;white-space:nowrap;">+${m.xp_reward} XP</span>
+        </div>
+        ${m.description ? `<p class="text-xs mb-3" style="color:rgba(240,253,244,0.6);">${escHtml(m.description)}</p>` : ''}
+        <button onclick="requestConfirm(${m.id})" class="btn-gold w-full py-2 rounded-lg text-xs font-bold mt-1">
+          ✅ Request Confirmation from Parent
+        </button>
+      </div>`;
+    });
+  }
+
+  el.innerHTML = html;
+}
+
+async function requestConfirm(missionId) {
+  const card = document.getElementById(`m-${missionId}`);
+  if (!card) return;
+  const btn = card.querySelector('button');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+  try {
+    const res = await fetch(`/api/junior/missions/${missionId}/request-confirm`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kid_id: KID_ID, code: CODE })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast('📤 Request sent! Your parent will confirm it soon.', 'success');
+      card.className = card.className.replace('card-mission', 'card-pending');
+      card.innerHTML = `<div class="font-bold text-sm text-yellow-200">${card.querySelector('.font-bold')?.textContent || 'Mission'}</div>
+        <div class="text-xs mt-2" style="color:#fbbf24;">⏳ Waiting for parent confirmation...</div>`;
+    } else {
+      showToast(data.error || 'Failed to send request', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = '✅ Request Confirmation from Parent'; }
+    }
+  } catch (e) {
+    showToast('Connection error', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = '✅ Request Confirmation from Parent'; }
+  }
+}
+
+function renderFortress() {
+  const lv = kidData.level;
+  document.getElementById('fortress-main-emoji').textContent = LEVEL_EMOJIS[lv];
+  document.getElementById('fortress-main-name').textContent  = FORTRESS_NAMES[lv];
+  document.getElementById('fortress-main-desc').textContent  = FORTRESS_DESCS[lv];
+
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById(`fs-${i}`);
+    el.className = 'fortress-stage';
+    if (i < lv)  el.classList.add('past');
+    if (i === lv) el.classList.add('active');
+  }
+
+  // Level roadmap
+  const roadmap = document.getElementById('level-roadmap');
+  const thresholds = [0, 0, 100, 300, 600, 1000, 1500];
+  roadmap.innerHTML = Array.from({length: 6}, (_, i) => {
+    const l = i + 1;
+    const done = lv > l;
+    const cur  = lv === l;
+    return `<div class="flex items-center gap-3 py-2.5 ${l < 6 ? 'border-b' : ''}" style="border-color:rgba(34,197,94,0.08);">
+      <div style="font-size:1.3rem;min-width:28px;text-align:center;${!done && !cur ? 'opacity:0.3' : ''}">${LEVEL_EMOJIS[l]}</div>
+      <div class="flex-1">
+        <div class="text-sm font-semibold ${cur ? 'text-emerald-300' : done ? 'text-emerald-600' : 'text-gray-600'}">${LEVEL_NAMES[l]} ${cur ? '← YOU ARE HERE' : ''}</div>
+        <div class="text-xs" style="color:rgba(74,222,128,0.35);">${thresholds[l]} XP required</div>
+      </div>
+      ${done ? '<div style="color:#22c55e;font-size:1.1rem;">✓</div>' : cur ? '<div style="color:#fbbf24;font-size:0.9rem;font-weight:700;">NOW</div>' : '<div style="color:rgba(255,255,255,0.2);font-size:0.9rem;">🔒</div>'}
+    </div>`;
+  }).join('');
+}
+
+function renderBadges() {
+  const badges = allData.badges;
+  const earned = badges.filter(b => b.earned);
+  const locked = badges.filter(b => !b.earned);
+
+  const earnedEl = document.getElementById('badges-earned-section');
+  if (earned.length) {
+    earnedEl.innerHTML = `<div class="font-military text-xs mb-3" style="color:rgba(74,222,128,0.6);">EARNED BADGES (${earned.length})</div>
+    <div class="grid grid-cols-2 gap-3">
+      ${earned.map(b => `<div class="badge-card p-3 text-center">
+        <div style="font-size:2rem;margin-bottom:0.4rem;">${b.emoji}</div>
+        <div class="font-bold text-xs text-emerald-300">${b.name}</div>
+        <div class="text-xs mt-0.5" style="color:rgba(74,222,128,0.4);">${b.desc}</div>
+      </div>`).join('')}
+    </div>`;
+  } else {
+    earnedEl.innerHTML = `<div class="card-base rounded-xl p-6 text-center mb-4">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">🏅</div>
+      <div class="font-military text-xs mb-1" style="color:rgba(74,222,128,0.4);">NO BADGES YET</div>
+      <p class="text-xs" style="color:rgba(240,253,244,0.3);">Complete missions to earn your first badge!</p>
+    </div>`;
+  }
+
+  const lockedEl = document.getElementById('badges-locked-section');
+  lockedEl.innerHTML = `<div class="grid grid-cols-2 gap-3">
+    ${locked.map(b => `<div class="badge-card locked p-3 text-center">
+      <div style="font-size:2rem;margin-bottom:0.4rem;filter:grayscale(1)">❓</div>
+      <div class="font-bold text-xs text-gray-600">???</div>
+      <div class="text-xs mt-0.5 text-gray-700">${b.desc}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderVault() {
+  const entries = allData.vault;
+  const el = document.getElementById('vault-list');
+
+  if (!entries.length) {
+    el.innerHTML = `<div class="card-base rounded-xl p-8 text-center">
+      <div style="font-size:3rem;margin-bottom:0.75rem;">🔒</div>
+      <div class="font-military text-xs mb-2" style="color:rgba(74,222,128,0.4);">VAULT EMPTY</div>
+      <p class="text-xs" style="color:rgba(240,253,244,0.35);">Your parent hasn't added any entries yet.</p>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = entries.map(e => {
+    if (e.locked) {
+      return `<div class="vault-entry locked p-4 mb-3 flex items-center gap-3">
+        <div style="font-size:1.8rem;opacity:0.3;">🔒</div>
+        <div>
+          <div class="font-bold text-sm text-gray-600">Secret Scroll</div>
+          <div class="text-xs mt-0.5 text-gray-700">Reach Level ${e.level_required} (${LEVEL_NAMES[e.level_required]}) to unlock</div>
+        </div>
+      </div>`;
+    }
+    return `<div class="vault-entry p-4 mb-3 cursor-pointer hover:border-emerald-500 transition-colors" onclick="openVaultEntry(${e.id})">
+      <div class="flex items-center gap-3">
+        <div style="font-size:1.8rem;">${e.emoji}</div>
+        <div class="flex-1">
+          <div class="font-bold text-sm text-emerald-200">${escHtml(e.title)}</div>
+          <div class="text-xs mt-0.5" style="color:rgba(74,222,128,0.5);">Level ${e.level_required} • Tap to read →</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function openVaultEntry(entryId) {
+  try {
+    const res  = await fetch(`/api/junior/vault-entry/${entryId}?kid_id=${KID_ID}&code=${encodeURIComponent(CODE)}`);
+    const data = await res.json();
+    if (!res.ok) { showToast('Cannot open entry', 'error'); return; }
+    const e = data.entry;
+    document.getElementById('vault-modal-emoji').textContent   = e.emoji;
+    document.getElementById('vault-modal-title').textContent   = e.title;
+    document.getElementById('vault-modal-content').textContent = e.content;
+    document.getElementById('vault-modal').classList.remove('hidden');
+  } catch (e) {
+    showToast('Failed to load entry', 'error');
+  }
+}
+function closeVaultModal() {
+  document.getElementById('vault-modal').classList.add('hidden');
+}
+
+function renderHistory() {
+  const completed = allData.missions.completed;
+  const el = document.getElementById('history-list');
+
+  if (!completed.length) {
+    el.innerHTML = `<div class="card-base rounded-xl p-8 text-center">
+      <div style="font-size:3rem;margin-bottom:0.75rem;">📜</div>
+      <div class="font-military text-xs mb-2" style="color:rgba(74,222,128,0.4);">MISSION LOG EMPTY</div>
+      <p class="text-xs" style="color:rgba(240,253,244,0.35);">Completed missions will appear here.</p>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = `<div class="font-military text-xs mb-3" style="color:rgba(74,222,128,0.5);">${completed.length} MISSIONS COMPLETED</div>` +
+    completed.map(m => `<div class="card-done rounded-xl p-3.5 mb-2.5 flex items-start gap-3">
+      <div class="text-lg mt-0.5">✅</div>
+      <div class="flex-1 min-w-0">
+        <div class="font-semibold text-sm text-emerald-400">${escHtml(m.title)}</div>
+        <div class="text-xs mt-0.5" style="color:rgba(74,222,128,0.4);">+${m.xp_reward} XP · ${fmtDate(m.completed_at)}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    const tabs = ['missions', 'fortress', 'badges', 'vault', 'history'];
+    b.classList.toggle('active', tabs[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`tab-${name}`)?.classList.add('active');
+}
+
+// ── Level-up overlay ──────────────────────────────────────────────────────
+function showLevelUp(newLevel) {
+  const overlay = document.getElementById('level-up-overlay');
+  document.getElementById('lu-title').textContent    = `LEVEL UP!`;
+  document.getElementById('lu-subtitle').textContent = `You are now a ${LEVEL_NAMES[newLevel]}!`;
+  document.getElementById('lu-emoji-rank').textContent = LEVEL_EMOJIS[newLevel];
+  document.getElementById('lu-desc').textContent     = FORTRESS_DESCS[newLevel];
+
+  // Confetti
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.cssText = `left:${Math.random()*100}%;top:0;background:${['#22c55e','#fbbf24','#60a5fa','#f87171','#a78bfa'][Math.floor(Math.random()*5)]};animation-delay:${Math.random()*0.5}s;animation-duration:${1.5+Math.random()*1}s;`;
+    overlay.appendChild(piece);
+  }
+
+  overlay.classList.add('show');
+  setTimeout(() => { overlay.querySelectorAll('.confetti-piece').forEach(p => p.remove()); }, 3000);
+}
+function closeLevelUp() {
+  document.getElementById('level-up-overlay').classList.remove('show');
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3000);
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(d) {
+  if (!d) return '';
+  try { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  catch(e) { return ''; }
+}
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

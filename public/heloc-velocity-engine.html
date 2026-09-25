@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HELOC Velocity Engine — Interest Recapture Calculators | FACTS</title>
+  <meta name="description" content="Elite L10-12 calculators: HELOC interest recapture, debt velocity comparison, and equity position tracking. Educational tools for advanced mortgage acceleration strategies.">
+  <meta name="robots" content="noindex">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#070c14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1e293b' },
+            gold: { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a07c18' }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    body { background: #0d1117; color: #e5e7eb; min-height: 100vh; min-height: 100dvh; }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #13192a, #1a2235);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { border-color: rgba(201,162,39,0.2); }
+    .card.active-card { border-color: rgba(201,162,39,0.35); box-shadow: 0 0 0 1px rgba(201,162,39,0.1); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      color: #0d1117; font-weight: 700; border-radius: 0.6rem;
+      transition: opacity 0.2s, transform 0.15s; border: none; cursor: pointer;
+      display: inline-flex; align-items: center;
+    }
+    .btn-gold:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #d1d5db; border-radius: 0.6rem;
+      transition: background 0.2s; cursor: pointer;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.09); }
+
+    .elite-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700;
+      background: rgba(167,139,250,0.15); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.35);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    .calc-input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #e5e7eb; border-radius: 0.5rem;
+      padding: 10px 14px; font-size: 14px; width: 100%;
+      outline: none; transition: border-color 0.2s;
+    }
+    .calc-input:focus { border-color: rgba(201,162,39,0.5); }
+    .calc-input::placeholder { color: #4b5563; }
+    .input-prefix {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: #6b7280; font-size: 14px; pointer-events: none;
+    }
+    .input-suffix {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      color: #6b7280; font-size: 14px; pointer-events: none;
+    }
+    .input-wrap { position: relative; }
+    .input-with-prefix input { padding-left: 28px; }
+    .input-with-suffix input { padding-right: 36px; }
+
+    .stat-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.75rem; padding: 16px;
+    }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: #e8c96a; }
+    .stat-label { font-size: 12px; color: #6b7280; margin-top: 2px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-green { color: #34d399; }
+    .stat-red { color: #f87171; }
+    .stat-blue { color: #60a5fa; }
+    .stat-purple { color: #a78bfa; }
+    .stat-amber { color: #fbbf24; }
+
+    .calc-header {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 20px 24px; user-select: none;
+    }
+    .calc-icon {
+      width: 44px; height: 44px; border-radius: 0.6rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .calc-body { padding: 0 24px 24px; }
+    .calc-toggle { margin-left: auto; color: #6b7280; transition: transform 0.2s; }
+    .calc-toggle.open { transform: rotate(180deg); }
+
+    .tier-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+      background: rgba(167,139,250,0.15); color: #c4b5fd;
+      border: 1px solid rgba(167,139,250,0.2);
+    }
+
+    /* Gate overlay */
+    #eliteGateOverlay {
+      position: fixed; inset: 0; z-index: 900;
+      background: linear-gradient(to bottom, transparent 0%, rgba(7,12,20,0.95) 40%, rgba(7,12,20,0.99) 100%);
+      pointer-events: none;
+    }
+    .elite-gate-cta {
+      position: sticky; bottom: 0; z-index: 901;
+      background: linear-gradient(135deg, #13192a, #1a2235);
+      border-top: 1px solid rgba(167,139,250,0.3);
+      padding: 20px 24px; pointer-events: all;
+    }
+
+    /* Comparison table */
+    .compare-table { width: 100%; border-collapse: collapse; }
+    .compare-table th { padding: 10px 14px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .compare-table td { padding: 12px 14px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .col-traditional { color: #9ca3af; }
+    .compare-table .col-velocity { color: #34d399; font-weight: 600; }
+    .compare-table .col-diff { color: #e8c96a; font-weight: 600; }
+    .compare-table .row-highlight td { background: rgba(52,211,153,0.04); }
+
+    /* Equity gauge */
+    .gauge-container { position: relative; width: 220px; height: 130px; margin: 0 auto; }
+    .gauge-label-zone { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Section label */
+    .section-label {
+      font-size: 11px; font-weight: 700; color: #4b5563;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+    }
+    .divider { height: 1px; background: rgba(255,255,255,0.06); margin: 20px 0; }
+
+    /* Responsive grid */
+    .input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    .output-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    .output-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+    /* Educational card */
+    .edu-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.875rem; padding: 20px;
+    }
+
+    /* Range slider */
+    .range-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px; border-radius: 2px;
+      background: rgba(255,255,255,0.1); outline: none;
+      cursor: pointer;
+    }
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #c9a227; cursor: pointer;
+    }
+
+    .insight-box {
+      padding: 14px 16px; border-radius: 0.75rem;
+      font-size: 13px; line-height: 1.6; color: #d1d5db;
+      margin-top: 16px;
+    }
+
+    /* Chart */
+    .chart-box { position: relative; height: 200px; }
+
+    /* Page body offset for nav */
+    .page-body { padding-top: 44px; }
+
+    @media (max-width: 640px) {
+      .calc-header { padding: 16px; }
+      .calc-body { padding: 0 16px 16px; }
+      .input-grid { grid-template-columns: 1fr; }
+      .output-grid { grid-template-columns: repeat(2, 1fr); }
+      .output-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 400px) {
+      .output-grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Global Nav Bar -->
+  <script src="/nav-bar.js"></script>
+
+  <div class="page-body">
+
+    <!-- Hero Header -->
+    <div style="background: linear-gradient(180deg, #0a0f1a 0%, #0d1117 100%); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 40px 24px 32px;">
+      <div style="max-width: 900px; margin: 0 auto;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+          <span class="tier-badge">🔮 L10-12 · Elite</span>
+          <span style="font-size: 11px; color: #4b5563;">FACTS Advanced Strategy Series</span>
+        </div>
+        <h1 style="font-size: clamp(24px, 5vw, 38px); font-weight: 800; margin: 0 0 10px;" class="gold-text">
+          HELOC Velocity Engine
+        </h1>
+        <p style="font-size: clamp(14px, 2vw, 17px); color: #9ca3af; max-width: 620px; line-height: 1.6; margin-bottom: 20px;">
+          Three educational calculators that illustrate HELOC velocity <strong style="color: #d1d5db;">concepts</strong> — how some households model a line of credit relative to interest and payoff timelines. Illustrative only; not a recommendation to borrow or refinance.
+        </p>
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <div id="eliteStatusBadge">
+            <div style="width: 120px; height: 24px; background: rgba(255,255,255,0.05); border-radius: 100px; animation: pulse 2s infinite;"></div>
+          </div>
+          <div style="font-size: 13px; color: #4b5563;">3 calculators · Real-time modeling</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" style="max-width: 900px; margin: 0 auto; padding: 60px 24px; text-align: center; color: #4b5563; font-size: 15px;">
+      Loading calculators…
+    </div>
+
+    <!-- Calculators Container -->
+    <div id="calcContainer" style="display: none; max-width: 900px; margin: 0 auto; padding: 28px 24px 140px; flex-direction: column; gap: 16px;">
+
+      <!-- ─── MANDATORY DISCLAIMER ─────────────────────────────────── -->
+      <div id="mandatoryDisclaimer" style="padding: 16px 20px; border-radius: 0.875rem; background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.2); margin-bottom: 4px;">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+          <span style="font-size: 20px; flex-shrink: 0; margin-top: 1px;">⚠️</span>
+          <div>
+            <div style="font-size: 13px; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">Educational Calculator — Not Financial Advice</div>
+            <div style="font-size: 13px; color: #9ca3af; line-height: 1.6;">
+              This is an educational tool. Results are illustrative estimates only. HELOC velocity strategies carry real risks including variable interest rates, home equity loss, and cash-flow disruption.
+              <strong style="color: #d1d5db;">Consult a licensed financial advisor before implementing any HELOC strategy.</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── INTEREST LEAK → RECAPTURE OVERVIEW ──────────────────── -->
+      <div id="interestLeakSection" style="display:none; border-radius:1rem; overflow:hidden; border: 1px solid rgba(248,113,113,0.2);">
+        <div style="background: linear-gradient(145deg, #13192a, #1a1020); padding: 20px 24px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+            <span style="font-size:20px;">🔥</span>
+            <div>
+              <div style="font-weight:700; font-size:15px; color:#f1f5f9;">Interest Leak Dashboard</div>
+              <div style="font-size:12px; color:#6b7280; margin-top:2px;">Live from your FACTS ledger — interest you're currently paying across all debts</div>
+            </div>
+            <span id="factsDataBadge" style="margin-left:auto; font-size:11px; padding:2px 8px; border-radius:4px; background:rgba(52,211,153,0.12); color:#34d399; border:1px solid rgba(52,211,153,0.25); font-weight:600; white-space:nowrap;">✓ FACTS Data</span>
+          </div>
+
+          <!-- Flow Diagram -->
+          <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; margin-bottom:20px;">
+            <!-- Interest Leak Box -->
+            <div style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.25); border-radius:0.875rem; padding:16px; text-align:center;">
+              <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#f87171; margin-bottom:8px;">💸 Interest Leak</div>
+              <div id="leakMonthly" style="font-size:1.6rem; font-weight:800; color:#f87171;">$0</div>
+              <div style="font-size:11px; color:#6b7280; margin-top:4px;">per month across all debts</div>
+              <div id="leakAnnual" style="font-size:12px; color:#f87171; margin-top:6px; font-weight:600;">$0/year</div>
+            </div>
+
+            <!-- Arrow -->
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+              <div style="font-size:22px;">⚡</div>
+              <div style="width:2px; height:40px; background:linear-gradient(180deg, rgba(248,113,113,0.4), rgba(52,211,153,0.4));"></div>
+              <div style="font-size:10px; font-weight:700; color:#c9a227; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;">Velocity</div>
+            </div>
+
+            <!-- Interest Recaptured Box -->
+            <div style="background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.25); border-radius:0.875rem; padding:16px; text-align:center;">
+              <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#34d399; margin-bottom:8px;">✅ Interest Recaptured</div>
+              <div id="recaptureMonthly" style="font-size:1.6rem; font-weight:800; color:#34d399;">—</div>
+              <div style="font-size:11px; color:#6b7280; margin-top:4px;">estimated monthly savings</div>
+              <div id="recaptureAnnual" style="font-size:12px; color:#34d399; margin-top:6px; font-weight:600;">Run Calc 1 to estimate</div>
+            </div>
+          </div>
+
+          <!-- Debt Breakdown Table -->
+          <div id="debtBreakdownWrap" style="display:none;">
+            <div style="font-size:11px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:10px;">Your Debt Breakdown</div>
+            <div style="overflow-x:auto; border-radius:0.6rem; border:1px solid rgba(255,255,255,0.06);">
+              <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                  <tr>
+                    <th style="padding:8px 12px; font-size:11px; font-weight:700; text-transform:uppercase; color:#6b7280; text-align:left; border-bottom:1px solid rgba(255,255,255,0.06);">Debt</th>
+                    <th style="padding:8px 12px; font-size:11px; font-weight:700; text-transform:uppercase; color:#6b7280; text-align:right; border-bottom:1px solid rgba(255,255,255,0.06);">Balance</th>
+                    <th style="padding:8px 12px; font-size:11px; font-weight:700; text-transform:uppercase; color:#6b7280; text-align:right; border-bottom:1px solid rgba(255,255,255,0.06);">Rate</th>
+                    <th style="padding:8px 12px; font-size:11px; font-weight:700; text-transform:uppercase; color:#f87171; text-align:right; border-bottom:1px solid rgba(255,255,255,0.06);">Monthly Interest</th>
+                  </tr>
+                </thead>
+                <tbody id="debtBreakdownBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- No Data State -->
+          <div id="noFACTSData" style="display:none; text-align:center; padding:20px; color:#4b5563; font-size:13px;">
+            <div style="font-size:28px; margin-bottom:8px;">📋</div>
+            <div>No debts found in your FACTS ledger.</div>
+            <a href="/app#debts" style="color:#c9a227; font-size:13px; margin-top:6px; display:inline-block;">Add debts in the Debt Tracker →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── CALCULATOR 1: HELOC Interest Recapture ───────────────── -->
+      <div class="card" id="card1">
+        <div class="calc-header" onclick="toggleCard(1)">
+          <div class="calc-icon" style="background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2);">💰</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 700; font-size: 15px; color: #f1f5f9;">HELOC Interest Recapture</div>
+            <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Model how parking income in a HELOC reduces total interest paid</div>
+          </div>
+          <span id="calc1num" class="tier-badge" style="flex-shrink: 0;">Calc 1</span>
+          <svg id="toggle1" class="calc-toggle" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+        <div id="body1" class="calc-body" style="display: none;">
+
+          <!-- Educational context -->
+          <div class="edu-card" style="margin-bottom: 20px;">
+            <div style="font-size: 13px; font-weight: 600; color: #c9a227; margin-bottom: 8px;">How This Works</div>
+            <div style="font-size: 13px; color: #9ca3af; line-height: 1.6;">
+              Instead of letting your paycheck sit in a 0% checking account, you deposit it directly into your HELOC — temporarily reducing the balance. Your expenses draw it back throughout the month. The net effect: a lower average daily balance means less interest accrues on your HELOC. Over time, your monthly surplus chips away at your primary mortgage principal.
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <div class="section-label" style="margin-bottom:0;">Your Numbers</div>
+            <button id="loadFromFACTSBtn" onclick="loadFromFACTS()" style="display:none; font-size:12px; padding:6px 12px; border-radius:6px; background:rgba(201,162,39,0.12); border:1px solid rgba(201,162,39,0.3); color:#c9a227; cursor:pointer; font-weight:600;">⚡ Load from FACTS Ledger</button>
+          </div>
+          <div class="input-grid" style="margin-bottom: 20px;">
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Monthly Income (after-tax)</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="r1_income" class="calc-input" value="8000" min="0" step="100" oninput="calcRecapture()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Monthly Expenses</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="r1_expenses" class="calc-input" value="5500" min="0" step="100" oninput="calcRecapture()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Mortgage Balance</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="r1_mortgage_bal" class="calc-input" value="280000" min="0" step="1000" oninput="calcRecapture()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Mortgage Interest Rate</label>
+              <div class="input-wrap input-with-suffix">
+                <input type="number" id="r1_mortgage_rate" class="calc-input" value="6.5" min="0.1" max="20" step="0.1" oninput="calcRecapture()">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">HELOC Limit</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="r1_heloc_limit" class="calc-input" value="50000" min="0" step="1000" oninput="calcRecapture()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">HELOC Interest Rate</label>
+              <div class="input-wrap input-with-suffix">
+                <input type="number" id="r1_heloc_rate" class="calc-input" value="8.5" min="0.1" max="25" step="0.1" oninput="calcRecapture()">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-label">Strategy Results</div>
+          <div class="output-grid" style="margin-bottom: 20px;" id="recaptureOutputGrid">
+            <div class="stat-card">
+              <div class="stat-value stat-green" id="r1_surplus">$0</div>
+              <div class="stat-label">Monthly Net Surplus</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value stat-green" id="r1_heloc_savings">$0</div>
+              <div class="stat-label">Monthly Interest Saved</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="r1_annual_savings">$0</div>
+              <div class="stat-label">Annual Interest Saved</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value stat-purple" id="r1_payoff_accel">0 mo</div>
+              <div class="stat-label">Payoff Acceleration</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value stat-blue" id="r1_total_saved">$0</div>
+              <div class="stat-label">Lifetime Interest Saved</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value stat-amber" id="r1_new_payoff">0 yrs</div>
+              <div class="stat-label">New Payoff Timeline</div>
+            </div>
+          </div>
+
+          <div class="chart-box">
+            <canvas id="chartRecapture"></canvas>
+          </div>
+
+          <div class="insight-box" id="r1_insight" style="background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.15); display: none;"></div>
+
+          <!-- Monthly Action Plan -->
+          <div id="actionPlanCard" style="display:none; margin-top:20px; padding:18px 20px; border-radius:0.875rem; background:rgba(201,162,39,0.05); border:1px solid rgba(201,162,39,0.2);">
+            <div style="font-size:13px; font-weight:700; color:#c9a227; margin-bottom:12px;">🗓 Your Monthly HELOC Action Plan</div>
+            <div id="actionPlanContent" style="display:grid; gap:10px;"></div>
+            <div style="margin-top:14px; padding:10px 14px; border-radius:0.6rem; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.15); font-size:12px; color:#9ca3af; line-height:1.6;">
+              <strong style="color:#60a5fa;">⚠️ Reminder:</strong> This plan works only with positive monthly surplus. Consult a financial advisor before implementing. Variable HELOC rates can change this math.
+            </div>
+          </div>
+
+          <!-- FI Calculator Integration -->
+          <div id="fiLinkCard" style="display:none; margin-top:16px; padding:16px 20px; border-radius:0.875rem; background:rgba(167,139,250,0.05); border:1px solid rgba(167,139,250,0.2); align-items:center; gap:14px; flex-wrap:wrap;">
+            <span style="font-size:24px;">🚀</span>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:13px; font-weight:700; color:#a78bfa;">This strategy frees up savings for your Freedom Number</div>
+              <div id="fiLinkText" style="font-size:12px; color:#9ca3af; margin-top:3px;">Update your FI Calculator with your new projected savings rate.</div>
+            </div>
+            <a href="/app#fi-calculator" style="text-decoration:none; padding:9px 16px; border-radius:6px; background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.3); color:#c4b5fd; font-size:13px; font-weight:600; white-space:nowrap; flex-shrink:0;">Open FI Calculator →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── CALCULATOR 2: Debt Velocity Comparison ───────────────── -->
+      <div class="card" id="card2">
+        <div class="calc-header" onclick="toggleCard(2)">
+          <div class="calc-icon" style="background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2);">⚡</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 700; font-size: 15px; color: #f1f5f9;">Debt Velocity Comparison</div>
+            <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Side-by-side: traditional payments vs. HELOC velocity strategy</div>
+          </div>
+          <span class="tier-badge" style="flex-shrink: 0;">Calc 2</span>
+          <svg id="toggle2" class="calc-toggle" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+        <div id="body2" class="calc-body" style="display: none;">
+
+          <div class="edu-card" style="margin-bottom: 20px;">
+            <div style="font-size: 13px; font-weight: 600; color: #60a5fa; margin-bottom: 8px;">What You're Comparing</div>
+            <div style="font-size: 13px; color: #9ca3af; line-height: 1.6;">
+              Track A: Standard mortgage payments only. Track B: Same total monthly cash out, but the net surplus gets applied as extra principal payments each month via the HELOC velocity cycle. Same money in, dramatically different outcomes.
+            </div>
+          </div>
+
+          <div class="section-label">Mortgage Details</div>
+          <div class="input-grid" style="margin-bottom: 20px;">
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Current Mortgage Balance</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="v2_balance" class="calc-input" value="280000" min="1000" step="1000" oninput="calcVelocity()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Annual Interest Rate</label>
+              <div class="input-wrap input-with-suffix">
+                <input type="number" id="v2_rate" class="calc-input" value="6.5" min="0.1" max="20" step="0.1" oninput="calcVelocity()">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Standard Monthly Payment</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="v2_payment" class="calc-input" value="1770" min="100" step="10" oninput="calcVelocity()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Monthly Surplus (for extra payment)</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="v2_surplus" class="calc-input" value="2500" min="0" step="100" oninput="calcVelocity()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">HELOC Rate (cost of strategy)</label>
+              <div class="input-wrap input-with-suffix">
+                <input type="number" id="v2_heloc_rate" class="calc-input" value="8.5" min="0.1" max="25" step="0.1" oninput="calcVelocity()">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">HELOC Cycle Cost (monthly)</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="v2_heloc_cost" class="calc-input" value="35" min="0" step="5" oninput="calcVelocity()" title="Approximate monthly interest you pay on the HELOC while using it as a float vehicle">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-label">Side-by-Side Comparison</div>
+          <div style="overflow-x: auto; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.07); margin-bottom: 20px;">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th style="color: #9ca3af;">Traditional</th>
+                  <th style="color: #34d399;">Velocity Strategy</th>
+                  <th style="color: #e8c96a;">You Save</th>
+                </tr>
+              </thead>
+              <tbody id="velocityTableBody">
+                <tr><td colspan="4" style="text-align:center; padding: 20px; color: #4b5563;">Enter your numbers above to see comparison</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="chart-box">
+            <canvas id="chartVelocity"></canvas>
+          </div>
+
+          <div class="insight-box" id="v2_insight" style="background: rgba(96,165,250,0.06); border: 1px solid rgba(96,165,250,0.15); display: none;"></div>
+        </div>
+      </div>
+
+      <!-- ─── CALCULATOR 3: Equity Position Tracker ────────────────── -->
+      <div class="card" id="card3">
+        <div class="calc-header" onclick="toggleCard(3)">
+          <div class="calc-icon" style="background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.2);">🏠</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 700; font-size: 15px; color: #f1f5f9;">Equity Position Tracker</div>
+            <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Monitor your home equity as HELOC balance fluctuates</div>
+          </div>
+          <span class="tier-badge" style="flex-shrink: 0;">Calc 3</span>
+          <svg id="toggle3" class="calc-toggle" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+        <div id="body3" class="calc-body" style="display: none;">
+
+          <div class="edu-card" style="margin-bottom: 20px;">
+            <div style="font-size: 13px; font-weight: 600; color: #a78bfa; margin-bottom: 8px;">Why Equity Position Matters</div>
+            <div style="font-size: 13px; color: #9ca3af; line-height: 1.6;">
+              As you draw on your HELOC, your combined loan-to-value (CLTV) ratio rises. Falling below 20% equity can trigger PMI, restrict refinancing options, and limit your HELOC availability. This tracker shows your safety margin in real time.
+            </div>
+          </div>
+
+          <div class="section-label">Property & Loan Details</div>
+          <div class="input-grid" style="margin-bottom: 20px;">
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Estimated Home Value</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="eq_home_value" class="calc-input" value="420000" min="10000" step="5000" oninput="calcEquity()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Primary Mortgage Balance</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="eq_mortgage_bal" class="calc-input" value="280000" min="0" step="1000" oninput="calcEquity()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">HELOC Limit</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="eq_heloc_limit" class="calc-input" value="50000" min="0" step="1000" oninput="calcEquity()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Current HELOC Balance Used</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="eq_heloc_used" class="calc-input" value="15000" min="0" step="1000" oninput="calcEquity()">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Annual Home Appreciation</label>
+              <div class="input-wrap input-with-suffix">
+                <input type="number" id="eq_appreciation" class="calc-input" value="3.0" min="0" max="20" step="0.5" oninput="calcEquity()">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 6px; font-weight: 500;">Monthly Principal Paydown</label>
+              <div class="input-wrap input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input type="number" id="eq_monthly_paydown" class="calc-input" value="800" min="0" step="100" oninput="calcEquity()" title="How much principal you pay down each month (P&I payment minus interest portion)">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-label">Current Position</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px;">
+            <div class="stat-card">
+              <div class="stat-value" id="eq_total_equity">$0</div>
+              <div class="stat-label">Total Equity</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="eq_equity_pct" style="font-size: 1.4rem;">0%</div>
+              <div class="stat-label">Equity % (of value)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="eq_cltv" style="font-size: 1.4rem;">0%</div>
+              <div class="stat-label">CLTV Ratio</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="eq_available">$0</div>
+              <div class="stat-label">Available HELOC</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="eq_danger_buffer">$0</div>
+              <div class="stat-label">Buffer to 20% Floor</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="eq_safety_status" style="font-size: 14px; font-weight: 700;">—</div>
+              <div class="stat-label">Zone Status</div>
+            </div>
+          </div>
+
+          <!-- Equity Gauge (canvas) -->
+          <div style="margin-bottom: 20px;">
+            <div class="section-label" style="text-align: center; margin-bottom: 16px;">Equity Health Gauge</div>
+            <div style="position: relative; max-width: 320px; margin: 0 auto;">
+              <canvas id="gaugeChart" width="320" height="180"></canvas>
+              <div id="gaugeLabel" style="position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); text-align: center;">
+                <div style="font-size: 24px; font-weight: 800; color: #e8c96a;" id="gaugePct">0%</div>
+                <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.06em;">Equity</div>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 20px; margin-top: 12px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #9ca3af;"><span style="width: 12px; height: 12px; background: #f87171; border-radius: 2px; flex-shrink: 0;"></span> Danger (&lt;20%)</div>
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #9ca3af;"><span style="width: 12px; height: 12px; background: #fbbf24; border-radius: 2px; flex-shrink: 0;"></span> Caution (20–30%)</div>
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #9ca3af;"><span style="width: 12px; height: 12px; background: #34d399; border-radius: 2px; flex-shrink: 0;"></span> Safe (30%+)</div>
+            </div>
+          </div>
+
+          <!-- 5-Year Equity Projection Chart -->
+          <div class="divider"></div>
+          <div class="section-label">5-Year Equity Projection</div>
+          <div class="chart-box">
+            <canvas id="chartEquity"></canvas>
+          </div>
+
+          <div class="insight-box" id="eq_insight" style="background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.15); display: none;"></div>
+        </div>
+      </div>
+
+      <!-- ─── EDUCATIONAL SECTION ────────────────────────────────────── -->
+      <div style="margin-top: 8px; padding: 24px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem;">
+        <div style="font-size: 16px; font-weight: 700; color: #f1f5f9; margin-bottom: 16px;">📚 Understanding HELOC Velocity</div>
+
+        <div style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));">
+
+          <div style="padding: 16px; background: rgba(52,211,153,0.04); border: 1px solid rgba(52,211,153,0.12); border-radius: 0.75rem;">
+            <div style="font-size: 13px; font-weight: 700; color: #34d399; margin-bottom: 8px;">✅ When It Works</div>
+            <ul style="font-size: 13px; color: #9ca3af; line-height: 1.7; padding-left: 16px; margin: 0;">
+              <li>Positive monthly cash flow (income exceeds expenses)</li>
+              <li>HELOC rate is lower than the interest your savings earn</li>
+              <li>Disciplined spending — no lifestyle creep</li>
+              <li>Low-variable-rate environment</li>
+              <li>Primary mortgage has no prepayment penalties</li>
+            </ul>
+          </div>
+
+          <div style="padding: 16px; background: rgba(248,113,113,0.04); border: 1px solid rgba(248,113,113,0.12); border-radius: 0.75rem;">
+            <div style="font-size: 13px; font-weight: 700; color: #f87171; margin-bottom: 8px;">⚠️ When It Doesn't</div>
+            <ul style="font-size: 13px; color: #9ca3af; line-height: 1.7; padding-left: 16px; margin: 0;">
+              <li>Negative or tight cash flow — the strategy needs surplus</li>
+              <li>Rising rate environment erodes HELOC advantage</li>
+              <li>Home value drops, reducing available equity</li>
+              <li>Spending habits change once HELOC is open</li>
+              <li>Bank freezes or reduces HELOC limit</li>
+            </ul>
+          </div>
+
+          <div style="padding: 16px; background: rgba(251,191,36,0.04); border: 1px solid rgba(251,191,36,0.12); border-radius: 0.75rem;">
+            <div style="font-size: 13px; font-weight: 700; color: #fbbf24; margin-bottom: 8px;">⚡ Key Risks</div>
+            <ul style="font-size: 13px; color: #9ca3af; line-height: 1.7; padding-left: 16px; margin: 0;">
+              <li>HELOC rates are variable — can spike significantly</li>
+              <li>Your home is collateral; missed payments risk foreclosure</li>
+              <li>Behavioral risk: treating HELOC as emergency spending fund</li>
+              <li>Complex to track vs. simple extra principal payments</li>
+              <li>Not a magic shortcut — it's a cash-flow optimization tool</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div style="margin-top: 16px; padding: 14px 16px; background: rgba(96,165,250,0.04); border: 1px solid rgba(96,165,250,0.12); border-radius: 0.75rem; font-size: 13px; color: #9ca3af; line-height: 1.6;">
+          <strong style="color: #60a5fa;">The Bottom Line:</strong> HELOC velocity is a legitimate cash-flow optimization strategy used by financially disciplined homeowners. The math works when executed correctly. But it requires consistent positive cash flow, rate awareness, and behavioral discipline. The calculators above show the potential — your advisor helps you execute safely.
+        </div>
+      </div>
+
+    </div><!-- /#calcContainer -->
+
+  </div><!-- /.page-body -->
+
+  <!-- Elite Gate Overlay -->
+  <div id="eliteGateOverlay" style="display: none;"></div>
+  <div class="elite-gate-cta" id="eliteGateCta" style="display: none;">
+    <div style="max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <span style="font-size: 28px;">🔮</span>
+        <div>
+          <div style="font-weight: 700; font-size: 16px; color: #f1f5f9;">Unlock the HELOC Velocity Engine</div>
+          <div style="font-size: 13px; color: #9ca3af; margin-top: 2px;">These 3 advanced calculators are gated to FACTS Elite (Levels 10–12). Upgrade to access the full interest recapture modeling suite.</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0;">
+        <a href="/pricing.html#elite" style="text-decoration: none; padding: 12px 24px; font-size: 14px;" class="btn-gold">Upgrade to Elite →</a>
+        <a href="/pricing.html" style="text-decoration: none; padding: 12px 18px; font-size: 13px; color: #9ca3af;">View All Tiers</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════════════════
+    let hasElite = false;
+    let chartInstances = {};
+    let factsDebtData = null; // Loaded from /api/heloc-velocity/debt-data
+
+    // ═══════════════════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════════════════
+    async function init() {
+      try {
+        const res = await fetch('/api/elite-status', { credentials: 'include' });
+        if (res.status === 401) {
+          window.location.href = '/login.html?redirect=/heloc-velocity-engine';
+          return;
+        }
+        const data = await res.json();
+        hasElite = data.has_elite || false;
+
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('calcContainer').style.display = 'flex';
+
+        // Update status badge
+        const badge = document.getElementById('eliteStatusBadge');
+        if (hasElite) {
+          badge.innerHTML = '<span class="elite-badge">🔮 Elite — Full Access</span>';
+        } else {
+          badge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;background:rgba(107,114,128,0.15);color:#9ca3af;border:1px solid rgba(107,114,128,0.25);">🔒 Preview Only — L10+ Required</span>';
+        }
+
+        if (!hasElite) {
+          // Show gate overlay and CTA
+          document.getElementById('eliteGateOverlay').style.display = 'block';
+          document.getElementById('eliteGateCta').style.display = 'block';
+          // Open first card in preview mode
+          openCard(1);
+          // Disable all inputs
+          setTimeout(() => {
+            document.querySelectorAll('.calc-input').forEach(el => {
+              el.disabled = true;
+              el.style.opacity = '0.4';
+              el.style.cursor = 'not-allowed';
+            });
+          }, 100);
+          return;
+        }
+
+        // Elite user — load FACTS debt data, run all calcs, open first card
+        openCard(1);
+        loadDebtData();  // async — pre-populates and shows Interest Leak section
+        calcRecapture();
+        calcVelocity();
+        calcEquity();
+
+      } catch (err) {
+        document.getElementById('loadingState').innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
+            <div style="font-size: 40px; margin-bottom: 12px;">⚠️</div>
+            <div style="font-size: 15px;">Failed to load. Please refresh.</div>
+          </div>`;
+        console.error(err);
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // FACTS DEBT DATA LOADER
+    // ═══════════════════════════════════════════════════════════════
+    async function loadDebtData() {
+      try {
+        const res = await fetch('/api/heloc-velocity/debt-data', { credentials: 'include' });
+        if (!res.ok) return; // Non-elite or no data — silently skip
+        const data = await res.json();
+        factsDebtData = data;
+
+        // Show the Interest Leak section
+        document.getElementById('interestLeakSection').style.display = 'block';
+
+        // Update leak totals
+        document.getElementById('leakMonthly').textContent = fmt(data.total_monthly_interest_leak);
+        document.getElementById('leakAnnual').textContent = fmt(data.total_annual_interest_leak) + '/year';
+
+        if (data.debts && data.debts.length > 0) {
+          // Populate debt breakdown table
+          const tbody = document.getElementById('debtBreakdownBody');
+          tbody.innerHTML = data.debts.map(d => `
+            <tr>
+              <td style="padding:8px 12px; font-size:13px; color:#d1d5db;">${d.name}</td>
+              <td style="padding:8px 12px; font-size:13px; color:#9ca3af; text-align:right;">${fmt(d.balance)}</td>
+              <td style="padding:8px 12px; font-size:13px; color:#9ca3af; text-align:right;">${parseFloat(d.interest_rate).toFixed(2)}%</td>
+              <td style="padding:8px 12px; font-size:13px; font-weight:600; color:#f87171; text-align:right;">${fmt(d.monthly_interest)}</td>
+            </tr>
+          `).join('');
+          document.getElementById('debtBreakdownWrap').style.display = 'block';
+          document.getElementById('noFACTSData').style.display = 'none';
+
+          // Show the "Load from FACTS" button in Calc 1
+          document.getElementById('loadFromFACTSBtn').style.display = 'inline-flex';
+        } else {
+          document.getElementById('debtBreakdownWrap').style.display = 'none';
+          document.getElementById('noFACTSData').style.display = 'block';
+        }
+
+        // Recalculate now that we have context
+        calcRecapture();
+      } catch (e) {
+        // Silently fail — calculators still work manually
+        console.log('FACTS debt data not available:', e.message);
+      }
+    }
+
+    // Pre-fill Calc 1 with FACTS data
+    function loadFromFACTS() {
+      if (!factsDebtData) return;
+      const d = factsDebtData;
+
+      // Pre-fill income/expenses from FACTS averages (round to nearest $100)
+      if (d.avg_monthly_income > 0) {
+        document.getElementById('r1_income').value = Math.round(d.avg_monthly_income / 100) * 100;
+      }
+      if (d.avg_monthly_expenses > 0) {
+        document.getElementById('r1_expenses').value = Math.round(d.avg_monthly_expenses / 100) * 100;
+      }
+
+      // Find the mortgage debt (highest balance with "mortgage" in name or just highest balance)
+      const mortgageDebt = d.debts.find(dt =>
+        dt.name.toLowerCase().includes('mortgage') ||
+        dt.name.toLowerCase().includes('home') ||
+        dt.name.toLowerCase().includes('house')
+      ) || (d.debts.length ? d.debts.reduce((a, b) => a.balance > b.balance ? a : b) : null);
+
+      if (mortgageDebt) {
+        document.getElementById('r1_mortgage_bal').value = Math.round(mortgageDebt.balance);
+        document.getElementById('r1_mortgage_rate').value = parseFloat(mortgageDebt.interest_rate).toFixed(1);
+      }
+
+      // Flash a confirm indicator
+      const btn = document.getElementById('loadFromFACTSBtn');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Loaded!';
+      btn.style.background = 'rgba(52,211,153,0.15)';
+      btn.style.borderColor = 'rgba(52,211,153,0.3)';
+      btn.style.color = '#34d399';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.background = 'rgba(201,162,39,0.12)';
+        btn.style.borderColor = 'rgba(201,162,39,0.3)';
+        btn.style.color = '#c9a227';
+      }, 2500);
+
+      calcRecapture();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CARD TOGGLE
+    // ═══════════════════════════════════════════════════════════════
+    function toggleCard(n) {
+      const body = document.getElementById('body' + n);
+      const toggle = document.getElementById('toggle' + n);
+      const isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : 'block';
+      toggle.classList.toggle('open', !isOpen);
+    }
+
+    function openCard(n) {
+      document.getElementById('body' + n).style.display = 'block';
+      document.getElementById('toggle' + n).classList.add('open');
+    }
+
+    function destroyChart(name) {
+      if (chartInstances[name]) {
+        chartInstances[name].destroy();
+        delete chartInstances[name];
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // MONTHLY ACTION PLAN GENERATOR
+    // ═══════════════════════════════════════════════════════════════
+    function generateActionPlan(surplus, income, expenses, monthlyInterestSaved, monthsSaved, lifetimeSaved) {
+      const card = document.getElementById('actionPlanCard');
+      const content = document.getElementById('actionPlanContent');
+      if (!card || !content) return;
+
+      if (surplus <= 0) {
+        card.style.display = 'none';
+        return;
+      }
+
+      card.style.display = 'block';
+
+      const halfIncome = fmt(income / 2);
+      const steps = [
+        {
+          day: 'Payday (1st)',
+          icon: '💰',
+          color: '#34d399',
+          bg: 'rgba(52,211,153,0.08)',
+          border: 'rgba(52,211,153,0.2)',
+          action: `Deposit full paycheck (${fmt(income)}) directly into your HELOC account — this immediately reduces your outstanding balance.`,
+        },
+        {
+          day: 'Week 1–2',
+          icon: '📋',
+          color: '#60a5fa',
+          bg: 'rgba(96,165,250,0.08)',
+          border: 'rgba(96,165,250,0.2)',
+          action: `Pay all bills and expenses (${fmt(expenses)}/mo total) by drawing from the HELOC. Your balance rises back up as you draw.`,
+        },
+        {
+          day: 'End of Month',
+          icon: '⚡',
+          color: '#c9a227',
+          bg: 'rgba(201,162,39,0.08)',
+          border: 'rgba(201,162,39,0.2)',
+          action: `Net result: HELOC balance is ${fmt(surplus)} lower than last month. This surplus permanently reduces your debt each cycle.`,
+        },
+        {
+          day: 'Monthly Win',
+          icon: '🏆',
+          color: '#a78bfa',
+          bg: 'rgba(167,139,250,0.08)',
+          border: 'rgba(167,139,250,0.2)',
+          action: `You save ~${fmt(monthlyInterestSaved)}/month in interest by keeping the daily average balance lower. Over time: ${monthsSaved > 0 ? monthsSaved + ' months faster payoff + ' : ''}${fmt(lifetimeSaved)} in lifetime interest savings.`,
+        },
+      ];
+
+      content.innerHTML = steps.map(s => `
+        <div style="display:flex; gap:14px; align-items:flex-start; padding:12px 14px; border-radius:0.75rem; background:${s.bg}; border:1px solid ${s.border};">
+          <div style="flex-shrink:0; width:70px; text-align:center;">
+            <div style="font-size:18px; margin-bottom:2px;">${s.icon}</div>
+            <div style="font-size:10px; font-weight:700; color:${s.color}; text-transform:uppercase; letter-spacing:0.05em; line-height:1.3;">${s.day}</div>
+          </div>
+          <div style="font-size:13px; color:#d1d5db; line-height:1.6;">${s.action}</div>
+        </div>
+      `).join('');
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // UTILITIES
+    // ═══════════════════════════════════════════════════════════════
+    function fmt(n) {
+      if (isNaN(n) || !isFinite(n)) return '$0';
+      const abs = Math.abs(n);
+      if (abs >= 1000000) return (n < 0 ? '-' : '') + '$' + (abs / 1000000).toFixed(2) + 'M';
+      if (abs >= 10000) return (n < 0 ? '-' : '') + '$' + Math.round(abs).toLocaleString();
+      return (n < 0 ? '-$' : '$') + abs.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    function fmtK(n) {
+      if (isNaN(n) || !isFinite(n)) return '$0';
+      return n >= 1000 ? '$' + (n / 1000).toFixed(0) + 'K' : fmt(n);
+    }
+    function num(id) {
+      return parseFloat(document.getElementById(id).value) || 0;
+    }
+    function set(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+
+    // Standard amortization: months to pay off a balance at rate with payment
+    function monthsToPayoff(balance, annualRate, payment) {
+      const r = annualRate / 100 / 12;
+      if (r === 0) return payment > 0 ? Math.ceil(balance / payment) : Infinity;
+      const minPay = balance * r;
+      if (payment <= minPay) return Infinity;
+      return Math.ceil(-Math.log(1 - (balance * r) / payment) / Math.log(1 + r));
+    }
+
+    // Total interest paid over loan life
+    function totalInterest(balance, annualRate, payment) {
+      const r = annualRate / 100 / 12;
+      const months = monthsToPayoff(balance, annualRate, payment);
+      if (!isFinite(months)) return Infinity;
+      return (payment * months) - balance;
+    }
+
+    // Standard P&I payment for a loan
+    function calcPayment(balance, annualRate, months) {
+      const r = annualRate / 100 / 12;
+      if (r === 0) return balance / months;
+      return balance * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CALCULATOR 1: HELOC Interest Recapture
+    // ═══════════════════════════════════════════════════════════════
+    function calcRecapture() {
+      const income     = num('r1_income');
+      const expenses   = num('r1_expenses');
+      const mortBal    = num('r1_mortgage_bal');
+      const mortRate   = num('r1_mortgage_rate');
+      const helocLimit = num('r1_heloc_limit');
+      const helocRate  = num('r1_heloc_rate');
+
+      const surplus = income - expenses;
+
+      // Average HELOC balance reduction during the month:
+      // Income deposited at start, expenses withdrawn over month.
+      // Average daily balance is reduced by roughly income/2 during drawdown period.
+      // Net reduction at month end = surplus.
+      // For a 30-day cycle: avg reduction ≈ (income + surplus) / 2 = income - expenses/2
+      const avgBalReduction = income - (expenses / 2);
+      const monthlyHELOCSaved = Math.max(0, avgBalReduction * (helocRate / 100 / 12));
+
+      // Annual interest saved on HELOC
+      const annualSaved = monthlyHELOCSaved * 12;
+
+      // Mortgage payoff acceleration:
+      // Each month, apply surplus as extra principal payment
+      const mortMonthlyRate = mortRate / 100 / 12;
+      const stdPayment = calcPayment(mortBal, mortRate, 360); // assume 30yr remaining baseline
+      const standardMonths = monthsToPayoff(mortBal, mortRate, stdPayment);
+
+      let acceleratedMonths = Infinity;
+      if (surplus > 0) {
+        acceleratedMonths = monthsToPayoff(mortBal, mortRate, stdPayment + surplus);
+      }
+
+      const monthsSaved = isFinite(standardMonths) && isFinite(acceleratedMonths)
+        ? Math.max(0, standardMonths - acceleratedMonths) : 0;
+
+      // Total interest saved = (standard total interest) - (accelerated total interest)
+      const stdTotalInterest = isFinite(standardMonths) ? (stdPayment * standardMonths - mortBal) : 0;
+      const accelTotalInterest = isFinite(acceleratedMonths)
+        ? ((stdPayment + surplus) * acceleratedMonths - mortBal) : stdTotalInterest;
+
+      const lifetimeSaved = Math.max(0, stdTotalInterest - accelTotalInterest) + (annualSaved * (isFinite(acceleratedMonths) ? acceleratedMonths / 12 : 30));
+
+      const newPayoffYears = isFinite(acceleratedMonths) ? (acceleratedMonths / 12).toFixed(1) : '30+';
+
+      set('r1_surplus', fmt(surplus));
+      set('r1_heloc_savings', fmt(monthlyHELOCSaved));
+      set('r1_annual_savings', fmt(annualSaved));
+      set('r1_payoff_accel', monthsSaved > 0 ? monthsSaved + ' mo' : 'N/A');
+      set('r1_total_saved', fmt(lifetimeSaved));
+      set('r1_new_payoff', newPayoffYears + ' yrs');
+
+      // Update Interest Leak → Recaptured flow diagram
+      if (document.getElementById('recaptureMonthly')) {
+        const totalMonthlySaved = monthlyHELOCSaved + (surplus > 0 ? surplus : 0);
+        document.getElementById('recaptureMonthly').textContent = surplus > 0 ? fmt(monthlyHELOCSaved + surplus * 0.3) : '—';
+        document.getElementById('recaptureAnnual').textContent = surplus > 0
+          ? fmt(annualSaved) + '/yr interest savings'
+          : 'Surplus required for strategy';
+      }
+
+      // Generate Monthly Action Plan
+      generateActionPlan(surplus, income, expenses, monthlyHELOCSaved, monthsSaved, lifetimeSaved);
+
+      // Show FI Calculator link
+      if (surplus > 0) {
+        const fiCard = document.getElementById('fiLinkCard');
+        if (fiCard) {
+          fiCard.style.display = 'flex';
+          const fiText = document.getElementById('fiLinkText');
+          if (fiText) fiText.textContent = `Your velocity strategy generates ~${fmt(surplus)}/month surplus + ${fmt(monthlyHELOCSaved)}/month in interest savings — that's ${fmt(surplus + monthlyHELOCSaved)}/month you could redirect to your Freedom Number.`;
+        }
+      }
+
+      // Insight
+      const insight = document.getElementById('r1_insight');
+      if (surplus <= 0) {
+        insight.style.display = 'block';
+        insight.style.background = 'rgba(248,113,113,0.06)';
+        insight.style.borderColor = 'rgba(248,113,113,0.15)';
+        insight.innerHTML = `⚠️ <strong style="color:#f87171;">Negative cash flow.</strong> The HELOC velocity strategy requires a monthly surplus. With expenses exceeding income by ${fmt(Math.abs(surplus))}, the strategy would not work in your current situation. Focus on increasing income or reducing expenses first.`;
+      } else {
+        insight.style.display = 'block';
+        insight.style.background = 'rgba(52,211,153,0.06)';
+        insight.style.borderColor = 'rgba(52,211,153,0.15)';
+        const monthlySurplusFmt = fmt(surplus);
+        insight.innerHTML = `✅ Your ${monthlySurplusFmt}/month surplus can drive powerful acceleration. Each month that surplus gets applied as extra principal, reducing your mortgage faster. Combined with HELOC parking savings, you could save <strong style="color:#34d399;">${fmt(lifetimeSaved)}</strong> in total interest and pay off your mortgage approximately <strong style="color:#e8c96a;">${monthsSaved} months</strong> earlier.`;
+      }
+
+      // Render chart: standard vs accelerated payoff balance over time
+      const months = isFinite(standardMonths) ? Math.min(standardMonths, 360) : 360;
+      const labels = [];
+      const stdData = [];
+      const accelData = [];
+
+      let stdBal = mortBal;
+      let accelBal = mortBal;
+      const r = mortMonthlyRate;
+
+      for (let m = 0; m <= months; m += 6) {
+        labels.push('Yr ' + Math.round(m / 12));
+        stdData.push(Math.max(0, Math.round(stdBal)));
+        accelData.push(Math.max(0, Math.round(accelBal)));
+
+        // Advance 6 months
+        for (let i = 0; i < 6; i++) {
+          if (stdBal > 0) {
+            const stdInt = stdBal * r;
+            stdBal = Math.max(0, stdBal + stdInt - stdPayment);
+          }
+          if (accelBal > 0) {
+            const accelInt = accelBal * r;
+            accelBal = Math.max(0, accelBal + accelInt - (stdPayment + surplus));
+          }
+        }
+      }
+
+      destroyChart('recapture');
+      const ctx = document.getElementById('chartRecapture').getContext('2d');
+      chartInstances['recapture'] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Standard Payoff',
+              data: stdData,
+              borderColor: '#9ca3af',
+              backgroundColor: 'rgba(156,163,175,0.05)',
+              fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0,
+            },
+            {
+              label: 'HELOC Velocity Payoff',
+              data: accelData,
+              borderColor: '#34d399',
+              backgroundColor: 'rgba(52,211,153,0.1)',
+              fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0,
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#9ca3af', font: { size: 12 } } },
+            tooltip: { callbacks: { label: ctx => ' Balance: ' + fmtK(ctx.raw) } }
+          },
+          scales: {
+            x: { ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { color: '#6b7280', callback: v => fmtK(v) }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          }
+        }
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CALCULATOR 2: Debt Velocity Comparison
+    // ═══════════════════════════════════════════════════════════════
+    function calcVelocity() {
+      const balance    = num('v2_balance');
+      const rate       = num('v2_rate');
+      const payment    = num('v2_payment');
+      const surplus    = num('v2_surplus');
+      const helocRate  = num('v2_heloc_rate');
+      const helocCost  = num('v2_heloc_cost'); // monthly HELOC interest cost
+
+      // Track A: Traditional — just the standard payment
+      const tradMonths   = monthsToPayoff(balance, rate, payment);
+      const tradInterest = isFinite(tradMonths) ? Math.max(0, payment * tradMonths - balance) : 0;
+      const tradCashflow = payment;
+
+      // Track B: Velocity — standard payment + surplus applied as extra principal, minus HELOC cost
+      const velPayment  = payment + surplus - helocCost;
+      const velMonths   = monthsToPayoff(balance, rate, velPayment);
+      const velInterest = isFinite(velMonths) ? Math.max(0, velPayment * velMonths - balance) : 0;
+      const velCashflow = payment + surplus; // total monthly cash out (includes HELOC cost already absorbed)
+
+      const monthsSaved = isFinite(tradMonths) && isFinite(velMonths) ? Math.max(0, tradMonths - velMonths) : 0;
+      const interestSaved = Math.max(0, tradInterest - velInterest);
+      const cashflowDiff = velCashflow - tradCashflow;
+
+      // Build table
+      const tbody = document.getElementById('velocityTableBody');
+      if (!isFinite(tradMonths) || payment < balance * rate / 100 / 12) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:#f87171;">Payment is too low to cover monthly interest. Increase the standard monthly payment.</td></tr>`;
+        return;
+      }
+
+      const rows = [
+        { label: 'Time to Payoff', trad: tradMonths + ' months (' + (tradMonths/12).toFixed(1) + ' yrs)', vel: velMonths + ' months (' + (velMonths/12).toFixed(1) + ' yrs)', diff: '−' + monthsSaved + ' months', highlight: true },
+        { label: 'Total Interest Paid', trad: fmt(tradInterest), vel: fmt(velInterest), diff: fmt(-interestSaved), highlight: false },
+        { label: 'Total Amount Paid', trad: fmt(tradInterest + balance), vel: fmt(velInterest + balance), diff: fmt(-(interestSaved)), highlight: false },
+        { label: 'Monthly Cash Out', trad: fmt(tradCashflow), vel: fmt(velCashflow), diff: '+' + fmt(cashflowDiff) + '/mo', highlight: false },
+        { label: 'HELOC Strategy Cost', trad: '—', vel: fmt(helocCost) + '/mo', diff: '—', highlight: false },
+        { label: 'Interest Saved', trad: '—', vel: '—', diff: fmt(interestSaved), highlight: true },
+      ];
+
+      tbody.innerHTML = rows.map(r => `
+        <tr class="${r.highlight ? 'row-highlight' : ''}">
+          <td style="color:#d1d5db; font-weight:${r.highlight ? '600' : '400'};">${r.label}</td>
+          <td class="col-traditional">${r.trad}</td>
+          <td class="col-velocity">${r.vel}</td>
+          <td class="col-diff">${r.diff}</td>
+        </tr>
+      `).join('');
+
+      // Insight
+      const insight = document.getElementById('v2_insight');
+      insight.style.display = 'block';
+      if (interestSaved > 0 && monthsSaved > 0) {
+        insight.innerHTML = `⚡ By applying your ${fmt(surplus)}/month surplus through the HELOC velocity cycle (net cost: ${fmt(helocCost)}/mo to run the HELOC), you save <strong style="color:#34d399;">${fmt(interestSaved)}</strong> in interest and pay off your mortgage <strong style="color:#e8c96a;">${monthsSaved} months</strong> sooner. The strategy costs ${fmt(helocCost)}/mo to run but saves ${fmt(interestSaved / (monthsSaved > 0 ? monthsSaved : 1))} per month it's operating.`;
+      } else if (surplus <= helocCost) {
+        insight.innerHTML = `⚠️ Your monthly surplus (${fmt(surplus)}) barely covers the HELOC running cost (${fmt(helocCost)}). Increase your surplus or reduce the HELOC rate to see meaningful acceleration.`;
+      } else {
+        insight.innerHTML = `Enter your numbers above to see the full comparison.`;
+      }
+
+      // Chart: cumulative interest paid over time
+      const maxMonths = Math.min(Math.max(tradMonths, velMonths), 360);
+      const labels = [];
+      const tradCumInt = [];
+      const velCumInt = [];
+      let tBal = balance, vBal = balance;
+      let tInt = 0, vInt = 0;
+      const r = rate / 100 / 12;
+
+      for (let m = 0; m <= maxMonths; m += 3) {
+        labels.push('Mo ' + m);
+        tradCumInt.push(Math.round(tInt));
+        velCumInt.push(Math.round(vInt));
+        for (let i = 0; i < 3; i++) {
+          if (tBal > 0) { const ti = tBal * r; tInt += ti; tBal = Math.max(0, tBal + ti - payment); }
+          if (vBal > 0) { const vi = vBal * r; vInt += vi; vBal = Math.max(0, vBal + vi - velPayment); }
+        }
+      }
+
+      destroyChart('velocity');
+      const ctx = document.getElementById('chartVelocity').getContext('2d');
+      chartInstances['velocity'] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Traditional — Cumulative Interest',
+              data: tradCumInt,
+              borderColor: '#f87171',
+              backgroundColor: 'rgba(248,113,113,0.08)',
+              fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0,
+            },
+            {
+              label: 'Velocity — Cumulative Interest',
+              data: velCumInt,
+              borderColor: '#34d399',
+              backgroundColor: 'rgba(52,211,153,0.08)',
+              fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0,
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#9ca3af', font: { size: 12 } } },
+            tooltip: { callbacks: { label: ctx => ' ' + fmtK(ctx.raw) } }
+          },
+          scales: {
+            x: { ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { color: '#6b7280', callback: v => fmtK(v) }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          }
+        }
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CALCULATOR 3: Equity Position Tracker
+    // ═══════════════════════════════════════════════════════════════
+    function calcEquity() {
+      const homeVal       = num('eq_home_value');
+      const mortBal       = num('eq_mortgage_bal');
+      const helocLimit    = num('eq_heloc_limit');
+      const helocUsed     = Math.min(num('eq_heloc_used'), helocLimit);
+      const appreciation  = num('eq_appreciation') / 100;
+      const monthlyPaydown = num('eq_monthly_paydown');
+
+      const totalDebt    = mortBal + helocUsed;
+      const totalEquity  = Math.max(0, homeVal - totalDebt);
+      const equityPct    = homeVal > 0 ? (totalEquity / homeVal * 100) : 0;
+      const cltv         = homeVal > 0 ? (totalDebt / homeVal * 100) : 0;
+      const available    = Math.max(0, helocLimit - helocUsed);
+
+      // 20% equity floor
+      const floor20      = homeVal * 0.20;
+      const dangerBuffer = Math.max(0, totalEquity - floor20);
+
+      // Status
+      let statusText, statusColor;
+      if (equityPct >= 30) {
+        statusText = '✅ Safe Zone';
+        statusColor = '#34d399';
+      } else if (equityPct >= 20) {
+        statusText = '⚠️ Caution Zone';
+        statusColor = '#fbbf24';
+      } else {
+        statusText = '🚨 Danger Zone';
+        statusColor = '#f87171';
+      }
+
+      set('eq_total_equity', fmt(totalEquity));
+      set('eq_equity_pct', equityPct.toFixed(1) + '%');
+      set('eq_cltv', cltv.toFixed(1) + '%');
+      set('eq_available', fmt(available));
+      set('eq_danger_buffer', dangerBuffer > 0 ? fmt(dangerBuffer) : 'Below floor!');
+      const statusEl = document.getElementById('eq_safety_status');
+      if (statusEl) { statusEl.textContent = statusText; statusEl.style.color = statusColor; }
+
+      // Update gauge pct label color
+      document.getElementById('gaugePct').style.color = statusColor;
+      set('gaugePct', equityPct.toFixed(1) + '%');
+
+      // Draw gauge
+      drawGauge(equityPct);
+
+      // 5-year projection data
+      const projLabels = ['Now'];
+      const projEquity = [Math.round(totalEquity)];
+      const projCLTV   = [parseFloat(cltv.toFixed(1))];
+
+      let projMortBal = mortBal;
+      let projHomeVal = homeVal;
+      let projHelocUsed = helocUsed;
+
+      for (let yr = 1; yr <= 5; yr++) {
+        projMortBal = Math.max(0, projMortBal - monthlyPaydown * 12);
+        projHomeVal = projHomeVal * Math.pow(1 + appreciation, 1);
+        // Assume HELOC usage gradually reduces as mortgage is paid down (optimistic)
+        projHelocUsed = Math.max(0, projHelocUsed - (monthlyPaydown * 3));
+
+        const debt = projMortBal + projHelocUsed;
+        const eq = Math.max(0, projHomeVal - debt);
+        projLabels.push('Yr ' + yr);
+        projEquity.push(Math.round(eq));
+        projCLTV.push(projHomeVal > 0 ? parseFloat((debt / projHomeVal * 100).toFixed(1)) : 0);
+      }
+
+      destroyChart('equity');
+      const ctx = document.getElementById('chartEquity').getContext('2d');
+      chartInstances['equity'] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: projLabels,
+          datasets: [
+            {
+              label: 'Home Equity ($)',
+              data: projEquity,
+              backgroundColor: projEquity.map(eq => {
+                const pct = homeVal > 0 ? eq / projHomeVal * 100 : 0;
+                return pct >= 30 ? 'rgba(52,211,153,0.6)' : pct >= 20 ? 'rgba(251,191,36,0.6)' : 'rgba(248,113,113,0.6)';
+              }),
+              borderColor: projEquity.map(eq => {
+                const pct = homeVal > 0 ? eq / projHomeVal * 100 : 0;
+                return pct >= 30 ? '#34d399' : pct >= 20 ? '#fbbf24' : '#f87171';
+              }),
+              borderWidth: 1,
+              yAxisID: 'y',
+            },
+            {
+              label: 'CLTV Ratio (%)',
+              data: projCLTV,
+              type: 'line',
+              borderColor: '#a78bfa',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              pointRadius: 4,
+              pointBackgroundColor: '#a78bfa',
+              tension: 0.3,
+              yAxisID: 'y2',
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#9ca3af', font: { size: 12 } } },
+            tooltip: {
+              callbacks: {
+                label: ctx => ctx.dataset.yAxisID === 'y2'
+                  ? ` CLTV: ${ctx.raw}%`
+                  : ` Equity: ${fmtK(ctx.raw)}`
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { color: '#6b7280', callback: v => fmtK(v) }, grid: { color: 'rgba(255,255,255,0.04)' }, position: 'left' },
+            y2: { ticks: { color: '#a78bfa', callback: v => v + '%' }, grid: { display: false }, position: 'right' }
+          }
+        }
+      });
+
+      // Insight
+      const insight = document.getElementById('eq_insight');
+      insight.style.display = 'block';
+      if (equityPct < 20) {
+        insight.style.background = 'rgba(248,113,113,0.06)';
+        insight.style.borderColor = 'rgba(248,113,113,0.15)';
+        insight.innerHTML = `🚨 <strong style="color:#f87171;">You are already below the 20% equity threshold.</strong> Your CLTV is ${cltv.toFixed(1)}%. Running a HELOC velocity strategy from this position is high-risk — further HELOC draws could trigger PMI, restrict refinancing, or limit your HELOC availability. Prioritize principal paydown before implementing this strategy.`;
+      } else if (equityPct < 30) {
+        insight.style.background = 'rgba(251,191,36,0.06)';
+        insight.style.borderColor = 'rgba(251,191,36,0.15)';
+        insight.innerHTML = `⚠️ Your equity position (${equityPct.toFixed(1)}%) is in the caution zone. You have ${fmt(dangerBuffer)} of buffer above the 20% floor. Keep a close eye on HELOC draws — your safety margin is real but not large. A market correction of ~${((equityPct - 20) / 100 * homeVal / homeVal * 100).toFixed(0)}% on home value would push you below the floor.`;
+      } else {
+        insight.style.background = 'rgba(52,211,153,0.06)';
+        insight.style.borderColor = 'rgba(52,211,153,0.15)';
+        insight.innerHTML = `✅ You're in the safe zone with ${equityPct.toFixed(1)}% equity — ${fmt(dangerBuffer)} above the 20% floor. You have ${fmt(available)} in available HELOC capacity. With ${appreciation * 100}% annual appreciation and ${fmt(monthlyPaydown)}/month in principal paydown, your equity position strengthens significantly over 5 years.`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // GAUGE CHART
+    // ═══════════════════════════════════════════════════════════════
+    function drawGauge(pct) {
+      const canvas = document.getElementById('gaugeChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const cx = W / 2;
+      const cy = H - 20;
+      const radius = Math.min(W, H * 2) * 0.42;
+      const startAngle = Math.PI;
+      const endAngle = 2 * Math.PI;
+
+      // Background arc
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, startAngle, endAngle);
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 22;
+      ctx.stroke();
+
+      // Colored zones: danger (0-20%), caution (20-30%), safe (30-100%)
+      const zones = [
+        { start: 0, end: 20, color: '#f87171' },
+        { start: 20, end: 30, color: '#fbbf24' },
+        { start: 30, end: 100, color: '#34d399' },
+      ];
+
+      zones.forEach(zone => {
+        const s = startAngle + (zone.start / 100) * Math.PI;
+        const e = startAngle + (zone.end / 100) * Math.PI;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, s, e);
+        ctx.strokeStyle = zone.color + '40'; // 25% opacity for background zones
+        ctx.lineWidth = 22;
+        ctx.stroke();
+      });
+
+      // Active fill up to current pct
+      const clampedPct = Math.min(100, Math.max(0, pct));
+      const fillEnd = startAngle + (clampedPct / 100) * Math.PI;
+
+      let fillColor;
+      if (pct >= 30) fillColor = '#34d399';
+      else if (pct >= 20) fillColor = '#fbbf24';
+      else fillColor = '#f87171';
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, startAngle, fillEnd);
+      ctx.strokeStyle = fillColor;
+      ctx.lineWidth = 22;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // Needle
+      const needleAngle = startAngle + (clampedPct / 100) * Math.PI;
+      const nx = cx + (radius) * Math.cos(needleAngle);
+      const ny = cy + (radius) * Math.sin(needleAngle);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(nx, ny);
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // Center dot
+      ctx.beginPath();
+      ctx.arc(cx, cy, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = '#f1f5f9';
+      ctx.fill();
+
+      // Zone labels on arc
+      ctx.font = '10px Inter, system-ui, sans-serif';
+      ctx.fillStyle = '#6b7280';
+      ctx.textAlign = 'center';
+      ctx.fillText('0%', cx - radius - 8, cy + 4);
+      ctx.fillText('100%', cx + radius + 10, cy + 4);
+      ctx.fillText('20%', cx - radius * 0.6 - 4, cy - radius * 0.8 + 10);
+      ctx.fillText('30%', cx - radius * 0.3, cy - radius - 8);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // START
+    // ═══════════════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+
+  <script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

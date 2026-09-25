@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>family Settings — FACTS</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0f1a;
+      --card: #111827;
+      --elevated: #1a2332;
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --text: #e8e0d4;
+      --muted: #a89a7e;
+      --subtle: #6b5c44;
+      --border: rgba(201,162,39,0.15);
+      --border-subtle: rgba(255,255,255,0.06);
+      --success: #10b981;
+      --error: #f43f5e;
+      --warning: #f59e0b;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+
+    /* ─── Header ─── */
+    .page-header {
+      background: rgba(10,15,26,0.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 12px;
+      height: 56px; padding: 0 20px;
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--muted); text-decoration: none;
+      font-size: 14px; font-weight: 500;
+      padding: 6px 10px; border-radius: 7px;
+      transition: all 0.15s;
+    }
+    .back-btn:hover { color: var(--gold); background: rgba(201,162,39,0.08); }
+    .page-title { font-size: 15px; font-weight: 600; color: var(--text); }
+
+    /* ─── Layout ─── */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 28px 20px 80px;
+    }
+
+    /* ─── Section headers ─── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--subtle);
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+
+    /* ─── Cards ─── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-count {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ─── Member row ─── */
+    .member-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.1s;
+    }
+    .member-row:last-child { border-bottom: none; }
+    .member-row:hover { background: rgba(255,255,255,0.02); }
+
+    .member-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(201,162,39,0.2), rgba(201,162,39,0.05));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gold);
+      flex-shrink: 0;
+      border: 1px solid rgba(201,162,39,0.2);
+    }
+
+    .member-info { flex: 1; min-width: 0; }
+    .member-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .member-email {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .member-you {
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .member-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Badges ─── */
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+    .badge-owner { background: rgba(201,162,39,0.15); color: var(--gold); border: 1px solid rgba(201,162,39,0.3); }
+    .badge-co_admin { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+    .badge-adult { background: rgba(16,185,129,0.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
+    .badge-minor { background: rgba(59,130,246,0.1); color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+    .badge-member { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
+    .badge-pending { background: rgba(245,158,11,0.1); color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+    .badge-accepted { background: rgba(16,185,129,0.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
+    .badge-declined { background: rgba(244,63,94,0.1); color: #fca5a5; border: 1px solid rgba(244,63,94,0.25); }
+
+    /* ─── Action buttons ─── */
+    .icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: all 0.15s;
+      line-height: 1;
+    }
+    .icon-btn:hover { color: var(--error); background: rgba(244,63,94,0.1); }
+    .icon-btn.promote:hover { color: var(--gold); background: rgba(201,162,39,0.1); }
+    .icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* ─── Invite form ─── */
+    .invite-form {
+      padding: 20px;
+    }
+
+    .field-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 500px) {
+      .field-group { flex-direction: column; }
+    }
+
+    .input-wrap {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="email"], select {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    input[type="email"]:focus, select:focus {
+      border-color: rgba(201,162,39,0.4);
+    }
+    select option { background: #1a2332; }
+
+    .btn-send {
+      padding: 10px 20px;
+      background: var(--gold);
+      color: #0a0f1a;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      align-self: flex-end;
+    }
+    .btn-send:hover { background: var(--gold-light); }
+    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Empty state ─── */
+    .empty-state {
+      padding: 28px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* ─── Alert ─── */
+    .alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+    .alert.show { display: block; }
+    .alert-error { background: rgba(244,63,94,0.1); color: #f87171; border: 1px solid rgba(244,63,94,0.2); }
+    .alert-success { background: rgba(16,185,129,0.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
+    .alert-warning { background: rgba(245,158,11,0.1); color: #fcd34d; border: 1px solid rgba(245,158,11,0.2); }
+
+    /* ─── Invite rows ─── */
+    .invite-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .invite-row:last-child { border-bottom: none; }
+
+    .invite-email {
+      flex: 1;
+      font-size: 14px;
+      color: var(--text);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .invite-meta-text {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ─── Full member limit banner ─── */
+    .limit-banner {
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #fcd34d;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .limit-banner.show { display: block; }
+
+    /* ─── Spinner ─── */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(201,162,39,0.3);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Loading page ─── */
+    .page-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--muted);
+      font-size: 14px;
+      gap: 10px;
+    }
+
+    /* ─── family name display ─── */
+    .hh-name-row {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .hh-icon {
+      font-size: 24px;
+    }
+    .hh-info h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .hh-info p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ─── Commission Split Panel ─── */
+    .commission-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+    }
+    .commission-row:last-child { border-bottom: none; }
+    .comm-member-info { flex: 1; min-width: 140px; }
+    .comm-member-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .comm-code { font-size: 11px; color: var(--muted); font-family: 'Courier New', monospace; margin-top: 2px; }
+
+    .comm-splits {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .comm-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      min-width: 100px;
+    }
+    .comm-pill-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .comm-pill-value {
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .comm-pill.owner-earned {
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.25);
+    }
+    .comm-pill.owner-earned .comm-pill-label { color: #6ee7b7; }
+    .comm-pill.owner-earned .comm-pill-value { color: var(--success); }
+    .comm-pill.member-frozen {
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.25);
+    }
+    .comm-pill.member-frozen .comm-pill-label { color: #93c5fd; }
+    .comm-pill.member-frozen .comm-pill-value { color: #93c5fd; }
+
+    .gift-btn {
+      padding: 7px 14px;
+      background: rgba(201,162,39,0.12);
+      border: 1px solid rgba(201,162,39,0.3);
+      color: var(--gold);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .gift-btn:hover { background: rgba(201,162,39,0.22); }
+    .gift-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .comm-note {
+      padding: 10px 20px;
+      font-size: 11px;
+      color: var(--subtle);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ─── Gift Modal ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 400px;
+      transform: translateY(12px);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .modal-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .modal-field { margin-bottom: 16px; }
+    .modal-field label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .modal-field input, .modal-field select {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+    .modal-field input:focus, .modal-field select:focus {
+      border-color: rgba(201,162,39,0.4);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn-cancel {
+      flex: 1;
+      padding: 11px;
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--muted);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-cancel:hover { border-color: var(--border); color: var(--text); }
+    .btn-confirm {
+      flex: 2;
+      padding: 11px;
+      background: var(--gold);
+      border: none;
+      color: #0a0f1a;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-confirm:hover { background: var(--gold-light); }
+    .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Grace Banner ─── */
+    .grace-banner {
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #fcd34d;
+      line-height: 1.5;
+      display: none;
+    }
+    .grace-banner.show { display: block; }
+    .grace-banner strong { color: #fde68a; }
+    .grace-banner a { color: #fcd34d; text-decoration: underline; }
+
+    /* ─── Invite URL copy box ─── */
+    .copy-box {
+      background: var(--elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .copy-url {
+      flex: 1;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .copy-btn {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { color: var(--gold); border-color: rgba(201,162,39,0.3); }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+    <a href="/app.html" class="back-btn">← Back</a>
+    <span class="page-title" id="header-title">family Settings</span>
+  </header>
+
+  <div class="container">
+    <div id="page-loading" class="page-loading">
+      <span class="spinner"></span> Loading…
+    </div>
+
+    <div id="page-content" style="display:none">
+
+      <!-- family info -->
+      <div class="card" style="margin-bottom:28px">
+        <div class="hh-name-row">
+          <span class="hh-icon">🏠</span>
+          <div class="hh-info">
+            <h2 id="hh-name">—</h2>
+            <p id="hh-meta">—</p>
+          </div>
+        </div>
+        <div style="padding:0 16px 16px;display:flex;gap:10px;flex-wrap:wrap">
+          <a id="dashboard-link" href="/family-dashboard" style="display:inline-flex;align-items:center;gap:7px;background:rgba(201,162,39,0.12);border:1px solid rgba(201,162,39,0.3);color:#c9a84c;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:600;text-decoration:none;transition:background 0.15s" onmouseover="this.style.background='rgba(201,162,39,0.2)'" onmouseout="this.style.background='rgba(201,162,39,0.12)'">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            View Family Dashboard
+          </a>
+        </div>
+      </div>
+
+      <!-- Grace period banner (shown if plan is cancelled) -->
+      <div id="grace-banner" class="grace-banner">
+        ⚠️ <strong>Your Family Plan has been cancelled.</strong>
+        All members have a 30-day grace period to upgrade to individual Pro or elect a new billing owner.
+        Grace period expires: <strong id="grace-expires">—</strong>
+        &nbsp;·&nbsp; <a href="#" onclick="electSelfAsOwner()">Become the billing owner →</a>
+      </div>
+
+      <!-- Members section -->
+      <div class="section-label">Members</div>
+      <div id="limit-banner" class="limit-banner">
+        family is full (6/6 members). Remove a member before sending new invites.
+      </div>
+      <div class="card" id="members-card">
+        <div class="card-header">
+          <span class="card-title">Active Members</span>
+          <span class="card-count" id="member-count">—</span>
+        </div>
+        <div id="members-list">
+          <div class="page-loading"><span class="spinner"></span></div>
+        </div>
+      </div>
+
+      <!-- Family Commissions (owner only) -->
+      <div id="commissions-section" style="display:none">
+        <div class="section-label" style="margin-top:8px">Family Commissions <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:10px">(50/50 split while on Family Plan)</span></div>
+        <div class="card" id="commissions-card">
+          <div class="card-header">
+            <span class="card-title">Commission Split per Member</span>
+            <span class="card-count" style="font-size:11px;color:var(--muted)">Your 50% · Their 50% frozen</span>
+          </div>
+          <div id="commissions-list">
+            <div class="page-loading"><span class="spinner"></span></div>
+          </div>
+          <div class="comm-note">
+            🧊 Frozen commissions belong to the member — unlocked when they upgrade to individual Pro.
+            Use the <strong>Gift</strong> button to release your share or their frozen portion early.
+          </div>
+        </div>
+      </div>
+
+      <!-- Family Incubator (owner only) -->
+      <div id="incubator-section" style="display:none">
+        <div class="section-label" style="margin-top:8px">Family Incubator</div>
+        <!-- Not yet incubator mode -->
+        <div id="incubator-enable-panel" style="display:none;background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.25);border-radius:12px;padding:16px 18px;margin-bottom:20px">
+          <div style="font-size:14px;font-weight:700;color:#c9a84c;margin-bottom:8px">🏠 Enable Family Incubator (1+5 Model)</div>
+          <p style="font-size:13px;color:#a89a7e;line-height:1.5;margin:0 0 14px">
+            Switch to the Family Incubator model: your $25/mo Family plan subscription grants
+            <strong style="color:#e8e0d4">free educational access (Levels 1–3)</strong> for up to 5 family sub-accounts.
+            Sub-accounts have their own logins and can break away at any time to become independent subscribers.
+          </p>
+          <button onclick="enableIncubatorMode()" style="background:#c9a84c;color:#0a0f1a;border:none;font-weight:700;font-size:13px;padding:10px 18px;border-radius:8px;cursor:pointer;font-family:inherit">
+            Enable Incubator Mode →
+          </button>
+          <div id="incubator-enable-alert" style="font-size:12px;margin-top:10px;color:#f43f5e;display:none"></div>
+        </div>
+        <!-- Already in incubator mode -->
+        <div id="incubator-active-panel" style="display:none;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:16px 18px;margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font-size:18px">✅</span>
+            <span style="font-size:14px;font-weight:700;color:#10b981">Family Incubator Active</span>
+            <span id="incubator-slot-badge" style="margin-left:auto;font-size:11px;font-weight:700;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;padding:3px 10px;border-radius:20px">0/5 sub-accounts</span>
+          </div>
+          <p style="font-size:13px;color:#a89a7e;line-height:1.5;margin:0">
+            Your family is running the 1+5 Incubator model. Sub-accounts have educational access (Levels 1–3).
+            Use "Invite Someone" below to add sub-accounts (max 5). They can break away at any time.
+          </p>
+        </div>
+      </div>
+
+      <!-- Invite new member (owner/co-admin only) -->
+      <div id="invite-section" style="display:none">
+        <div class="section-label">Invite Someone</div>
+        <div class="card">
+          <div class="invite-form">
+            <div class="field-group">
+              <div class="input-wrap" style="flex:2">
+                <label for="invite-email">Email address</label>
+                <input type="email" id="invite-email" placeholder="friend@example.com">
+              </div>
+              <div class="input-wrap" style="flex:1">
+                <label for="invite-role">Role</label>
+                <select id="invite-role">
+                  <option value="adult">Adult</option>
+                  <option value="minor">Junior</option>
+                  <option value="co_admin" id="co-admin-option">Co-Admin</option>
+                </select>
+              </div>
+              <div style="align-self:flex-end">
+                <button class="btn-send" id="btn-send-invite" onclick="sendInvite()">Send →</button>
+              </div>
+            </div>
+            <div id="invite-alert" class="alert"></div>
+            <div id="copy-box-container" style="display:none">
+              <div class="copy-box">
+                <span class="copy-url" id="copy-url-text">—</span>
+                <button class="copy-btn" onclick="copyInviteUrl()">Copy link</button>
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin-top:6px">
+                Invite sent by email. Share this link if email doesn't arrive.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending invites (owner/co-admin only) -->
+      <div id="invites-section" style="display:none">
+        <div class="section-label">Pending Invites</div>
+        <div class="card" id="invites-card">
+          <div id="invites-list">
+            <div class="page-loading"><span class="spinner"></span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Gift Commission Modal -->
+  <div class="modal-overlay" id="gift-modal-overlay">
+    <div class="modal">
+      <div class="modal-title">🎁 Gift Commission</div>
+      <div class="modal-sub" id="gift-modal-sub">Release your earnings to a family member.</div>
+      <div class="modal-field">
+        <label>Gift Type</label>
+        <select id="gift-type-select">
+          <option value="owner_to_member">Gift my earned 50% to them</option>
+          <option value="unfreeze_member">Release their frozen 50%</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Amount ($)</label>
+        <input type="number" id="gift-amount-input" placeholder="e.g. 25.00" min="0.01" step="0.01">
+      </div>
+      <div class="modal-field">
+        <label>Note (optional)</label>
+        <input type="text" id="gift-note-input" placeholder="e.g. Happy birthday!">
+      </div>
+      <div id="gift-modal-alert" class="alert" style="margin-top:0;margin-bottom:10px"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeGiftModal()">Cancel</button>
+        <button class="btn-confirm" id="btn-confirm-gift" onclick="confirmGift()">Send Gift →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const APP_URL = window.location.origin;
+    const params = new URLSearchParams(window.location.search);
+    const householdId = params.get('id');
+
+    let state = {
+      family: null,
+      members: [],
+      isOwner: false,
+      isCoAdmin: false,
+      currentUserId: null,
+      giftTargetUserId: null
+    };
+
+    function fmtDollars(cents) {
+      return '$' + (cents / 100).toFixed(2);
+    }
+
+    // ─── Boot ──────────────────────────────────────────────────────────────────
+
+    async function init() {
+      if (!householdId) {
+        window.location.href = '/app.html';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/households/${householdId}/members`, { credentials: 'same-origin' });
+        if (res.status === 401) {
+          window.location.href = `/login.html?next=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+          return;
+        }
+        if (!res.ok) {
+          const d = await res.json();
+          alert(d.error || 'Failed to load family');
+          window.location.href = '/app.html';
+          return;
+        }
+
+        const data = await res.json();
+        state.family = data.family;
+        state.members = data.members;
+        state.isOwner = data.family.is_owner;
+        state.isCoAdmin = data.family.is_co_admin;
+
+        render(data);
+
+        // Check grace period (plan cancelled)
+        if (data.family.cancellation_grace_ends_at) {
+          const graceEnd = new Date(data.family.cancellation_grace_ends_at);
+          if (graceEnd > new Date()) {
+            const graceBanner = document.getElementById('grace-banner');
+            document.getElementById('grace-expires').textContent =
+              graceEnd.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            graceBanner.classList.add('show');
+          }
+        }
+
+        // Load invites if owner/co-admin
+        if (state.isOwner || state.isCoAdmin) {
+          loadInvites();
+        }
+
+        // Load family commissions if owner
+        if (state.isOwner) {
+          document.getElementById('commissions-section').style.display = '';
+          loadFamilyCommissions();
+          // Load incubator status
+          document.getElementById('incubator-section').style.display = '';
+          loadIncubatorPanel(state.family.id).catch(() => {});
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Connection error. Please try again.');
+      }
+    }
+
+    // ─── Render ────────────────────────────────────────────────────────────────
+
+    function render(data) {
+      const hh = data.family;
+      const memberCount = data.members.length;
+      const maxMembers = data.max_members || 6;
+
+      // Header
+      document.getElementById('header-title').textContent = escHtml(hh.name);
+      document.getElementById('hh-name').textContent = hh.name;
+      document.getElementById('hh-meta').textContent = `${memberCount} of ${maxMembers} members`;
+
+      // Update dashboard link with family ID
+      const dashLink = document.getElementById('dashboard-link');
+      if (dashLink) dashLink.href = `/family-dashboard?id=${hh.id}`;
+      document.getElementById('member-count').textContent = `${memberCount} / ${maxMembers}`;
+
+      // Full banner
+      if (memberCount >= maxMembers) {
+        document.getElementById('limit-banner').classList.add('show');
+      }
+
+      // Members list
+      const membersList = document.getElementById('members-list');
+      if (data.members.length === 0) {
+        membersList.innerHTML = '<div class="empty-state">No active members yet.</div>';
+      } else {
+        membersList.innerHTML = data.members.map(m => renderMemberRow(m, hh)).join('');
+      }
+
+      // Show invite/invite sections for admins
+      if (state.isOwner || state.isCoAdmin) {
+        document.getElementById('invite-section').style.display = '';
+        document.getElementById('invites-section').style.display = '';
+        // Co-admin option only visible to owner
+        document.getElementById('co-admin-option').style.display = state.isOwner ? '' : 'none';
+      }
+
+      // Show page
+      document.getElementById('page-loading').style.display = 'none';
+      document.getElementById('page-content').style.display = '';
+    }
+
+    function renderMemberRow(m, hh) {
+      const displayName = escHtml(m.name || m.email.split('@')[0]);
+      const initial = (m.name || m.email)[0].toUpperCase();
+      const isYou = m.is_you;
+      const isOwner = m.user_id === hh.owner_id;
+      const isCoAdmin = m.user_id === hh.co_admin_id;
+      const roleBadge = isOwner ? 'owner' : isCoAdmin ? 'co_admin' : (m.role || 'adult');
+      const roleLabel = { owner: 'Owner', co_admin: 'Co-Admin', adult: 'Adult', minor: 'Junior', member: 'Member' }[roleBadge] || roleBadge;
+
+      let actions = '';
+      const canManage = state.isOwner || state.isCoAdmin;
+
+      if (canManage && !isOwner && !isYou) {
+        // Remove member
+        actions += `<button class="icon-btn" title="Remove member" onclick="removeMember(${m.user_id})">✕</button>`;
+      }
+
+      // Owner can assign/remove co-admin
+      if (state.isOwner && !isOwner && !isYou) {
+        if (isCoAdmin) {
+          actions += `<button class="icon-btn promote" title="Remove co-admin" onclick="removeCoAdmin()">👑✕</button>`;
+        } else {
+          actions += `<button class="icon-btn promote" title="Make co-admin" onclick="makeCoAdmin(${m.user_id})">👑</button>`;
+        }
+      }
+
+      return `
+        <div class="member-row" data-user-id="${m.user_id}">
+          <div class="member-avatar">${initial}</div>
+          <div class="member-info">
+            <div class="member-name">
+              ${displayName}
+              ${isYou ? '<span class="member-you"> (you)</span>' : ''}
+            </div>
+            <div class="member-email">${escHtml(m.email)}</div>
+          </div>
+          <div class="member-right">
+            <span class="badge badge-${roleBadge}">${roleLabel}</span>
+            ${actions}
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadInvites() {
+      try {
+        const res = await fetch(`/api/households/${householdId}/invites`, { credentials: 'same-origin' });
+        const data = await res.json();
+        const invitesList = document.getElementById('invites-list');
+
+        if (!data.invites || data.invites.length === 0) {
+          invitesList.innerHTML = '<div class="empty-state">No pending invites.</div>';
+          return;
+        }
+
+        invitesList.innerHTML = data.invites
+          .filter(i => i.status === 'pending')
+          .map(i => {
+            const roleLabel = { co_admin: 'Co-Admin', adult: 'Adult', minor: 'Junior' }[i.role] || i.role;
+            const expires = new Date(i.expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            return `
+              <div class="invite-row">
+                <div style="flex:1;min-width:0">
+                  <div class="invite-email">${escHtml(i.email)}</div>
+                  <div class="invite-meta-text">
+                    <span class="badge badge-${i.role}" style="font-size:10px">${roleLabel}</span>
+                    &nbsp;Expires ${expires}
+                  </div>
+                </div>
+                <button class="icon-btn" title="Cancel invite" onclick="cancelInvite(${i.id})">✕</button>
+              </div>
+            `;
+          })
+          .join('') || '<div class="empty-state">No pending invites.</div>';
+      } catch (e) {
+        document.getElementById('invites-list').innerHTML = '<div class="empty-state">Failed to load invites.</div>';
+      }
+    }
+
+    // ─── Actions ───────────────────────────────────────────────────────────────
+
+    async function sendInvite() {
+      const email = document.getElementById('invite-email').value.trim();
+      const role = document.getElementById('invite-role').value;
+      const btn = document.getElementById('btn-send-invite');
+      const alertEl = document.getElementById('invite-alert');
+      const copyBox = document.getElementById('copy-box-container');
+
+      if (!email || !email.includes('@')) {
+        showAlert(alertEl, 'error', 'Enter a valid email address');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+      copyBox.style.display = 'none';
+      alertEl.className = 'alert';
+
+      try {
+        const res = await fetch(`/api/households/${householdId}/invite`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, role })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to send invite');
+
+        showAlert(alertEl, 'success', `✓ Invite sent to ${email}`);
+        document.getElementById('invite-email').value = '';
+
+        // Show copy box
+        if (data.invite_url) {
+          document.getElementById('copy-url-text').textContent = data.invite_url;
+          copyBox.style.display = '';
+        }
+
+        // Reload invites
+        loadInvites();
+      } catch (err) {
+        showAlert(alertEl, 'error', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send →';
+      }
+    }
+
+    async function removeMember(userId) {
+      if (!confirm('Remove this member from the family?')) return;
+
+      try {
+        const res = await fetch(`/api/households/${householdId}/members/${userId}`, {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to remove');
+        // Reload
+        location.reload();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function makeCoAdmin(userId) {
+      if (!confirm('Make this person co-admin? They can manage invites and family settings. You can remove them later.')) return;
+
+      try {
+        const res = await fetch(`/api/households/${householdId}/co-admin`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to assign co-admin');
+        location.reload();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function removeCoAdmin() {
+      if (!confirm('Remove co-admin status? They will revert to adult member.')) return;
+
+      try {
+        const res = await fetch(`/api/households/${householdId}/co-admin`, {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to remove co-admin');
+        location.reload();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function cancelInvite(inviteId) {
+      if (!confirm('Cancel this invite?')) return;
+
+      try {
+        const res = await fetch(`/api/households/${householdId}/invites/${inviteId}`, {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        });
+        if (!res.ok) {
+          const d = await res.json();
+          throw new Error(d.error || 'Failed to cancel');
+        }
+        loadInvites();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function copyInviteUrl() {
+      const url = document.getElementById('copy-url-text').textContent;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy link', 1800);
+      }).catch(() => {
+        // Fallback
+        const el = document.createElement('textarea');
+        el.value = url;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      });
+    }
+
+    // ─── Utils ─────────────────────────────────────────────────────────────────
+
+    function showAlert(el, type, msg) {
+      el.className = `alert alert-${type} show`;
+      el.textContent = msg;
+    }
+
+    function escHtml(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ─── Family Commissions ────────────────────────────────────────────────────
+
+    async function loadFamilyCommissions() {
+      try {
+        const res = await fetch(`/api/households/${householdId}/family-commissions`, { credentials: 'same-origin' });
+        if (!res.ok) {
+          document.getElementById('commissions-list').innerHTML =
+            '<div class="empty-state">Could not load commission data.</div>';
+          return;
+        }
+        const data = await res.json();
+        renderCommissions(data.members || []);
+      } catch (e) {
+        document.getElementById('commissions-list').innerHTML =
+          '<div class="empty-state">Failed to load commissions.</div>';
+      }
+    }
+
+    function renderCommissions(members) {
+      const list = document.getElementById('commissions-list');
+      if (members.length === 0) {
+        list.innerHTML = '<div class="empty-state">No members with affiliate activity yet.</div>';
+        return;
+      }
+
+      list.innerHTML = members.map(m => {
+        const name = escHtml(m.name || m.email);
+        const ownerEarned = m.owner_earned_cents || 0;
+        const memberFrozen = m.member_frozen_cents || 0;
+        const netOwnerAvail = m.net_owner_available_cents || 0;
+        const hasAffiliate = !!m.affiliate_id;
+        const isMinor = m.role === 'minor';
+
+        if (!hasAffiliate || isMinor) {
+          return `
+            <div class="commission-row">
+              <div class="comm-member-info">
+                <div class="comm-member-name">${name}</div>
+                <div class="comm-code">${isMinor ? '🔒 Under 18 — affiliate pending' : 'No affiliate code yet'}</div>
+              </div>
+              <span style="font-size:12px;color:var(--muted)">Not earning yet</span>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="commission-row" data-user-id="${m.user_id}">
+            <div class="comm-member-info">
+              <div class="comm-member-name">${name}</div>
+              <div class="comm-code">${escHtml(m.referral_code || '—')}</div>
+            </div>
+            <div class="comm-splits">
+              <div class="comm-pill owner-earned" title="Your earned 50% — available after Net-30">
+                <div class="comm-pill-label">📈 Your 50%</div>
+                <div class="comm-pill-value">${fmtDollars(ownerEarned)}</div>
+              </div>
+              <div class="comm-pill member-frozen" title="Their frozen 50% — unlocks when they go individual Pro">
+                <div class="comm-pill-label">🧊 Their Frozen</div>
+                <div class="comm-pill-value">${fmtDollars(memberFrozen)}</div>
+              </div>
+            </div>
+            ${netOwnerAvail > 0 || memberFrozen > 0 ? `
+              <button class="gift-btn"
+                data-uid="${m.user_id}"
+                data-name="${escHtml(m.name || m.email || '')}"
+                onclick="openGiftModalFromBtn(this)">
+                🎁 Gift
+              </button>
+            ` : '<span style="font-size:11px;color:var(--subtle)">No balance to gift</span>'}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ─── Gift Modal ────────────────────────────────────────────────────────────
+
+    let giftMemberData = null;
+
+    function openGiftModalFromBtn(btn) {
+      const userId = parseInt(btn.dataset.uid);
+      const name = btn.dataset.name || 'this member';
+      openGiftModal(userId, name);
+    }
+
+    function openGiftModal(userId, name) {
+      state.giftTargetUserId = userId;
+      const safeName = String(name).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+      document.getElementById('gift-modal-sub').textContent =
+        `You can gift your earned 50% OR release their frozen 50% to ${safeName}.`;
+      document.getElementById('gift-amount-input').value = '';
+      document.getElementById('gift-note-input').value = '';
+      document.getElementById('gift-modal-alert').className = 'alert';
+      document.getElementById('btn-confirm-gift').disabled = false;
+      document.getElementById('gift-modal-overlay').classList.add('open');
+    }
+
+    function closeGiftModal() {
+      document.getElementById('gift-modal-overlay').classList.remove('open');
+      state.giftTargetUserId = null;
+    }
+
+    async function confirmGift() {
+      const giftType = document.getElementById('gift-type-select').value;
+      const amountDollars = parseFloat(document.getElementById('gift-amount-input').value);
+      const note = document.getElementById('gift-note-input').value.trim();
+      const alertEl = document.getElementById('gift-modal-alert');
+      const btn = document.getElementById('btn-confirm-gift');
+
+      if (!amountDollars || amountDollars <= 0) {
+        alertEl.className = 'alert alert-error show';
+        alertEl.textContent = 'Enter a valid amount greater than $0';
+        return;
+      }
+      if (!state.giftTargetUserId) {
+        alertEl.className = 'alert alert-error show';
+        alertEl.textContent = 'No member selected';
+        return;
+      }
+
+      const amountCents = Math.round(amountDollars * 100);
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+      alertEl.className = 'alert';
+
+      try {
+        const res = await fetch(`/api/households/${householdId}/gift-commission`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to_user_id: state.giftTargetUserId,
+            amount_cents: amountCents,
+            gift_type: giftType,
+            note: note || null
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Gift failed');
+
+        closeGiftModal();
+        // Reload commissions
+        loadFamilyCommissions();
+        alert(`✓ Successfully gifted $${(amountCents / 100).toFixed(2)}!`);
+      } catch (err) {
+        alertEl.className = 'alert alert-error show';
+        alertEl.textContent = err.message;
+        btn.disabled = false;
+        btn.textContent = 'Send Gift →';
+      }
+    }
+
+    // Close modal on overlay click
+    document.getElementById('gift-modal-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closeGiftModal();
+    });
+
+    // ─── Elect Self as Owner (grace period) ───────────────────────────────────
+
+    async function electSelfAsOwner() {
+      if (!confirm('Become the new billing owner of this family? You\'ll need to subscribe to a Family Plan to restore access for all members.')) return;
+
+      try {
+        const res = await fetch(`/api/households/${householdId}/elect-owner`, {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to elect owner');
+        alert('You are now the billing owner! Please subscribe to a Family Plan to restore access.');
+        location.reload();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // ─── Family Incubator Panel ────────────────────────────────────────────────
+
+    async function loadIncubatorPanel(hhId) {
+      try {
+        const res = await fetch(`/api/households/${hhId}/incubator-status`, { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.is_incubator) {
+          document.getElementById('incubator-active-panel').style.display = '';
+          document.getElementById('incubator-slot-badge').textContent =
+            `${data.active_sub_accounts}/${data.max_sub_accounts} sub-accounts`;
+        } else {
+          document.getElementById('incubator-enable-panel').style.display = '';
+        }
+      } catch (err) {
+        // Non-critical
+      }
+    }
+
+    async function enableIncubatorMode() {
+      if (!confirm(
+        'Enable Family Incubator Mode?\n\n' +
+        'This will:\n' +
+        '• Mark your family as an Incubator\n' +
+        '• All current non-owner members become sub-accounts (Levels 1–3 access only)\n' +
+        '• You can invite up to 5 sub-accounts total\n\n' +
+        'Sub-accounts can break away at any time to subscribe independently.'
+      )) return;
+
+      const alertEl = document.getElementById('incubator-enable-alert');
+      alertEl.style.display = 'none';
+
+      try {
+        const res = await fetch(`/api/households/${householdId}/enable-incubator`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to enable incubator');
+
+        // Show active panel, hide enable panel
+        document.getElementById('incubator-enable-panel').style.display = 'none';
+        document.getElementById('incubator-active-panel').style.display = '';
+        document.getElementById('incubator-slot-badge').textContent =
+          `${data.sub_accounts_created}/${data.max_sub_accounts} sub-accounts`;
+
+        alert(`✅ Family Incubator enabled! ${data.sub_accounts_created} member(s) converted to sub-accounts.`);
+      } catch (err) {
+        alertEl.style.display = '';
+        alertEl.textContent = err.message;
+      }
+    }
+
+    init();
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

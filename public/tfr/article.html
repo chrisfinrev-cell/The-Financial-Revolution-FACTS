@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Article — The Financial Revolution</title>
+  <meta name="description" content="Education library article from The Financial Revolution.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050810'/%3E%3Ccircle cx='16' cy='16' r='15' fill='none' stroke='%23c9a227' stroke-width='1.2'/%3E%3Ctext x='16' y='17' dominant-baseline='middle' text-anchor='middle' font-size='7' font-weight='900' fill='%23c9a227' font-family='serif'%3ETFR%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tfr.css">
+  <script src="/tfr-host-gate.js"></script>
+</head>
+<body>
+<script src="tfr-nav.js"></script>
+<article class="article" id="article">
+  <p class="muted">Loading…</p>
+</article>
+<script src="catalog.js"></script>
+<script>
+(function () {
+  var id = new URLSearchParams(location.search).get('id') || '';
+  var item = ((window.TFR_CATALOG && TFR_CATALOG.library) || []).filter(function (x) { return x.id === id; })[0];
+  var el = document.getElementById('article');
+  if (!item) {
+    el.innerHTML = '<p class="muted">Article not found.</p><p><a class="btn btn-gold" href="library.html">Back to library</a></p>';
+    return;
+  }
+  document.title = item.title + ' — The Financial Revolution';
+  el.innerHTML =
+    '<a href="library.html" class="muted" style="text-decoration:none;font-size:.85rem;">← Library</a>' +
+    '<div class="eyebrow" style="margin-top:1rem;">' + item.type + ' · ' + item.read_time + '</div>' +
+    '<div class="icon" style="font-size:2rem;margin:0.4rem 0 0.2rem;">' + item.icon + '</div>' +
+    '<h1>' + item.title + '</h1>' +
+    '<div class="body">' + item.body + '</div>' +
+    '<p style="margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:.75rem;">' +
+      '<a class="btn btn-gold" href="https://app.factsmoney.com/signup.html">Apply this in FACTS</a>' +
+      '<a class="btn btn-ghost" href="library.html">More lessons</a>' +
+    '</p>';
+})();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

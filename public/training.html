@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Training — FACTS</title>
+  <meta name="description" content="FACTS Protocol Training. Master the Sovereign Protocol, allocation methodology, Friday Sweep, HELOC Velocity, and more.">
+
+  <!-- Sovereign Seal favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050810'/%3E%3Ccircle cx='16' cy='16' r='15' fill='none' stroke='%23c9a227' stroke-width='1.2'/%3E%3Cpolygon points='16,3 17.8,12 23.5,7.5 19.2,14.5 28,16 19.2,17.5 23.5,24.5 17.8,20 16,29 14.2,20 8.5,24.5 12.8,17.5 4,16 12.8,14.5 8.5,7.5 14.2,12' fill='%23c9a227' opacity='0.25'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='%230d1117' stroke='%23c9a227' stroke-width='0.8'/%3E%3Ctext x='16' y='17' dominant-baseline='middle' text-anchor='middle' font-size='7' font-weight='900' fill='%23c9a227' font-family='serif' letter-spacing='0.5'%3EFACTS%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#070c14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1e293b' },
+            gold: { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a07c18' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+    body { background: #0d1117; color: #f1f5f9; min-height: 100vh; min-height: 100dvh; }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #13192a, #1a2235);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .card:hover:not(.card-locked) { border-color: rgba(201,162,39,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+
+    .card-accessible { cursor: pointer; }
+    .card-accessible:hover { transform: translateY(-2px); }
+
+    .card-locked { opacity: 0.6; }
+
+    /* Tier section headers */
+    .tier-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.75rem;
+      margin-bottom: 0.75rem;
+      font-weight: 800; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    /* Module type badges */
+    .mod-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .mod-manifesto   { background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.25); }
+    .mod-protocol    { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.2); }
+    .mod-methodology { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.2); }
+    .mod-process     { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
+    .mod-system      { background: rgba(201,162,39,0.15); color: #e8c96a; border: 1px solid rgba(201,162,39,0.2); }
+    .mod-masterclass { background: rgba(229,228,226,0.15); color: #f0f0f0; border: 1px solid rgba(229,228,226,0.2); }
+
+    /* Tier band colors */
+    .band-free     { background: rgba(205,127,50,0.1); border-color: rgba(205,127,50,0.25); }
+    .band-pro      { background: rgba(168,184,200,0.1); border-color: rgba(168,184,200,0.25); }
+    .band-business { background: rgba(201,162,39,0.1); border-color: rgba(201,162,39,0.25); }
+    .band-elite    { background: rgba(229,228,226,0.1); border-color: rgba(229,228,226,0.25); }
+    .band-sovereign{ background: rgba(201,162,39,0.15); border-color: rgba(201,162,39,0.4); }
+
+    /* Tier lock pills */
+    .tier-lock {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 0.2rem 0.75rem; border-radius: 100px;
+      background: rgba(255,255,255,0.06); color: #6b7280;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tier-lock.pro      { background: rgba(168,184,200,0.12); color: #a8b8c8; border-color: rgba(168,184,200,0.2); }
+    .tier-lock.business { background: rgba(201,162,39,0.12); color: #c9a227; border-color: rgba(201,162,39,0.2); }
+    .tier-lock.elite    { background: rgba(229,228,226,0.12); color: #e5e4e2; border-color: rgba(229,228,226,0.2); }
+    .tier-lock.sovereign{ background: rgba(201,162,39,0.2); color: #e8c96a; border-color: rgba(201,162,39,0.35); }
+
+    /* Filter pills */
+    .filter-pill {
+      padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 500;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: #9ca3af; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .filter-pill:hover { background: rgba(201,162,39,0.1); border-color: rgba(201,162,39,0.3); color: #e8c96a; }
+    .filter-pill.active { background: rgba(201,162,39,0.15); border-color: rgba(201,162,39,0.5); color: #e8c96a; font-weight: 600; }
+
+    /* Progress indicator */
+    .progress-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-complete { background: #10b981; }
+    .dot-not-started { background: rgba(255,255,255,0.15); }
+
+    /* Duration badge */
+    .duration { font-size: 0.65rem; color: #6b7280; }
+
+    /* Loading skeleton */
+    .skeleton { background: rgba(255,255,255,0.05); border-radius: 0.75rem; animation: pulse 1.5s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.5}50%{opacity:1} }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .anim-1 { animation: fadeUp 0.4s ease 0.05s both; }
+    .anim-2 { animation: fadeUp 0.4s ease 0.12s both; }
+    .anim-3 { animation: fadeUp 0.4s ease 0.20s both; }
+
+    @keyframes seal-glow {
+      0%,100% { filter: drop-shadow(0 0 4px rgba(201,162,39,0.6)); }
+      50%      { filter: drop-shadow(0 0 10px rgba(201,162,39,0.9)); }
+    }
+    .seal-glow { animation: seal-glow 3s ease-in-out infinite; }
+
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  </style>
+  <script defer src="/nav-bar.js"></script>
+</head>
+<body>
+
+<!-- Page nav -->
+<nav class="border-b sticky z-40" style="top:44px;border-color:rgba(255,255,255,0.06);background:rgba(13,17,23,0.95);backdrop-filter:blur(10px);">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/" class="flex items-center gap-2 text-white no-underline">
+        <svg class="seal-glow" width="26" height="26" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" fill="#050810"/>
+          <circle cx="16" cy="16" r="15" fill="none" stroke="#c9a227" stroke-width="1.2"/>
+          <polygon points="16,3 17.8,12 23.5,7.5 19.2,14.5 28,16 19.2,17.5 23.5,24.5 17.8,20 16,29 14.2,20 8.5,24.5 12.8,17.5 4,16 12.8,14.5 8.5,7.5 14.2,12" fill="#c9a227" opacity="0.2"/>
+          <circle cx="16" cy="16" r="8.5" fill="#0d1117" stroke="#c9a227" stroke-width="0.8"/>
+          <text x="16" y="17" dominant-baseline="middle" text-anchor="middle" font-size="7" font-weight="900" fill="#c9a227" font-family="serif" letter-spacing="0.5">FACTS</text>
+        </svg>
+      </a>
+      <span class="text-gray-600 text-xs">/</span>
+      <span class="text-xs text-white font-medium tracking-wide">TRAINING</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/knowledge-vault" class="text-xs text-gray-400 hover:text-white transition-colors">Education</a>
+      <a href="/sovereign" class="text-xs text-gray-400 hover:text-white transition-colors">Sovereign</a>
+      <a href="/app" class="text-xs text-gray-400 hover:text-white transition-colors">FACTS App</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Auth gate -->
+<div id="auth-gate" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(13,17,23,0.95);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1rem;">
+  <div class="card p-8 max-w-md w-full text-center">
+    <div class="text-5xl mb-4">🎓</div>
+    <h2 class="text-xl font-bold mb-2">Sign In to Access Training</h2>
+    <p class="text-gray-400 text-sm mb-6">FACTS Protocol training modules, unlocked as you progress through the Sovereign Protocol.</p>
+    <div class="flex flex-col gap-3">
+      <a href="/login.html" style="background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;font-weight:700;" class="block py-3 rounded-xl text-sm">Sign In</a>
+      <a href="/signup.html" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#d1d5db;" class="block py-2.5 rounded-xl text-sm">Create Account</a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+
+  <!-- Header -->
+  <div class="mb-8 anim-1">
+    <div>
+      <h1 class="text-3xl font-black tracking-tight mb-1"><span class="gold-text">FACTS TRAINING</span></h1>
+      <p class="text-gray-400 text-sm">Program-specific training for the FACTS Sovereign Protocol. Master the system that builds financial freedom.</p>
+      <div class="flex items-center gap-3 mt-3 flex-wrap">
+        <span id="tier-badge" class="text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(201,162,39,0.12);color:#e8c96a;border:1px solid rgba(201,162,39,0.2);">Loading...</span>
+        <span id="progress-count" class="text-xs text-gray-500"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter pills -->
+  <div class="flex gap-2 flex-wrap mb-8 anim-2" id="filter-bar">
+    <button class="filter-pill active" onclick="filterModules('all', this)">All Modules</button>
+    <button class="filter-pill" onclick="filterModules('free', this)">Free (L1-3)</button>
+    <button class="filter-pill" onclick="filterModules('pro', this)">Individual+ (L4-6)</button>
+    <button class="filter-pill" onclick="filterModules('business', this)">Business (L7-9)</button>
+    <button class="filter-pill" onclick="filterModules('elite', this)">Elite (L10-12)</button>
+    <button class="filter-pill" onclick="filterModules('accessible', this)">Unlocked Only</button>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div id="loading" class="space-y-3">
+    <div class="skeleton h-20"></div>
+    <div class="skeleton h-20"></div>
+    <div class="skeleton h-20"></div>
+    <div class="skeleton h-20"></div>
+  </div>
+
+  <!-- Content grid -->
+  <div id="modules-content" style="display:none;" class="anim-3"></div>
+
+</div>
+
+<!-- Training module detail modal -->
+<div id="module-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);align-items:flex-start;justify-content:center;padding:1.5rem;overflow-y:auto;">
+  <div id="module-modal-inner" style="background:linear-gradient(145deg,#13192a,#1a2235);border:1px solid rgba(201,162,39,0.2);border-radius:1.25rem;max-width:720px;width:100%;max-height:85vh;overflow-y:auto;padding:2rem;margin-top:60px;"></div>
+</div>
+
+<script>
+let allModules = [];
+let currentAccess = {};
+let completedModules = {};
+let activeFilter = 'all';
+
+const TIER_CONFIG = {
+  free:     { label: 'FREE (L1-3)',     color: '#e8a857', bgClass: 'band-free',     desc: 'Levels 1-3 — FACTS Free',                    icon: '⚔️' },
+  pro:      { label: 'INDIVIDUAL+ (L4-6)',      color: '#d4e1ec', bgClass: 'band-pro',      desc: 'Levels 4-6 — Individual ($25.99/mo)',          icon: '💥' },
+  business: { label: 'BUSINESS (L7-9)', color: '#e8c96a', bgClass: 'band-business', desc: 'Levels 7-9 — FACTS Business ($297/mo)',        icon: '🏹' },
+  elite:    { label: 'ELITE (L7-11)',   color: '#f0f0f0', bgClass: 'band-elite',    desc: 'Levels 7-11 — Elite ($197/mo · $1,500/yr)',  icon: '👑' },
+};
+
+const UPGRADE_MSGS = {
+  pro:      { msg: 'Unlock with Individual — $14.99/mo', url: '/pricing.html' },
+  business: { msg: 'Unlock with FACTS Business — $297/mo', url: '/pricing.html' },
+  elite:    { msg: 'Unlock with Elite — $197/mo · $1,500/yr', url: '/pricing.html' },
+};
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Load completion state from localStorage
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem('tfr_training_progress');
+    if (saved) completedModules = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem('tfr_training_progress', JSON.stringify(completedModules));
+  } catch(e) {}
+}
+
+function toggleComplete(id, event) {
+  if (event) { event.stopPropagation(); event.preventDefault(); }
+  var wasComplete = !!completedModules[id];
+  if (wasComplete) {
+    delete completedModules[id];
+  } else {
+    completedModules[id] = Date.now();
+  }
+  saveProgress();
+  renderModules(getFilteredModules());
+
+  // ── Instant visual feedback in the current modal ──
+  var isNowComplete = !!completedModules[id];
+  // Find the toggle button inside the modal
+  var modal = document.getElementById('module-modal');
+  if (modal && modal.style.display !== 'none') {
+    var btns = modal.querySelectorAll('button');
+    btns.forEach(function(btn) {
+      if (btn.onclick && btn.onclick.toString().indexOf("toggleComplete('" + id + "')") !== -1) {
+        btn.innerHTML = isNowComplete ? '&#10003; Completed — Mark Incomplete' : 'Mark as Completed &#10003;';
+        btn.style.cssText = isNowComplete
+          ? 'background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);'
+          : 'background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;border:none;';
+      }
+    });
+    // Show a toast-style notification in the modal
+    var feedback = document.createElement('div');
+    feedback.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:100001;padding:10px 24px;border-radius:12px;font-weight:700;font-size:0.88rem;animation:fadeOut 2.5s forwards;' +
+      (isNowComplete ? 'background:#065f46;color:#34d399;border:1px solid rgba(52,211,153,0.3);' : 'background:#1e293b;color:#94a3b8;border:1px solid rgba(255,255,255,0.1);');
+    feedback.textContent = isNowComplete ? '✅ Module completed!' : 'Module marked incomplete';
+    document.body.appendChild(feedback);
+    setTimeout(function() { feedback.remove(); }, 2500);
+  }
+}
+
+function getFilteredModules() {
+  if (activeFilter === 'all') return allModules;
+  if (activeFilter === 'accessible') return allModules.filter(m => m.accessible);
+  return allModules.filter(m => m.tier === activeFilter);
+}
+
+async function init() {
+  loadProgress();
+  try {
+    const res = await fetch('/api/training/content', { credentials: 'same-origin' });
+    if (res.status === 401) {
+      document.getElementById('auth-gate').style.display = 'flex';
+      document.getElementById('loading').style.display = 'none';
+      return;
+    }
+    const data = await res.json();
+    if (!data.success) throw new Error('API error');
+    allModules = data.modules;
+    currentAccess = data.access;
+
+    // Update tier badge
+    var tierKey = currentAccess.elite ? 'elite' : currentAccess.business ? 'business' : currentAccess.pro ? 'pro' : 'free';
+    var cfg = TIER_CONFIG[tierKey];
+    var badge = document.getElementById('tier-badge');
+    if (badge) {
+      badge.textContent = cfg.label;
+      badge.style.color = cfg.color;
+    }
+
+    updateProgressCount();
+    renderModules(allModules);
+  } catch (err) {
+    console.error('Training load error:', err);
+    document.getElementById('loading').innerHTML =
+      '<div class="card p-8 text-center">' +
+        '<div class="text-3xl mb-3">&#9888;&#65039;</div>' +
+        '<p class="text-gray-400 text-sm">Could not load training modules. <a href="/login.html" class="text-yellow-400">Sign in</a> to access.</p>' +
+      '</div>';
+  }
+}
+
+function updateProgressCount() {
+  var accessible = allModules.filter(function(m) { return m.accessible; });
+  var completed = accessible.filter(function(m) { return completedModules[m.id]; }).length;
+  var el = document.getElementById('progress-count');
+  if (el) el.textContent = completed + ' of ' + accessible.length + ' modules completed';
+}
+
+function filterModules(filter, btn) {
+  activeFilter = filter;
+  document.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  renderModules(getFilteredModules());
+}
+
+function renderModules(items) {
+  document.getElementById('loading').style.display = 'none';
+  var container = document.getElementById('modules-content');
+  container.style.display = 'block';
+
+  if (!items || items.length === 0) {
+    container.innerHTML =
+      '<div class="card p-10 text-center">' +
+        '<div class="text-3xl mb-3">&#128274;</div>' +
+        '<div class="font-semibold text-white mb-2">No training modules available in this tier yet</div>' +
+        '<p class="text-gray-400 text-sm mb-5">Advance your subscription to unlock more training.</p>' +
+        '<a href="/pricing.html" class="inline-block px-6 py-2.5 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;">View Pricing</a>' +
+      '</div>';
+    return;
+  }
+
+  // Group by tier
+  var grouped = {};
+  items.forEach(function(item) {
+    if (!grouped[item.tier]) grouped[item.tier] = [];
+    grouped[item.tier].push(item);
+  });
+
+  var tierOrder = ['free', 'pro', 'business', 'elite'];
+  var html = '';
+
+  tierOrder.forEach(function(tier) {
+    if (!grouped[tier]) return;
+    var cfg = TIER_CONFIG[tier];
+    var tierItems = grouped[tier];
+    var hasAccess = currentAccess[tier];
+
+    html += '<div class="mb-8">' +
+      '<div class="tier-header ' + cfg.bgClass + '" style="border:1px solid;">' +
+        '<span class="text-base">' + cfg.icon + '</span>' +
+        '<div class="flex-1">' +
+          '<div style="color:' + cfg.color + ';">' + cfg.label + '</div>' +
+          '<div class="text-xs font-normal opacity-60">' + cfg.desc + '</div>' +
+        '</div>';
+
+    if (hasAccess) {
+      var tierCompleted = tierItems.filter(function(m) { return completedModules[m.id]; }).length;
+      html += '<span style="font-size:0.65rem;padding:0.2rem 0.75rem;border-radius:100px;background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);font-weight:800;text-transform:uppercase;letter-spacing:0.08em;">' +
+        (tierCompleted === tierItems.length ? '&#10003; ALL COMPLETE' : tierCompleted + '/' + tierItems.length + ' DONE') + '</span>';
+    } else {
+      html += '<span class="tier-lock ' + tier + '">&#128274; ' + tier.toUpperCase() + ' REQUIRED</span>';
+    }
+
+    html += '</div>' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">';
+
+    tierItems.forEach(function(item) {
+      html += renderModuleCard(item, hasAccess);
+    });
+
+    html += '</div>';
+
+    if (!hasAccess && UPGRADE_MSGS[tier]) {
+      html += '<div class="mt-3 flex items-center justify-between p-4 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">' +
+        '<div class="flex items-center gap-2">' +
+          '<span class="text-sm">&#9889;</span>' +
+          '<span class="text-xs text-gray-400">' + esc(UPGRADE_MSGS[tier].msg) + '</span>' +
+        '</div>' +
+        '<a href="' + UPGRADE_MSGS[tier].url + '" class="text-xs font-bold px-4 py-1.5 rounded-lg" style="background:rgba(201,162,39,0.15);color:#e8c96a;border:1px solid rgba(201,162,39,0.3);">Upgrade &rarr;</a>' +
+      '</div>';
+    }
+
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+  updateProgressCount();
+}
+
+function renderModuleCard(item, hasAccess) {
+  var isComplete = !!completedModules[item.id];
+  var badgeClass = 'mod-' + esc(item.module_type);
+
+  if (hasAccess) {
+    return '<div class="card card-accessible p-5" onclick="openModule(\'' + esc(item.id) + '\')">' +
+      '<div class="flex items-start gap-3">' +
+        '<div class="flex flex-col items-center gap-1 mt-1 flex-shrink-0">' +
+          '<div class="text-2xl">' + esc(item.icon) + '</div>' +
+          '<div class="progress-dot ' + (isComplete ? 'dot-complete' : 'dot-not-started') + '" title="' + (isComplete ? 'Completed' : 'Not started') + '"></div>' +
+        '</div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<div class="flex items-center gap-2 flex-wrap mb-1">' +
+            '<span class="mod-badge ' + badgeClass + '">' + esc(item.module_type) + '</span>' +
+            '<span class="duration">&middot; ' + esc(item.duration) + '</span>' +
+            (isComplete ? '<span style="font-size:0.6rem;padding:1px 8px;border-radius:100px;background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.2);font-weight:700;">&#10003; DONE</span>' : '') +
+          '</div>' +
+          '<div class="font-bold text-white text-sm mb-1 leading-snug">' + esc(item.title) + '</div>' +
+          '<p class="text-gray-400 text-xs leading-relaxed">' + esc(item.desc) + '</p>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  } else {
+    return '<div class="card card-locked p-5">' +
+      '<div class="flex items-start gap-3">' +
+        '<div class="text-2xl flex-shrink-0 mt-0.5" style="filter:grayscale(1) brightness(0.4);">' + esc(item.icon) + '</div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<div class="flex items-center gap-2 flex-wrap mb-1">' +
+            '<span class="mod-badge ' + badgeClass + '" style="opacity:0.5;">' + esc(item.module_type) + '</span>' +
+            '<span class="duration">&middot; ' + esc(item.duration) + '</span>' +
+            '<span class="tier-lock ' + esc(item.tier) + '">&#128274; ' + esc(item.tier.toUpperCase()) + '</span>' +
+          '</div>' +
+          '<div class="font-bold text-gray-500 text-sm mb-1 leading-snug">' + esc(item.title) + '</div>' +
+          '<p class="text-gray-600 text-xs leading-relaxed">' + esc(item.desc) + '</p>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+}
+
+/* ── Module detail content ───────────────────────────────────────── */
+var MODULE_BODY = {
+  // ── FREE MODULES ──
+  't-manifesto': '<h2 class="text-xl font-black text-white mb-4">The Manifesto</h2>' +
+    '<p class="text-gray-300 mb-4">FACTS is not a budget app. It is a <strong class="text-yellow-400">declaration of financial independence</strong> - a system designed to break the cycle of living paycheck-to-paycheck and replace it with a disciplined, structured protocol for building wealth.</p>' +
+    '<h3 class="font-bold text-white mb-2">Our Core Beliefs</h3>' +
+    '<ul class="text-gray-400 space-y-3 list-none mb-6">' +
+      '<li><strong class="text-white">1. Financial literacy is a right, not a privilege.</strong> Every person deserves access to the tools and knowledge that build financial freedom. The system has gatekept this long enough.</li>' +
+      '<li><strong class="text-white">2. Debt is the enemy of freedom.</strong> We do not accept debt as "normal." We fight it strategically with proven methods until it is eliminated.</li>' +
+      '<li><strong class="text-white">3. Every dollar must have a mission.</strong> Unallocated money is money lost. The FACTS method ensures that 100% of your income is directed with intention.</li>' +
+      '<li><strong class="text-white">4. Discipline compounds.</strong> Small, consistent actions over time create extraordinary results. The Sovereign Protocol is designed to build this discipline into habit.</li>' +
+      '<li><strong class="text-white">5. Community accelerates progress.</strong> Revolutionaries who surround themselves with like-minded individuals reach financial freedom faster.</li>' +
+    '</ul>' +
+    '<h3 class="font-bold text-white mb-2">The Mission</h3>' +
+    '<p class="text-gray-400 mb-4">To create 1 million financially sovereign individuals who control their money, eliminate debt, and build generational wealth - one level at a time.</p>' +
+    '<h3 class="font-bold text-white mb-2">The Protocol</h3>' +
+    '<p class="text-gray-400">The protocol is educational: track allocations, complete levels, and stay consistent. <strong class="text-yellow-400">Nothing on this platform guarantees financial freedom or any outcome.</strong> Results depend on your circumstances, effort, and decisions. Consult a licensed professional before acting.</p>',
+
+  't-protocol-overview': '<h2 class="text-xl font-black text-white mb-4">Sovereign Protocol Overview</h2>' +
+    '<p class="text-gray-300 mb-4">The Sovereign Protocol is FACTS\' <strong class="text-yellow-400">12-Level progression system</strong> that maps your entire financial journey from Day Zero to Financial Sovereignty.</p>' +
+    '<h3 class="font-bold text-white mb-3">The 12 Levels</h3>' +
+    '<div class="space-y-2 mb-6">' +
+      '<div class="p-3 rounded-lg" style="background:rgba(205,127,50,0.1);border:1px solid rgba(205,127,50,0.15);"><span class="font-bold" style="color:#e8a857;">L1 &middot; AWAKENING</span> <span class="text-gray-400 text-xs">&mdash; Accept the mission. Set up FACTS tracking. Document Day Zero.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(205,127,50,0.1);border:1px solid rgba(205,127,50,0.15);"><span class="font-bold" style="color:#e8a857;">L2 &middot; FOUNDATION</span> <span class="text-gray-400 text-xs">&mdash; Build your allocation framework. Create your first budget using the FACTS method.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(205,127,50,0.1);border:1px solid rgba(205,127,50,0.15);"><span class="font-bold" style="color:#e8a857;">L3 &middot; RESISTANCE</span> <span class="text-gray-400 text-xs">&mdash; Identify and eliminate phantom charges. Build your $1,000 starter emergency fund.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(168,184,200,0.1);border:1px solid rgba(168,184,200,0.15);"><span class="font-bold" style="color:#d4e1ec;">L4 &middot; UPRISING</span> <span class="text-gray-400 text-xs">&mdash; Deploy debt velocity strategies. Automate savings and payments.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(168,184,200,0.1);border:1px solid rgba(168,184,200,0.15);"><span class="font-bold" style="color:#d4e1ec;">L5 &middot; MOMENTUM</span> <span class="text-gray-400 text-xs">&mdash; Credit score optimization. Eliminate high-interest debt completely.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(168,184,200,0.1);border:1px solid rgba(168,184,200,0.15);"><span class="font-bold" style="color:#d4e1ec;">L6 &middot; BREAKTHROUGH</span> <span class="text-gray-400 text-xs">&mdash; Full emergency fund (3-6 months). Begin investing in index funds.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.15);"><span class="font-bold" style="color:#e8c96a;">L7 &middot; EXPANSION</span> <span class="text-gray-400 text-xs">&mdash; Business allocation framework. 6-Bucket Protocol activated.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.15);"><span class="font-bold" style="color:#e8c96a;">L8 &middot; COMMAND</span> <span class="text-gray-400 text-xs">&mdash; Tax optimization strategies. Friday Sweep system fully operational.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.15);"><span class="font-bold" style="color:#e8c96a;">L9 &middot; DOMINION</span> <span class="text-gray-400 text-xs">&mdash; Multiple income streams. Business revenue exceeds employment income.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(229,228,226,0.1);border:1px solid rgba(229,228,226,0.15);"><span class="font-bold" style="color:#f0f0f0;">L10 &middot; LIBERATION</span> <span class="text-gray-400 text-xs">&mdash; HELOC Velocity deployment. Mortgage acceleration begins.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(229,228,226,0.1);border:1px solid rgba(229,228,226,0.15);"><span class="font-bold" style="color:#f0f0f0;">L11 &middot; ASCENSION</span> <span class="text-gray-400 text-xs">&mdash; Wealth acceleration through equity. Real estate portfolio scaling.</span></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(229,228,226,0.1);border:1px solid rgba(229,228,226,0.15);"><span class="font-bold" style="color:#f0f0f0;">L12 &middot; SOVEREIGN</span> <span class="text-gray-400 text-xs">&mdash; Financial sovereignty achieved. Legacy architecture and generational wealth systems.</span></div>' +
+    '</div>' +
+    '<p class="text-gray-500 text-sm">Each level unlocks new tools, training, and capabilities within the FACTS platform. Progress is earned through action, not time.</p>',
+
+  't-allocation-intro': '<h2 class="text-xl font-black text-white mb-4">Allocation Methodology: The Basics</h2>' +
+    '<p class="text-gray-300 mb-4">The FACTS allocation method is the engine of the FACTS Protocol. Every dollar of income is allocated <strong class="text-yellow-400">before it is spent</strong>.</p>' +
+    '<h3 class="font-bold text-white mb-2">The Default Split</h3>' +
+    '<div class="overflow-x-auto mb-4"><table class="w-full text-sm text-left">' +
+      '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td class="py-2 text-gray-400">Necessities</td><td class="py-2 text-white font-bold text-right">50%</td></tr>' +
+      '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td class="py-2 text-gray-400">The Reserve</td><td class="py-2 text-white font-bold text-right">10%</td></tr>' +
+      '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td class="py-2 text-gray-400">Velocity</td><td class="py-2 text-white font-bold text-right">10%</td></tr>' +
+      '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td class="py-2 text-gray-400">Growth</td><td class="py-2 text-white font-bold text-right">10%</td></tr>' +
+      '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td class="py-2 text-gray-400">Lifestyle</td><td class="py-2 text-white font-bold text-right">10%</td></tr>' +
+      '<tr><td class="py-2 text-yellow-400 font-semibold">Legacy</td><td class="py-2 text-yellow-400 font-bold text-right">10%</td></tr>' +
+    '</table></div>' +
+    '<h3 class="font-bold text-white mb-2">Why This Works</h3>' +
+    '<p class="text-gray-400 mb-4">Percentages flex with income. If you earn more, every bucket grows. If income drops, cuts distribute proportionally. No rewriting the budget every month.</p>' +
+    '<h3 class="font-bold text-white mb-2">Custom Splits</h3>' +
+    '<p class="text-gray-400 mb-4">The default is a starting point. As you progress through the levels, you will customize your allocations. Business users run a 10/10/10/70 split for business revenue (Profit/Tax/Owner Pay/Operating). The key rule: <strong class="text-white">allocations must always total 100%.</strong></p>' +
+    '<p class="text-gray-500 text-sm">Head to the Allocations tab in the FACTS app to set up or adjust your splits.</p>',
+
+  't-heartbeat-intro': '<h2 class="text-xl font-black text-white mb-4">The Heartbeat Audit</h2>' +
+    '<p class="text-gray-300 mb-4">The Heartbeat Audit is FACTS\' <strong class="text-yellow-400">accountability system</strong>. It verifies that you are actively following the protocol - not just signed up, but engaged.</p>' +
+    '<h3 class="font-bold text-white mb-2">How It Works</h3>' +
+    '<ol class="text-gray-400 space-y-2 list-decimal list-inside mb-4">' +
+      '<li><strong class="text-white">Daily Check-in</strong> &mdash; Log into the app and confirm your daily FACTS entry. Earns XP and maintains your streak.</li>' +
+      '<li><strong class="text-white">Weekly Review</strong> &mdash; Review your allocation accuracy each week. Are you hitting your percentage targets?</li>' +
+      '<li><strong class="text-white">Monthly Pulse</strong> &mdash; End-of-month reconciliation. Compare actual spending vs. allocations. Adjust for next month.</li>' +
+    '</ol>' +
+    '<h3 class="font-bold text-white mb-2">Why It Matters</h3>' +
+    '<p class="text-gray-400 mb-4">The Heartbeat Audit is what separates FACTS from passive budgeting apps. It creates a rhythm of accountability that compounds over time. Miss too many heartbeats and you stall. Stay consistent and the system rewards you with level progression.</p>' +
+    '<h3 class="font-bold text-white mb-2">Compliance Tiers</h3>' +
+    '<ul class="text-gray-400 space-y-1 list-disc list-inside mb-4">' +
+      '<li><strong class="text-green-400">Active</strong> &mdash; Checked in within last 7 days</li>' +
+      '<li><strong class="text-yellow-400">Warning</strong> &mdash; 7-14 days without activity</li>' +
+      '<li><strong class="text-red-400">Inactive</strong> &mdash; 14+ days without activity (level progression paused)</li>' +
+    '</ul>' +
+    '<p class="text-gray-500 text-sm">The Heartbeat Audit runs automatically. Stay engaged and it stays green.</p>',
+
+  // ── PRO MODULES ──
+  't-protocol-deep': '<h2 class="text-xl font-black text-white mb-4">Sovereign Protocol Deep Dive: Levels 1-12</h2>' +
+    '<p class="text-gray-300 mb-4">This is the comprehensive walkthrough of every level in the Sovereign Protocol - what\'s required, what tools unlock, and how to progress efficiently.</p>' +
+    '<h3 class="font-bold text-white mb-3">Phase I: RESISTANCE (L1-3)</h3>' +
+    '<p class="text-gray-400 mb-2">The foundation phase. You\'re establishing habits, documenting your financial reality, and building the muscle memory of allocation.</p>' +
+    '<ul class="text-gray-400 space-y-1 list-disc list-inside mb-4">' +
+      '<li><strong class="text-white">Required actions:</strong> Set up FACTS, enter Day Zero debt snapshot, allocate first month\'s income</li>' +
+      '<li><strong class="text-white">Tools unlocked:</strong> Basic dashboard, transaction tracking, allocation categories</li>' +
+      '<li><strong class="text-white">Time estimate:</strong> 2-4 weeks per level</li>' +
+    '</ul>' +
+    '<h3 class="font-bold text-white mb-3">Phase II: UPRISING (L4-6)</h3>' +
+    '<p class="text-gray-400 mb-2">The acceleration phase. You\'re actively destroying debt and building automated systems.</p>' +
+    '<ul class="text-gray-400 space-y-1 list-disc list-inside mb-4">' +
+      '<li><strong class="text-white">Required actions:</strong> Automate savings, deploy debt velocity, optimize credit score</li>' +
+      '<li><strong class="text-white">Tools unlocked:</strong> Credit score tracker, debt reduction calculator, what-if scenarios</li>' +
+      '<li><strong class="text-white">Time estimate:</strong> 1-3 months per level</li>' +
+    '</ul>' +
+    '<h3 class="font-bold text-white mb-3">Phase III: EXPANSION (L7-9)</h3>' +
+    '<p class="text-gray-400 mb-2">The business phase. You\'re building income, optimizing taxes, and scaling your financial system.</p>' +
+    '<ul class="text-gray-400 space-y-1 list-disc list-inside mb-4">' +
+      '<li><strong class="text-white">Required actions:</strong> 6-Bucket Protocol setup, Friday Sweep activation, tax strategy implementation</li>' +
+      '<li><strong class="text-white">Tools unlocked:</strong> Business dashboard, AI receipt scanner, Friday Sweep system</li>' +
+    '</ul>' +
+    '<h3 class="font-bold text-white mb-3">Phase IV: LIBERATION (L10-12)</h3>' +
+    '<p class="text-gray-400 mb-2">The wealth phase. You\'re leveraging equity, accelerating mortgages, and building legacy.</p>' +
+    '<ul class="text-gray-400 space-y-1 list-disc list-inside mb-4">' +
+      '<li><strong class="text-white">Required actions:</strong> HELOC Velocity deployment, real estate strategy, generational wealth planning</li>' +
+      '<li><strong class="text-white">Tools unlocked:</strong> HELOC Velocity Engine, wealth acceleration dashboards, legacy planning tools</li>' +
+    '</ul>',
+
+  't-allocation-adv': '<h2 class="text-xl font-black text-white mb-4">Advanced Allocation: Custom Splits & Optimization</h2>' +
+    '<p class="text-gray-300 mb-4">Beyond the default 50/10/10/10/10/10 split lies a world of customized allocations tailored to your financial phase and goals.</p>' +
+    '<h3 class="font-bold text-white mb-2">Phase-Based Allocation</h3>' +
+    '<p class="text-gray-400 mb-4">Your allocation percentages should evolve as you progress through the levels:</p>' +
+    '<div class="space-y-3 mb-6">' +
+      '<div class="p-3 rounded-lg" style="background:rgba(205,127,50,0.08);border:1px solid rgba(205,127,50,0.12);"><span class="font-bold text-sm" style="color:#e8a857;">L1-3 (Debt Focus)</span><p class="text-gray-400 text-xs mt-1">Maximize Velocity allocation. Minimize Lifestyle spending. Example: 55% Necessities / 5% The Reserve / 5% Velocity / 5% Growth / 5% Lifestyle / 25% Debt Destruction</p></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(168,184,200,0.08);border:1px solid rgba(168,184,200,0.12);"><span class="font-bold text-sm" style="color:#d4e1ec;">L4-6 (Build Phase)</span><p class="text-gray-400 text-xs mt-1">Debt shrinking, savings growing. Example: 50% Necessities / 10% The Reserve / 10% Velocity / 15% Growth / 5% Lifestyle / 10% Legacy</p></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.12);"><span class="font-bold text-sm" style="color:#e8c96a;">L7-9 (Growth Phase)</span><p class="text-gray-400 text-xs mt-1">No consumer debt. Aggressive investing. Example: 40% Necessities / 10% The Reserve / 10% Velocity / 10% Growth / 5% Lifestyle / 25% Legacy</p></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(229,228,226,0.08);border:1px solid rgba(229,228,226,0.12);"><span class="font-bold text-sm" style="color:#f0f0f0;">L10-12 (Wealth Phase)</span><p class="text-gray-400 text-xs mt-1">Wealth building mode. Example: 30% Necessities / 10% The Reserve / 15% Velocity / 5% Growth / 5% Lifestyle / 35% Legacy</p></div>' +
+    '</div>' +
+    '<h3 class="font-bold text-white mb-2">The Business Split (10/10/10/70)</h3>' +
+    '<p class="text-gray-400 mb-4">For business revenue, the allocation changes entirely:</p>' +
+    '<ul class="text-gray-400 space-y-1 list-disc list-inside mb-4">' +
+      '<li><strong class="text-white">10% Profit</strong> &mdash; Taken first (Profit First methodology)</li>' +
+      '<li><strong class="text-white">10% Tax Reserve</strong> &mdash; Set aside for quarterly estimated taxes</li>' +
+      '<li><strong class="text-white">10% Owner\'s Pay</strong> &mdash; Your personal compensation</li>' +
+      '<li><strong class="text-white">70% Operating</strong> &mdash; Business expenses and reinvestment</li>' +
+    '</ul>' +
+    '<p class="text-gray-500 text-sm">Adjust percentages in the Allocations tab. The system enforces the 100% total rule automatically.</p>',
+
+  't-xp-levels': '<h2 class="text-xl font-black text-white mb-4">XP & Level Progression System</h2>' +
+    '<p class="text-gray-300 mb-4">Understand how experience points (XP) drive your progression through the 12 levels of the Sovereign Protocol.</p>' +
+    '<h3 class="font-bold text-white mb-2">Earning XP</h3>' +
+    '<ul class="text-gray-400 space-y-2 list-disc list-inside mb-4">' +
+      '<li><strong class="text-white">Daily Check-in</strong> &mdash; 5 XP (Free) / 25 XP (Pro)</li>' +
+      '<li><strong class="text-white">Completing Sovereign Challenges</strong> &mdash; 10-50 XP per challenge</li>' +
+      '<li><strong class="text-white">Transaction Logging</strong> &mdash; Auto-verified, awards XP</li>' +
+      '<li><strong class="text-white">Tab Visits</strong> &mdash; Exploring new features auto-completes discovery challenges</li>' +
+      '<li><strong class="text-white">Streak Bonuses</strong> &mdash; Consecutive daily check-ins multiply XP</li>' +
+    '</ul>' +
+    '<h3 class="font-bold text-white mb-2">Streak System</h3>' +
+    '<p class="text-gray-400 mb-4">Streaks reward consistency. Miss a day and the streak resets. Pro users get one streak freeze per month to protect long streaks.</p>' +
+    '<h3 class="font-bold text-white mb-2">Level Gates</h3>' +
+    '<p class="text-gray-400 mb-4">Some levels require specific milestones beyond XP:</p>' +
+    '<ul class="text-gray-400 space-y-1 list-disc list-inside">' +
+      '<li>Credit report upload (Pro gate)</li>' +
+      '<li>Debt-free milestone verification</li>' +
+      '<li>Business revenue documentation</li>' +
+      '<li>Specific tool usage requirements</li>' +
+    '</ul>',
+
+  // ── BUSINESS MODULES ──
+  't-friday-sweep': '<h2 class="text-xl font-black text-white mb-4">The Friday Sweep Process</h2>' +
+    '<p class="text-gray-300 mb-4">Every Friday, Business users execute the <strong class="text-yellow-400">Friday Sweep</strong> - a systematic cash allocation ritual that keeps your business finances disciplined and profitable.</p>' +
+    '<h3 class="font-bold text-white mb-2">The Process</h3>' +
+    '<ol class="text-gray-400 space-y-3 list-decimal list-inside mb-6">' +
+      '<li><strong class="text-white">Check Operating Account Balance</strong><br><span class="text-xs">Log into your business bank and note the current operating balance.</span></li>' +
+      '<li><strong class="text-white">Calculate Excess Cash</strong><br><span class="text-xs">Subtract upcoming obligations (payroll, vendors, subscriptions) for the next 2 weeks. Everything above that is excess.</span></li>' +
+      '<li><strong class="text-white">Sweep to Allocation Accounts</strong><br><span class="text-xs">Move excess cash into your designated accounts: Profit (10%), Tax Reserve (10%), Owner\'s Pay (10%).</span></li>' +
+      '<li><strong class="text-white">Log in FACTS</strong><br><span class="text-xs">Record the sweep as a transaction in the FACTS app with business allocation tags.</span></li>' +
+      '<li><strong class="text-white">Review & Adjust</strong><br><span class="text-xs">Review the week\'s spending against allocations. Flag any over-budget categories.</span></li>' +
+    '</ol>' +
+    '<h3 class="font-bold text-white mb-2">Why Friday?</h3>' +
+    '<p class="text-gray-400 mb-4">Friday gives you a full view of the week\'s cash flow. Weekend deposits/payments are minimal, so the balance is most accurate. It also sets the right mindset before the weekend.</p>' +
+    '<h3 class="font-bold text-white mb-2">Automation Tips</h3>' +
+    '<p class="text-gray-400">Set a recurring Friday 3pm calendar reminder. Use FACTS\' Business dashboard to track each sweep. Over time, the process takes less than 10 minutes.</p>',
+
+  't-5bucket': '<h2 class="text-xl font-black text-white mb-4">The 6-Bucket Protocol</h2>' +
+    '<p class="text-gray-300 mb-4">The 6-Bucket Protocol is the Business allocation framework - 5 separate accounts that ensure profitability from day one.</p>' +
+    '<h3 class="font-bold text-white mb-3">The 6 Buckets</h3>' +
+    '<div class="space-y-3 mb-6">' +
+      '<div class="p-3 rounded-lg" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);"><span class="font-bold text-green-400">1. PROFIT</span><p class="text-gray-400 text-xs mt-1">Taken FIRST from every dollar of revenue. This is your reward for building and running the business. Target: 5-20% based on revenue.</p></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);"><span class="font-bold text-red-400">2. TAX RESERVE</span><p class="text-gray-400 text-xs mt-1">Quarterly estimated taxes set aside before they\'re due. Never scramble for tax money again. Target: 15-25%.</p></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);"><span class="font-bold text-blue-400">3. OWNER\'S PAY</span><p class="text-gray-400 text-xs mt-1">Your salary from the business. Consistent, predictable, separate from profit distributions. Target: 30-50%.</p></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.15);"><span class="font-bold text-purple-400">4. OPERATING EXPENSES</span><p class="text-gray-400 text-xs mt-1">Everything the business needs to run: software, contractors, inventory, marketing. This is the LAST bucket, not the first.</p></div>' +
+      '<div class="p-3 rounded-lg" style="background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.15);"><span class="font-bold text-yellow-400">5. GROWTH RESERVE</span><p class="text-gray-400 text-xs mt-1">Optional 5th bucket for scaling. Only active when the other 4 are healthy. Funds expansion, hiring, new equipment.</p></div>' +
+    '</div>' +
+    '<h3 class="font-bold text-white mb-2">Implementation</h3>' +
+    '<p class="text-gray-400">Open 5 separate bank accounts (most online banks make this free). Name them. Set up the Friday Sweep to distribute into each bucket weekly. Track in the FACTS Business dashboard.</p>',
+
+  't-heartbeat-biz': '<h2 class="text-xl font-black text-white mb-4">Heartbeat Audit: Business Edition</h2>' +
+    '<p class="text-gray-300 mb-4">The Business Heartbeat Audit extends the standard audit with business-specific compliance checks.</p>' +
+    '<h3 class="font-bold text-white mb-2">Business Heartbeat Checks</h3>' +
+    '<ul class="text-gray-400 space-y-2 list-disc list-inside mb-4">' +
+      '<li><strong class="text-white">Friday Sweep Compliance</strong> &mdash; Did you complete the sweep this week?</li>' +
+      '<li><strong class="text-white">Profit Bucket Health</strong> &mdash; Is your profit account growing month-over-month?</li>' +
+      '<li><strong class="text-white">Tax Reserve Adequacy</strong> &mdash; Are you on track for quarterly estimates?</li>' +
+      '<li><strong class="text-white">Receipt Scanning</strong> &mdash; Are business expenses documented with receipts?</li>' +
+    '</ul>' +
+    '<h3 class="font-bold text-white mb-2">Escrow & Cliff</h3>' +
+    '<p class="text-gray-400">Business affiliate commissions are held in escrow with a 90-day cliff. The Heartbeat Audit determines eligibility - miss too many heartbeats and commissions are withheld until compliance resumes.</p>',
+
+  // ── ELITE MODULES ──
+  't-heloc-velocity': '<h2 class="text-xl font-black text-white mb-4">HELOC Velocity Overview</h2>' +
+    '<p class="text-gray-300 mb-4">The HELOC Velocity strategy is FACTS\' most advanced debt elimination tool. It uses a <strong class="text-yellow-400">Home Equity Line of Credit as a checking account</strong> to dramatically reduce mortgage interest.</p>' +
+    '<h3 class="font-bold text-white mb-2">The Core Concept</h3>' +
+    '<p class="text-gray-400 mb-4">Instead of keeping cash in a checking account earning 0%, you deposit your entire paycheck into your HELOC. Since HELOC interest is calculated on daily average balance, every dollar sitting in the HELOC reduces interest charges - even temporarily.</p>' +
+    '<h3 class="font-bold text-white mb-2">How It Works</h3>' +
+    '<ol class="text-gray-400 space-y-2 list-decimal list-inside mb-4">' +
+      '<li>Open a HELOC on your home (keep your existing mortgage)</li>' +
+      '<li>Deposit your full paycheck into the HELOC</li>' +
+      '<li>Pay living expenses from the HELOC (like a checking account)</li>' +
+      '<li>The net effect: your paycheck sits against the HELOC balance for ~25 days each month</li>' +
+      '<li>Periodically "chunk" - transfer a large sum from HELOC to pay down mortgage principal</li>' +
+    '</ol>' +
+    '<h3 class="font-bold text-white mb-2">The Math</h3>' +
+    '<p class="text-gray-400 mb-4">On a $300,000 mortgage at 6.5%, the first year is ~$19,500 in interest. Using HELOC Velocity, you can recapture $3,000-$7,000 of that interest annually, cutting a 30-year mortgage to 7-12 years.</p>' +
+    '<h3 class="font-bold text-white mb-2">Requirements</h3>' +
+    '<ul class="text-gray-400 space-y-1 list-disc list-inside mb-4">' +
+      '<li>Home with equity (typically 20%+ for best HELOC rates)</li>' +
+      '<li>Positive monthly cash flow (income > expenses)</li>' +
+      '<li>Discipline to not overspend from the HELOC</li>' +
+      '<li>Credit score 680+ (for competitive HELOC rates)</li>' +
+    '</ul>' +
+    '<p class="text-gray-500 text-sm">Use the HELOC Velocity Engine in the FACTS app to model this strategy with your actual numbers.</p>',
+
+  't-interest-recapture': '<h2 class="text-xl font-black text-white mb-4">Interest Recapture: The Deep Dive</h2>' +
+    '<p class="text-gray-300 mb-4">Interest recapture is the mechanism behind HELOC Velocity. Understanding the math is what separates strategy from speculation.</p>' +
+    '<h3 class="font-bold text-white mb-2">Simple vs. Compound Interest</h3>' +
+    '<p class="text-gray-400 mb-4">Your mortgage uses <strong class="text-white">amortized compound interest</strong> - early payments are mostly interest. Your HELOC uses <strong class="text-white">simple daily interest</strong> - you only pay for what you owe each day.</p>' +
+    '<h3 class="font-bold text-white mb-2">The Arbitrage</h3>' +
+    '<p class="text-gray-400 mb-4">When you park income in the HELOC (reducing its balance for ~25 days before expenses drain it), you\'re paying simple interest on a lower average balance instead of compound interest on a higher mortgage balance. That difference is recaptured money.</p>' +
+    '<h3 class="font-bold text-white mb-2">Real Example</h3>' +
+    '<div class="p-4 rounded-xl mb-4" style="background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.15);">' +
+      '<p class="text-gray-300 text-sm"><strong class="text-yellow-400">Mortgage:</strong> $250,000 at 6.0% = $41.10/day in interest</p>' +
+      '<p class="text-gray-300 text-sm"><strong class="text-yellow-400">HELOC Balance:</strong> $30,000 at 8.0% = $6.58/day</p>' +
+      '<p class="text-gray-300 text-sm"><strong class="text-yellow-400">Paycheck:</strong> $5,000 deposited to HELOC on day 1</p>' +
+      '<p class="text-gray-300 text-sm mt-2">For 25 days, HELOC balance is $25,000 = $5.48/day (saving $1.10/day)</p>' +
+      '<p class="text-yellow-400 text-sm font-bold mt-2">Monthly recapture: ~$27.50. Annual: ~$330. Over 30 years: $9,900+ in saved interest.</p>' +
+    '</div>' +
+    '<p class="text-gray-400">The real power compounds when you make periodic "chunks" (lump-sum mortgage payments from HELOC), which permanently reduce the amortized principal.</p>',
+
+  't-wealth-accel': '<h2 class="text-xl font-black text-white mb-4">Wealth Acceleration Framework</h2>' +
+    '<p class="text-gray-300 mb-4">At the Elite level, you\'re past debt elimination and into wealth multiplication. This module covers the strategies that turn earned income into permanent wealth.</p>' +
+    '<h3 class="font-bold text-white mb-2">The Three Engines</h3>' +
+    '<ol class="text-gray-400 space-y-3 list-decimal list-inside mb-4">' +
+      '<li><strong class="text-white">Tax-Advantaged Accounts</strong> &mdash; Max out 401(k), Roth IRA, HSA, Solo 401(k), SEP IRA. Backdoor and Mega Backdoor Roth conversions for high earners.</li>' +
+      '<li><strong class="text-white">Real Estate Equity</strong> &mdash; Use HELOC Velocity to build equity rapidly. Cash-out refinance to acquire additional properties. 1031 exchanges to defer capital gains.</li>' +
+      '<li><strong class="text-white">Business Scaling</strong> &mdash; Reinvest profit bucket into revenue-generating assets. Hire to remove yourself from operations. Build systems that generate income without your daily involvement.</li>' +
+    '</ol>' +
+    '<h3 class="font-bold text-white mb-2">The Wealth Equation</h3>' +
+    '<p class="text-gray-400 mb-4">Wealth = (Income - Expenses) &times; Time &times; Return Rate. At this level, you attack all four variables simultaneously: increase income, reduce expenses, extend time horizon, and optimize returns.</p>' +
+    '<p class="text-gray-500 text-sm">Track your wealth acceleration in the Net Worth dashboard and Brokerage tracker in the FACTS app.</p>',
+};
+
+function openModule(id) {
+  var item = allModules.find(function(m) { return m.id === id; });
+  if (!item || !item.accessible) return;
+
+  var body = MODULE_BODY[id] || '<h2 class="text-xl font-black text-white mb-4">' + esc(item.title) + '</h2><p class="text-gray-400 mb-4">' + esc(item.desc) + '</p><p class="text-gray-500 text-sm">Full training content coming soon.</p>';
+  var isComplete = !!completedModules[id];
+
+  var inner = document.getElementById('module-modal-inner');
+  inner.innerHTML =
+    '<div class="flex items-center justify-between mb-5">' +
+      '<div class="flex items-center gap-2">' +
+        '<span class="text-xl">' + esc(item.icon) + '</span>' +
+        '<span class="mod-badge mod-' + esc(item.module_type) + '">' + esc(item.module_type) + '</span>' +
+        '<span class="text-xs text-gray-500">&middot; ' + esc(item.duration) + '</span>' +
+      '</div>' +
+      '<button onclick="closeModal()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#9ca3af;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;line-height:1;">&times;</button>' +
+    '</div>' +
+    '<div class="text-sm leading-relaxed">' + body + '</div>' +
+    '<div class="mt-6 pt-4 flex items-center justify-between flex-wrap gap-3" style="border-top:1px solid rgba(255,255,255,0.06);">' +
+      '<button onclick="toggleComplete(\'' + esc(id) + '\')" class="text-xs font-bold px-5 py-2.5 rounded-xl" style="' +
+        (isComplete
+          ? 'background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);'
+          : 'background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;border:none;') + '">' +
+        (isComplete ? '&#10003; Completed — Mark Incomplete' : 'Mark as Completed &#10003;') +
+      '</button>' +
+      '<button onclick="closeModal()" class="text-xs font-medium px-4 py-2 rounded-xl" style="background:rgba(255,255,255,0.06);color:#9ca3af;border:1px solid rgba(255,255,255,0.1);">Close</button>' +
+    '</div>';
+
+  var modal = document.getElementById('module-modal');
+  modal.style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('module-modal').style.display = 'none';
+}
+
+document.getElementById('module-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+init();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

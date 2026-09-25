@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Crypto Tracker — Financial Revolution</title>
+  <script defer src="/nav-bar.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: { DEFAULT: '#c9a227', light: '#e8c84a', dark: '#9a7d1c' },
+            navy: { DEFAULT: '#0d1b2a', mid: '#1a2e44', light: '#243b55' }
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0d1b2a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; min-height: 100dvh; }
+    .gold-text { color: #c9a227; }
+    .gold-bg { background: linear-gradient(135deg, #c9a227, #e8c84a); }
+    .card { background: #1a2e44; border: 1px solid rgba(201,162,39,0.15); border-radius: 12px; }
+    .btn-gold { background: linear-gradient(135deg, #c9a227, #e8c84a); color: #0d1b2a; font-weight: 700; border: none; cursor: pointer; border-radius: 8px; padding: 10px 20px; transition: opacity .2s; }
+    .btn-gold:hover { opacity: .85; }
+    .btn-ghost { background: transparent; border: 1px solid rgba(201,162,39,0.3); color: #c9a227; cursor: pointer; border-radius: 8px; padding: 8px 16px; transition: all .2s; font-size: .85rem; }
+    .btn-ghost:hover { background: rgba(201,162,39,0.1); }
+    .btn-danger { background: transparent; border: 1px solid rgba(239,68,68,0.4); color: #f87171; cursor: pointer; border-radius: 6px; padding: 5px 10px; font-size: .8rem; transition: all .2s; }
+    .btn-danger:hover { background: rgba(239,68,68,0.1); }
+    .input { background: #243b55; border: 1px solid rgba(201,162,39,0.2); border-radius: 8px; padding: 10px 14px; color: #e2e8f0; width: 100%; font-size: .9rem; outline: none; }
+    .input:focus { border-color: #c9a227; }
+    .input::placeholder { color: #64748b; }
+    .tag { display: inline-block; font-size: .7rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: .05em; }
+    .tag-manual { background: rgba(99,102,241,.2); color: #a5b4fc; }
+    .tag-wallet { background: rgba(16,185,129,.2); color: #6ee7b7; }
+    .gain { color: #4ade80; }
+    .loss { color: #f87171; }
+    .neutral { color: #94a3b8; }
+    .period-btn { padding: 5px 12px; border-radius: 6px; font-size: .8rem; cursor: pointer; border: 1px solid rgba(201,162,39,.2); color: #94a3b8; background: transparent; transition: all .2s; }
+    .period-btn.active { background: rgba(201,162,39,.15); color: #c9a227; border-color: #c9a227; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 40; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal { background: #1a2e44; border: 1px solid rgba(201,162,39,.2); border-radius: 16px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { padding: 20px 24px 0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 20px 24px 24px; }
+    .close-btn { background: none; border: none; color: #64748b; cursor: pointer; font-size: 1.3rem; line-height: 1; }
+    .close-btn:hover { color: #94a3b8; }
+    .label { font-size: .8rem; color: #94a3b8; margin-bottom: 5px; font-weight: 500; }
+    .form-group { margin-bottom: 14px; }
+    .search-results { background: #243b55; border: 1px solid rgba(201,162,39,.2); border-radius: 8px; margin-top: 4px; max-height: 200px; overflow-y: auto; display: none; }
+    .search-result-item { padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background .15s; font-size: .9rem; }
+    .search-result-item:hover { background: rgba(201,162,39,.1); }
+    .coin-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+    .coin-img-placeholder { width: 24px; height: 24px; border-radius: 50%; background: rgba(201,162,39,.2); display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; color: #c9a227; }
+    .table-row { border-bottom: 1px solid rgba(255,255,255,.05); transition: background .15s; }
+    .table-row:hover { background: rgba(201,162,39,.04); }
+    .table-row:last-child { border-bottom: none; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a2e44; border: 1px solid rgba(201,162,39,.3); border-radius: 10px; padding: 12px 18px; color: #e2e8f0; font-size: .9rem; z-index: 9999; animation: slideIn .3s ease; box-shadow: 0 8px 32px rgba(0,0,0,.4); max-width: 320px; }
+    .toast.error { border-color: rgba(239,68,68,.4); }
+    @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .fade-gate { display: none; }
+    .wallet-chip { display: flex; align-items: center; gap: 8px; background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.2); border-radius: 8px; padding: 8px 12px; font-size: .8rem; }
+    @media (max-width: 640px) {
+      .hide-mobile { display: none !important; }
+      .modal { max-width: 100%; margin: 0 8px; }
+      .toast { right: 12px; left: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav style="background:#0d1b2a;border-bottom:1px solid rgba(201,162,39,.12);position:sticky;top:44px;z-index:30;">
+  <div style="max-width:1100px;margin:0 auto;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:56px;">
+    <a href="/app.html" style="text-decoration:none;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:1.4rem;">₿</span>
+      <span style="font-weight:700;color:#c9a227;font-size:1rem;">Crypto Tracker</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <a href="/net-worth" class="btn-ghost" style="text-decoration:none;font-size:.8rem;">Net Worth</a>
+      <a href="/app.html" class="btn-ghost" style="text-decoration:none;font-size:.8rem;">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<!-- AUTH GATE -->
+<div id="auth-gate" class="fade-gate" style="min-height:70vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px 16px;">
+  <div>
+    <div style="font-size:3rem;margin-bottom:16px;">🔐</div>
+    <h2 style="font-size:1.5rem;font-weight:700;color:#c9a227;margin-bottom:8px;">Sign In Required</h2>
+    <p style="color:#64748b;margin-bottom:24px;">Please sign in to access your Crypto Tracker.</p>
+    <a href="/login.html" class="btn-gold" style="text-decoration:none;display:inline-block;">Sign In</a>
+  </div>
+</div>
+
+<!-- PRO GATE -->
+<div id="pro-gate" class="fade-gate" style="min-height:70vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px 16px;">
+  <div style="max-width:440px;">
+    <div style="font-size:3.5rem;margin-bottom:16px;">₿</div>
+    <div style="display:inline-block;background:linear-gradient(135deg,#c9a227,#e8c84a);color:#0d1b2a;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">Paid Feature</div>
+    <h2 style="font-size:1.6rem;font-weight:700;color:#e2e8f0;margin-bottom:10px;">Crypto Wallet Tracker</h2>
+    <p style="color:#94a3b8;line-height:1.6;margin-bottom:8px;">Track your BTC, ETH, SOL and 10,000+ coins. Connect MetaMask wallets for auto-sync. See gains, losses, and portfolio history over time.</p>
+    <ul style="list-style:none;padding:0;color:#94a3b8;font-size:.9rem;margin:16px 0 24px;text-align:left;display:inline-block;">
+      <li style="margin:6px 0;">✅ Manual entry for any coin</li>
+      <li style="margin:6px 0;">✅ MetaMask / EVM wallet auto-sync</li>
+      <li style="margin:6px 0;">✅ Live prices from CoinGecko</li>
+      <li style="margin:6px 0;">✅ Gains/losses chart (7d → All Time)</li>
+      <li style="margin:6px 0;">✅ Rolls up into Net Worth Dashboard</li>
+    </ul>
+    <br>
+    <a href="/pricing.html" class="btn-gold" style="text-decoration:none;display:inline-block;">Upgrade Now — $25/mo</a>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content" class="fade-gate" style="max-width:1100px;margin:0 auto;padding:24px 16px 60px;">
+
+  <!-- HERO SUMMARY -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;">
+    <div class="card" style="padding:20px;">
+      <div style="font-size:.75rem;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Total Portfolio</div>
+      <div id="hero-total" style="font-size:1.8rem;font-weight:700;color:#c9a227;">$0.00</div>
+      <div id="hero-count" style="font-size:.8rem;color:#64748b;margin-top:4px;">0 holdings</div>
+    </div>
+    <div class="card" style="padding:20px;">
+      <div style="font-size:.75rem;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Total Gain / Loss</div>
+      <div id="hero-gainloss" style="font-size:1.8rem;font-weight:700;" class="neutral">—</div>
+      <div id="hero-gainloss-pct" style="font-size:.8rem;color:#64748b;margin-top:4px;">vs cost basis</div>
+    </div>
+    <div class="card" style="padding:20px;">
+      <div style="font-size:.75rem;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Cost Basis</div>
+      <div id="hero-basis" style="font-size:1.8rem;font-weight:700;color:#e2e8f0;">$0.00</div>
+      <div style="font-size:.8rem;color:#64748b;margin-top:4px;">total invested</div>
+    </div>
+    <div class="card" style="padding:20px;display:flex;flex-direction:column;justify-content:space-between;">
+      <div style="font-size:.75rem;color:#94a3b8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Quick Actions</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn-gold" onclick="openAddModal()" style="font-size:.85rem;padding:8px 16px;">+ Add Holding</button>
+        <button class="btn-ghost" onclick="openWalletModal()" style="font-size:.85rem;">🔗 Connect Wallet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="card" style="padding:20px;margin-bottom:28px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+      <h2 style="font-size:1rem;font-weight:700;color:#e2e8f0;margin:0;">Portfolio Value Over Time</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="period-btn active" onclick="setPeriod('7d')" id="period-7d">7D</button>
+        <button class="period-btn" onclick="setPeriod('30d')" id="period-30d">30D</button>
+        <button class="period-btn" onclick="setPeriod('90d')" id="period-90d">90D</button>
+        <button class="period-btn" onclick="setPeriod('1y')" id="period-1y">1Y</button>
+        <button class="period-btn" onclick="setPeriod('all')" id="period-all">All</button>
+      </div>
+    </div>
+    <div id="chart-empty" style="display:none;text-align:center;padding:40px 0;color:#64748b;">
+      <div style="font-size:2rem;margin-bottom:8px;">📈</div>
+      <p style="font-size:.9rem;">Add holdings to start tracking portfolio history.</p>
+    </div>
+    <div id="chart-wrap" style="position:relative;height:260px;">
+      <canvas id="portfolio-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- HOLDINGS TABLE -->
+  <div class="card" style="padding:0;margin-bottom:28px;overflow:hidden;">
+    <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <h2 style="font-size:1rem;font-weight:700;color:#e2e8f0;margin:0;">Holdings</h2>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="refresh-btn" onclick="refreshPrices()" class="btn-ghost" style="font-size:.8rem;">⟳ Refresh Prices</button>
+        <span id="last-updated" style="font-size:.75rem;color:#64748b;"></span>
+      </div>
+    </div>
+
+    <div id="holdings-empty" style="display:none;text-align:center;padding:48px 24px;color:#64748b;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">₿</div>
+      <p style="font-size:.95rem;margin-bottom:8px;">No crypto holdings yet.</p>
+      <p style="font-size:.85rem;margin-bottom:20px;">Add coins manually or connect a MetaMask wallet.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-gold" onclick="openAddModal()" style="font-size:.85rem;">+ Add Holding</button>
+        <button class="btn-ghost" onclick="openWalletModal()">🔗 Connect Wallet</button>
+      </div>
+    </div>
+
+    <!-- Desktop table -->
+    <div id="holdings-table" class="hide-mobile" style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.06);">
+            <th style="padding:10px 20px;text-align:left;font-size:.75rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Coin</th>
+            <th style="padding:10px 12px;text-align:right;font-size:.75rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Quantity</th>
+            <th style="padding:10px 12px;text-align:right;font-size:.75rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Avg Cost</th>
+            <th style="padding:10px 12px;text-align:right;font-size:.75rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Current Price</th>
+            <th style="padding:10px 12px;text-align:right;font-size:.75rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Value</th>
+            <th style="padding:10px 12px;text-align:right;font-size:.75rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Gain / Loss</th>
+            <th style="padding:10px 20px;text-align:right;font-size:.75rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;"></th>
+          </tr>
+        </thead>
+        <tbody id="holdings-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Mobile cards -->
+    <div id="holdings-mobile-list" style="display:none;" class="show-mobile"></div>
+  </div>
+
+  <!-- WALLETS SECTION -->
+  <div class="card" style="padding:20px;margin-bottom:28px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+      <h2 style="font-size:1rem;font-weight:700;color:#e2e8f0;margin:0;">Connected Wallets</h2>
+      <button class="btn-ghost" onclick="openWalletModal()" style="font-size:.85rem;">+ Connect Wallet</button>
+    </div>
+    <div id="wallets-empty" style="display:none;color:#64748b;font-size:.85rem;padding:8px 0;">
+      No wallets connected. Connect a MetaMask or EVM wallet to auto-sync balances.
+    </div>
+    <div id="wallets-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+
+  <!-- NET WORTH NOTE -->
+  <div style="background:rgba(201,162,39,.06);border:1px solid rgba(201,162,39,.15);border-radius:10px;padding:14px 18px;font-size:.85rem;color:#94a3b8;display:flex;align-items:center;gap:10px;">
+    <span style="font-size:1.1rem;">💡</span>
+    <span>Your crypto portfolio value is automatically included in your <a href="/net-worth" style="color:#c9a227;text-decoration:none;">Net Worth Dashboard</a>.</span>
+  </div>
+</div>
+
+<!-- ADD HOLDING MODAL -->
+<div id="add-modal" class="overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 style="font-size:1.1rem;font-weight:700;color:#e2e8f0;margin:0;" id="add-modal-title">Add Crypto Holding</h3>
+      <button class="close-btn" onclick="closeModal('add-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+
+      <div class="form-group">
+        <div class="label">Coin *</div>
+        <input type="text" class="input" id="coin-search" placeholder="Search: Bitcoin, ETH, SOL..." autocomplete="off" oninput="searchCoins(this.value)">
+        <div class="search-results" id="search-results"></div>
+        <input type="hidden" id="coin-id">
+        <input type="hidden" id="coin-symbol">
+        <input type="hidden" id="coin-name">
+        <div id="selected-coin" style="display:none;margin-top:8px;display:flex;align-items:center;gap:8px;background:rgba(201,162,39,.08);border:1px solid rgba(201,162,39,.2);border-radius:8px;padding:8px 12px;font-size:.85rem;">
+          <span id="selected-coin-text" style="color:#c9a227;font-weight:600;"></span>
+          <button onclick="clearCoinSelection()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:.9rem;margin-left:auto;">✕</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="label">Quantity *</div>
+        <input type="number" class="input" id="holding-qty" placeholder="0.00" step="any" min="0">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <div class="label">Purchase Price (USD)</div>
+          <input type="number" class="input" id="holding-purchase-price" placeholder="e.g. 42000" step="any" min="0">
+          <div style="font-size:.7rem;color:#64748b;margin-top:4px;">Per coin at time of purchase</div>
+        </div>
+        <div class="form-group">
+          <div class="label">Purchase Date</div>
+          <input type="date" class="input" id="holding-date">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="label">Notes (optional)</div>
+        <input type="text" class="input" id="holding-notes" placeholder="e.g. Coinbase purchase">
+      </div>
+
+      <button class="btn-gold" onclick="saveHolding()" style="width:100%;margin-top:4px;" id="save-holding-btn">
+        Save Holding
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- WALLET MODAL -->
+<div id="wallet-modal" class="overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 style="font-size:1.1rem;font-weight:700;color:#e2e8f0;margin:0;">Connect EVM Wallet</h3>
+      <button class="close-btn" onclick="closeModal('wallet-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:8px;padding:12px;font-size:.82rem;color:#94a3b8;margin-bottom:16px;">
+        <strong style="color:#6ee7b7;">Read-only</strong> — We only read your public wallet balance. No private keys, no signing, no transactions.
+      </div>
+
+      <div class="form-group">
+        <div class="label">Wallet Address *</div>
+        <input type="text" class="input" id="wallet-address" placeholder="0x1234...abcd">
+        <div style="font-size:.72rem;color:#64748b;margin-top:4px;">Ethereum / EVM compatible address (0x + 40 hex chars)</div>
+      </div>
+
+      <div class="form-group">
+        <div class="label">Label (optional)</div>
+        <input type="text" class="input" id="wallet-label" placeholder="e.g. MetaMask Main">
+      </div>
+
+      <div style="background:rgba(201,162,39,.06);border:1px solid rgba(201,162,39,.12);border-radius:8px;padding:10px 12px;font-size:.8rem;color:#94a3b8;margin-bottom:16px;">
+        <strong style="color:#c9a227;">What gets imported:</strong><br>
+        • ETH balance (via public RPC)<br>
+        • Common ERC-20 tokens (USDT, USDC, LINK, UNI, SHIB, WBTC)
+      </div>
+
+      <button class="btn-gold" onclick="connectWallet()" style="width:100%;" id="connect-wallet-btn">
+        Connect &amp; Sync Wallet
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="delete-modal" class="overlay" style="display:none;">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <h3 style="font-size:1rem;font-weight:700;color:#f87171;margin:0;">Remove Holding?</h3>
+      <button class="close-btn" onclick="closeModal('delete-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="delete-msg" style="color:#94a3b8;font-size:.9rem;margin-bottom:20px;"></p>
+      <div style="display:flex;gap:12px;">
+        <button class="btn-ghost" onclick="closeModal('delete-modal')" style="flex:1;">Cancel</button>
+        <button onclick="confirmDelete()" style="flex:1;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#f87171;cursor:pointer;border-radius:8px;padding:10px;font-weight:600;transition:all .2s;" onmouseover="this.style.background='rgba(239,68,68,.25)'" onmouseout="this.style.background='rgba(239,68,68,.15)'">Remove</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+var holdings = [];
+var wallets = [];
+var summary = {};
+var portfolioHistory = [];
+var chartInstance = null;
+var currentPeriod = '30d';
+var deleteTargetId = null;
+var searchDebounce = null;
+var lastUpdated = null;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function fmt(n) {
+  if (n == null || isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (abs >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+  if (abs >= 1000) return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return '$' + n.toFixed(n < 1 ? 6 : 2);
+}
+function fmtChange(n) {
+  if (n == null || isNaN(n)) return '';
+  const sign = n >= 0 ? '+' : '';
+  return sign + n.toFixed(2) + '%';
+}
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg, isError) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+function show(id) { const el = document.getElementById(id); if (el) { el.style.display = ''; } }
+function hide(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const resp = await fetch('/api/crypto/holdings', { credentials: 'include' });
+    if (resp.status === 401) { hide('main-content'); show('auth-gate'); return; }
+    if (resp.status === 403) { hide('main-content'); show('pro-gate'); return; }
+    const data = await resp.json();
+    if (!data.success) { hide('main-content'); show('pro-gate'); return; }
+
+    holdings = data.holdings || [];
+    wallets = data.wallets || [];
+    summary = data.summary || {};
+
+    show('main-content');
+    render();
+    renderWallets();
+    await loadHistory();
+    await takeSnapshot();
+  } catch (err) {
+    console.error('Init error:', err);
+    show('auth-gate');
+  }
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const total = summary.totalValue || 0;
+  const basis = summary.totalCostBasis || 0;
+  const gl = summary.totalGainLoss;
+  const glPct = summary.totalGainLossPct;
+
+  document.getElementById('hero-total').textContent = fmt(total);
+  document.getElementById('hero-basis').textContent = fmt(basis);
+  document.getElementById('hero-count').textContent = (summary.count || 0) + ' holding' + ((summary.count !== 1) ? 's' : '');
+
+  const glEl = document.getElementById('hero-gainloss');
+  const glPctEl = document.getElementById('hero-gainloss-pct');
+  if (gl !== null && gl !== undefined) {
+    glEl.textContent = (gl >= 0 ? '+' : '') + fmt(gl);
+    glEl.className = gl >= 0 ? 'gain' : 'loss';
+    glPctEl.textContent = fmtChange(glPct) + ' vs cost basis';
+  } else {
+    glEl.textContent = '—';
+    glEl.className = 'neutral';
+    glPctEl.textContent = 'add purchase prices to track';
+  }
+
+  renderHoldings();
+}
+
+function renderHoldings() {
+  const tbody = document.getElementById('holdings-tbody');
+  const mobileList = document.getElementById('holdings-mobile-list');
+  const empty = document.getElementById('holdings-empty');
+  const table = document.getElementById('holdings-table');
+
+  if (holdings.length === 0) {
+    show('holdings-empty');
+    hide('holdings-table');
+    hide('holdings-mobile-list');
+    return;
+  }
+
+  hide('holdings-empty');
+  show('holdings-table');
+  mobileList.style.display = '';
+
+  // Desktop table rows
+  tbody.innerHTML = holdings.map(h => {
+    const gl = h.gain_loss_usd;
+    const glPct = h.gain_loss_pct;
+    const glClass = gl === null ? 'neutral' : (gl >= 0 ? 'gain' : 'loss');
+    const glText = gl !== null ? (gl >= 0 ? '+' : '') + fmt(gl) : '—';
+    const glPctText = glPct !== null ? fmtChange(glPct) : '';
+    const sourceTag = h.source === 'wallet'
+      ? `<span class="tag tag-wallet">Wallet</span>`
+      : `<span class="tag tag-manual">Manual</span>`;
+    const img = h.image_url
+      ? `<img src="${escapeHtml(h.image_url)}" class="coin-img" alt="${escapeHtml(h.coin_symbol)}" onerror="this.style.display='none'">`
+      : `<div class="coin-img-placeholder">${escapeHtml(h.coin_symbol.slice(0,2))}</div>`;
+    const change24h = h.price_change_24h;
+    const changeClass = change24h >= 0 ? 'gain' : 'loss';
+    const costLabel = h.purchase_price_usd > 0 ? fmt(h.purchase_price_usd) : '—';
+
+    return `<tr class="table-row" data-id="${h.id}">
+      <td style="padding:14px 20px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${img}
+          <div>
+            <div style="font-weight:600;color:#e2e8f0;font-size:.9rem;">${escapeHtml(h.coin_name)}</div>
+            <div style="font-size:.75rem;color:#64748b;">${escapeHtml(h.coin_symbol)} ${sourceTag}</div>
+          </div>
+        </div>
+      </td>
+      <td style="padding:14px 12px;text-align:right;color:#e2e8f0;font-size:.9rem;">${h.quantity < 0.0001 ? h.quantity.toFixed(8) : h.quantity.toLocaleString('en-US', {maximumFractionDigits: 8})}</td>
+      <td style="padding:14px 12px;text-align:right;color:#94a3b8;font-size:.85rem;">${costLabel}</td>
+      <td style="padding:14px 12px;text-align:right;">
+        <div style="color:#e2e8f0;font-size:.9rem;">${fmt(h.current_price_usd)}</div>
+        <div style="font-size:.75rem;" class="${changeClass}">${fmtChange(change24h)}</div>
+      </td>
+      <td style="padding:14px 12px;text-align:right;font-weight:600;color:#c9a227;font-size:.9rem;">${fmt(h.current_value_usd)}</td>
+      <td style="padding:14px 12px;text-align:right;">
+        <div class="${glClass}" style="font-size:.9rem;font-weight:600;">${glText}</div>
+        <div class="${glClass}" style="font-size:.75rem;">${glPctText}</div>
+      </td>
+      <td style="padding:14px 20px;text-align:right;">
+        <div style="display:flex;gap:6px;justify-content:flex-end;">
+          ${h.source === 'manual' ? `<button class="btn-ghost" onclick="openEditModal(${h.id})" style="font-size:.75rem;padding:4px 8px;">Edit</button>` : ''}
+          <button class="btn-danger" onclick="openDeleteModal(${h.id},'${escapeHtml(h.coin_name)}')">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Mobile cards
+  mobileList.innerHTML = holdings.map(h => {
+    const gl = h.gain_loss_usd;
+    const glPct = h.gain_loss_pct;
+    const glClass = gl === null ? 'neutral' : (gl >= 0 ? 'gain' : 'loss');
+    const img = h.image_url
+      ? `<img src="${escapeHtml(h.image_url)}" class="coin-img" alt="${escapeHtml(h.coin_symbol)}" onerror="this.style.display='none'">`
+      : `<div class="coin-img-placeholder">${escapeHtml(h.coin_symbol.slice(0,2))}</div>`;
+
+    return `<div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.05);">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${img}
+          <div>
+            <div style="font-weight:600;font-size:.9rem;">${escapeHtml(h.coin_name)}</div>
+            <div style="font-size:.75rem;color:#64748b;">${h.quantity < 0.0001 ? h.quantity.toFixed(8) : h.quantity.toFixed(4)} ${escapeHtml(h.coin_symbol)}</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:700;color:#c9a227;">${fmt(h.current_value_usd)}</div>
+          <div class="${glClass}" style="font-size:.8rem;">${gl !== null ? (gl >= 0 ? '+' : '') + fmt(gl) : '—'} ${glPct !== null ? '(' + fmtChange(glPct) + ')' : ''}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:10px;justify-content:flex-end;">
+        ${h.source === 'manual' ? `<button class="btn-ghost" onclick="openEditModal(${h.id})" style="font-size:.75rem;padding:4px 10px;">Edit</button>` : ''}
+        <button class="btn-danger" onclick="openDeleteModal(${h.id},'${escapeHtml(h.coin_name)}')">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderWallets() {
+  const list = document.getElementById('wallets-list');
+  const empty = document.getElementById('wallets-empty');
+  if (wallets.length === 0) { show('wallets-empty'); list.innerHTML = ''; return; }
+  hide('wallets-empty');
+  list.innerHTML = wallets.map(w => {
+    const shortAddr = w.address ? w.address.slice(0,6) + '...' + w.address.slice(-4) : '';
+    const syncTime = w.last_synced_at ? new Date(w.last_synced_at).toLocaleString() : 'Never';
+    return `<div class="wallet-chip" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.2rem;">🦊</span>
+        <div>
+          <div style="font-weight:600;color:#e2e8f0;font-size:.85rem;">${escapeHtml(w.label || shortAddr)}</div>
+          <div style="font-size:.72rem;color:#64748b;">${shortAddr} · Synced: ${syncTime}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-ghost" onclick="syncWallet(${w.id})" style="font-size:.75rem;padding:5px 10px;">⟳ Sync</button>
+        <button class="btn-danger" onclick="removeWallet(${w.id})">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365, 'all': 365 };
+  const days = daysMap[currentPeriod] || 365;
+  try {
+    const resp = await fetch(`/api/crypto/portfolio-history?days=${days}`, { credentials: 'include' });
+    const data = await resp.json();
+    portfolioHistory = data.history || [];
+    renderChart();
+  } catch (_) {}
+}
+
+function setPeriod(p) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('period-' + p).classList.add('active');
+  loadHistory();
+}
+
+function renderChart() {
+  const wrap = document.getElementById('chart-wrap');
+  const empty = document.getElementById('chart-empty');
+
+  if (portfolioHistory.length < 2) {
+    wrap.style.display = 'none';
+    empty.style.display = '';
+    return;
+  }
+  wrap.style.display = '';
+  empty.style.display = 'none';
+
+  const labels = portfolioHistory.map(r => {
+    const d = new Date(r.snapshot_date);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  });
+  const values = portfolioHistory.map(r => parseFloat(r.total_value_usd) || 0);
+  const basis = portfolioHistory.map(r => parseFloat(r.total_cost_basis_usd) || 0);
+
+  if (chartInstance) chartInstance.destroy();
+  const ctx = document.getElementById('portfolio-chart').getContext('2d');
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Portfolio Value',
+          data: values,
+          borderColor: '#c9a227',
+          backgroundColor: 'rgba(201,162,39,0.1)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: values.length > 60 ? 0 : 3,
+          borderWidth: 2
+        },
+        {
+          label: 'Cost Basis',
+          data: basis,
+          borderColor: '#64748b',
+          backgroundColor: 'transparent',
+          borderDash: [4, 4],
+          tension: 0.4,
+          pointRadius: 0,
+          borderWidth: 1.5
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: {
+          backgroundColor: '#1a2e44',
+          titleColor: '#c9a227',
+          bodyColor: '#e2e8f0',
+          borderColor: 'rgba(201,162,39,.2)',
+          borderWidth: 1,
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': $' + (ctx.parsed.y || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#64748b', maxTicksLimit: 8, font: { size: 10 } } },
+        y: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#64748b', font: { size: 10 }, callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(1) + 'K' : v.toFixed(0)) } }
+      }
+    }
+  });
+}
+
+// ── Snapshot ──────────────────────────────────────────────────────────────────
+async function takeSnapshot() {
+  if (holdings.length === 0) return;
+  try {
+    await fetch('/api/crypto/snapshot', { method: 'POST', credentials: 'include' });
+  } catch (_) {}
+}
+
+// ── Refresh Prices ────────────────────────────────────────────────────────────
+async function refreshPrices() {
+  const btn = document.getElementById('refresh-btn');
+  btn.textContent = '⟳ Refreshing...';
+  btn.disabled = true;
+  try {
+    const resp = await fetch('/api/crypto/holdings', { credentials: 'include' });
+    const data = await resp.json();
+    if (data.success) {
+      holdings = data.holdings;
+      summary = data.summary;
+      wallets = data.wallets;
+      lastUpdated = new Date();
+      document.getElementById('last-updated').textContent = 'Updated ' + lastUpdated.toLocaleTimeString();
+      render();
+      renderWallets();
+      showToast('✅ Prices refreshed');
+    }
+  } catch (_) {
+    showToast('Failed to refresh', true);
+  } finally {
+    btn.textContent = '⟳ Refresh Prices';
+    btn.disabled = false;
+  }
+}
+
+// ── Add / Edit Modal ──────────────────────────────────────────────────────────
+function openAddModal() {
+  document.getElementById('add-modal-title').textContent = 'Add Crypto Holding';
+  document.getElementById('save-holding-btn').textContent = 'Add Holding';
+  document.getElementById('edit-id').value = '';
+  document.getElementById('coin-search').value = '';
+  document.getElementById('coin-id').value = '';
+  document.getElementById('coin-symbol').value = '';
+  document.getElementById('coin-name').value = '';
+  document.getElementById('selected-coin').style.display = 'none';
+  document.getElementById('holding-qty').value = '';
+  document.getElementById('holding-purchase-price').value = '';
+  document.getElementById('holding-date').value = '';
+  document.getElementById('holding-notes').value = '';
+  document.getElementById('search-results').style.display = 'none';
+  document.getElementById('add-modal').style.display = 'flex';
+}
+
+function openEditModal(id) {
+  const h = holdings.find(x => x.id === id);
+  if (!h) return;
+  document.getElementById('add-modal-title').textContent = 'Edit Holding';
+  document.getElementById('save-holding-btn').textContent = 'Save Changes';
+  document.getElementById('edit-id').value = id;
+  document.getElementById('coin-search').value = h.coin_name;
+  document.getElementById('coin-id').value = h.coin_id;
+  document.getElementById('coin-symbol').value = h.coin_symbol;
+  document.getElementById('coin-name').value = h.coin_name;
+  const sel = document.getElementById('selected-coin');
+  document.getElementById('selected-coin-text').textContent = h.coin_name + ' (' + h.coin_symbol + ')';
+  sel.style.display = 'flex';
+  document.getElementById('holding-qty').value = h.quantity;
+  document.getElementById('holding-purchase-price').value = h.purchase_price_usd || '';
+  document.getElementById('holding-date').value = h.purchase_date ? h.purchase_date.split('T')[0] : '';
+  document.getElementById('holding-notes').value = h.notes || '';
+  document.getElementById('search-results').style.display = 'none';
+  document.getElementById('add-modal').style.display = 'flex';
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+// ── Coin Search ───────────────────────────────────────────────────────────────
+function searchCoins(q) {
+  clearTimeout(searchDebounce);
+  const res = document.getElementById('search-results');
+  if (!q || q.length < 2) { res.style.display = 'none'; return; }
+  searchDebounce = setTimeout(async () => {
+    try {
+      const resp = await fetch('/api/crypto/search-coins?q=' + encodeURIComponent(q), { credentials: 'include' });
+      const data = await resp.json();
+      if (!data.coins || data.coins.length === 0) { res.style.display = 'none'; return; }
+      res.innerHTML = data.coins.map(c => {
+        const img = c.thumb
+          ? `<img src="${escapeHtml(c.thumb)}" class="coin-img" alt="${escapeHtml(c.symbol)}">`
+          : `<div class="coin-img-placeholder">${escapeHtml(c.symbol.slice(0,2))}</div>`;
+        return `<div class="search-result-item" onclick="selectCoin('${escapeHtml(c.id)}','${escapeHtml(c.symbol)}','${escapeHtml(c.name).replace(/'/g,"\\'")}')">
+          ${img}
+          <span style="font-weight:600;color:#e2e8f0;">${escapeHtml(c.name)}</span>
+          <span style="color:#64748b;font-size:.8rem;margin-left:4px;">${escapeHtml(c.symbol)}</span>
+        </div>`;
+      }).join('');
+      res.style.display = '';
+    } catch (_) {}
+  }, 300);
+}
+
+function selectCoin(id, symbol, name) {
+  document.getElementById('coin-id').value = id;
+  document.getElementById('coin-symbol').value = symbol;
+  document.getElementById('coin-name').value = name;
+  document.getElementById('coin-search').value = name;
+  document.getElementById('selected-coin-text').textContent = name + ' (' + symbol + ')';
+  document.getElementById('selected-coin').style.display = 'flex';
+  document.getElementById('search-results').style.display = 'none';
+}
+
+function clearCoinSelection() {
+  document.getElementById('coin-id').value = '';
+  document.getElementById('coin-symbol').value = '';
+  document.getElementById('coin-name').value = '';
+  document.getElementById('coin-search').value = '';
+  document.getElementById('selected-coin').style.display = 'none';
+}
+
+// ── Save Holding ──────────────────────────────────────────────────────────────
+async function saveHolding() {
+  const editId = document.getElementById('edit-id').value;
+  const coinId = document.getElementById('coin-id').value;
+  const coinSymbol = document.getElementById('coin-symbol').value;
+  const coinName = document.getElementById('coin-name').value;
+  const qty = document.getElementById('holding-qty').value;
+  const purchasePrice = document.getElementById('holding-purchase-price').value;
+  const purchaseDate = document.getElementById('holding-date').value;
+  const notes = document.getElementById('holding-notes').value;
+
+  if (!coinId) { showToast('Please select a coin', true); return; }
+  if (!qty || parseFloat(qty) <= 0) { showToast('Please enter a valid quantity', true); return; }
+
+  const btn = document.getElementById('save-holding-btn');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  const payload = { coin_id: coinId, coin_symbol: coinSymbol, coin_name: coinName, quantity: qty };
+  if (purchasePrice) payload.purchase_price_usd = parseFloat(purchasePrice);
+  if (purchaseDate) payload.purchase_date = purchaseDate;
+  if (notes) payload.notes = notes;
+
+  try {
+    const url = editId ? `/api/crypto/holdings/${editId}` : '/api/crypto/holdings';
+    const method = editId ? 'PUT' : 'POST';
+    const resp = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    if (!data.success) { showToast(data.error || 'Failed to save', true); return; }
+
+    holdings = data.holdings;
+    // Recalculate summary
+    summary.totalValue = holdings.reduce((s, h) => s + h.current_value_usd, 0);
+    summary.totalCostBasis = holdings.reduce((s, h) => s + h.cost_basis_usd, 0);
+    summary.totalGainLoss = summary.totalCostBasis > 0 ? summary.totalValue - summary.totalCostBasis : null;
+    summary.totalGainLossPct = summary.totalCostBasis > 0 ? ((summary.totalValue - summary.totalCostBasis) / summary.totalCostBasis) * 100 : null;
+    summary.count = holdings.length;
+
+    closeModal('add-modal');
+    render();
+    showToast(editId ? '✅ Holding updated' : '✅ Holding added');
+    await takeSnapshot();
+    await loadHistory();
+  } catch (err) {
+    showToast('Save failed: ' + err.message, true);
+  } finally {
+    btn.textContent = editId ? 'Save Changes' : 'Add Holding';
+    btn.disabled = false;
+  }
+}
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+function openDeleteModal(id, name) {
+  deleteTargetId = id;
+  document.getElementById('delete-msg').textContent = `Remove ${name} from your holdings? This cannot be undone.`;
+  document.getElementById('delete-modal').style.display = 'flex';
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+  try {
+    const resp = await fetch(`/api/crypto/holdings/${deleteTargetId}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    const data = await resp.json();
+    if (!data.success) { showToast('Failed to remove', true); return; }
+    holdings = holdings.filter(h => h.id !== deleteTargetId);
+    summary.count = holdings.length;
+    summary.totalValue = holdings.reduce((s, h) => s + h.current_value_usd, 0);
+    summary.totalCostBasis = holdings.reduce((s, h) => s + h.cost_basis_usd, 0);
+    summary.totalGainLoss = summary.totalCostBasis > 0 ? summary.totalValue - summary.totalCostBasis : null;
+    summary.totalGainLossPct = summary.totalCostBasis > 0 ? ((summary.totalValue - summary.totalCostBasis) / summary.totalCostBasis) * 100 : null;
+    closeModal('delete-modal');
+    render();
+    showToast('✅ Holding removed');
+    await takeSnapshot();
+    await loadHistory();
+  } catch (err) {
+    showToast('Delete failed', true);
+  }
+}
+
+// ── Wallet ────────────────────────────────────────────────────────────────────
+function openWalletModal() {
+  document.getElementById('wallet-address').value = '';
+  document.getElementById('wallet-label').value = '';
+  document.getElementById('wallet-modal').style.display = 'flex';
+}
+
+async function connectWallet() {
+  const address = document.getElementById('wallet-address').value.trim();
+  const label = document.getElementById('wallet-label').value.trim();
+  if (!address) { showToast('Please enter a wallet address', true); return; }
+
+  const btn = document.getElementById('connect-wallet-btn');
+  btn.textContent = '⟳ Syncing wallet...';
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch('/api/crypto/wallet', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ address, label })
+    });
+    const data = await resp.json();
+    if (!data.success) { showToast(data.error || 'Wallet connection failed', true); return; }
+
+    holdings = data.holdings;
+    wallets = data.wallets;
+    summary.totalValue = holdings.reduce((s, h) => s + h.current_value_usd, 0);
+    summary.totalCostBasis = holdings.reduce((s, h) => s + h.cost_basis_usd, 0);
+    summary.count = holdings.length;
+
+    closeModal('wallet-modal');
+    render();
+    renderWallets();
+    showToast('✅ ' + data.message);
+    await takeSnapshot();
+    await loadHistory();
+  } catch (err) {
+    showToast('Wallet sync failed: ' + err.message, true);
+  } finally {
+    btn.textContent = 'Connect & Sync Wallet';
+    btn.disabled = false;
+  }
+}
+
+async function syncWallet(id) {
+  showToast('⟳ Syncing wallet...');
+  try {
+    const resp = await fetch(`/api/crypto/wallet/${id}/sync`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    const data = await resp.json();
+    if (!data.success) { showToast('Sync failed', true); return; }
+    holdings = data.holdings;
+    summary.totalValue = holdings.reduce((s, h) => s + h.current_value_usd, 0);
+    summary.count = holdings.length;
+    render();
+    // Reload wallets
+    const walletsResp = await fetch('/api/crypto/holdings', { credentials: 'include' });
+    const walletsData = await walletsResp.json();
+    if (walletsData.success) { wallets = walletsData.wallets; renderWallets(); }
+    showToast('✅ Wallet synced');
+    await takeSnapshot();
+  } catch (err) {
+    showToast('Sync failed', true);
+  }
+}
+
+async function removeWallet(id) {
+  if (!confirm('Remove this wallet and all associated synced holdings?')) return;
+  try {
+    const resp = await fetch(`/api/crypto/wallet/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    const data = await resp.json();
+    if (!data.success) { showToast('Failed to remove wallet', true); return; }
+    // Reload everything
+    const resp2 = await fetch('/api/crypto/holdings', { credentials: 'include' });
+    const data2 = await resp2.json();
+    if (data2.success) {
+      holdings = data2.holdings;
+      wallets = data2.wallets;
+      summary = data2.summary;
+    }
+    render();
+    renderWallets();
+    showToast('✅ Wallet removed');
+  } catch (err) {
+    showToast('Failed', true);
+  }
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    ['add-modal','wallet-modal','delete-modal'].forEach(id => {
+      if (document.getElementById(id).style.display !== 'none') closeModal(id);
+    });
+  }
+});
+
+// Close modals on overlay click
+['add-modal','wallet-modal','delete-modal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target === document.getElementById(id)) closeModal(id);
+  });
+});
+
+// ── Mobile: show mobile list on small screens ─────────────────────────────────
+function checkMobile() {
+  const isMobile = window.innerWidth < 640;
+  const table = document.getElementById('holdings-table');
+  const mobileList = document.getElementById('holdings-mobile-list');
+  if (holdings.length === 0) return;
+  if (isMobile) {
+    table.style.display = 'none';
+    mobileList.style.display = '';
+  } else {
+    table.style.display = '';
+    // Keep mobile list rendered but hidden
+  }
+}
+window.addEventListener('resize', checkMobile);
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+init();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

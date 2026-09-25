@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>My Scorecard — FACTS</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#060b14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1f2940' },
+            gold: { 200: '#fde68a', 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a8831e' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="/nav-bar.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0d1117; color: #e2e8f0; font-family: 'Inter', system-ui, sans-serif; margin: 0; min-height: 100vh; min-height: 100dvh; }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+
+    .card { background: #13192a; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; }
+    .card-hover { transition: border-color 0.2s; }
+    .card-hover:hover { border-color: rgba(201,162,39,0.18); }
+
+    /* Score ring */
+    .score-ring-container { position: relative; width: 160px; height: 160px; }
+    .score-ring-container svg { transform: rotate(-90deg); }
+    .score-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+
+    /* Metric bars */
+    .metric-bar-bg { background: rgba(255,255,255,0.06); border-radius: 999px; height: 8px; overflow: hidden; }
+    .metric-bar-fill { height: 100%; border-radius: 999px; transition: width 0.8s ease; }
+
+    /* Tabs */
+    .tab-btn { padding: 8px 16px; font-size: 0.82rem; font-weight: 600; color: #64748b; background: transparent;
+      border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: color 0.15s, border-color 0.15s;
+      font-family: inherit; white-space: nowrap; }
+    .tab-btn:hover { color: #e2e8f0; }
+    .tab-btn.active { color: #c9a227; border-bottom-color: #c9a227; }
+
+    /* Badges */
+    .tier-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; }
+
+    /* Toast */
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: #1a2235; border: 1px solid rgba(201,162,39,0.3); color: #e2e8f0; padding: 12px 20px;
+      border-radius: 10px; font-size: 0.85rem; z-index: 9999; transition: transform 0.3s ease; pointer-events: none; }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Loading skeleton */
+    .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+    /* Radar chart */
+    .radar-axis { stroke: rgba(255,255,255,0.08); }
+    .radar-ring { fill: none; stroke: rgba(255,255,255,0.05); }
+    .radar-fill { fill: rgba(201,162,39,0.18); stroke: #c9a227; stroke-width: 1.5; }
+    .radar-dot { fill: #c9a227; }
+    .radar-label { font-size: 10px; fill: #94a3b8; font-family: 'Inter', sans-serif; }
+
+    /* Toggle */
+    .toggle { position: relative; width: 40px; height: 22px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: rgba(255,255,255,0.1); border-radius: 999px; cursor: pointer; transition: 0.3s; }
+    .toggle-slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: #64748b; border-radius: 50%; transition: 0.3s; }
+    input:checked + .toggle-slider { background: rgba(201,162,39,0.3); }
+    input:checked + .toggle-slider::before { transform: translateX(18px); background: #c9a227; }
+
+    .btn-primary { background: linear-gradient(135deg, #c9a227, #a8831e); color: #0d1117; font-weight: 700;
+      border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.2s, transform 0.15s; font-family: inherit; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-ghost { background: rgba(255,255,255,0.04); color: #94a3b8; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.8rem; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+
+    .btn-danger { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 8px; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.8rem; }
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+    .link-row { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px;
+      padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+
+    .request-row { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px; }
+
+    .status-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+    .status-pending { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .status-approved { background: rgba(16,185,129,0.12); color: #34d399; }
+    .status-denied { background: rgba(239,68,68,0.1); color: #f87171; }
+    .status-revoked { background: rgba(100,116,139,0.12); color: #64748b; }
+  </style>
+</head>
+<body>
+
+<!-- Page Content -->
+<div class="max-w-4xl mx-auto px-4 pb-16" style="padding-top: 24px;">
+
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold mb-1" style="color:#e2e8f0;">My Financial Responsibility Scorecard</h1>
+    <p class="text-sm" style="color:#64748b;">Your real data. Your real score. Share with anyone who needs to see it.</p>
+  </div>
+
+  <!-- Loading State -->
+  <div id="loading-state" class="space-y-4">
+    <div class="card p-6 skeleton" style="height: 200px;"></div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="card p-4 skeleton" style="height: 120px;"></div>
+      <div class="card p-4 skeleton" style="height: 120px;"></div>
+      <div class="card p-4 skeleton" style="height: 120px;"></div>
+      <div class="card p-4 skeleton" style="height: 120px;"></div>
+    </div>
+  </div>
+
+  <!-- Scorecard Content (hidden until loaded) -->
+  <div id="scorecard-content" style="display:none;">
+
+    <!-- Composite Score Hero -->
+    <div class="card p-6 mb-6" style="background: linear-gradient(135deg, rgba(201,162,39,0.06) 0%, #13192a 60%);">
+      <div class="flex flex-col sm:flex-row items-center gap-6">
+        <!-- Score Ring -->
+        <div class="score-ring-container flex-shrink-0">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+            <circle id="score-ring-arc" cx="80" cy="80" r="68" fill="none" stroke="#c9a227" stroke-width="12"
+              stroke-linecap="round" stroke-dasharray="427" stroke-dashoffset="427" style="transition: stroke-dashoffset 1.2s ease;"/>
+          </svg>
+          <div class="score-center">
+            <div id="composite-score-num" class="text-4xl font-bold" style="color:#c9a227; font-family:'Space Grotesk',sans-serif;">—</div>
+            <div class="text-xs" style="color:#64748b;">/ 100</div>
+          </div>
+        </div>
+
+        <!-- Score Info -->
+        <div class="flex-1 text-center sm:text-left">
+          <div id="tier-badge" class="tier-badge mb-2 mx-auto sm:mx-0" style="width:fit-content;">
+            <span id="tier-emoji">🌱</span>
+            <span id="tier-name">Loading...</span>
+          </div>
+          <p id="tier-description" class="text-sm mb-3" style="color:#94a3b8;"></p>
+          <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <label class="toggle">
+                <input type="checkbox" id="show-dollars-toggle" onchange="toggleDollarAmounts()">
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="text-xs" style="color:#64748b;">Show dollar amounts</span>
+            </label>
+          </div>
+          <div class="mt-2">
+            <span class="text-xs" style="color:#475569;" id="last-updated-label"></span>
+          </div>
+          <!-- Integrity Multiplier Indicator -->
+          <div id="integrity-indicator" style="display:none;margin-top:8px;"></div>
+        </div>
+
+        <!-- Radar Chart -->
+        <div class="flex-shrink-0">
+          <svg id="radar-chart" width="160" height="160" viewBox="-10 -10 220 220">
+            <!-- Will be drawn by JS -->
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6" id="metrics-grid">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Tabs: Share / Shared With / Requests -->
+    <div class="card mb-2">
+      <div class="flex border-b" style="border-color: rgba(255,255,255,0.06); overflow-x: auto;">
+        <button class="tab-btn active" onclick="showTab('share')" id="tab-share">Share</button>
+        <button class="tab-btn" onclick="showTab('shared-with')" id="tab-shared-with">
+          Shared With <span class="tab-count ml-1" id="shared-count">0</span>
+        </button>
+        <button class="tab-btn" onclick="showTab('requests')" id="tab-requests">
+          Access Requests <span class="tab-count ml-1" id="request-count">0</span>
+        </button>
+      </div>
+
+      <!-- Share Tab -->
+      <div id="panel-share" class="p-5">
+        <div class="mb-4">
+          <h3 class="text-base font-semibold mb-1" style="color:#e2e8f0;">Generate a Shareable Link</h3>
+          <p class="text-xs mb-4" style="color:#64748b;">Anyone with the link can view your full scorecard. No cherry-picking — all-or-nothing transparency. Links expire in 30 days.</p>
+
+          <div class="flex flex-wrap gap-3 items-center mb-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <label class="toggle">
+                <input type="checkbox" id="new-link-dollars">
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="text-xs" style="color:#94a3b8;">Include dollar amounts</span>
+            </label>
+            <button onclick="generateLink()" class="btn-primary px-5 py-2 text-sm">Generate Link</button>
+          </div>
+
+          <!-- Existing links -->
+          <div id="links-list" class="space-y-2">
+            <p class="text-xs" style="color:#475569;">No active links.</p>
+          </div>
+        </div>
+
+        <hr style="border-color: rgba(255,255,255,0.06); margin: 20px 0;">
+
+        <div>
+          <h3 class="text-base font-semibold mb-1" style="color:#e2e8f0;">Request-Based Access</h3>
+          <p class="text-xs mb-3" style="color:#64748b;">People with a FACTS account can request to see your scorecard. You approve or deny — and can revoke at any time.</p>
+          <p class="text-xs" style="color:#475569;">Share your email with someone and ask them to go to their Scorecard page → "Request Access" to send you a request.</p>
+        </div>
+      </div>
+
+      <!-- Shared With Tab -->
+      <div id="panel-shared-with" class="p-5" style="display:none;">
+        <h3 class="text-base font-semibold mb-3" style="color:#e2e8f0;">Currently Has Access</h3>
+        <div id="shared-with-list">
+          <p class="text-sm" style="color:#475569;">No one has access to your scorecard yet.</p>
+        </div>
+      </div>
+
+      <!-- Requests Tab -->
+      <div id="panel-requests" class="p-5" style="display:none;">
+        <h3 class="text-base font-semibold mb-3" style="color:#e2e8f0;">Incoming Access Requests</h3>
+        <div id="requests-list">
+          <p class="text-sm" style="color:#475569;">No access requests yet.</p>
+        </div>
+
+        <hr style="border-color: rgba(255,255,255,0.06); margin: 20px 0;">
+
+        <h3 class="text-base font-semibold mb-3" style="color:#e2e8f0;">Request Access to Someone's Scorecard</h3>
+        <p class="text-xs mb-3" style="color:#64748b;">Enter a FACTS member's email to request access to their scorecard.</p>
+        <div class="flex gap-2">
+          <input type="email" id="request-email" placeholder="their@email.com"
+            class="flex-1 px-3 py-2 text-sm rounded-lg bg-navy-800 border text-slate-200 outline-none focus:border-gold-500"
+            style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); min-width: 0;">
+          <button onclick="sendAccessRequest()" class="btn-primary px-4 py-2 text-sm flex-shrink-0">Request</button>
+        </div>
+        <div id="request-form-message" class="mt-2 text-xs" style="display:none;"></div>
+
+        <hr style="border-color: rgba(255,255,255,0.06); margin: 20px 0;">
+
+        <h3 class="text-base font-semibold mb-3" style="color:#e2e8f0;">My Outgoing Requests</h3>
+        <div id="outgoing-requests-list">
+          <p class="text-sm" style="color:#475569;">No outgoing requests yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Note -->
+    <div class="mt-4 p-3 rounded-lg flex gap-3" style="background: rgba(201,162,39,0.06); border: 1px solid rgba(201,162,39,0.12);">
+      <span class="text-base flex-shrink-0">🔒</span>
+      <p class="text-xs" style="color:#94a3b8;">
+        <strong style="color:#d4a929;">All-or-nothing transparency.</strong> When you share, your entire scorecard is visible. No option to hide specific metrics — partial disclosure defeats the purpose of proving financial responsibility.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast">Copied to clipboard!</div>
+
+<script>
+  // ─── Auth check ──────────────────────────────────────────────────────────
+  async function checkAuth() {
+    try {
+      const res = await fetch('/api/auth/me');
+      const d = await res.json();
+      if (!d.authenticated || !d.user) { window.location.href = '/login.html'; return null; }
+      return d.user;
+    } catch (e) { window.location.href = '/login.html'; return null; }
+  }
+
+  function logout() {
+    fetch('/api/auth/logout', { method: 'POST' }).finally(() => { window.location.href = '/login.html'; });
+  }
+
+  // ─── State ───────────────────────────────────────────────────────────────
+  let scorecardData = null;
+  let showDollars = false;
+
+  const METRIC_COLORS = {
+    allocation_adherence: '#c9a227',
+    savings_consistency: '#10b981',
+    debt_reduction: '#3b82f6',
+    income_expense_ratio: '#8b5cf6',
+    financial_freedom: '#f59e0b',
+    app_engagement: '#06b6d4'
+  };
+
+  // ─── Load scorecard ───────────────────────────────────────────────────────
+  async function loadScorecard() {
+    try {
+      const res = await fetch(`/api/scorecard/me?show_dollars=${showDollars}`);
+      if (res.status === 401) { window.location.href = '/login.html'; return; }
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      scorecardData = data;
+      renderScorecard(data);
+    } catch (e) {
+      console.error(e);
+      showToast('Failed to load scorecard', true);
+    }
+  }
+
+  function renderScorecard(data) {
+    const { scorecard, share_links, access_requests, shared_with } = data;
+
+    // Hide loading, show content
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('scorecard-content').style.display = 'block';
+
+    // Composite score
+    const score = scorecard.composite_score;
+    document.getElementById('composite-score-num').textContent = score;
+
+    // Animate ring (circumference = 2π * 68 ≈ 427)
+    const circumference = 427;
+    const offset = circumference - (score / 100) * circumference;
+    setTimeout(() => {
+      document.getElementById('score-ring-arc').style.strokeDashoffset = offset;
+      // Color by tier
+      const tierColors = { 'Legacy-Ready': '#7C3AED', 'Exceptional': '#059669', 'Strong': '#0891B2', 'Building': '#D97706', 'Emerging': '#DC2626' };
+      document.getElementById('score-ring-arc').style.stroke = tierColors[scorecard.tier] || '#c9a227';
+    }, 100);
+
+    // Tier badge
+    const tierColors = { 'Legacy-Ready': { bg: 'rgba(124,58,237,0.15)', border: 'rgba(124,58,237,0.3)', text: '#a78bfa' }, 'Exceptional': { bg: 'rgba(5,150,105,0.12)', border: 'rgba(5,150,105,0.25)', text: '#34d399' }, 'Strong': { bg: 'rgba(8,145,178,0.12)', border: 'rgba(8,145,178,0.25)', text: '#67e8f9' }, 'Building': { bg: 'rgba(217,119,6,0.12)', border: 'rgba(217,119,6,0.25)', text: '#fcd34d' }, 'Emerging': { bg: 'rgba(220,38,38,0.1)', border: 'rgba(220,38,38,0.2)', text: '#f87171' } };
+    const tc = tierColors[scorecard.tier] || { bg: 'rgba(201,162,39,0.12)', border: 'rgba(201,162,39,0.3)', text: '#c9a227' };
+    const badge = document.getElementById('tier-badge');
+    badge.style.background = tc.bg;
+    badge.style.border = `1px solid ${tc.border}`;
+    badge.style.color = tc.text;
+    document.getElementById('tier-emoji').textContent = scorecard.tier_emoji;
+    document.getElementById('tier-name').textContent = scorecard.tier;
+    document.getElementById('tier-description').textContent = scorecard.tier_description;
+    document.getElementById('last-updated-label').textContent = `Last updated: ${new Date(scorecard.calculated_at).toLocaleString()}`;
+
+    // Integrity Multiplier indicator
+    const integrityEl = document.getElementById('integrity-indicator');
+    if (integrityEl && scorecard.integrity) {
+      const m = scorecard.integrity.multiplier;
+      const label = scorecard.integrity.label;
+      const raw = scorecard.integrity.raw_score;
+      if (m < 1.0) {
+        const color = m >= 0.85 ? '#f59e0b' : '#f87171';
+        const icon = m >= 0.85 ? '⚡' : '⚠️';
+        const tip = m >= 0.85
+          ? 'Mixed verification — connect all accounts via Plaid to reach 1.0×'
+          : 'Score discounted — connect your bank via Plaid to verify account data';
+        integrityEl.style.display = 'block';
+        integrityEl.innerHTML = `
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px;
+                      background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);
+                      border-radius:999px;font-size:0.75rem;color:${color};"
+               title="${tip}">
+            <span>${icon}</span>
+            <span>Data Integrity: <strong>${m.toFixed(2)}×</strong> (${label})</span>
+            <a href="/settings.html#section-connected" style="color:${color};text-decoration:none;opacity:0.8;">→ Connect Bank</a>
+          </div>
+        `;
+      } else {
+        integrityEl.style.display = 'block';
+        integrityEl.innerHTML = `
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px;
+                      background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);
+                      border-radius:999px;font-size:0.75rem;color:#34d399;">
+            <span>✓</span>
+            <span>Data Integrity: <strong>1.00×</strong> — Fully verified</span>
+          </div>
+        `;
+      }
+    }
+
+    // Radar chart
+    renderRadarChart(scorecard.metrics);
+
+    // Metrics grid
+    renderMetricsGrid(scorecard.metrics);
+
+    // Share links
+    renderShareLinks(share_links);
+
+    // Access requests
+    renderAccessRequests(access_requests);
+
+    // Shared with
+    renderSharedWith(shared_with);
+
+    // Counts
+    const pendingCount = access_requests.filter(r => r.status === 'pending').length;
+    document.getElementById('request-count').textContent = pendingCount;
+    document.getElementById('shared-count').textContent = shared_with.length;
+  }
+
+  // ─── Radar Chart (SVG) ────────────────────────────────────────────────────
+  function renderRadarChart(metrics) {
+    const svg = document.getElementById('radar-chart');
+    const cx = 100, cy = 100, maxR = 90;
+    const metricKeys = ['allocation_adherence', 'savings_consistency', 'debt_reduction', 'income_expense_ratio', 'financial_freedom', 'app_engagement'];
+    const labels = ['Allocation', 'Savings', 'Debt', 'Income', 'FF', 'Streak'];
+    const n = metricKeys.length;
+
+    let html = '';
+
+    // Rings
+    for (const r of [0.25, 0.5, 0.75, 1.0]) {
+      const pts = metricKeys.map((_, i) => {
+        const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+        return `${cx + Math.cos(angle) * maxR * r},${cy + Math.sin(angle) * maxR * r}`;
+      }).join(' ');
+      html += `<polygon points="${pts}" class="radar-ring"/>`;
+    }
+
+    // Axes
+    for (let i = 0; i < n; i++) {
+      const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+      html += `<line x1="${cx}" y1="${cy}" x2="${cx + Math.cos(angle) * maxR}" y2="${cy + Math.sin(angle) * maxR}" class="radar-axis"/>`;
+    }
+
+    // Data polygon
+    const dataPoints = metricKeys.map((key, i) => {
+      const score = metrics[key]?.score || 0;
+      const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+      const r = (score / 100) * maxR;
+      return `${cx + Math.cos(angle) * r},${cy + Math.sin(angle) * r}`;
+    });
+    html += `<polygon points="${dataPoints.join(' ')}" class="radar-fill"/>`;
+
+    // Dots
+    dataPoints.forEach(pt => {
+      const [x, y] = pt.split(',');
+      html += `<circle cx="${x}" cy="${y}" r="3" class="radar-dot"/>`;
+    });
+
+    // Labels
+    for (let i = 0; i < n; i++) {
+      const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+      const lx = cx + Math.cos(angle) * (maxR + 16);
+      const ly = cy + Math.sin(angle) * (maxR + 16);
+      html += `<text x="${lx}" y="${ly}" class="radar-label" text-anchor="middle" dominant-baseline="middle">${labels[i]}</text>`;
+    }
+
+    svg.innerHTML = html;
+  }
+
+  // ─── Metrics Grid ─────────────────────────────────────────────────────────
+  function renderMetricsGrid(metrics) {
+    const grid = document.getElementById('metrics-grid');
+    const metricKeys = ['allocation_adherence', 'savings_consistency', 'debt_reduction', 'income_expense_ratio', 'financial_freedom', 'app_engagement'];
+
+    grid.innerHTML = metricKeys.map(key => {
+      const m = metrics[key];
+      if (!m) return '';
+      const color = METRIC_COLORS[key];
+      const score = m.score;
+      const data = m.data;
+
+      let detail = '';
+      if (key === 'allocation_adherence' && data.deviation !== undefined) {
+        detail = `<span>Avg deviation: ${data.deviation}%</span>`;
+      } else if (key === 'savings_consistency') {
+        detail = `<span>${data.months_with_savings} of 12 months active</span><span class="ml-2 capitalize" style="color:${data.trend==='improving'?'#34d399':data.trend==='declining'?'#f87171':'#64748b'}">${data.trend==='improving'?'↑ Improving':data.trend==='declining'?'↓ Declining':'→ Stable'}</span>`;
+      } else if (key === 'debt_reduction') {
+        if (!data.has_debt) detail = `<span style="color:#34d399">✓ Debt-free</span>`;
+        else detail = `<span class="capitalize">${(data.strategy||'').replace('_',' ')}</span> · <span class="capitalize" style="color:${data.trajectory==='accelerated_payoff'?'#34d399':data.trajectory==='on_track'?'#67e8f9':'#f87171'}">${(data.trajectory||'').replace(/_/g,' ')}</span>`;
+      } else if (key === 'income_expense_ratio') {
+        detail = data.avg_expense_to_income_pct !== undefined ? `<span>Avg ${data.avg_expense_to_income_pct}% of income spent</span>` : '<span>Track income & expenses to score</span>';
+      } else if (key === 'financial_freedom') {
+        detail = data.has_ff_activity ? `<span>${data.months_active} months active · ${data.trend}</span>` : '<span>No FF activity tracked yet</span>';
+      } else if (key === 'app_engagement') {
+        detail = `<span>${data.streak_days} day streak</span> · <span>Level ${data.level}</span>`;
+      }
+
+      return `
+        <div class="card card-hover p-4">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex-1 pr-2">
+              <div class="text-xs font-semibold mb-0.5" style="color:#94a3b8;">${m.label}</div>
+              <div class="text-2xl font-bold" style="color:${color}; font-family:'Space Grotesk',sans-serif;">${score}<span class="text-sm font-normal text-slate-500">/100</span></div>
+            </div>
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: rgba(255,255,255,0.04);">
+              <span class="text-lg">${getMetricIcon(key)}</span>
+            </div>
+          </div>
+          <div class="metric-bar-bg mb-2">
+            <div class="metric-bar-fill" style="width:${score}%; background: ${color};"></div>
+          </div>
+          <div class="text-xs flex flex-wrap gap-1" style="color:#64748b;">${detail}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function getMetricIcon(key) {
+    const icons = { allocation_adherence: '🎯', savings_consistency: '💰', debt_reduction: '📉', income_expense_ratio: '⚖️', financial_freedom: '🗽', app_engagement: '🔥' };
+    return icons[key] || '📊';
+  }
+
+  // ─── Share Links ──────────────────────────────────────────────────────────
+  function renderShareLinks(links) {
+    const list = document.getElementById('links-list');
+    const activeLinks = links.filter(l => l.is_active && new Date(l.expires_at) > new Date());
+
+    if (activeLinks.length === 0) {
+      list.innerHTML = '<p class="text-xs" style="color:#475569;">No active links. Generate one above.</p>';
+      return;
+    }
+
+    list.innerHTML = activeLinks.map(link => {
+      const url = `${window.location.origin}/scorecard-view.html?token=${link.token}`;
+      const expires = new Date(link.expires_at);
+      const daysLeft = Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24));
+      return `
+        <div class="link-row">
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-mono truncate mb-1" style="color:#c9a227;">${url}</div>
+            <div class="flex gap-3 text-xs" style="color:#475569;">
+              <span>Expires in ${daysLeft} days</span>
+              <span>${link.view_count} views</span>
+              <span>${link.show_dollar_amounts ? '💵 With dollars' : '% Percentages only'}</span>
+            </div>
+          </div>
+          <button onclick="copyLink('${url}')" class="btn-ghost px-3 py-1.5 flex-shrink-0">Copy</button>
+          <button onclick="revokeLink(${link.id})" class="btn-danger px-3 py-1.5 flex-shrink-0">Revoke</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ─── Shared With ─────────────────────────────────────────────────────────
+  function renderSharedWith(sharedWith) {
+    const list = document.getElementById('shared-with-list');
+    if (!sharedWith || sharedWith.length === 0) {
+      list.innerHTML = '<p class="text-sm" style="color:#475569;">No one has access to your scorecard yet.</p>';
+      return;
+    }
+    list.innerHTML = sharedWith.map(entry => {
+      const expiresLabel = entry.expires_at ? `Expires ${new Date(entry.expires_at).toLocaleDateString()}` : 'Permanent access';
+      return `
+        <div class="request-row mb-2">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="text-sm font-semibold" style="color:#e2e8f0;">${entry.viewer_name || 'FACTS Member'}</div>
+              <div class="text-xs" style="color:#64748b;">${entry.viewer_email} · ${expiresLabel}</div>
+            </div>
+            <button onclick="revokeAccess(${entry.id})" class="btn-danger px-3 py-1.5">Revoke</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ─── Access Requests ──────────────────────────────────────────────────────
+  function renderAccessRequests(requests) {
+    const list = document.getElementById('requests-list');
+    const pending = requests.filter(r => r.status === 'pending');
+
+    if (pending.length === 0) {
+      list.innerHTML = '<p class="text-sm" style="color:#475569;">No pending requests.</p>';
+    } else {
+      list.innerHTML = pending.map(req => `
+        <div class="request-row mb-2">
+          <div class="flex justify-between items-start gap-3">
+            <div class="flex-1">
+              <div class="text-sm font-semibold" style="color:#e2e8f0;">${req.requester_name || 'FACTS Member'}</div>
+              <div class="text-xs mb-1" style="color:#64748b;">${req.requester_email} · ${new Date(req.created_at).toLocaleDateString()}</div>
+              ${req.message ? `<div class="text-xs p-2 rounded" style="background:rgba(255,255,255,0.03); color:#94a3b8;">"${req.message}"</div>` : ''}
+            </div>
+            <div class="flex gap-2 flex-shrink-0">
+              <button onclick="approveRequest(${req.id})" class="btn-primary px-3 py-1.5 text-xs">Approve</button>
+              <button onclick="denyRequest(${req.id})" class="btn-danger px-3 py-1.5 text-xs">Deny</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // ─── Actions ─────────────────────────────────────────────────────────────
+  async function generateLink() {
+    const showDollarAmounts = document.getElementById('new-link-dollars').checked;
+    try {
+      const res = await fetch('/api/scorecard/share-links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ show_dollar_amounts: showDollarAmounts })
+      });
+      if (!res.ok) throw new Error('Failed');
+      await loadScorecard();
+      showToast('Link generated!');
+    } catch (e) {
+      showToast('Failed to generate link', true);
+    }
+  }
+
+  async function revokeLink(id) {
+    if (!confirm('Revoke this link? Anyone with the link will lose access.')) return;
+    await fetch(`/api/scorecard/share-links/${id}`, { method: 'DELETE' });
+    await loadScorecard();
+    showToast('Link revoked');
+  }
+
+  async function revokeAccess(requestId) {
+    if (!confirm('Revoke this person\'s access?')) return;
+    await fetch(`/api/scorecard/access-requests/${requestId}/revoke`, { method: 'DELETE' });
+    await loadScorecard();
+    showToast('Access revoked');
+  }
+
+  async function approveRequest(id) {
+    const res = await fetch(`/api/scorecard/access-requests/${id}/approve`, { method: 'PUT' });
+    if (res.ok) { await loadScorecard(); showToast('Access approved'); }
+    else showToast('Failed to approve', true);
+  }
+
+  async function denyRequest(id) {
+    const res = await fetch(`/api/scorecard/access-requests/${id}/deny`, { method: 'PUT' });
+    if (res.ok) { await loadScorecard(); showToast('Request denied'); }
+    else showToast('Failed to deny', true);
+  }
+
+  async function sendAccessRequest() {
+    const email = document.getElementById('request-email').value.trim();
+    const msg = document.getElementById('request-form-message');
+    if (!email) { msg.textContent = 'Enter an email'; msg.style.color = '#f87171'; msg.style.display = 'block'; return; }
+
+    try {
+      const res = await fetch('/api/scorecard/request-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target_email: email, expires_type: '30days' })
+      });
+      const data = await res.json();
+      if (!res.ok) { msg.textContent = data.error || 'Failed'; msg.style.color = '#f87171'; msg.style.display = 'block'; return; }
+      msg.textContent = data.message || 'Request sent!';
+      msg.style.color = '#34d399';
+      msg.style.display = 'block';
+      document.getElementById('request-email').value = '';
+      await loadAccessRequests();
+    } catch (e) {
+      msg.textContent = 'Request failed'; msg.style.color = '#f87171'; msg.style.display = 'block';
+    }
+  }
+
+  async function loadAccessRequests() {
+    const res = await fetch('/api/scorecard/access-requests');
+    if (!res.ok) return;
+    const data = await res.json();
+    const outgoing = data.outgoing || [];
+    const outList = document.getElementById('outgoing-requests-list');
+    if (outgoing.length === 0) {
+      outList.innerHTML = '<p class="text-sm" style="color:#475569;">No outgoing requests yet.</p>';
+    } else {
+      outList.innerHTML = outgoing.map(req => {
+        const statusClass = { pending: 'status-pending', approved: 'status-approved', denied: 'status-denied', revoked: 'status-revoked' }[req.status] || 'status-pending';
+        return `
+          <div class="request-row mb-2">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-sm font-semibold" style="color:#e2e8f0;">${req.target_name || req.target_email}</div>
+                <div class="text-xs" style="color:#64748b;">${req.target_email}</div>
+              </div>
+              <span class="status-badge ${statusClass}">${req.status}</span>
+            </div>
+            ${req.status === 'approved' ? '<div class="mt-2"><a href="/scorecard-view.html?userId=' + req.target_user_id + '" class="text-xs" style="color:#c9a227;">View their scorecard →</a></div>' : ''}
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  function toggleDollarAmounts() {
+    showDollars = document.getElementById('show-dollars-toggle').checked;
+    loadScorecard();
+  }
+
+  // ─── Tabs ─────────────────────────────────────────────────────────────────
+  function showTab(tab) {
+    ['share', 'shared-with', 'requests'].forEach(t => {
+      document.getElementById(`panel-${t}`).style.display = t === tab ? 'block' : 'none';
+      document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    });
+    if (tab === 'requests') loadAccessRequests();
+  }
+
+  // ─── Utilities ───────────────────────────────────────────────────────────
+  function copyLink(url) {
+    navigator.clipboard.writeText(url).then(() => showToast('Link copied!')).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('Link copied!');
+    });
+  }
+
+  let toastTimer;
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.borderColor = isError ? 'rgba(239,68,68,0.3)' : 'rgba(201,162,39,0.3)';
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // ─── Init ─────────────────────────────────────────────────────────────────
+  checkAuth().then(user => { if (user) loadScorecard(); });
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

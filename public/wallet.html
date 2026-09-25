@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<!-- Proprietary – Financial Revolution – All Rights Reserved -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Wallet — Financial Revolution</title>
+  <meta name="description" content="Track your Consistency Streak and rewards points. Earn by staying active — accessible to all members.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050810'/%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%2310b981' stroke-width='1.5'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-size='14' fill='%2310b981' font-family='serif'%3E💰%3C/text%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="/nav-bar.js" defer></script>
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+    body { background: #0d1117; color: #e8e8e8; min-height: 100vh; min-height: 100dvh; margin: 0; padding-top: 44px; }
+
+    .card { background: linear-gradient(145deg, #13192a, #1a2235); border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; }
+    .card-green { background: linear-gradient(145deg, rgba(16,185,129,0.08), rgba(5,150,105,0.04)); border: 1px solid rgba(16,185,129,0.2); border-radius: 1rem; }
+    .card-amber { background: linear-gradient(145deg, rgba(245,158,11,0.08), rgba(251,191,36,0.04)); border: 1px solid rgba(245,158,11,0.25); border-radius: 1rem; }
+    .card-red { background: linear-gradient(145deg, rgba(239,68,68,0.08), rgba(220,38,38,0.04)); border: 1px solid rgba(239,68,68,0.25); border-radius: 1rem; }
+
+    /* Balance hero */
+    .balance-hero {
+      background: radial-gradient(ellipse at 50% -20%, rgba(16,185,129,0.2) 0%, transparent 60%),
+                  linear-gradient(145deg, #0f1a14, #13192a);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 1.25rem;
+    }
+    .balance-number {
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #10b981, #34d399, #6ee7b7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    /* Streak */
+    .streak-hero {
+      background: radial-gradient(ellipse at 50% 0%, rgba(239,68,68,0.2) 0%, transparent 70%);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 1rem;
+    }
+    .streak-number {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 900;
+      color: #f87171;
+      line-height: 1;
+    }
+
+    /* Sync button */
+    .sync-btn {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-weight: 700;
+      border-radius: 0.875rem;
+      padding: 0.875rem 1.5rem;
+      cursor: pointer;
+      border: none;
+      font-size: 0.95rem;
+      transition: opacity 0.2s, transform 0.15s;
+      box-shadow: 0 4px 20px rgba(16,185,129,0.3);
+    }
+    .sync-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .sync-btn:active { transform: translateY(0); }
+    .sync-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; background: #374151; box-shadow: none; }
+
+    /* History row */
+    .history-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.625rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .history-row:last-child { border-bottom: none; }
+
+    /* Points badge */
+    .pts-earn { color: #34d399; font-weight: 700; }
+    .pts-spend { color: #f87171; font-weight: 700; }
+
+    /* Streak milestone */
+    .streak-mile {
+      text-align: center; padding: 0.875rem;
+      border-radius: 0.75rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.2s;
+    }
+    .streak-mile.achieved {
+      background: rgba(239,68,68,0.08);
+      border-color: rgba(239,68,68,0.25);
+    }
+
+    /* Skeleton */
+    .skeleton { background: rgba(255,255,255,0.05); border-radius: 0.5rem; animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.7} }
+
+    /* Sandbox badge */
+    .sandbox-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(139,92,246,0.15); color: #a78bfa;
+      border: 1px solid rgba(139,92,246,0.3);
+      border-radius: 999px; font-size: 0.7rem; font-weight: 700;
+      padding: 2px 10px; letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 640px) {
+      .balance-number { font-size: 2.5rem; }
+      .two-col { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="wallet-root" style="max-width:900px;margin:0 auto;padding:1rem 1rem 5rem;">
+
+  <!-- Header -->
+  <div style="margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.25rem;flex-wrap:wrap;">
+      <span style="font-size:1.75rem;">💰</span>
+      <h1 style="font-size:1.5rem;font-weight:900;color:#f9fafb;letter-spacing:-0.5px;">The Wallet</h1>
+      <span style="background:rgba(16,185,129,0.15);color:#34d399;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid rgba(16,185,129,0.25);letter-spacing:1px;">OPEN TO ALL</span>
+      <span id="sandbox-indicator" style="display:none;" class="sandbox-badge">⚗️ SANDBOX MODE</span>
+    </div>
+    <p style="color:#6b7280;font-size:0.875rem;">Earn points for staying consistent. 100 pts = $1.00. No tier required.</p>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div id="loading-state">
+    <div class="card" style="padding:1.5rem;margin-bottom:1rem;">
+      <div class="skeleton" style="height:3rem;width:40%;margin-bottom:0.75rem;"></div>
+      <div class="skeleton" style="height:0.75rem;width:60%;"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;" class="two-col">
+      <div class="card skeleton" style="height:140px;"></div>
+      <div class="card skeleton" style="height:140px;"></div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div id="main-content" style="display:none;">
+
+    <!-- ── BALANCE HERO ── -->
+    <div class="balance-hero" style="padding:1.75rem;margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div style="font-size:0.8rem;color:#6ee7b7;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.25rem;">Points Balance</div>
+          <div class="balance-number" id="bal-display">0</div>
+          <div style="font-size:0.875rem;color:#9ca3af;margin-top:0.5rem;" id="bal-sub">0 pts earned total</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.75rem;color:#9ca3af;margin-bottom:0.25rem;">Dollar Value</div>
+          <div style="font-size:1.4rem;font-weight:800;color:#34d399;" id="dollar-val">$0.00</div>
+          <div style="font-size:0.7rem;color:#6b7280;margin-top:2px;">100 pts = $1.00</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.25rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+        <div style="font-size:0.78rem;color:#9ca3af;">
+          <span id="weekly-earned-label">0 pts earned this week</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STREAK + SYNC ── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;" class="two-col">
+
+      <!-- Streak card -->
+      <div class="streak-hero" style="padding:1.25rem;">
+        <div style="font-size:0.7rem;color:#fca5a5;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;">🔥 Consistency Streak</div>
+        <div style="display:flex;align-items:baseline;gap:0.4rem;margin-bottom:0.25rem;">
+          <span class="streak-number" id="streak-current">0</span>
+          <span style="color:#6b7280;font-size:0.875rem;">weeks</span>
+        </div>
+        <div style="font-size:0.75rem;color:#9ca3af;" id="streak-best"></div>
+        <div style="font-size:0.75rem;color:#6b7280;margin-top:0.5rem;" id="streak-last-activity"></div>
+        <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button onclick="logActivity()" style="font-size:0.75rem;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:inherit;">
+            ✓ Log Activity
+          </button>
+          <span id="streak-status-badge" style="font-size:0.7rem;color:#6b7280;align-self:center;"></span>
+        </div>
+      </div>
+
+      <!-- Sync reward card -->
+      <div class="card-green" style="padding:1.25rem;">
+        <div style="font-size:0.7rem;color:#6ee7b7;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;">🔄 Sync Reward</div>
+        <div style="font-size:1.75rem;font-weight:900;color:#34d399;margin-bottom:0.25rem;">+50 <span style="font-size:0.9rem;font-weight:600;">pts</span></div>
+        <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:1rem;" id="sync-status-text">
+          Earn 50 pts for syncing your data. Once per 24 hours.
+        </div>
+        <button class="sync-btn" id="sync-btn" onclick="triggerSyncReward()">
+          Claim Sync Reward
+        </button>
+      </div>
+    </div>
+
+    <!-- ── STREAK MILESTONES ── -->
+    <div class="card" style="padding:1.25rem;margin-bottom:1rem;">
+      <div style="font-size:0.8rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.875rem;">🏆 Streak Milestones</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;" id="streak-milestones"></div>
+    </div>
+
+    <!-- ── HOW TO EARN ── -->
+    <div class="card" style="padding:1.25rem;margin-bottom:1rem;">
+      <div style="font-size:0.8rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.875rem;">⚡ How to Earn Points</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;" class="two-col">
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+          <span style="color:#d1d5db;">XP event (via Gamification)</span>
+          <span style="color:#34d399;font-weight:600;">XP → pts</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+          <span style="color:#d1d5db;">Manual sync (1×/day)</span>
+          <span style="color:#34d399;font-weight:600;">+50 pts</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+          <span style="color:#d1d5db;">Plaid bank sync (Elite+)</span>
+          <span style="color:#34d399;font-weight:600;">+50 pts</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:0.4rem 0;">
+          <span style="color:#d1d5db;">Streak bonus (missions)</span>
+          <span style="color:#34d399;font-weight:600;">varies</span>
+        </div>
+      </div>
+      <div style="margin-top:0.875rem;padding:0.75rem;background:rgba(16,185,129,0.05);border-radius:0.625rem;border:1px solid rgba(16,185,129,0.12);">
+        <p style="font-size:0.78rem;color:#6b7280;margin:0;line-height:1.5;">
+          <strong style="color:#34d399;">Cent-Standard:</strong> 100 points = $1.00. All arithmetic is integer-only — no rounding, no decimals in the ledger.
+          Points earned in <span style="color:#a78bfa;">Sandbox Mode</span> are ring-fenced and have no real-world value.
+        </p>
+      </div>
+    </div>
+
+    <!-- ── RECENT ACTIVITY ── -->
+    <div class="card" style="padding:1.25rem;margin-bottom:1rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
+        <div style="font-size:0.8rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">📋 Recent Activity</div>
+        <span id="history-count" style="font-size:0.72rem;color:#6b7280;"></span>
+      </div>
+      <div id="history-list">
+        <div class="skeleton" style="height:14px;margin-bottom:8px;border-radius:4px;"></div>
+        <div class="skeleton" style="height:14px;margin-bottom:8px;border-radius:4px;width:80%;"></div>
+        <div class="skeleton" style="height:14px;width:65%;border-radius:4px;"></div>
+      </div>
+    </div>
+
+    <!-- ── LENDING DESK INTEGRATION NOTE ── -->
+    <div style="padding:0.875rem;background:rgba(139,92,246,0.05);border:1px solid rgba(139,92,246,0.15);border-radius:0.875rem;margin-bottom:1rem;">
+      <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+        <span style="font-size:1.25rem;flex-shrink:0;">🏦</span>
+        <div>
+          <div style="font-size:0.82rem;font-weight:600;color:#c4b5fd;margin-bottom:0.25rem;">Behavioral Underwriting</div>
+          <div style="font-size:0.78rem;color:#6b7280;line-height:1.5;">
+            Your Consistency Streak feeds into the Lending Desk's Internal Sovereignty Score. A longer streak improves your Consistency Multiplier and borrowing terms. Stay active every week.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+
+</div>
+
+<script>
+let walletData = null;
+
+// ── Load dashboard ──
+async function loadWallet() {
+  try {
+    const res = await fetch('/api/mod_rewards/dashboard', { credentials: 'same-origin' });
+    if (res.status === 401) { window.location.href = '/login'; return; }
+    if (!res.ok) throw new Error('Failed to load wallet data');
+    walletData = await res.json();
+    renderWallet(walletData);
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  } catch (err) {
+    document.getElementById('loading-state').innerHTML =
+      '<div style="text-align:center;padding:2rem;color:#ef4444;">Failed to load wallet data. Please refresh.</div>';
+  }
+}
+
+function renderWallet(d) {
+  // Sandbox indicator
+  if (d.sandbox) {
+    document.getElementById('sandbox-indicator').style.display = 'inline-flex';
+  }
+
+  // Balance
+  document.getElementById('bal-display').textContent = d.balance.current.toLocaleString();
+  document.getElementById('bal-sub').textContent =
+    `${d.balance.total_earned.toLocaleString()} pts earned total`;
+  document.getElementById('dollar-val').textContent = `$${d.balance.dollar_equivalent}`;
+  document.getElementById('weekly-earned-label').textContent =
+    `+${d.balance.weekly_earned.toLocaleString()} pts earned this week`;
+
+  // Streak
+  document.getElementById('streak-current').textContent = d.streak.current;
+  document.getElementById('streak-best').textContent =
+    d.streak.longest > 0 ? `Best: ${d.streak.longest} weeks` : 'No streak yet';
+
+  if (d.streak.last_activity_at) {
+    const la = new Date(d.streak.last_activity_at);
+    document.getElementById('streak-last-activity').textContent =
+      `Last active: ${la.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  }
+
+  // Streak status badge
+  const thisWeek = d.streak.current_week;
+  const isActiveThisWeek = d.streak.last_activity_week === thisWeek;
+  const statusBadge = document.getElementById('streak-status-badge');
+  if (isActiveThisWeek) {
+    statusBadge.innerHTML = '<span style="color:#34d399;">✓ Active this week</span>';
+  } else if (d.streak.current > 0) {
+    statusBadge.innerHTML = '<span style="color:#fbbf24;">⚠ Log activity to keep streak</span>';
+  }
+
+  // Sync button state
+  renderSyncButton(d.sync);
+
+  // Streak milestones
+  const milestones = [
+    { weeks: 4,  label: '4-Week Streak',  icon: '🔥' },
+    { weeks: 8,  label: '8-Week Streak',  icon: '💪' },
+    { weeks: 13, label: '13-Week Streak', icon: '⚡' },
+    { weeks: 26, label: '26-Week Streak', icon: '🏆' }
+  ];
+  const msEl = document.getElementById('streak-milestones');
+  msEl.innerHTML = milestones.map(m => {
+    const achieved = d.streak.longest >= m.weeks || d.streak.current >= m.weeks;
+    return `<div class="streak-mile ${achieved ? 'achieved' : ''}">
+      <div style="font-size:1.25rem;margin-bottom:0.25rem;">${achieved ? m.icon : '🔒'}</div>
+      <div style="font-size:0.7rem;font-weight:600;color:${achieved ? '#fca5a5' : '#6b7280'};">${m.label}</div>
+      <div style="font-size:0.7rem;color:${achieved ? '#f87171' : '#374151'};font-weight:700;margin-top:2px;">${m.weeks}w</div>
+    </div>`;
+  }).join('');
+
+  // History
+  renderHistory(d.history);
+}
+
+function renderSyncButton(sync) {
+  const btn = document.getElementById('sync-btn');
+  const statusText = document.getElementById('sync-status-text');
+  if (!sync) return;
+
+  if (sync.eligible) {
+    btn.disabled = false;
+    btn.textContent = `Claim Sync Reward (+${sync.reward_points} pts)`;
+    statusText.textContent = 'Earn 50 pts for syncing your data. Once per 24 hours.';
+  } else {
+    btn.disabled = true;
+    if (sync.last_sync_at) {
+      const next = new Date(new Date(sync.last_sync_at).getTime() + 24 * 60 * 60 * 1000);
+      const now = new Date();
+      const hoursLeft = Math.max(0, Math.ceil((next - now) / (60 * 60 * 1000)));
+      btn.textContent = `Available in ~${hoursLeft}h`;
+      statusText.textContent = `You already synced today. Next reward available in ~${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''}.`;
+    } else {
+      btn.textContent = 'Sync Reward Claimed';
+    }
+  }
+}
+
+function renderHistory(history) {
+  const listEl = document.getElementById('history-list');
+  const countEl = document.getElementById('history-count');
+
+  if (!history || history.length === 0) {
+    listEl.innerHTML = '<div style="color:#6b7280;font-size:0.875rem;text-align:center;padding:1rem;">No activity yet. Start logging transactions to earn points!</div>';
+    countEl.textContent = '';
+    return;
+  }
+
+  countEl.textContent = `${history.length} recent entries`;
+  listEl.innerHTML = history.map(h => {
+    const date = new Date(h.created_at);
+    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const isEarn = h.points > 0;
+    return `<div class="history-row">
+      <div>
+        <div style="font-size:0.82rem;color:#d1d5db;">${h.label}</div>
+        <div style="font-size:0.7rem;color:#6b7280;">${dateStr} · ${timeStr}</div>
+      </div>
+      <div class="${isEarn ? 'pts-earn' : 'pts-spend'}" style="font-size:0.9rem;">
+        ${isEarn ? '+' : ''}${h.points.toLocaleString()} pts
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Sync reward ──
+async function triggerSyncReward() {
+  const btn = document.getElementById('sync-btn');
+  btn.disabled = true;
+  btn.textContent = 'Claiming…';
+
+  try {
+    const res = await fetch('/api/mod_rewards/sync-reward', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = data.error || 'Failed to claim reward.';
+      if (res.status === 429) {
+        document.getElementById('sync-status-text').textContent = msg;
+        btn.textContent = 'Already claimed today';
+      } else {
+        alert(msg);
+        btn.disabled = false;
+        renderSyncButton(walletData?.sync);
+      }
+      return;
+    }
+
+    // Show flash update
+    const balEl = document.getElementById('bal-display');
+    balEl.style.transition = 'all 0.3s ease';
+    balEl.style.transform = 'scale(1.05)';
+    setTimeout(() => { balEl.style.transform = ''; }, 400);
+
+    // Reload data
+    await loadWallet();
+
+  } catch (err) {
+    alert('Failed to claim sync reward. Check your connection.');
+    btn.disabled = false;
+    renderSyncButton(walletData?.sync);
+  }
+}
+
+// ── Log activity (manual streak logging) ──
+async function logActivity() {
+  try {
+    const res = await fetch('/api/mod_rewards/activity', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ activityType: 'general' })
+    });
+    const data = await res.json();
+    if (res.ok && data.streak) {
+      // Update streak display immediately
+      document.getElementById('streak-current').textContent = data.streak.current;
+      document.getElementById('streak-best').textContent =
+        data.streak.longest > 0 ? `Best: ${data.streak.longest} weeks` : 'No streak yet';
+
+      const statusBadge = document.getElementById('streak-status-badge');
+      statusBadge.innerHTML = '<span style="color:#34d399;">✓ Active this week</span>';
+    }
+  } catch (err) {
+    console.warn('Activity log failed:', err.message);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadWallet);
+</script>
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

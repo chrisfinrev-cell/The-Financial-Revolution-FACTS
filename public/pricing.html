@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FACTS Pricing — Financial Allocation &amp; Control Tiers</title>
+  <meta name="description" content="Choose the FACTS tier that fits your financial journey. From free starter to Sovereign lifetime access — six tiers built around allocation, freedom, and financial clarity." />
+
+  <!-- Google Fonts: Instrument Serif -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <!-- Fontshare: Satoshi -->
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #0d1117;
+      --navy-mid:   #131a24;
+      --navy-card:  #161d27;
+      --navy-border:#1e2a38;
+      --gold:       #c9a227;
+      --gold-light: #e0b93a;
+      --gold-dim:   #a07d18;
+      --green:      #2ea84f;
+      --green-dim:  #1c7035;
+      --amber:      #d97706;
+      --amber-dark: #92400e;
+      --white:      #f4f1eb;
+      --muted:      #8892a0;
+      --text:       #c9d1d9;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--navy);
+      color: var(--text);
+      font-family: 'Satoshi', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Typography ───────────────────────────────────────────── */
+    h1, h2, h3, h4 {
+      font-family: 'Instrument Serif', Georgia, serif;
+      color: var(--white);
+      line-height: 1.2;
+    }
+
+    /* ─── Layout ───────────────────────────────────────────────── */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─── Hero Section ─────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 100px 24px 64px;
+      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,162,39,0.12) 0%, transparent 70%);
+    }
+
+    .hero__eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(201,162,39,0.1);
+      border: 1px solid rgba(201,162,39,0.25);
+      border-radius: 100px;
+      padding: 6px 18px;
+      margin-bottom: 24px;
+    }
+
+    .hero__title {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      margin-bottom: 20px;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero__title em {
+      color: var(--gold);
+      font-style: italic;
+    }
+
+    .hero__subtitle {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 32px;
+    }
+
+    .hero__trial-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--green);
+      background: rgba(46,168,79,0.08);
+      border: 1px solid rgba(46,168,79,0.2);
+      border-radius: 100px;
+      padding: 8px 20px;
+    }
+
+    .hero__trial-note::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    /* ─── Pricing Grid ─────────────────────────────────────────── */
+    .pricing {
+      padding: 48px 0 96px;
+    }
+
+    .pricing__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ─── Card Base ────────────────────────────────────────────── */
+    .card {
+      position: relative;
+      border-radius: 16px;
+      padding: 36px 28px 32px;
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card > * { position: relative; z-index: 1; }
+
+    /* Free card — green border */
+    .card--free {
+      border-color: rgba(46,168,79,0.5);
+      box-shadow: 0 0 32px rgba(46,168,79,0.07), 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .card--free::before {
+      background: linear-gradient(160deg, rgba(46,168,79,0.06) 0%, transparent 60%);
+    }
+
+    /* Individual — gold border, featured */
+    .card--aura {
+      border-color: rgba(201,162,39,0.6);
+      box-shadow: 0 0 48px rgba(201,162,39,0.12), 0 4px 16px rgba(0,0,0,0.5);
+      background: linear-gradient(160deg, #18201a 0%, var(--navy-card) 50%);
+    }
+    .card--aura::before {
+      background: linear-gradient(160deg, rgba(201,162,39,0.08) 0%, transparent 60%);
+    }
+
+    /* Family — teal */
+    .card--family {
+      border-color: rgba(45,212,191,0.45);
+      box-shadow: 0 0 32px rgba(45,212,191,0.07), 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .card--family::before {
+      background: linear-gradient(160deg, rgba(45,212,191,0.06) 0%, transparent 60%);
+    }
+    .card--family .card__tier { color: #2dd4bf; }
+    .card--family .feature__icon { background: rgba(45,212,191,0.15); color: #2dd4bf; }
+
+    /* Elite — purple */
+    .card--elite {
+      border-color: rgba(167,139,250,0.5);
+      box-shadow: 0 0 32px rgba(167,139,250,0.08), 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .card--elite::before {
+      background: linear-gradient(160deg, rgba(167,139,250,0.06) 0%, transparent 60%);
+    }
+    .card--elite .card__tier { color: #a78bfa; }
+    .card--elite .feature__icon { background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+    /* Business — blue */
+    .card--business {
+      border-color: rgba(96,165,250,0.5);
+      box-shadow: 0 0 32px rgba(96,165,250,0.08), 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .card--business::before {
+      background: linear-gradient(160deg, rgba(96,165,250,0.06) 0%, transparent 60%);
+    }
+    .card--business .card__tier { color: #60a5fa; }
+    .card--business .feature__icon { background: rgba(96,165,250,0.15); color: #60a5fa; }
+
+    /* Sovereign Executive — amber dark */
+    .card--sovereign {
+      border-color: rgba(217,119,6,0.5);
+      background: linear-gradient(160deg, #1a1308 0%, #161006 60%, #0f0e0d 100%);
+      box-shadow: 0 0 48px rgba(217,119,6,0.1), 0 4px 16px rgba(0,0,0,0.6);
+    }
+    .card--sovereign::before {
+      background: linear-gradient(160deg, rgba(217,119,6,0.08) 0%, transparent 60%);
+    }
+
+    .btn--family {
+      background: transparent;
+      color: #2dd4bf;
+      border: 2px solid #2dd4bf;
+    }
+    .btn--family:hover {
+      background: rgba(45,212,191,0.1);
+      box-shadow: 0 0 16px rgba(45,212,191,0.25);
+    }
+
+    .btn--elite {
+      background: transparent;
+      color: #a78bfa;
+      border: 2px solid #a78bfa;
+    }
+    .btn--elite:hover {
+      background: rgba(167,139,250,0.1);
+      box-shadow: 0 0 16px rgba(167,139,250,0.25);
+    }
+
+    .btn--business {
+      background: transparent;
+      color: #60a5fa;
+      border: 2px solid #60a5fa;
+    }
+    .btn--business:hover {
+      background: rgba(96,165,250,0.1);
+      box-shadow: 0 0 16px rgba(96,165,250,0.25);
+    }
+
+    /* Two-row pricing layout */
+    .pricing__grid-top, .pricing__grid-bottom {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+    .pricing__grid-bottom {
+      margin-top: 24px;
+    }
+
+    /* ─── Badge ────────────────────────────────────────────────── */
+    .card__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-radius: 100px;
+      padding: 5px 14px;
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+
+    .card__badge--popular {
+      background: rgba(201,162,39,0.15);
+      color: var(--gold);
+      border: 1px solid rgba(201,162,39,0.35);
+    }
+
+    .card__badge--exclusive {
+      background: rgba(217,119,6,0.15);
+      color: var(--amber);
+      border: 1px solid rgba(217,119,6,0.35);
+    }
+
+    /* ─── Card Header ──────────────────────────────────────────── */
+    .card__tier {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .card--free .card__tier    { color: var(--green); }
+    .card--aura .card__tier    { color: var(--gold); }
+    .card--sovereign .card__tier { color: var(--amber); }
+
+    .card__name {
+      font-size: clamp(1.5rem, 3vw, 1.9rem);
+      margin-bottom: 10px;
+    }
+
+    .card__tagline {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+      min-height: 40px;
+    }
+
+    /* ─── Price Block ──────────────────────────────────────────── */
+    .card__price {
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .price__amount {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .price__currency {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--white);
+      font-family: 'Satoshi', sans-serif;
+    }
+
+    .price__number {
+      font-size: clamp(2.4rem, 5vw, 3rem);
+      font-weight: 700;
+      color: var(--white);
+      font-family: 'Instrument Serif', serif;
+      line-height: 1;
+    }
+
+    .price__period {
+      font-size: 14px;
+      color: var(--muted);
+      align-self: center;
+    }
+
+    .price__note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .price__sovereign {
+      font-size: 1rem;
+      color: var(--amber);
+      font-style: italic;
+      font-family: 'Instrument Serif', serif;
+      margin-bottom: 4px;
+    }
+
+    /* ─── Feature List ─────────────────────────────────────────── */
+    .card__features {
+      list-style: none;
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .card__features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .feature__icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .card--free    .feature__icon { background: rgba(46,168,79,0.15);  color: var(--green); }
+    .card--aura    .feature__icon { background: rgba(201,162,39,0.15); color: var(--gold); }
+    .card--sovereign .feature__icon { background: rgba(217,119,6,0.15); color: var(--amber); }
+
+    .feature__text strong {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    /* ─── CTA Buttons ──────────────────────────────────────────── */
+    .btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn:hover   { opacity: 0.9; transform: translateY(-1px); }
+    .btn:active  { transform: translateY(0); }
+
+    .btn--free {
+      background: transparent;
+      color: var(--green);
+      border: 2px solid var(--green);
+      box-shadow: none;
+    }
+    .btn--free:hover {
+      background: rgba(46,168,79,0.1);
+      box-shadow: 0 0 16px rgba(46,168,79,0.25);
+    }
+
+    .btn--aura {
+      background: var(--gold);
+      color: #0d1117;
+      box-shadow: 0 4px 20px rgba(201,162,39,0.35);
+    }
+    .btn--aura:hover {
+      background: var(--gold-light);
+      box-shadow: 0 6px 28px rgba(201,162,39,0.5);
+    }
+
+    .btn--sovereign {
+      background: var(--amber);
+      color: #0d1117;
+      box-shadow: 0 4px 20px rgba(217,119,6,0.35);
+    }
+    .btn--sovereign:hover {
+      box-shadow: 0 6px 28px rgba(217,119,6,0.5);
+    }
+
+    /* ─── Comparison Note ──────────────────────────────────────── */
+    .compare-note {
+      text-align: center;
+      padding: 20px 0 64px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .compare-note a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .compare-note a:hover { text-decoration: underline; }
+
+    /* ─── Trust Bar ────────────────────────────────────────────── */
+    .trust {
+      background: var(--navy-mid);
+      border-top: 1px solid var(--navy-border);
+      border-bottom: 1px solid var(--navy-border);
+      padding: 40px 24px;
+    }
+
+    .trust__inner {
+      max-width: 880px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 36px;
+    }
+
+    .trust__item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .trust__icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .trust__item strong {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    /* ─── FAQ Section ──────────────────────────────────────────── */
+    .faq {
+      padding: 80px 24px 96px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .faq__heading {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .faq__sub {
+      text-align: center;
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 48px;
+    }
+
+    .faq__list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--navy-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .faq__item {
+      border-bottom: 1px solid var(--navy-border);
+    }
+    .faq__item:last-child { border-bottom: none; }
+
+    .faq__question {
+      width: 100%;
+      background: var(--navy-card);
+      border: none;
+      padding: 20px 24px;
+      text-align: left;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--white);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      transition: background 0.15s;
+    }
+
+    .faq__question:hover { background: #1a2230; }
+
+    .faq__chevron {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(201,162,39,0.1);
+      border: 1px solid rgba(201,162,39,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--gold);
+      transition: transform 0.25s;
+    }
+
+    .faq__item.open .faq__chevron { transform: rotate(180deg); }
+
+    .faq__answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .faq__item.open .faq__answer { max-height: 400px; }
+
+    .faq__answer-inner {
+      padding: 0 24px 20px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      background: var(--navy-card);
+    }
+
+    .faq__answer-inner a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    /* ─── Final CTA Strip ──────────────────────────────────────── */
+    .cta-strip {
+      background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(201,162,39,0.1) 0%, transparent 70%),
+                  var(--navy-mid);
+      border-top: 1px solid var(--navy-border);
+      padding: 80px 24px;
+      text-align: center;
+    }
+
+    .cta-strip__title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      margin-bottom: 14px;
+    }
+
+    .cta-strip__sub {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 480px;
+      margin: 0 auto 36px;
+    }
+
+    .cta-strip__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .btn--inline {
+      display: inline-block;
+      width: auto;
+      padding: 14px 32px;
+    }
+
+    .btn--ghost {
+      background: transparent;
+      color: var(--white);
+      border: 2px solid var(--navy-border);
+      font-family: 'Satoshi', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 14px 32px;
+      transition: border-color 0.18s, color 0.18s;
+    }
+    .btn--ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ─── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .pricing__grid,
+      .pricing__grid-top,
+      .pricing__grid-bottom {
+        grid-template-columns: 1fr;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+      .pricing__grid-bottom {
+        margin-top: 24px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero { padding: 72px 16px 48px; }
+      .card { padding: 28px 20px 24px; }
+      .trust__inner { gap: 20px; }
+      .faq { padding: 60px 16px 72px; }
+    }
+
+    /* ─── Utility ──────────────────────────────────────────────── */
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+<script src="/facts-nav.js"></script>
+
+<!-- ─── Hero ──────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero__eyebrow">FACTS Pricing</div>
+    <h1 class="hero__title">
+      Choose Your Level of<br><em>Financial Sovereignty</em>
+    </h1>
+    <p class="hero__subtitle">
+      Six tiers. One system. Built around allocation, freedom, and long-term financial clarity — not restriction.
+    </p>
+    <div class="hero__trial-note">All paid plans include a 21-day free trial. No card required to explore.</div>
+  </div>
+</section>
+
+<!-- ─── Pricing Cards ──────────────────────────────────────────── -->
+<section class="pricing">
+  <div class="container">
+
+    <!-- Top Row: Free, Individual (Most Popular), Family -->
+    <div class="pricing__grid-top">
+
+      <!-- Tier 1: Free -->
+      <article class="card card--free" aria-label="Free tier">
+        <p class="card__tier">Free</p>
+        <h2 class="card__name">Free</h2>
+        <p class="card__tagline">Get started with FACTS — no commitment, no card.</p>
+
+        <div class="card__price">
+          <div class="price__amount">
+            <span class="price__currency">$</span>
+            <span class="price__number">0</span>
+            <span class="price__period">/ month</span>
+          </div>
+          <p class="price__note">Free forever. Upgrade anytime.</p>
+        </div>
+
+        <ul class="card__features" aria-label="Free tier features">
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Full 6-bucket allocation dashboard</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Sovereign Score Calculator</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Manual income &amp; expense entry</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Basic debt payoff tracker</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text">Access to the FACTS community forum</span>
+          </li>
+        </ul>
+
+        <a href="https://app.factsmoney.com/signup.html" class="btn btn--free" rel="noopener">Start Free</a>
+      </article>
+
+      <!-- Tier 2: Individual (Most Popular) -->
+      <article class="card card--aura" aria-label="Individual tier — Most Popular">
+        <div class="card__badge card__badge--popular">
+          &#9733;&nbsp; Most Popular
+        </div>
+        <p class="card__tier">Individual</p>
+        <h2 class="card__name">Full FACTS System</h2>
+        <p class="card__tagline">Full allocation system, one user — automated and connected.</p>
+
+        <div class="card__price">
+          <div class="price__amount">
+            <span class="price__currency">$</span>
+            <span class="price__number">14.99</span>
+            <span class="price__period">/ month</span>
+          </div>
+          <p class="price__note">$149.90/yr — save 2 months. 21-day free trial included.</p>
+        </div>
+
+        <ul class="card__features" aria-label="Individual tier features">
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text">Everything in Free</span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Plaid bank sync</strong> — weekly auto-sync + manual "Update Now"</span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Automated sweep recommendations</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Investment &amp; growth tracking</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Financial Freedom Number calculator</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text">Priority email support</span>
+          </li>
+        </ul>
+
+        <a href="https://app.factsmoney.com/signup.html" class="btn btn--aura" rel="noopener">Start 21-Day Trial</a>
+      </article>
+
+      <!-- Tier 3: Family -->
+      <article class="card card--family" aria-label="Family tier">
+        <p class="card__tier">Family</p>
+        <h2 class="card__name">Family</h2>
+        <p class="card__tagline">Full system for your family — build wealth together.</p>
+
+        <div class="card__price">
+          <div class="price__amount">
+            <span class="price__currency">$</span>
+            <span class="price__number">25</span>
+            <span class="price__period">/ month</span>
+          </div>
+          <p class="price__note">$250/yr — save 2 months. 21-day free trial included.</p>
+        </div>
+
+        <ul class="card__features" aria-label="Family tier features">
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text">Everything in Individual</span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Plaid bank sync</strong> — weekly auto-sync + manual "Update Now"</span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Up to 6 family members</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Shared allocation dashboard</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Junior accounts with guardrails</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Family debt strategy</strong></span>
+          </li>
+        </ul>
+
+        <a href="https://app.factsmoney.com/signup.html" class="btn btn--family" rel="noopener">Get Family</a>
+      </article>
+
+    </div>
+
+    <!-- Bottom Row: Elite, Business, Sovereign -->
+    <div class="pricing__grid-bottom">
+
+      <!-- Tier 4: Elite -->
+      <article class="card card--elite" aria-label="Elite tier">
+        <p class="card__tier">Elite</p>
+        <h2 class="card__name">Elite</h2>
+        <p class="card__tagline">Advanced wealth architecture for serious builders.</p>
+
+        <div class="card__price">
+          <div class="price__amount">
+            <span class="price__currency">$</span>
+            <span class="price__number">197</span>
+            <span class="price__period">/ month</span>
+          </div>
+          <p class="price__note">$1,970/yr — save 2 months.</p>
+        </div>
+
+        <ul class="card__features" aria-label="Elite tier features">
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text">Everything in Family</span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Plaid bank sync</strong> — daily auto-sync + manual "Update Now"</span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Legacy &amp; estate planning tools</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Brokerage tracking &amp; rebalancing</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Advanced Sovereign Scoring</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Dedicated account management</strong></span>
+          </li>
+        </ul>
+
+        <a href="https://app.factsmoney.com/signup.html" class="btn btn--elite" rel="noopener">Get Elite</a>
+      </article>
+
+      <!-- Tier 5: Business -->
+      <article class="card card--business" aria-label="Business tier">
+        <p class="card__tier">Business</p>
+        <h2 class="card__name">Business</h2>
+        <p class="card__tagline">FACTS for your organization — team financial literacy.</p>
+
+        <div class="card__price">
+          <div class="price__amount">
+            <span class="price__currency">$</span>
+            <span class="price__number">297</span>
+            <span class="price__period">/ month</span>
+          </div>
+          <p class="price__note">$2,970/yr — save 2 months.</p>
+        </div>
+
+        <ul class="card__features" aria-label="Business tier features">
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text">Everything in Elite</span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Plaid bank sync</strong> — daily auto-sync + manual "Update Now"</span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Business cash flow allocation</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Team financial literacy tools</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Employer financial wellness program</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>White-label options available</strong></span>
+          </li>
+        </ul>
+
+        <a href="https://app.factsmoney.com/signup.html" class="btn btn--business" rel="noopener">Get Business</a>
+      </article>
+
+      <!-- Tier 6: Sovereign Executive -->
+      <article class="card card--sovereign" aria-label="Sovereign Executive tier">
+        <div class="card__badge card__badge--exclusive">
+          &#9670;&nbsp; Lifetime Access
+        </div>
+        <p class="card__tier">Sovereign</p>
+        <h2 class="card__name">Sovereign</h2>
+        <p class="card__tagline">Lifetime access, one payment — never pay again.</p>
+
+        <div class="card__price">
+          <div class="price__amount">
+            <span class="price__currency">$</span>
+            <span class="price__number">19,997</span>
+          </div>
+          <p class="price__note">One-time investment. All future upgrades included.</p>
+        </div>
+
+        <ul class="card__features" aria-label="Sovereign Executive tier features">
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Lifetime access</strong> — all current and future features, Plaid consistently live</span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Personal onboarding session</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Direct line to founder team</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>All future tier upgrades included</strong></span>
+          </li>
+          <li>
+            <span class="feature__icon" aria-hidden="true">&#10003;</span>
+            <span class="feature__text"><strong>Legacy planning consultation</strong></span>
+          </li>
+        </ul>
+
+        <a href="https://app.factsmoney.com/signup.html" class="btn btn--sovereign" rel="noopener">Inquire About Sovereign</a>
+      </article>
+
+    </div>
+
+    <p class="compare-note">
+      Questions about which tier fits your situation?
+      <a href="https://app.factsmoney.com/signup.html">Schedule a 15-minute clarity call &rarr;</a>
+    </p>
+
+  </div>
+</section>
+
+<!-- ─── Trust Bar ──────────────────────────────────────────────── -->
+<div class="trust" role="region" aria-label="Trust signals">
+  <div class="trust__inner">
+    <div class="trust__item">
+      <span class="trust__icon" aria-hidden="true">&#128274;</span>
+      <span><strong>Bank-level encryption</strong> — Plaid-secured connections</span>
+    </div>
+    <div class="trust__item">
+      <span class="trust__icon" aria-hidden="true">&#128197;</span>
+      <span><strong>21-day free trial</strong> — all paid plans, no card to start</span>
+    </div>
+    <div class="trust__item">
+      <span class="trust__icon" aria-hidden="true">&#10006;</span>
+      <span><strong>No restriction language</strong> — allocation, freedom, and system thinking only</span>
+    </div>
+    <div class="trust__item">
+      <span class="trust__icon" aria-hidden="true">&#9654;</span>
+      <span><strong>Cancel anytime</strong> — no lock-in, no penalties</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── FAQ ───────────────────────────────────────────────────── -->
+<section class="faq" aria-labelledby="faq-heading">
+  <h2 class="faq__heading" id="faq-heading">Common Questions</h2>
+  <p class="faq__sub">Straight answers about how FACTS works.</p>
+
+  <div class="faq__list" role="list">
+
+    <div class="faq__item" role="listitem">
+      <button class="faq__question" aria-expanded="false" aria-controls="faq-1">
+        What exactly is the 21-day trial?
+        <span class="faq__chevron" aria-hidden="true">&#9660;</span>
+      </button>
+      <div class="faq__answer" id="faq-1" role="region">
+        <div class="faq__answer-inner">
+          When you start a paid plan (Individual, Family, or above), you get 21 full days of access to every feature — Plaid sync, Net Worth Dashboard, Debt Optimizer, Rate Radar — at no cost. After 21 days your card is charged. You can cancel any time before that and owe nothing. No tricks, no pressure.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq__item" role="listitem">
+      <button class="faq__question" aria-expanded="false" aria-controls="faq-2">
+        What is the 6-bucket allocation engine on the Free plan?
+        <span class="faq__chevron" aria-hidden="true">&#9660;</span>
+      </button>
+      <div class="faq__answer" id="faq-2" role="region">
+        <div class="faq__answer-inner">
+          The 6-bucket engine is the foundation of FACTS. Rather than tracking spending categories, you allocate incoming income across six purposeful buckets — necessities, freedom, growth, giving, education, and reserves. The Free plan lets you visualize and set target percentages manually. Upgrading to Individual automates this with Plaid bank sync so your allocation picture updates automatically.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq__item" role="listitem">
+      <button class="faq__question" aria-expanded="false" aria-controls="faq-3">
+        How is Sovereign different from the other tiers?
+        <span class="faq__chevron" aria-hidden="true">&#9660;</span>
+      </button>
+      <div class="faq__answer" id="faq-3" role="region">
+        <div class="faq__answer-inner">
+          Sovereign is lifetime access — one investment of $19,997, no ongoing subscription — plus things that cannot be automated: a personal onboarding session, a direct line to the FACTS founder team, all future tier upgrades included, and legacy planning consultation. If self-serve monthly feels right, start with Individual or Family.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq__item" role="listitem">
+      <button class="faq__question" aria-expanded="false" aria-controls="faq-4">
+        Can I use FACTS for my business, not just personal finances?
+        <span class="faq__chevron" aria-hidden="true">&#9660;</span>
+      </button>
+      <div class="faq__answer" id="faq-4" role="region">
+        <div class="faq__answer-inner">
+          Yes. The Business tier ($297/mo) is specifically designed for organizations with business cash flow allocation, team financial literacy tools, and employer financial wellness programs. Lower tiers also include personal finance tracking that can complement your business picture.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /faq__list -->
+</section>
+
+<!-- ─── Bottom CTA ─────────────────────────────────────────────── -->
+<section class="cta-strip" aria-labelledby="cta-title">
+  <div class="container">
+    <h2 class="cta-strip__title" id="cta-title">Ready to take control of your allocation?</h2>
+    <p class="cta-strip__sub">Start free. Upgrade when it makes sense. Your financial system — built your way.</p>
+    <div class="cta-strip__actions">
+      <a href="https://app.factsmoney.com/signup.html" class="btn btn--aura btn--inline" rel="noopener">
+        Start 21-Day Trial — from $14.99/mo
+      </a>
+      <a href="https://app.factsmoney.com/signup.html" class="btn--ghost" rel="noopener">
+        Start Free Instead
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ Accordion Script ───────────────────────────────────── -->
+<script>
+  (function () {
+    var items = document.querySelectorAll('.faq__item');
+    items.forEach(function (item) {
+      var btn = item.querySelector('.faq__question');
+      btn.addEventListener('click', function () {
+        var isOpen = item.classList.contains('open');
+        // Close all
+        items.forEach(function (i) {
+          i.classList.remove('open');
+          i.querySelector('.faq__question').setAttribute('aria-expanded', 'false');
+        });
+        // Toggle clicked
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  })();
+</script>
+
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

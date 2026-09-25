@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FACTS Protocol — Phase Zero Initialization</title>
+<meta name="robots" content="noindex">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #16161f;
+    --border: #2a2a3a;
+    --border-glow: #3a3a5a;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --accent: #39d353;
+    --accent-dim: rgba(57, 211, 83, 0.15);
+    --gold: #d4af37;
+    --gold-dim: rgba(212, 175, 55, 0.15);
+    --danger: #ff4444;
+    --mono: 'Share Tech Mono', monospace;
+    --sans: 'Rajdhani', sans-serif;
+  }
+
+  html, body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow-x: hidden;
+  }
+
+  /* Grid overlay — tactical aesthetic */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(57,211,83,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(57,211,83,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hud-container {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 24px 16px 60px;
+  }
+
+  /* Header */
+  .hud-header {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .hud-logo {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .hud-status {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .hud-status .pulse {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+    vertical-align: middle;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Progress bar */
+  .progress-track {
+    width: 100%;
+    max-width: 640px;
+    height: 2px;
+    background: var(--border);
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+  .progress-labels span {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .progress-labels span.active {
+    color: var(--accent);
+  }
+
+  /* Step panels */
+  .step {
+    display: none;
+    width: 100%;
+    max-width: 640px;
+    animation: fadeIn 0.4s ease;
+  }
+  .step.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Card */
+  .hud-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hud-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+
+  /* Tactical corner decoration */
+  .corner-tl, .corner-br {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-color: var(--border-glow);
+    border-style: solid;
+  }
+  .corner-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .corner-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+  /* Tag / label */
+  .hud-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(57,211,83,0.3);
+    padding: 3px 10px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+  }
+  .hud-tag.gold {
+    color: var(--gold);
+    background: var(--gold-dim);
+    border-color: rgba(212,175,55,0.3);
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  h2 {
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #b0b0c8;
+    margin-bottom: 16px;
+  }
+  p.lead {
+    font-size: 17px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* Briefing document */
+  .briefing-doc {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 24px;
+    margin: 24px 0;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.8;
+    color: #c0c0d8;
+    border-radius: 2px;
+  }
+  .briefing-doc .doc-header {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+  .briefing-doc .doc-line {
+    margin-bottom: 10px;
+    padding-left: 12px;
+    border-left: 2px solid var(--border);
+  }
+  .briefing-doc .doc-line strong {
+    color: var(--text);
+  }
+
+  /* Declaration text */
+  .declaration-block {
+    background: var(--surface2);
+    border: 1px solid var(--border-glow);
+    border-radius: 4px;
+    padding: 24px;
+    margin: 24px 0;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--text);
+    font-style: italic;
+    position: relative;
+  }
+  .declaration-block::before {
+    content: '"';
+    font-size: 60px;
+    color: var(--accent);
+    opacity: 0.2;
+    position: absolute;
+    top: -8px; left: 12px;
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+
+  /* Checkbox */
+  .checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 20px 0;
+    cursor: pointer;
+  }
+  .checkbox-row input[type="checkbox"] {
+    width: 20px; height: 20px;
+    min-width: 20px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    margin-top: 2px;
+  }
+  .checkbox-row label {
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+    line-height: 1.5;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0a0f;
+    width: 100%;
+    margin-top: 24px;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: #4de864;
+    box-shadow: 0 0 20px rgba(57,211,83,0.4);
+  }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-glow);
+    width: 100%;
+    margin-top: 12px;
+  }
+  .btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: #0a0a0f;
+    width: 100%;
+    margin-top: 24px;
+  }
+  .btn-gold:hover {
+    background: #e8c040;
+    box-shadow: 0 0 20px rgba(212,175,55,0.4);
+  }
+
+  /* AI option cards */
+  .option-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  @media (max-width: 500px) {
+    .option-grid { grid-template-columns: 1fr; }
+  }
+  .option-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .option-card:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+  .option-card.selected {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    box-shadow: 0 0 12px rgba(57,211,83,0.15);
+  }
+  .option-card .opt-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  .option-card .opt-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .option-card .opt-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* Questionnaire */
+  .q-item {
+    margin-bottom: 20px;
+  }
+  .q-item label {
+    display: block;
+    font-size: 14px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .q-item input, .q-item select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border-glow);
+    color: var(--text);
+    padding: 12px 14px;
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .q-item input:focus, .q-item select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(57,211,83,0.1);
+  }
+  .q-item select option {
+    background: var(--surface2);
+  }
+
+  /* Allocation result */
+  .alloc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  @media (max-width: 400px) {
+    .alloc-grid { grid-template-columns: 1fr; }
+  }
+  .alloc-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .alloc-item .alloc-name {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .alloc-item .alloc-pct {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--accent);
+    font-weight: bold;
+  }
+  .alloc-item.modified .alloc-pct {
+    color: var(--gold);
+  }
+
+  /* Email verify */
+  .otp-input-row {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .otp-input-row input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border-glow);
+    color: var(--text);
+    padding: 14px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 24px;
+    letter-spacing: 0.3em;
+    text-align: center;
+    outline: none;
+  }
+  .otp-input-row input:focus {
+    border-color: var(--accent);
+  }
+  .email-verify-box {
+    background: var(--surface2);
+    border: 1px solid var(--border-glow);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .email-verify-box .email-label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+  }
+  .email-verify-box .email-address {
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    word-break: break-all;
+  }
+  .email-verify-box button {
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 10px 16px;
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .email-verify-box button:hover {
+    background: var(--accent-dim);
+  }
+
+  /* Completion screen */
+  .completion-badge {
+    text-align: center;
+    padding: 32px 0 16px;
+  }
+  .completion-badge .badge-icon {
+    font-size: 64px;
+    display: block;
+    margin-bottom: 16px;
+    animation: badgeDrop 0.8s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  @keyframes badgeDrop {
+    0% { opacity: 0; transform: scale(0.3) rotate(-10deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
+  }
+  .completion-badge h1 {
+    font-size: 32px;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .xp-banner {
+    background: linear-gradient(135deg, var(--gold-dim), rgba(57,211,83,0.1));
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+
+  /* Error/info alerts */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 3px;
+    font-size: 14px;
+    margin: 12px 0;
+    display: none;
+  }
+  .alert.show { display: block; }
+  .alert-error {
+    background: rgba(255,68,68,0.1);
+    border: 1px solid rgba(255,68,68,0.3);
+    color: #ff8888;
+  }
+  .alert-info {
+    background: rgba(57,211,83,0.08);
+    border: 1px solid rgba(57,211,83,0.25);
+    color: var(--accent);
+  }
+
+  /* Spinner */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  .sub-note {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .stat-label {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .stat-row .stat-value {
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .step-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    margin-bottom: 16px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Allocation adjustment inputs */
+  .alloc-adjust {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .alloc-adjust input {
+    width: 70px;
+    background: var(--surface2);
+    border: 1px solid var(--border-glow);
+    color: var(--accent);
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+  }
+  .alloc-adjust input:focus { border-color: var(--accent); }
+  .alloc-adjust .pct-symbol {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+
+  /* ── Phase Zero Deadline Banner ──────────────────────── */
+  .pz-deadline-banner {
+    display: none; /* shown by JS when timer is active */
+    max-width: 640px;
+    width: 100%;
+    margin-bottom: 20px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .pz-deadline-banner.urgent {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+
+  .pz-deadline-banner-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .pz-deadline-label {
+    color: rgba(245, 158, 11, 0.9);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .pz-deadline-banner.urgent .pz-deadline-label {
+    color: rgba(239, 68, 68, 0.9);
+  }
+
+  .pz-deadline-time {
+    color: #f59e0b;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .pz-deadline-banner.urgent .pz-deadline-time {
+    color: #ef4444;
+  }
+
+  .pz-deadline-date {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+<div class="hud-container">
+
+  <!-- Header -->
+  <div class="hud-header">
+    <div class="hud-logo">FACTS Protocol</div>
+    <div class="hud-status">
+      <span class="pulse"></span>
+      Initialization Sequence
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-track" style="max-width:640px;width:100%">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="progress-labels" style="max-width:640px;width:100%;margin-bottom:20px">
+    <span id="pl0" class="active">Briefing</span>
+    <span id="pl1">Declaration</span>
+    <span id="pl2">Setup</span>
+    <span id="pl3">Verify</span>
+    <span id="pl4">Complete</span>
+  </div>
+
+  <!-- ── Deadline countdown banner (shown once timer starts) ── -->
+  <div class="pz-deadline-banner" id="pzDeadlineBanner">
+    <div class="pz-deadline-banner-row">
+      <div>
+        <div class="pz-deadline-label">⏱ Phase Zero Deadline</div>
+        <div class="pz-deadline-date" id="pzDeadlineDate"></div>
+      </div>
+      <div class="pz-deadline-time" id="pzDeadlineTime">-- days</div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 0: PRE-GATE ═══ -->
+  <div class="step active" id="step0">
+    <div class="hud-card">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="step-count">STEP 01 / 05 — SOVEREIGN BRIEFING</div>
+      <div class="hud-tag">Classified — Read Before Proceeding</div>
+      <h1>Before You Enter</h1>
+      <p class="lead">Understand what you're building. This isn't optional.</p>
+
+      <div class="briefing-doc">
+        <div class="doc-header">▶ FACTS Protocol — Sovereign Briefing Document</div>
+        <div class="doc-line">
+          <strong>WHAT FACTS IS:</strong><br>
+          A command-and-control system for your income. Every dollar you earn has a mission before it enters your life. You allocate first. You spend from allocation. You do not chase money — you deploy it.
+        </div>
+        <div class="doc-line">
+          <strong>THE 6 CATEGORIES:</strong><br>
+          Necessities · Velocity · The Reserve · Lifestyle · Growth · Legacy<br>
+          Each category is a purpose. None is optional. Together they form your financial architecture.
+        </div>
+        <div class="doc-line">
+          <strong>YOUR COMMITMENT:</strong><br>
+          You will log income when it arrives. You will allocate before you spend. You will not use this platform passively. Passive finance is how wealth is lost.
+        </div>
+        <div class="doc-line">
+          <strong>THE PROTOCOL:</strong><br>
+          Phase Zero verifies your readiness. A 7-day audit confirms your consistency. Full access is earned, not granted.
+        </div>
+        <div class="doc-line">
+          <strong>WHAT THIS IS NOT:</strong><br>
+          A budget app. A spending tracker. A net worth calculator. Those are rearview mirrors. FACTS is a windshield.
+        </div>
+      </div>
+
+      <div id="errStep0" class="alert alert-error"></div>
+      <button class="btn btn-primary" onclick="goToDeclaration()">
+        I'm Ready — Proceed to Declaration
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 1: DECLARATION ═══ -->
+  <div class="step" id="step1">
+    <div class="hud-card">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="step-count">STEP 02 / 05 — DECLARATION OF INTENT</div>
+      <div class="hud-tag">Binding Commitment Required</div>
+      <h1>The FACTS Declaration</h1>
+
+      <div class="declaration-block">
+        I understand that FACTS is not a passive tracker. I am committing to actively direct my income across 6 purpose-driven categories. I will allocate before I spend. I will deploy capital, not chase it.
+      </div>
+
+      <div class="checkbox-row" onclick="toggleDeclaration()">
+        <input type="checkbox" id="declarationCheck" onchange="onDeclarationChange()">
+        <label for="declarationCheck">I understand and commit to the FACTS Protocol</label>
+      </div>
+
+      <div id="errStep1" class="alert alert-error"></div>
+
+      <button class="btn btn-primary" id="btnDeclaration" disabled onclick="acceptDeclaration()">
+        Accept Declaration — Continue
+      </button>
+      <p class="sub-note">Recorded with timestamp. Your journey begins here.</p>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2: ALLOCATION SETUP (two-step: defaults → customize) ═══ -->
+  <div class="step" id="step2">
+    <div class="hud-card">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="step-count">STEP 04 / 05 — ALLOCATION SETUP</div>
+      <div class="hud-tag">Configuration Required</div>
+      <h1>Set Your Architecture</h1>
+      <p>Your income will be split across 6 purpose-driven categories. Here's the default baseline allocation:</p>
+
+      <!-- Default allocation preview -->
+      <div id="defaultAllocationPreview" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.3rem;">🏠</span>
+          <div><div style="font-size:0.82rem;font-weight:700;color:var(--fg);">Necessities</div><div style="font-size:0.78rem;color:var(--muted);">50%</div></div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.3rem;">🔒</span>
+          <div><div style="font-size:0.82rem;font-weight:700;color:var(--fg);">Reserve</div><div style="font-size:0.78rem;color:var(--muted);">10%</div></div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.3rem;">⚡</span>
+          <div><div style="font-size:0.82rem;font-weight:700;color:var(--fg);">Velocity</div><div style="font-size:0.78rem;color:var(--muted);">10%</div></div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.3rem;">📈</span>
+          <div><div style="font-size:0.82rem;font-weight:700;color:var(--fg);">Growth</div><div style="font-size:0.78rem;color:var(--muted);">10%</div></div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.3rem;">🎯</span>
+          <div><div style="font-size:0.82rem;font-weight:700;color:var(--fg);">Lifestyle</div><div style="font-size:0.78rem;color:var(--muted);">10%</div></div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.3rem;">🌿</span>
+          <div><div style="font-size:0.82rem;font-weight:700;color:var(--fg);">Legacy</div><div style="font-size:0.78rem;color:var(--muted);">10%</div></div>
+        </div>
+      </div>
+
+      <p style="font-size:0.85rem;color:var(--muted);text-align:center;margin-bottom:16px;">You can adjust these anytime in Settings.</p>
+
+      <div id="errStep2" class="alert alert-error"></div>
+      <button class="btn btn-primary" id="btnSetupChoice" onclick="useDefaultAllocation()">
+        Continue with Defaults
+      </button>
+
+      <!-- Customize option (hidden by default) -->
+      <div id="customizeToggle" style="text-align:center;margin-top:16px;">
+        <a href="#" onclick="event.preventDefault();showCustomizeOptions();" style="color:var(--accent);font-size:0.88rem;text-decoration:none;font-weight:500;">I want to customize →</a>
+      </div>
+
+      <div class="option-grid" id="customizeOptions" style="display:none;margin-top:20px;">
+        <div class="option-card" id="optYes" onclick="selectSetupOption('yes')">
+          <div class="opt-icon">🤖</div>
+          <div class="opt-label">AI-Assisted Setup</div>
+          <p class="opt-desc">AI suggests custom allocations based on your income and goals. Takes 60 seconds.</p>
+        </div>
+        <div class="option-card" id="optNo" onclick="selectSetupOption('no')">
+          <div class="opt-icon">⚙️</div>
+          <div class="opt-label">Manual Setup</div>
+          <p class="opt-desc">Adjust the 50/10/10/10/10/10 split yourself in Settings after onboarding.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2B: AI QUESTIONNAIRE ═══ -->
+  <div class="step" id="step2b">
+    <div class="hud-card">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="step-count">STEP 03 / 05 — AI ARCHITECTURE BRIEF</div>
+      <div class="hud-tag">4 Questions — 60 Seconds</div>
+      <h1>Brief the AI Architect</h1>
+
+      <div class="q-item">
+        <label>Q1 — Monthly Income (rough estimate)</label>
+        <input type="number" id="qIncome" placeholder="e.g. 5000" min="1" step="100">
+      </div>
+
+      <div class="q-item">
+        <label>Q2 — Do you currently carry debt?</label>
+        <select id="qDebt">
+          <option value="">Select...</option>
+          <option value="yes_significant">Yes — significant debt (credit cards, personal loans)</option>
+          <option value="yes_mortgage">Yes — mortgage only</option>
+          <option value="yes_student">Yes — student loans</option>
+          <option value="no">No debt</option>
+        </select>
+      </div>
+
+      <div class="q-item">
+        <label>Q3 — Do you have an emergency fund?</label>
+        <select id="qEmergency">
+          <option value="">Select...</option>
+          <option value="no">No — building from scratch</option>
+          <option value="partial">Partial — less than 3 months expenses</option>
+          <option value="yes">Yes — 3+ months covered</option>
+        </select>
+      </div>
+
+      <div class="q-item">
+        <label>Q4 — Primary Financial Goal</label>
+        <select id="qGoal">
+          <option value="">Select...</option>
+          <option value="crush_debt">Crush Debt — eliminate debt as fast as possible</option>
+          <option value="build_savings">Build Savings — secure financial foundation first</option>
+          <option value="grow_wealth">Grow Wealth — maximize investment and legacy</option>
+          <option value="all_three">All Three — balanced approach across all priorities</option>
+        </select>
+      </div>
+
+      <div id="errStep2b" class="alert alert-error"></div>
+      <button class="btn btn-primary" id="btnGetSuggestion" onclick="getAiSuggestion()">
+        Generate My Allocation
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2C: AI RESULT ═══ -->
+  <div class="step" id="step2c">
+    <div class="hud-card">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="step-count">STEP 03 / 05 — ALLOCATION RESULT</div>
+      <div class="hud-tag">AI Architect Recommendation</div>
+      <h1>Your Architecture</h1>
+      <p id="allocRationale" class="lead"></p>
+
+      <hr class="divider">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Adjust any category — total must equal 100%</p>
+
+      <div id="allocGrid" class="alloc-grid"></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+        <span style="font-size:14px;color:var(--muted);">Total:</span>
+        <span id="allocTotal" style="font-family:var(--mono);font-size:18px;color:var(--accent);">100%</span>
+      </div>
+
+      <div id="errStep2c" class="alert alert-error"></div>
+      <button class="btn btn-gold" onclick="acceptAllocation()">
+        Accept Allocation — Continue
+      </button>
+      <button class="btn btn-outline" onclick="goBack2b()">← Adjust Answers</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3: EMAIL VERIFY ═══ -->
+  <div class="step" id="step3">
+    <div class="hud-card">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="step-count">STEP 03 / 05 — IDENTITY VERIFICATION</div>
+      <div class="hud-tag">Email Required</div>
+      <h1>Verify Your Email</h1>
+      <p>Before your 168-Hour Audit begins, confirm your identity. A 6-digit code will be sent to your registered email address.</p>
+
+      <div id="emailPhaseA">
+        <div class="email-verify-box">
+          <div>
+            <div class="email-label">Code will be sent to</div>
+            <div class="email-address" id="verifyEmailDisplay">your email</div>
+          </div>
+          <button onclick="sendEmailOtp()">Send Code</button>
+        </div>
+        <div id="errEmailA" class="alert alert-error"></div>
+        <div id="infoEmailA" class="alert alert-info"></div>
+      </div>
+
+      <div id="emailPhaseB" style="display:none">
+        <p style="margin-top:16px">Enter the 6-digit code sent to <strong id="emailOtpDisplay"></strong>:</p>
+        <div class="otp-input-row">
+          <input type="text" id="otpInput" maxlength="6" placeholder="000000" inputmode="numeric" autocomplete="one-time-code">
+        </div>
+        <div id="errEmailB" class="alert alert-error"></div>
+        <button class="btn btn-primary" onclick="confirmEmailOtp()">Verify Code</button>
+        <button class="btn btn-outline" style="margin-top:8px" onclick="resendEmailOtp()">Resend Code</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4: PHASE ZERO COMPLETE ═══ -->
+  <div class="step" id="step4">
+    <div class="hud-card">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+
+      <div class="completion-badge">
+        <span class="badge-icon" id="completionIcon">🏆</span>
+        <h1 id="completionTitle">Phase Zero Complete</h1>
+      </div>
+
+      <div class="xp-banner" id="xpBanner">
+        🏆 Phase Zero Complete — 100 XP earned. Your architecture is set.
+      </div>
+
+      <hr class="divider">
+
+      <div id="completionStats"></div>
+
+      <hr class="divider">
+
+      <p style="color:var(--muted);font-size:15px;line-height:1.6">
+        Your 168-Hour Audit begins now. Log at least one categorized transaction every day for 7 consecutive days. Missing a day resets your counter.
+      </p>
+
+      <div id="errStep4" class="alert alert-error"></div>
+      <button class="btn btn-primary" onclick="enterDashboard()">
+        Enter the Revolution →
+      </button>
+    </div>
+  </div>
+
+</div><!-- /hud-container -->
+
+<script>
+// ═══════════════════════════════════════
+// State
+// ═══════════════════════════════════════
+var currentStep = 0;
+var setupChoice = null;
+var aiAnswers = {};
+var allocations = { necessities: 50, velocity: 10, reserve: 10, lifestyle: 10, growth: 10, legacy: 10 };
+var BUCKET_LABELS = {
+  necessities: 'Necessities',
+  velocity: 'Velocity',
+  reserve: 'The Reserve',
+  lifestyle: 'Lifestyle',
+  growth: 'Growth',
+  legacy: 'Legacy'
+};
+
+// Steps: 0=pregate, 1=declaration, 2=aiChoice, 2b=aiQ, 2c=aiResult, 3=sms, 4=complete
+var STEP_INDICES = { 0: 0, 1: 1, 2: 2, '2b': 2, '2c': 2, 3: 3, 4: 4 };
+// Flow: 0(Pre-Gate) → 1(Declaration) → 3(Email Verify) → 2(Setup) → 2b/2c(AI) → 4(Complete)
+var PROGRESS_MAP = { 0: 0, 1: 20, 3: 40, 2: 60, '2b': 70, '2c': 80, 4: 100 };
+var LABEL_ACTIVE_AT = { pl0: [0], pl1: [1], pl2: [2,'2b','2c'], pl3: [3], pl4: [4] };
+
+function showStep(id) {
+  document.querySelectorAll('.step').forEach(function(el) { el.classList.remove('active'); });
+  var el = document.getElementById('step' + id);
+  if (el) el.classList.add('active');
+  currentStep = id;
+  updateProgress(id);
+  window.scrollTo(0,0);
+}
+
+function updateProgress(id) {
+  var pct = PROGRESS_MAP[id] || 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  ['pl0','pl1','pl2','pl3','pl4'].forEach(function(key) {
+    var el = document.getElementById(key);
+    var ids = LABEL_ACTIVE_AT[key] || [];
+    el.classList.toggle('active', ids.some(function(v) { return String(v) === String(id); }));
+  });
+}
+
+function showError(id, msg) {
+  var el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function clearError(id) {
+  var el = document.getElementById(id);
+  el.textContent = '';
+  el.classList.remove('show');
+}
+
+// ═══════════════════════════════════════
+// Check if user already completed Phase Zero
+// ═══════════════════════════════════════
+(function init() {
+  fetch('/api/phase-zero/status', { credentials: 'include' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error === 'not_authenticated') {
+        window.location.href = '/login';
+        return;
+      }
+      if (data.phase_zero_completed_at) {
+        window.location.href = '/app';
+        return;
+      }
+      // Store email for the verification step
+      if (data.email) {
+        verifyEmail = data.email;
+        document.getElementById('verifyEmailDisplay').textContent = data.email;
+        document.getElementById('emailOtpDisplay').textContent = data.email;
+      }
+      // Resume from correct step (Bug 4: flow is Declaration → Email Verify → Setup → Complete)
+      if (data.phone_verified_at && data.allocation_set_at) {
+        // Email verified AND setup done — go to completion
+        showStep(4);
+        renderCompletionStats(data);
+        return;
+      }
+      if (data.phone_verified_at) {
+        // Email verified but setup not done — go to allocation setup
+        showStep(2);
+        return;
+      }
+      if (data.declaration_accepted_at) {
+        // Declaration done but email not verified — go to email verify
+        initEmailVerifyStep(verifyEmail);
+        showStep(3);
+        return;
+      }
+      showStep(0);
+    })
+    .catch(function() {
+      showStep(0); // Default: show pre-gate
+    });
+})();
+
+// ─── Phase Zero Deadline Banner ──────────────────────────────────────
+// Loads independently; does not block the Phase Zero flow.
+(function initDeadlineBanner() {
+  fetch('/api/mod_pz_deadline/status', { credentials: 'include' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.completed || !data.started_at) return;
+      if (data.is_locked) {
+        // Should not reach here (locked users redirected to /lockout), but handle gracefully
+        window.location.href = '/lockout';
+        return;
+      }
+      var info = data.deadline_info;
+      if (!info) return;
+
+      var banner = document.getElementById('pzDeadlineBanner');
+      var timeEl = document.getElementById('pzDeadlineTime');
+      var dateEl = document.getElementById('pzDeadlineDate');
+
+      if (!banner || info.expired) return;
+
+      var deadline = new Date(info.deadline_at);
+      dateEl.textContent = 'Complete by ' + deadline.toLocaleDateString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric'
+      });
+
+      // Update display and add urgent class if ≤ 2 days remain
+      function updateBannerTime() {
+        var msLeft = deadline.getTime() - Date.now();
+        if (msLeft <= 0) {
+          // Timer expired — redirect to lockout (server will apply lockout on next request)
+          clearInterval(bannerInterval);
+          window.location.reload();
+          return;
+        }
+        var daysLeft = Math.ceil(msLeft / (24 * 60 * 60 * 1000));
+        var hoursLeft = Math.floor(msLeft / (60 * 60 * 1000));
+
+        if (daysLeft <= 1) {
+          timeEl.textContent = hoursLeft + 'h remaining';
+          banner.classList.add('urgent');
+        } else {
+          timeEl.textContent = daysLeft + ' day' + (daysLeft !== 1 ? 's' : '') + ' remaining';
+          if (daysLeft > 2) banner.classList.remove('urgent');
+          else banner.classList.add('urgent');
+        }
+      }
+
+      updateBannerTime();
+      banner.style.display = '';
+      var bannerInterval = setInterval(updateBannerTime, 60000); // refresh every minute
+    })
+    .catch(function() {
+      // Deadline API unavailable — banner stays hidden, not blocking
+    });
+})();
+
+// ═══════════════════════════════════════
+// Step 0: Pre-Gate
+// ═══════════════════════════════════════
+function goToDeclaration() {
+  showStep(1);
+}
+
+// ═══════════════════════════════════════
+// Step 1: Declaration
+// ═══════════════════════════════════════
+function toggleDeclaration() {
+  var cb = document.getElementById('declarationCheck');
+  cb.checked = !cb.checked;
+  onDeclarationChange();
+}
+
+function onDeclarationChange() {
+  var checked = document.getElementById('declarationCheck').checked;
+  document.getElementById('btnDeclaration').disabled = !checked;
+  clearError('errStep1');
+}
+
+function acceptDeclaration() {
+  clearError('errStep1');
+  var btn = document.getElementById('btnDeclaration');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Recording...';
+
+  fetch('/api/phase-zero/accept-declaration', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) {
+      btn.disabled = false;
+      btn.textContent = 'Accept Declaration — Continue';
+      showError('errStep1', data.error);
+      return;
+    }
+    // Bug 4 fix: go to email verification BEFORE allocation setup
+    initEmailVerifyStep(verifyEmail);
+    showStep(3);
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Accept Declaration — Continue';
+    showError('errStep1', 'Network error. Try again.');
+  });
+}
+
+// ═══════════════════════════════════════
+// Step 2: AI Choice
+// ═══════════════════════════════════════
+function selectSetupOption(choice) {
+  setupChoice = choice;
+  document.getElementById('optYes').classList.toggle('selected', choice === 'yes');
+  document.getElementById('optNo').classList.toggle('selected', choice === 'no');
+  document.getElementById('btnSetupChoice').disabled = false;
+  clearError('errStep2');
+}
+
+function proceedSetupChoice() {
+  if (!setupChoice) { showError('errStep2', 'Select an option to continue.'); return; }
+  if (setupChoice === 'yes') {
+    showStep('2b');
+  } else {
+    // Skip AI — use defaults, award XP
+    skipAi();
+  }
+}
+
+function skipAi() {
+  var btn = document.getElementById('btnSetupChoice');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Applying defaults...';
+
+  fetch('/api/phase-zero/skip-ai', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) {
+      btn.disabled = false;
+      btn.textContent = 'Continue';
+      showError('errStep2', data.error);
+      return;
+    }
+    // Email already verified (Bug 4), go straight to completion
+    completePhaseZero();
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Continue';
+    showError('errStep2', 'Network error. Try again.');
+  });
+}
+
+// Bug 3: Show default allocation with customize toggle
+function useDefaultAllocation() {
+  // Use defaults directly (same as skip-AI)
+  skipAi();
+}
+
+function showCustomizeOptions() {
+  document.getElementById('customizeOptions').style.display = '';
+  document.getElementById('customizeToggle').style.display = 'none';
+  document.getElementById('btnSetupChoice').textContent = 'Continue';
+  document.getElementById('btnSetupChoice').disabled = true;
+  document.getElementById('btnSetupChoice').onclick = proceedSetupChoice;
+}
+
+// ═══════════════════════════════════════
+// Step 2B: AI Questionnaire
+// ═══════════════════════════════════════
+function getAiSuggestion() {
+  var income = document.getElementById('qIncome').value;
+  var debt = document.getElementById('qDebt').value;
+  var emergency = document.getElementById('qEmergency').value;
+  var goal = document.getElementById('qGoal').value;
+
+  if (!income || parseFloat(income) <= 0) { showError('errStep2b', 'Enter your monthly income.'); return; }
+  if (!debt) { showError('errStep2b', 'Select your debt situation.'); return; }
+  if (!emergency) { showError('errStep2b', 'Select your emergency fund status.'); return; }
+  if (!goal) { showError('errStep2b', 'Select your primary goal.'); return; }
+
+  clearError('errStep2b');
+  aiAnswers = { income: parseFloat(income), debt: debt, emergency: emergency, goal: goal };
+
+  var btn = document.getElementById('btnGetSuggestion');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+
+  fetch('/api/phase-zero/ai-suggest', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(aiAnswers)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false;
+    btn.textContent = 'Generate My Allocation';
+    if (data.error) { showError('errStep2b', data.error); return; }
+
+    allocations = data.allocations;
+    document.getElementById('allocRationale').textContent = data.rationale || 'Based on your answers, here is your suggested allocation.';
+    renderAllocGrid();
+    showStep('2c');
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Generate My Allocation';
+    showError('errStep2b', 'Network error. Try again.');
+  });
+}
+
+function renderAllocGrid() {
+  var grid = document.getElementById('allocGrid');
+  var keys = Object.keys(BUCKET_LABELS);
+  grid.innerHTML = keys.map(function(k) {
+    return '<div class="alloc-item" id="allocRow_' + k + '">' +
+      '<span class="alloc-name">' + BUCKET_LABELS[k] + '</span>' +
+      '<div class="alloc-adjust">' +
+        '<input type="number" id="allocInput_' + k + '" value="' + (allocations[k] || 0) +
+          '" min="0" max="100" step="1" onchange="recalcTotal(\'' + k + '\')">' +
+        '<span class="pct-symbol">%</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  recalcTotal();
+}
+
+function recalcTotal(changedKey) {
+  var total = 0;
+  Object.keys(BUCKET_LABELS).forEach(function(k) {
+    var val = parseFloat(document.getElementById('allocInput_' + k).value) || 0;
+    allocations[k] = val;
+    total += val;
+  });
+  var el = document.getElementById('allocTotal');
+  el.textContent = total + '%';
+  el.style.color = Math.abs(total - 100) < 0.01 ? 'var(--accent)' : 'var(--danger)';
+}
+
+function goBack2b() { showStep('2b'); }
+
+function acceptAllocation() {
+  var total = Object.values(allocations).reduce(function(a,b) { return a+b; }, 0);
+  if (Math.abs(total - 100) >= 0.01) {
+    showError('errStep2c', 'Allocation must total exactly 100%. Current total: ' + total + '%');
+    return;
+  }
+
+  var btn = document.querySelector('#step2c .btn-gold');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+  fetch('/api/phase-zero/ai-setup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ answers: aiAnswers, allocations: allocations })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false;
+    btn.textContent = 'Accept Allocation — Continue';
+    if (data.error) { showError('errStep2c', data.error); return; }
+    // Email already verified (Bug 4), go straight to completion
+    completePhaseZero();
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Accept Allocation — Continue';
+    showError('errStep2c', 'Network error. Try again.');
+  });
+}
+
+// ═══════════════════════════════════════
+// Step 3: Email Verification
+// ═══════════════════════════════════════
+var verifyEmail = ''; // populated from /api/phase-zero/status or session
+
+function initEmailVerifyStep(email) {
+  if (email) {
+    verifyEmail = email;
+    document.getElementById('verifyEmailDisplay').textContent = email;
+    document.getElementById('emailOtpDisplay').textContent = email;
+  }
+  // Reset to Phase A (send-code panel)
+  document.getElementById('emailPhaseA').style.display = 'block';
+  document.getElementById('emailPhaseB').style.display = 'none';
+  document.getElementById('otpInput').value = '';
+  clearError('errEmailA');
+  clearError('errEmailB');
+}
+
+function sendEmailOtp() {
+  clearError('errEmailA');
+  var btn = document.querySelector('#emailPhaseA button');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  fetch('/api/email-verify/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false;
+    btn.textContent = 'Send Code';
+    if (data.error) { showError('errEmailA', data.error); return; }
+    document.getElementById('emailOtpDisplay').textContent = verifyEmail;
+    document.getElementById('emailPhaseA').style.display = 'none';
+    document.getElementById('emailPhaseB').style.display = 'block';
+    var info = document.getElementById('infoEmailA');
+    info.textContent = 'Code sent! Check your inbox.';
+    info.classList.add('show');
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Send Code';
+    showError('errEmailA', 'Network error. Try again.');
+  });
+}
+
+function confirmEmailOtp() {
+  var code = document.getElementById('otpInput').value.trim();
+  if (!code || code.length !== 6) { showError('errEmailB', 'Enter the 6-digit code.'); return; }
+  clearError('errEmailB');
+
+  var btn = document.querySelector('#emailPhaseB .btn-primary');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Verifying...';
+
+  fetch('/api/email-verify/confirm', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ code: code })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false;
+    btn.textContent = 'Verify Code';
+    if (data.error) { showError('errEmailB', data.error); return; }
+    // After email verification, proceed to allocation setup (Bug 4: verify first, then setup)
+    showStep(2);
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Verify Code';
+    showError('errEmailB', 'Network error. Try again.');
+  });
+}
+
+function resendEmailOtp() {
+  document.getElementById('emailPhaseA').style.display = 'block';
+  document.getElementById('emailPhaseB').style.display = 'none';
+  clearError('errEmailA');
+  clearError('errEmailB');
+}
+
+// ═══════════════════════════════════════
+// Step 4: Complete
+// ═══════════════════════════════════════
+function completePhaseZero() {
+  fetch('/api/phase-zero/complete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) { showError('errStep3', data.error || 'Error completing Phase Zero.'); return; }
+
+    // Show AI bonus if applicable
+    if (data.ai_guided) {
+      document.getElementById('xpBanner').textContent = '🏆 Phase Zero Complete — 100 XP + 25 Bonus Wallet Points earned. Your architecture is set.';
+    }
+
+    renderCompletionStats(data);
+    showStep(4);
+  })
+  .catch(function() {
+    window.location.href = '/app'; // Fallback
+  });
+}
+
+function renderCompletionStats(data) {
+  var html = '';
+  html += '<div class="stat-row"><span class="stat-label">Status</span><span class="stat-value" style="color:var(--accent)">VERIFIED ✓</span></div>';
+  html += '<div class="stat-row"><span class="stat-label">XP Awarded</span><span class="stat-value">+100 XP</span></div>';
+  if (data && data.ai_guided) {
+    html += '<div class="stat-row"><span class="stat-label">AI Bonus Points</span><span class="stat-value" style="color:var(--gold)">+25 Wallet Points</span></div>';
+  }
+  html += '<div class="stat-row"><span class="stat-label">Audit Status</span><span class="stat-value">168-Hour Audit Starting</span></div>';
+  html += '<div class="stat-row"><span class="stat-label">Access Level</span><span class="stat-value">Standard (Audit Mode)</span></div>';
+  document.getElementById('completionStats').innerHTML = html;
+}
+
+function enterDashboard() {
+  window.location.href = '/app';
+}
+</script>
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

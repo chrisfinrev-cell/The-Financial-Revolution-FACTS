@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Financial News Hub — FACTS</title>
+  <meta name="description" content="Financial news that affects real people — interest rates, inflation, housing, taxes, retirement, markets and more. Auto-updating, curated, and clear.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Financial News Hub — FACTS">
+  <meta property="og:description" content="The latest financial news that affects real people. Market moves, economic shifts, and policy changes — curated and clear.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://app.factsmoney.com/news">
+  <meta property="og:site_name" content="FACTS">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1f2940' },
+            gold: { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a8831e' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- ═══════════════════════════════════════════
+       GOOGLE ADSENSE
+       Replace ca-pub-XXXXXXXXXXXXXXXXXX with your publisher ID
+       ═══════════════════════════════════════════ -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+    body { background: #0d1117; color: #e2e8f0; margin: 0; min-height: 100vh; min-height: 100dvh; }
+
+    /* ── Gold accent ── */
+    .gold-text { color: #c9a227; }
+    .gold-border { border-color: #c9a227; }
+
+    /* ── Nav bar ── */
+    .nav-bar {
+      background: rgba(13,17,23,0.96);
+      border-bottom: 1px solid rgba(201,162,39,0.15);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 44px; z-index: 40;
+    }
+
+    /* ── Category pills ── */
+    .cat-pill {
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: #94a3b8;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .cat-pill:hover { border-color: rgba(201,162,39,0.4); color: #c9a227; }
+    .cat-pill.active {
+      background: rgba(201,162,39,0.12);
+      border-color: #c9a227;
+      color: #e8c96a;
+    }
+
+    /* ── News card ── */
+    .news-card {
+      background: #13192a;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 18px 20px;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .news-card:hover {
+      border-color: rgba(201,162,39,0.3);
+      transform: translateY(-1px);
+    }
+    .news-card a { text-decoration: none; color: inherit; }
+    .news-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f1f5f9;
+      line-height: 1.45;
+      margin: 0;
+    }
+    .news-card h3:hover { color: #e8c96a; }
+    .news-card p {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ── Category badge ── */
+    .cat-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.03em;
+    }
+    .badge-markets    { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .badge-rates      { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .badge-housing    { background: rgba(16,185,129,0.15); color: #34d399; }
+    .badge-taxes      { background: rgba(239,68,68,0.15);  color: #f87171; }
+    .badge-retirement { background: rgba(139,92,246,0.15); color: #a78bfa; }
+    .badge-jobs       { background: rgba(236,72,153,0.15); color: #f472b6; }
+    .badge-credit     { background: rgba(251,146,60,0.15); color: #fb923c; }
+    .badge-economy    { background: rgba(148,163,184,0.12); color: #94a3b8; }
+    .badge-student-loans { background: rgba(34,197,94,0.12); color: #4ade80; }
+
+    /* ── Source tag ── */
+    .source-tag {
+      font-size: 11px;
+      color: #475569;
+      font-weight: 500;
+    }
+
+    /* ── Skeleton loading ── */
+    .skeleton {
+      background: linear-gradient(90deg, #1a2235 25%, #1f2940 50%, #1a2235 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Ad unit ── */
+    .ad-unit {
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed rgba(255,255,255,0.08);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #374151;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    /* Hide ads for pro users */
+    body.ad-free .ad-unit { display: none !important; }
+
+    /* ── Top banner ad ── */
+    .ad-banner {
+      width: 100%;
+      min-height: 90px;
+      margin: 0 auto 24px;
+      max-width: 728px;
+    }
+    @media (max-width: 768px) {
+      .ad-banner { min-height: 60px; }
+    }
+
+    /* ── Sidebar ad ── */
+    .ad-sidebar { width: 300px; min-height: 250px; flex-shrink: 0; }
+
+    /* ── In-feed ad ── */
+    .ad-infeed {
+      min-height: 120px;
+      width: 100%;
+    }
+
+    /* ── Refresh button ── */
+    .refresh-btn {
+      background: rgba(201,162,39,0.1);
+      border: 1px solid rgba(201,162,39,0.25);
+      color: #c9a227;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .refresh-btn:hover { background: rgba(201,162,39,0.2); }
+    .refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* ── Scrollable category bar ── */
+    .cat-scroll {
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .cat-scroll::-webkit-scrollbar { display: none; }
+
+    /* ── No results ── */
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: #475569;
+    }
+
+    /* ── Read more link ── */
+    .read-more {
+      font-size: 12px;
+      color: #c9a227;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-top: 2px;
+    }
+    .read-more:hover { color: #e8c96a; }
+
+    /* ── Pro badge ── */
+    .pro-badge {
+      background: rgba(201,162,39,0.12);
+      border: 1px solid rgba(201,162,39,0.25);
+      color: #c9a227;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+  </style>
+  <script defer src="/nav-bar.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════ NAV ═══════════════ -->
+  <nav class="nav-bar">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2 text-gray-400 hover:text-gray-200 transition-colors text-sm font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+          <span class="hidden sm:inline">FACTS</span>
+          <span class="sm:hidden">FACTS</span>
+        </a>
+        <span class="text-gray-700">/</span>
+        <span class="text-white font-semibold text-sm">Financial News Hub</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="pro-indicator" class="pro-badge hidden">Ad-Free</span>
+        <a href="/app" class="text-xs text-gray-500 hover:text-gray-300 transition-colors hidden sm:inline">Open FACTS →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-2">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <span class="text-2xl">📰</span>
+          <h1 class="text-2xl sm:text-3xl font-bold text-white">Financial News Hub</h1>
+        </div>
+        <p class="text-gray-400 text-sm sm:text-base max-w-xl">
+          The latest financial news that affects real people — market moves, economic shifts, rate changes, and policy updates. Curated and clear.
+        </p>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <span id="last-updated" class="text-xs text-gray-600 hidden"></span>
+        <button id="refresh-btn" class="refresh-btn" onclick="refreshNews()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TOP BANNER AD ═══════════════ -->
+  <div class="max-w-6xl mx-auto px-4 mb-2" id="ad-top-banner">
+    <div class="ad-unit ad-banner">
+      <!-- AdSense Top Banner (728×90 desktop / responsive mobile)
+           Replace ca-pub-XXXXXXXXXXXXXXXXXX with your publisher ID
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXXXX"
+           data-ad-slot="YOUR_AD_SLOT_ID_1"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      -->
+      <span>Advertisement</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CATEGORY FILTER ═══════════════ -->
+  <div class="max-w-6xl mx-auto px-4 mb-6">
+    <div class="cat-scroll">
+      <div class="flex gap-2 pb-1" id="category-bar">
+        <button class="cat-pill active" data-cat="All" onclick="filterCategory('All', this)">All</button>
+        <button class="cat-pill" data-cat="Markets" onclick="filterCategory('Markets', this)">📈 Markets</button>
+        <button class="cat-pill" data-cat="Rates" onclick="filterCategory('Rates', this)">💹 Rates</button>
+        <button class="cat-pill" data-cat="Economy" onclick="filterCategory('Economy', this)">🌐 Economy</button>
+        <button class="cat-pill" data-cat="Housing" onclick="filterCategory('Housing', this)">🏠 Housing</button>
+        <button class="cat-pill" data-cat="Taxes" onclick="filterCategory('Taxes', this)">🧾 Taxes</button>
+        <button class="cat-pill" data-cat="Jobs" onclick="filterCategory('Jobs', this)">💼 Jobs</button>
+        <button class="cat-pill" data-cat="Retirement" onclick="filterCategory('Retirement', this)">🏖️ Retirement</button>
+        <button class="cat-pill" data-cat="Credit" onclick="filterCategory('Credit', this)">💳 Credit</button>
+        <button class="cat-pill" data-cat="Student Loans" onclick="filterCategory('Student Loans', this)">🎓 Student Loans</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+  <div class="max-w-6xl mx-auto px-4 pb-16">
+    <div class="flex gap-6 items-start">
+
+      <!-- ── News feed (main column) ── -->
+      <div class="flex-1 min-w-0">
+        <!-- Article count -->
+        <div class="flex items-center justify-between mb-4">
+          <span id="article-count" class="text-xs text-gray-600 font-medium"></span>
+        </div>
+
+        <!-- Loading skeletons -->
+        <div id="loading-state" class="flex flex-col gap-3">
+          <div class="news-card"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-full mb-1"></div><div class="skeleton h-3 w-2/3"></div></div>
+          <div class="news-card"><div class="skeleton h-4 w-4/5 mb-2"></div><div class="skeleton h-3 w-full mb-1"></div><div class="skeleton h-3 w-1/2"></div></div>
+          <div class="news-card"><div class="skeleton h-4 w-2/3 mb-2"></div><div class="skeleton h-3 w-full mb-1"></div><div class="skeleton h-3 w-3/4"></div></div>
+          <div class="news-card"><div class="skeleton h-4 w-4/5 mb-2"></div><div class="skeleton h-3 w-full mb-1"></div><div class="skeleton h-3 w-2/3"></div></div>
+          <div class="news-card"><div class="skeleton h-4 w-3/5 mb-2"></div><div class="skeleton h-3 w-full mb-1"></div><div class="skeleton h-3 w-4/5"></div></div>
+        </div>
+
+        <!-- Articles grid -->
+        <div id="news-feed" class="hidden flex flex-col gap-3"></div>
+
+        <!-- No results -->
+        <div id="no-results" class="hidden no-results">
+          <div class="text-4xl mb-3">🔍</div>
+          <p class="text-gray-500 font-medium">No articles in this category right now.</p>
+          <button onclick="filterCategory('All', document.querySelector('[data-cat=All]'))" class="mt-3 text-sm text-gold-500 hover:text-gold-300" style="color:#c9a227">View all news →</button>
+        </div>
+
+        <!-- Error state -->
+        <div id="error-state" class="hidden no-results">
+          <div class="text-4xl mb-3">📡</div>
+          <p class="text-gray-500 font-medium">Couldn't load news right now.</p>
+          <button onclick="refreshNews()" class="mt-3 refresh-btn">Try Again</button>
+        </div>
+      </div>
+
+      <!-- ── Sidebar (desktop only) ── -->
+      <div class="hidden lg:flex flex-col gap-4 w-72 shrink-0">
+
+        <!-- Sidebar Ad 1 -->
+        <div id="ad-sidebar-1">
+          <div class="ad-unit ad-sidebar">
+            <!-- AdSense Sidebar (300×250)
+                 Replace ca-pub-XXXXXXXXXXXXXXXXXX with your publisher ID
+            <ins class="adsbygoogle"
+                 style="display:block; width:300px; height:250px"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXXXX"
+                 data-ad-slot="YOUR_AD_SLOT_ID_2"
+                 data-ad-format="rectangle"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            -->
+            <span>Advertisement</span>
+          </div>
+        </div>
+
+        <!-- Category Summary (always visible) -->
+        <div class="rounded-2xl p-4" style="background:#13192a; border:1px solid rgba(255,255,255,0.07);">
+          <h3 class="text-sm font-semibold text-white mb-3">Browse by Topic</h3>
+          <div class="flex flex-col gap-1" id="sidebar-cats"></div>
+        </div>
+
+        <!-- Sidebar Ad 2 -->
+        <div id="ad-sidebar-2">
+          <div class="ad-unit ad-sidebar">
+            <!-- AdSense Sidebar (300×250)
+                 Replace ca-pub-XXXXXXXXXXXXXXXXXX with your publisher ID
+            <ins class="adsbygoogle"
+                 style="display:block; width:300px; height:250px"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXXXX"
+                 data-ad-slot="YOUR_AD_SLOT_ID_3"
+                 data-ad-format="rectangle"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            -->
+            <span>Advertisement</span>
+          </div>
+        </div>
+
+        <!-- FACTS CTA -->
+        <div class="rounded-2xl p-4" style="background:rgba(201,162,39,0.06); border:1px solid rgba(201,162,39,0.2);">
+          <div class="text-xl mb-2">💰</div>
+          <h3 class="text-sm font-semibold text-white mb-1">Track Your Finances</h3>
+          <p class="text-xs text-gray-500 mb-3">See how these headlines affect your budget with FACTS.</p>
+          <a href="/app" class="block text-center text-xs font-semibold py-2 px-3 rounded-lg" style="background:rgba(201,162,39,0.15); border:1px solid rgba(201,162,39,0.3); color:#c9a227;">
+            Open FACTS →
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="border-t border-gray-800 py-8 mt-4">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p class="text-xs text-gray-600">© 2025 FACTS. News sourced from public RSS feeds.</p>
+      <div class="flex items-center gap-4 text-xs text-gray-600">
+        <a href="/" class="hover:text-gray-400 transition-colors">FACTS Hub</a>
+        <a href="/app" class="hover:text-gray-400 transition-colors">FACTS App</a>
+        <a href="/pricing.html" class="hover:text-gray-400 transition-colors">Pricing</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════ JAVASCRIPT ═══════════════ -->
+  <script>
+    const CATEGORIES = ['All','Markets','Rates','Economy','Housing','Taxes','Jobs','Retirement','Credit','Student Loans'];
+    const BADGE_CLASSES = {
+      'Markets':      'badge-markets',
+      'Rates':        'badge-rates',
+      'Housing':      'badge-housing',
+      'Taxes':        'badge-taxes',
+      'Retirement':   'badge-retirement',
+      'Jobs':         'badge-jobs',
+      'Credit':       'badge-credit',
+      'Economy':      'badge-economy',
+      'Student Loans':'badge-student-loans',
+    };
+
+    let allArticles = [];
+    let activeCategory = 'All';
+    let isLoading = false;
+
+    // ── Relative time ──────────────────────────────────────────
+    function relativeTime(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      if (isNaN(d)) return '';
+      const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+      if (diff < 60) return 'Just now';
+      if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+      if (diff < 172800) return 'Yesterday';
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    // ── Build badge HTML ──────────────────────────────────────
+    function categoryBadge(cat) {
+      const cls = BADGE_CLASSES[cat] || 'badge-economy';
+      return `<span class="cat-badge ${cls}">${cat}</span>`;
+    }
+
+    // ── Build a news card ─────────────────────────────────────
+    function buildCard(article) {
+      const time = relativeTime(article.pubDate);
+      const desc = article.description ? `<p>${escHtml(article.description)}</p>` : '';
+      return `
+        <div class="news-card">
+          <div class="flex items-center gap-2 flex-wrap">
+            ${categoryBadge(article.category)}
+            <span class="source-tag">${escHtml(article.source)}</span>
+            ${time ? `<span class="source-tag ml-auto">${time}</span>` : ''}
+          </div>
+          <a href="${escHtml(article.link)}" target="_blank" rel="noopener noreferrer">
+            <h3>${escHtml(article.title)}</h3>
+          </a>
+          ${desc}
+          <a href="${escHtml(article.link)}" target="_blank" rel="noopener noreferrer" class="read-more">
+            Read article
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
+        </div>`;
+    }
+
+    // ── Build in-feed ad HTML ─────────────────────────────────
+    function buildInFeedAd() {
+      return `
+        <div id="ad-infeed-${Math.random().toString(36).slice(2)}" class="ad-unit ad-infeed">
+          <!-- AdSense In-Feed Ad
+               Replace ca-pub-XXXXXXXXXXXXXXXXXX with your publisher ID
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="ca-pub-XXXXXXXXXXXXXXXXXX"
+               data-ad-slot="YOUR_AD_SLOT_ID_4"
+               data-ad-format="fluid"
+               data-ad-layout-key="-fb+5w+4e-db+86"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</s` + `cript>
+          -->
+          <span>Advertisement</span>
+        </div>`;
+    }
+
+    // ── Escape HTML ───────────────────────────────────────────
+    function escHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+
+    // ── Render articles ───────────────────────────────────────
+    function renderArticles(articles) {
+      const feed = document.getElementById('news-feed');
+      const loading = document.getElementById('loading-state');
+      const noResults = document.getElementById('no-results');
+      const count = document.getElementById('article-count');
+
+      loading.classList.add('hidden');
+      feed.classList.remove('hidden');
+
+      if (articles.length === 0) {
+        feed.classList.add('hidden');
+        noResults.classList.remove('hidden');
+        count.textContent = '';
+        return;
+      }
+
+      noResults.classList.add('hidden');
+      count.textContent = `${articles.length} article${articles.length !== 1 ? 's' : ''}`;
+
+      let html = '';
+      articles.forEach((art, i) => {
+        html += buildCard(art);
+        // Insert in-feed ad every 6 articles
+        if ((i + 1) % 6 === 0 && i < articles.length - 1) {
+          html += buildInFeedAd();
+        }
+      });
+      feed.innerHTML = html;
+    }
+
+    // ── Filter by category ────────────────────────────────────
+    function filterCategory(cat, btn) {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const filtered = cat === 'All'
+        ? allArticles
+        : allArticles.filter(a => a.category === cat);
+
+      renderArticles(filtered);
+    }
+
+    // ── Build sidebar category list ───────────────────────────
+    function buildSidebarCats(articles) {
+      const counts = {};
+      articles.forEach(a => { counts[a.category] = (counts[a.category] || 0) + 1; });
+      const sidebarEl = document.getElementById('sidebar-cats');
+      if (!sidebarEl) return;
+      const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+      sidebarEl.innerHTML = sorted.map(([cat, n]) => `
+        <button onclick="filterCategory('${cat}', document.querySelector('[data-cat=\\'${cat}\\']'))"
+                class="flex items-center justify-between px-2 py-1.5 rounded-lg text-xs text-gray-400 hover:text-gray-200 hover:bg-white/5 transition-colors text-left w-full">
+          <span>${cat}</span>
+          <span class="text-gray-600">${n}</span>
+        </button>`).join('');
+    }
+
+    // ── Fetch news from API ───────────────────────────────────
+    async function fetchNews(forceRefresh = false) {
+      if (isLoading) return;
+      isLoading = true;
+      const btn = document.getElementById('refresh-btn');
+      if (btn) btn.classList.add('spinning');
+
+      try {
+        const url = forceRefresh ? '/api/news?bust=' + Date.now() : '/api/news';
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        if (!data.success || !data.articles) throw new Error('Bad response');
+
+        allArticles = data.articles;
+
+        // Update last updated text
+        if (data.lastUpdated) {
+          const ts = new Date(data.lastUpdated);
+          document.getElementById('last-updated').textContent =
+            `Updated ${relativeTime(ts.toISOString())}`;
+          document.getElementById('last-updated').classList.remove('hidden');
+        }
+
+        // Re-apply active filter
+        filterCategory(activeCategory, document.querySelector(`[data-cat="${activeCategory}"]`));
+        buildSidebarCats(allArticles);
+
+      } catch (err) {
+        console.error('[News] Fetch error:', err);
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('error-state').classList.remove('hidden');
+      } finally {
+        isLoading = false;
+        if (btn) btn.classList.remove('spinning');
+      }
+    }
+
+    function refreshNews() {
+      // Reset cache bust
+      document.getElementById('news-feed').innerHTML = '';
+      document.getElementById('news-feed').classList.add('hidden');
+      document.getElementById('loading-state').classList.remove('hidden');
+      document.getElementById('error-state').classList.add('hidden');
+      document.getElementById('no-results').classList.add('hidden');
+      fetchNews(true);
+    }
+
+    // ── Check pro status → hide ads ───────────────────────────
+    async function checkProStatus() {
+      try {
+        const resp = await fetch('/api/auth/me');
+        if (!resp.ok) return;
+        const data = await resp.json();
+        // has_pro = true means ad-free
+        if (data.has_pro || data.user?.has_pro) {
+          document.body.classList.add('ad-free');
+          const badge = document.getElementById('pro-indicator');
+          if (badge) badge.classList.remove('hidden');
+        }
+      } catch (_) {
+        // Not logged in or error — show ads (default)
+      }
+    }
+
+    // ── Init ──────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchNews();
+      checkProStatus();
+    });
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

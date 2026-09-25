@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Change Your Plan — FACTS</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg-deep:#0a0f1a;--bg-card:#111827;--bg-elevated:#1a2332;
+      --accent-gold:#f59e0b;--accent-green:#10b981;--accent-blue:#3b82f6;
+      --accent-purple:#8b5cf6;--accent-red:#f43f5e;
+      --text-primary:#f1f5f9;--text-secondary:#cbd5e1;--text-muted:#94a3b8;
+      --border:#1e293b;
+    }
+    body{font-family:'DM Sans',sans-serif;background:var(--bg-deep);color:var(--text-primary);min-height:100dvh;-webkit-font-smoothing:antialiased}
+    h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif}
+    .page-wrap{max-width:680px;margin:0 auto;padding:24px 16px 80px}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:14px;margin-bottom:24px;transition:color .2s}
+    .back-btn:hover{color:var(--text-primary)}
+    .page-title{font-size:26px;font-weight:700;margin-bottom:6px}
+    .page-sub{color:var(--text-muted);font-size:15px;margin-bottom:32px}
+
+    /* Current plan badge */
+    .current-plan-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+    .plan-label{font-size:13px;color:var(--text-muted);margin-bottom:4px}
+    .plan-name{font-size:18px;font-weight:700;color:var(--accent-gold)}
+    .plan-status{font-size:12px;padding:4px 10px;border-radius:20px;font-weight:600}
+    .status-active{background:#064e3b;color:#34d399}
+    .status-free{background:#1e293b;color:#94a3b8}
+
+    /* Tier grid */
+    .tier-grid{display:grid;gap:12px;margin-bottom:28px}
+    .tier-card{background:var(--bg-card);border:2px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;position:relative}
+    .tier-card:hover{border-color:var(--accent-gold);transform:translateY(-1px)}
+    .tier-card.selected{border-color:var(--accent-gold);background:#1a1500}
+    .tier-card.current-tier{border-color:#374151;cursor:default;opacity:.65}
+    .tier-card.current-tier::after{content:'Current';position:absolute;top:12px;right:14px;font-size:11px;font-weight:700;color:var(--text-muted);background:var(--bg-elevated);padding:3px 8px;border-radius:10px}
+    .tier-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+    .tier-name{font-size:17px;font-weight:700}
+    .tier-price{text-align:right}
+    .price-amount{font-size:18px;font-weight:700;color:var(--accent-gold)}
+    .price-period{font-size:11px;color:var(--text-muted)}
+    .tier-features{list-style:none}
+    .tier-features li{font-size:13px;color:var(--text-secondary);padding:3px 0;display:flex;align-items:center;gap:8px}
+    .tier-features li::before{content:'✓';color:var(--accent-green);font-size:12px;flex-shrink:0}
+
+    /* Confirmation panel */
+    .confirm-panel{background:var(--bg-elevated);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px;display:none}
+    .confirm-panel.visible{display:block}
+    .confirm-title{font-size:17px;font-weight:700;margin-bottom:14px}
+    .confirm-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+    .confirm-row:last-child{border-bottom:none}
+    .confirm-row-label{font-size:13px;color:var(--text-muted)}
+    .confirm-row-value{font-size:14px;font-weight:600}
+    .arrow-up{color:var(--accent-green)}
+    .arrow-down{color:var(--accent-red)}
+
+    /* Downgrade warning */
+    .downgrade-warn{background:#1a0f0f;border:1px solid #7f1d1d;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#fca5a5;display:none}
+    .downgrade-warn.visible{display:block}
+    .downgrade-warn ul{margin-top:8px;padding-left:16px;list-style:disc}
+    .downgrade-warn li{padding:2px 0}
+
+    /* CTA */
+    .cta-primary{width:100%;padding:16px;background:var(--accent-gold);color:#000;font-size:16px;font-weight:700;border:none;border-radius:12px;cursor:pointer;transition:all .2s;font-family:'Space Grotesk',sans-serif}
+    .cta-primary:hover{background:#d97706;transform:translateY(-1px)}
+    .cta-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .cta-secondary{width:100%;padding:14px;background:transparent;color:var(--text-secondary);font-size:14px;font-weight:600;border:1px solid var(--border);border-radius:12px;cursor:pointer;margin-top:10px;transition:all .2s;font-family:'DM Sans',sans-serif}
+    .cta-secondary:hover{border-color:var(--accent-red);color:var(--accent-red)}
+
+    /* Billing toggle */
+    .billing-toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;width:fit-content}
+    .billing-btn{padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--text-muted);border:none;transition:all .2s;font-family:'DM Sans',sans-serif}
+    .billing-btn.active{background:var(--accent-gold);color:#000}
+
+    /* Admin panel */
+    .admin-panel{background:#0f0f1a;border:1px dashed var(--accent-purple);border-radius:12px;padding:18px;margin-top:28px;display:none}
+    .admin-panel.visible{display:block}
+    .admin-label{font-size:11px;font-weight:700;color:var(--accent-purple);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+    .admin-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
+    .admin-input{flex:1;min-width:160px;padding:9px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px}
+    .admin-select{flex:1;min-width:140px;padding:9px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px}
+    .admin-btn{padding:9px 16px;background:var(--accent-purple);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:8px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
+    .admin-result{font-size:13px;padding:10px;border-radius:8px;margin-top:8px;display:none}
+    .admin-result.success{background:#064e3b;color:#34d399;display:block}
+    .admin-result.error{background:#7f1d1d;color:#fca5a5;display:block}
+
+    .loading-pulse{animation:pulse 1.5s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid #0003;border-top-color:currentColor;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+  <a href="/app" class="back-btn">← Back to Dashboard</a>
+
+  <h1 class="page-title">Change Your Plan</h1>
+  <p class="page-sub">Upgrade to unlock features, or downgrade anytime. Your data is always preserved.</p>
+
+  <!-- Current plan -->
+  <div class="current-plan-card">
+    <div>
+      <div class="plan-label">Current Plan</div>
+      <div class="plan-name" id="current-tier-name">Loading...</div>
+      <div id="paid-until-label" style="font-size:12px;color:var(--text-muted);margin-top:3px"></div>
+    </div>
+    <span class="plan-status" id="plan-status-badge">—</span>
+  </div>
+
+  <!-- Billing toggle -->
+  <div class="billing-toggle">
+    <button class="billing-btn active" onclick="setBilling('monthly')">Monthly</button>
+    <button class="billing-btn" onclick="setBilling('annual')">Annual <span style="color:var(--accent-green);font-size:11px">-17%</span></button>
+  </div>
+
+  <!-- Tier selection -->
+  <div class="tier-grid" id="tier-grid">
+    <div style="text-align:center;padding:40px;color:var(--text-muted)" class="loading-pulse">Loading plans...</div>
+  </div>
+
+  <!-- Downgrade warning -->
+  <div class="downgrade-warn" id="downgrade-warn">
+    <strong>⚠ Features you'll lose when downgrading:</strong>
+    <ul id="features-lost-list"></ul>
+    <div style="margin-top:8px;font-size:12px;color:#94a3b8">Your data is always preserved. Features unlock again if you re-upgrade.</div>
+  </div>
+
+  <!-- Confirmation panel -->
+  <div class="confirm-panel" id="confirm-panel">
+    <div class="confirm-title">Plan Change Summary</div>
+    <div class="confirm-row">
+      <span class="confirm-row-label">From</span>
+      <span class="confirm-row-value" id="from-tier-label">—</span>
+    </div>
+    <div class="confirm-row">
+      <span class="confirm-row-label">To</span>
+      <span class="confirm-row-value" id="to-tier-label">—</span>
+    </div>
+    <div class="confirm-row" id="price-diff-row">
+      <span class="confirm-row-label">Price change</span>
+      <span class="confirm-row-value" id="price-diff-label">—</span>
+    </div>
+    <div class="confirm-row" id="billing-row">
+      <span class="confirm-row-label">Billing</span>
+      <span class="confirm-row-value" id="billing-label">Monthly</span>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <button class="cta-primary" id="cta-btn" disabled onclick="confirmChange()">Select a plan to continue</button>
+  <button class="cta-secondary" id="cancel-btn" style="display:none" onclick="cancelChange()">Cancel</button>
+
+  <!-- Admin testing panel (only visible for admin accounts) -->
+  <div class="admin-panel" id="admin-panel">
+    <div class="admin-label">🔧 Admin Testing Override</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Set any tier for any user. Shows "TESTING: [Tier]" indicator.</p>
+    <div class="admin-row">
+      <input class="admin-input" id="admin-email-input" placeholder="user@example.com" type="email">
+      <select class="admin-select" id="admin-tier-select">
+        <option value="">Select tier...</option>
+        <option value="free">Free</option>
+        <option value="individual_pro">Individual</option>
+        <option value="tfr_pro">Family</option>
+        <option value="business_core">Business Core</option>
+        <option value="business_bundle">Business</option>
+        <option value="tfr_elite">Elite</option>
+        <option value="sovereign_executive">Sovereign</option>
+      </select>
+      <button class="admin-btn" onclick="adminSetTier()">Set Tier</button>
+    </div>
+    <div class="admin-result" id="admin-result"></div>
+  </div>
+</div>
+
+<script>
+  let currentTierData = null;
+  let selectedTier = null;
+  let billing = 'monthly';
+
+  const TIER_ORDER = ['free','individual_pro','tfr_pro','business_core','business_bundle','tfr_elite','sovereign_executive'];
+  const TIER_COLORS = {
+    free: '#64748b',
+    individual_pro: '#3b82f6',
+    tfr_pro: '#8b5cf6',
+    business_core: '#f59e0b',
+    business_bundle: '#f59e0b',
+    tfr_elite: '#10b981',
+    sovereign_executive: '#f59e0b',
+  };
+
+  function setBilling(b) {
+    billing = b;
+    document.querySelectorAll('.billing-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    if (currentTierData) renderTiers(currentTierData);
+    if (selectedTier) updateConfirmPanel(selectedTier);
+  }
+
+  async function loadCurrentTier() {
+    try {
+      const r = await fetch('/api/mod_subscription/current');
+      if (!r.ok) { window.location.href = '/app'; return; }
+      currentTierData = await r.json();
+      renderCurrentPlan(currentTierData);
+      renderTiers(currentTierData);
+      checkAdminAccess();
+    } catch (e) {
+      document.getElementById('tier-grid').innerHTML =
+        '<p style="text-align:center;color:var(--accent-red);padding:20px">Failed to load plans. Please refresh.</p>';
+    }
+  }
+
+  function renderCurrentPlan(data) {
+    document.getElementById('current-tier-name').textContent = data.display_name || data.current_tier;
+    const badge = document.getElementById('plan-status-badge');
+    if (data.is_active) {
+      badge.textContent = 'Active';
+      badge.className = 'plan-status status-active';
+    } else {
+      badge.textContent = data.current_tier === 'free' ? 'Free' : 'Expired';
+      badge.className = 'plan-status status-free';
+    }
+    if (data.paid_until) {
+      const d = new Date(data.paid_until);
+      document.getElementById('paid-until-label').textContent =
+        'Renews ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  }
+
+  function renderTiers(data) {
+    const grid = document.getElementById('tier-grid');
+    const currentTier = data.current_tier;
+    const allTiers = [
+      { tier: 'free', display_name: 'Free', monthly_cents: 0, features: data.current_tier === 'free' ? data.features : ['Basic FACTS allocation tracking','Phase Zero assessment','Manual transaction logging'] },
+      ...data.upgrade_options
+    ];
+
+    // Add current tier if it's not free
+    if (currentTier !== 'free' && !allTiers.find(t => t.tier === currentTier)) {
+      allTiers.unshift({ tier: currentTier, display_name: data.display_name, monthly_cents: data.monthly_cents, features: data.features });
+    }
+
+    // Sort by tier hierarchy
+    allTiers.sort((a, b) => TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier));
+
+    grid.innerHTML = allTiers.map(t => {
+      const isCurrent = t.tier === currentTier;
+      const annualCents = t.monthly_cents * 10; // 2 months free
+      const displayCents = billing === 'annual' && t.tier !== 'sovereign_executive' ? annualCents : t.monthly_cents;
+      const displayUSD = (displayCents / 100).toFixed(2);
+      const periodLabel = t.tier === 'sovereign_executive' ? 'one-time' : billing === 'annual' ? '/year' : '/mo';
+      const features = (t.features || []).slice(0, 4);
+      const color = TIER_COLORS[t.tier] || '#f59e0b';
+
+      return `<div class="tier-card${isCurrent ? ' current-tier' : ''}"
+                   id="tier-card-${t.tier}"
+                   onclick="${isCurrent ? '' : `selectTier('${t.tier}')`}"
+                   style="border-color:${isCurrent ? '#374151' : 'var(--border)'}">
+        <div class="tier-header">
+          <div>
+            <div class="tier-name" style="color:${color}">${t.display_name}</div>
+            ${isCurrent ? '' : `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">${TIER_ORDER.indexOf(t.tier) > TIER_ORDER.indexOf(currentTier) ? '↑ Upgrade' : '↓ Downgrade'}</div>`}
+          </div>
+          <div class="tier-price">
+            <div class="price-amount">${displayCents === 0 ? 'Free' : '$' + displayUSD}</div>
+            ${displayCents > 0 ? `<div class="price-period">${periodLabel}</div>` : ''}
+          </div>
+        </div>
+        <ul class="tier-features">
+          ${features.map(f => `<li>${f}</li>`).join('')}
+          ${(t.features || []).length > 4 ? `<li style="color:var(--text-muted)">+ ${(t.features || []).length - 4} more</li>` : ''}
+        </ul>
+      </div>`;
+    }).join('');
+  }
+
+  async function selectTier(tier) {
+    selectedTier = tier;
+    // Deselect all
+    document.querySelectorAll('.tier-card').forEach(c => {
+      c.classList.remove('selected');
+      c.style.borderColor = c.classList.contains('current-tier') ? '#374151' : 'var(--border)';
+    });
+    const card = document.getElementById('tier-card-' + tier);
+    if (card) {
+      card.classList.add('selected');
+      card.style.borderColor = 'var(--accent-gold)';
+    }
+    await updateConfirmPanel(tier);
+  }
+
+  async function updateConfirmPanel(tier) {
+    try {
+      const r = await fetch(`/api/mod_subscription/tier-preview?to_tier=${tier}&billing=${billing}`);
+      if (!r.ok) return;
+      const preview = await r.json();
+
+      document.getElementById('from-tier-label').textContent = preview.from_display;
+      document.getElementById('to-tier-label').innerHTML =
+        `<span style="color:${preview.direction === 'upgrade' ? 'var(--accent-green)' : 'var(--accent-red)'}">${preview.to_display}</span>`;
+
+      const diffCents = preview.price_diff_cents;
+      const diffLabel = diffCents === 0 ? 'No change'
+        : diffCents > 0 ? `<span class="arrow-up">+$${(diffCents/100).toFixed(2)}/mo</span>`
+        : `<span class="arrow-down">−$${(Math.abs(diffCents)/100).toFixed(2)}/mo</span>`;
+      document.getElementById('price-diff-label').innerHTML = diffLabel;
+      document.getElementById('billing-label').textContent = preview.billing === 'one_time' ? 'One-time purchase' : preview.billing === 'annual' ? 'Annual' : 'Monthly';
+
+      document.getElementById('confirm-panel').classList.add('visible');
+
+      // Show downgrade warning
+      const warnEl = document.getElementById('downgrade-warn');
+      if (preview.direction === 'downgrade' && preview.features_lost.length > 0) {
+        document.getElementById('features-lost-list').innerHTML = preview.features_lost.map(f => `<li>${f}</li>`).join('');
+        warnEl.classList.add('visible');
+      } else {
+        warnEl.classList.remove('visible');
+      }
+
+      // Update CTA
+      const ctaBtn = document.getElementById('cta-btn');
+      ctaBtn.disabled = false;
+      ctaBtn.style.background = preview.direction === 'downgrade' ? 'var(--accent-red)' : 'var(--accent-gold)';
+      ctaBtn.textContent = preview.direction === 'upgrade'
+        ? `Upgrade to ${preview.to_display} →`
+        : `Downgrade to ${preview.to_display}`;
+
+      document.getElementById('cancel-btn').style.display = 'block';
+
+      // Store preview for use in confirmChange
+      document.getElementById('cta-btn').dataset.direction = preview.direction;
+      document.getElementById('cta-btn').dataset.stripeLink = preview.stripe_link || '';
+    } catch (e) {
+      console.error('Preview failed:', e);
+    }
+  }
+
+  async function confirmChange() {
+    const btn = document.getElementById('cta-btn');
+    const direction = btn.dataset.direction;
+    const stripeLink = btn.dataset.stripeLink;
+
+    if (!selectedTier) return;
+
+    if (direction === 'upgrade') {
+      // For upgrades: register intent then redirect to Stripe
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Preparing payment...';
+      try {
+        await fetch('/api/mod_subscription/change-tier', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to_tier: selectedTier, billing, reason: 'user_upgrade' }),
+        });
+      } catch(e) {}
+      if (stripeLink) {
+        window.location.href = stripeLink;
+      } else {
+        btn.innerHTML = 'Stripe link not available — contact admin@factsmoney.com';
+        btn.disabled = false;
+      }
+    } else {
+      // Downgrade: direct API call, no Stripe needed
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Applying change...';
+      try {
+        const r = await fetch('/api/mod_subscription/change-tier', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to_tier: selectedTier, billing, reason: 'user_downgrade' }),
+        });
+        const data = await r.json();
+        if (r.ok) {
+          btn.innerHTML = '✓ ' + data.message;
+          btn.style.background = 'var(--accent-green)';
+          setTimeout(() => { window.location.href = '/app'; }, 2200);
+        } else {
+          btn.innerHTML = data.error || 'Change failed. Please try again.';
+          btn.disabled = false;
+        }
+      } catch (e) {
+        btn.innerHTML = 'Network error. Please try again.';
+        btn.disabled = false;
+      }
+    }
+  }
+
+  function cancelChange() {
+    selectedTier = null;
+    document.querySelectorAll('.tier-card').forEach(c => {
+      c.classList.remove('selected');
+      c.style.borderColor = c.classList.contains('current-tier') ? '#374151' : 'var(--border)';
+    });
+    document.getElementById('confirm-panel').classList.remove('visible');
+    document.getElementById('downgrade-warn').classList.remove('visible');
+    const btn = document.getElementById('cta-btn');
+    btn.disabled = true;
+    btn.textContent = 'Select a plan to continue';
+    btn.style.background = 'var(--accent-gold)';
+    document.getElementById('cancel-btn').style.display = 'none';
+  }
+
+  async function checkAdminAccess() {
+    // Admin panel shows only for admin emails (server enforces actual permission)
+    try {
+      const r = await fetch('/api/mod_subscription/admin/users');
+      if (r.status === 200) {
+        document.getElementById('admin-panel').classList.add('visible');
+      }
+    } catch (e) {}
+  }
+
+  async function adminSetTier() {
+    const email = document.getElementById('admin-email-input').value.trim();
+    const tier = document.getElementById('admin-tier-select').value;
+    const result = document.getElementById('admin-result');
+    result.className = 'admin-result';
+    result.style.display = 'none';
+
+    if (!email || !tier) {
+      result.textContent = 'Email and tier are required';
+      result.className = 'admin-result error';
+      return;
+    }
+
+    try {
+      const r = await fetch('/api/mod_subscription/admin/set-tier', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target_email: email, tier }),
+      });
+      const data = await r.json();
+      if (r.ok) {
+        result.textContent = `✓ ${data.message}`;
+        result.className = 'admin-result success';
+        document.getElementById('admin-email-input').value = '';
+        document.getElementById('admin-tier-select').value = '';
+      } else {
+        result.textContent = `✗ ${data.error}`;
+        result.className = 'admin-result error';
+      }
+    } catch (e) {
+      result.textContent = 'Network error';
+      result.className = 'admin-result error';
+    }
+  }
+
+  loadCurrentTier();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

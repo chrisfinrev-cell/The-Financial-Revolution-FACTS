@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vantage Point — FACTS Financial View</title>
+  <meta name="description" content="Read-only financial view shared via FACTS Vantage Point system.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0f1a'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='20' fill='%23c9a227'%3E👁%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-deep:    #0a0f1a;
+      --bg-card:    #111827;
+      --bg-elevated:#1a2332;
+      --gold:       #c9a227;
+      --gold-light: #e8c96a;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border:     #1e293b;
+      --green:      #10b981;
+      --red:        #f43f5e;
+      --blue:       #3b82f6;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1,h2,h3,h4,h5 { font-family: 'Space Grotesk', sans-serif; }
+
+    /* ── Header ── */
+    .header {
+      background: rgba(10,15,26,0.97);
+      border-bottom: 1px solid rgba(201,162,39,0.2);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header .eye-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, rgba(201,162,39,0.2), rgba(201,162,39,0.08));
+      border: 1px solid rgba(201,162,39,0.3);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+
+    .header .title-group h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 60%, #c9a227 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header .title-group p {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+    }
+
+    .readonly-badge {
+      margin-left: auto;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      background: rgba(100,116,139,0.12);
+      border: 1px solid rgba(100,116,139,0.2);
+      border-radius: 6px;
+      padding: 3px 10px;
+      text-transform: uppercase;
+    }
+
+    /* ── Layout ── */
+    .page { max-width: 900px; margin: 0 auto; padding: 32px 20px 64px; }
+
+    /* ── Owner Banner ── */
+    .owner-banner {
+      background: linear-gradient(135deg, rgba(201,162,39,0.1), rgba(201,162,39,0.04));
+      border: 1px solid rgba(201,162,39,0.25);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .owner-avatar {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, rgba(201,162,39,0.25), rgba(201,162,39,0.1));
+      border: 1px solid rgba(201,162,39,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: var(--gold-light);
+      flex-shrink: 0;
+    }
+
+    .owner-info h3 { font-size: 1rem; font-weight: 700; }
+    .owner-info p  { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+
+    .expiry-badge {
+      margin-left: auto;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: rgba(30,41,59,0.8);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: right;
+    }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 28px; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .section-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .section-icon.gold  { background: rgba(201,162,39,0.12); border: 1px solid rgba(201,162,39,0.2); }
+    .section-icon.green { background: rgba(16,185,129,0.1);  border: 1px solid rgba(16,185,129,0.2); }
+    .section-icon.blue  { background: rgba(59,130,246,0.1);  border: 1px solid rgba(59,130,246,0.2); }
+    .section-icon.red   { background: rgba(244,63,94,0.1);   border: 1px solid rgba(244,63,94,0.2); }
+    .section-icon.purple{ background: rgba(139,92,246,0.1);  border: 1px solid rgba(139,92,246,0.2); }
+
+    .section-title { font-size: 0.9rem; font-weight: 700; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    /* ── Stats grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .stat-item {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .stat-value.green  { color: var(--green); }
+    .stat-value.red    { color: var(--red); }
+    .stat-value.gold   { color: var(--gold-light); }
+    .stat-value.blue   { color: var(--blue); }
+
+    /* ── Debt table ── */
+    .debt-table { width: 100%; border-collapse: collapse; }
+    .debt-table th {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 0 12px 10px 0;
+      text-align: left;
+    }
+    .debt-table td {
+      padding: 9px 12px 9px 0;
+      border-top: 1px solid rgba(30,41,59,0.8);
+      font-size: 0.85rem;
+    }
+    .debt-table td:last-child { text-align: right; }
+
+    /* ── Allocation bars ── */
+    .alloc-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .alloc-label { width: 140px; font-size: 0.82rem; color: var(--text-secondary); flex-shrink: 0; }
+    .alloc-bar-wrap { flex: 1; background: rgba(30,41,59,0.8); border-radius: 99px; height: 8px; }
+    .alloc-bar { height: 8px; border-radius: 99px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+    .alloc-pct { width: 40px; text-align: right; font-size: 0.82rem; font-weight: 700; color: var(--gold-light); }
+
+    /* ── Affiliate card ── */
+    .aff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    /* ── States ── */
+    .loading-state, .error-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .error-state h2 { font-size: 1.5rem; margin-bottom: 8px; color: var(--red); }
+    .error-state p  { font-size: 0.9rem; }
+
+    .loading-spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(201,162,39,0.15);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Locked section ── */
+    .locked-section {
+      background: rgba(100,116,139,0.06);
+      border: 1px dashed rgba(100,116,139,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 28px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      margin-top: 48px;
+    }
+
+    .footer a { color: var(--gold); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="eye-icon">👁</div>
+  <div class="title-group">
+    <h1>Vantage Point</h1>
+    <p>Read-Only Financial View · FACTS</p>
+  </div>
+  <div class="readonly-badge">🔒 View Only</div>
+</header>
+
+<!-- Page content -->
+<main class="page" id="page-content">
+
+  <!-- Loading state -->
+  <div id="loading-state">
+    <div class="loading-spinner"></div>
+    <p style="color:var(--text-muted);font-size:0.9rem;text-align:center;">Loading financial snapshot…</p>
+  </div>
+
+  <!-- Error state (hidden by default) -->
+  <div id="error-state" class="error-state" style="display:none;">
+    <h2 id="error-title">Access Denied</h2>
+    <p id="error-msg">This Vantage Point link is invalid or has expired.</p>
+    <p style="margin-top:16px;font-size:0.8rem;">To learn more about FACTS, visit <a href="https://app.factsmoney.com" style="color:var(--gold);">app.factsmoney.com</a></p>
+  </div>
+
+  <!-- Main data (hidden until loaded) -->
+  <div id="data-view" style="display:none;">
+
+    <!-- Owner Banner -->
+    <div class="owner-banner">
+      <div class="owner-avatar" id="owner-avatar">👤</div>
+      <div class="owner-info">
+        <h3 id="owner-name">Loading…</h3>
+        <p id="share-label"></p>
+      </div>
+      <div class="expiry-badge" id="expiry-badge" style="display:none;"></div>
+    </div>
+
+    <!-- FACTS Ledger Summary -->
+    <div class="section" id="section-ledger" style="display:none;">
+      <div class="section-header">
+        <div class="section-icon gold">📊</div>
+        <span class="section-title">FACTS Ledger Summary</span>
+      </div>
+      <div class="card">
+        <div class="stats-grid" id="ledger-stats"></div>
+      </div>
+    </div>
+
+    <!-- Debt Position -->
+    <div class="section" id="section-debt" style="display:none;">
+      <div class="section-header">
+        <div class="section-icon red">💳</div>
+        <span class="section-title">Debt Position</span>
+      </div>
+      <div class="card">
+        <div id="debt-total" style="margin-bottom:14px;"></div>
+        <div id="debt-table-wrap"></div>
+      </div>
+    </div>
+
+    <!-- Allocation Percentages -->
+    <div class="section" id="section-alloc" style="display:none;">
+      <div class="section-header">
+        <div class="section-icon gold">📐</div>
+        <span class="section-title">Allocation Percentages</span>
+      </div>
+      <div class="card" id="alloc-content"></div>
+    </div>
+
+    <!-- Net Worth -->
+    <div class="section" id="section-nw" style="display:none;">
+      <div class="section-header">
+        <div class="section-icon green">💰</div>
+        <span class="section-title">Net Worth Dashboard</span>
+      </div>
+      <div class="card">
+        <div class="stats-grid" id="nw-stats"></div>
+      </div>
+    </div>
+
+    <!-- Affiliate Tree -->
+    <div class="section" id="section-aff" style="display:none;">
+      <div class="section-header">
+        <div class="section-icon blue">🌳</div>
+        <span class="section-title">Affiliate Tree Structure</span>
+      </div>
+      <div class="card">
+        <div class="aff-grid" id="aff-content"></div>
+      </div>
+    </div>
+
+  </div><!-- /data-view -->
+</main>
+
+<footer class="footer">
+  This is a read-only snapshot shared by the account holder via <strong>FACTS Vantage Point</strong>.<br>
+  Data is live — refreshed on each visit. &nbsp;·&nbsp; <a href="/">Join FACTS</a>
+</footer>
+
+<script>
+  function fmt(cents) {
+    const n = (cents || 0) / 100;
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function escHtml(s) {
+    return String(s || '—').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function loadVantagePoint() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    if (!token) {
+      showError('Missing Link', 'No Vantage Point token was provided in this URL.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/vantage/' + encodeURIComponent(token));
+      const body = await res.json();
+
+      if (!res.ok || !body.success) {
+        showError(res.status === 410 ? 'Link Expired' : 'Access Denied',
+          body.error || 'This Vantage Point link is no longer valid.');
+        return;
+      }
+
+      renderData(body);
+    } catch (e) {
+      showError('Error', 'Could not load the Vantage Point data. Please try again.');
+    }
+  }
+
+  function showError(title, msg) {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-title').textContent = title;
+    document.getElementById('error-msg').textContent = msg;
+    document.getElementById('error-state').style.display = 'block';
+  }
+
+  function renderData(body) {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('data-view').style.display = 'block';
+
+    // Owner banner
+    const ownerName = body.owner_name || 'FACTS Member';
+    document.getElementById('owner-name').textContent = ownerName;
+    document.getElementById('owner-avatar').textContent = ownerName.charAt(0).toUpperCase() || '👤';
+    document.getElementById('share-label').textContent = body.share_label
+      ? 'Share: ' + body.share_label
+      : 'Financial Snapshot (Read-Only)';
+
+    if (body.expires_at) {
+      const exp = new Date(body.expires_at);
+      const badge = document.getElementById('expiry-badge');
+      badge.style.display = 'block';
+      badge.innerHTML = `<div style="font-size:0.65rem;color:var(--text-muted)">EXPIRES</div><div style="font-size:0.8rem;font-weight:700;color:var(--text-secondary)">${exp.toLocaleDateString()}</div>`;
+    }
+
+    const d = body.data || {};
+    const perms = body.permissions || {};
+
+    // FACTS Ledger
+    if (perms.facts_ledger && d.facts_ledger) {
+      const l = d.facts_ledger;
+      document.getElementById('section-ledger').style.display = 'block';
+      document.getElementById('ledger-stats').innerHTML = `
+        <div class="stat-item">
+          <div class="stat-label">Total Income</div>
+          <div class="stat-value green">${fmt(l.total_income_cents)}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Total Expenses</div>
+          <div class="stat-value red">${fmt(l.total_expense_cents)}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Net Cash Flow</div>
+          <div class="stat-value ${(l.total_income_cents - l.total_expense_cents) >= 0 ? 'green' : 'red'}">
+            ${fmt(l.total_income_cents - l.total_expense_cents)}
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Transactions</div>
+          <div class="stat-value blue">${(l.transaction_count || 0).toLocaleString()}</div>
+        </div>
+      `;
+    } else if (perms.facts_ledger) {
+      document.getElementById('section-ledger').style.display = 'block';
+      document.getElementById('ledger-stats').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No transactions recorded yet.</p>';
+    }
+
+    // Debt Position
+    if (perms.debt_position && d.debt_position) {
+      const dp = d.debt_position;
+      document.getElementById('section-debt').style.display = 'block';
+      document.getElementById('debt-total').innerHTML = `
+        <div class="stat-item" style="display:inline-flex;gap:16px;align-items:baseline;padding:10px 18px;">
+          <span style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Total Debt</span>
+          <span style="font-size:1.6rem;font-weight:800;color:var(--red);font-family:'Space Grotesk',sans-serif;">${fmt(dp.total_debt_cents)}</span>
+        </div>
+      `;
+      if (dp.debts && dp.debts.length) {
+        document.getElementById('debt-table-wrap').innerHTML = `
+          <table class="debt-table">
+            <thead><tr>
+              <th>Account</th><th>Rate</th><th>Min Payment</th><th>Balance</th>
+            </tr></thead>
+            <tbody>
+              ${dp.debts.map(d => `<tr>
+                <td>${escHtml(d.account_name)}</td>
+                <td>${d.interest_rate ? d.interest_rate + '%' : '—'}</td>
+                <td>${d.minimum_payment_cents ? fmt(d.minimum_payment_cents) : '—'}</td>
+                <td style="font-weight:700;color:var(--red);">${fmt(d.balance_cents)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+      } else {
+        document.getElementById('debt-table-wrap').innerHTML = '<p style="color:var(--green);font-size:0.85rem;">✓ No active debts on record.</p>';
+      }
+    }
+
+    // Allocation Percentages
+    if (perms.allocation_percentages && d.allocation_percentages) {
+      document.getElementById('section-alloc').style.display = 'block';
+      const config = d.allocation_percentages;
+      const categories = [
+        { key: 'necessities',         label: 'Necessities',         default: 50 },
+        { key: 'education',           label: 'Education',           default: 10 },
+        { key: 'give',                label: 'Give',                default: 10 },
+        { key: 'save',                label: 'Save',                default: 10 },
+        { key: 'fun',                 label: 'Fun',                 default: 10 },
+        { key: 'financial_freedom',   label: 'Financial Freedom',   default: 10 }
+      ];
+
+      const rows = categories.map(c => {
+        const pct = config[c.key] ?? c.default;
+        return `<div class="alloc-row">
+          <span class="alloc-label">${c.label}</span>
+          <div class="alloc-bar-wrap"><div class="alloc-bar" style="width:${Math.min(pct, 100)}%;"></div></div>
+          <span class="alloc-pct">${pct}%</span>
+        </div>`;
+      }).join('');
+
+      document.getElementById('alloc-content').innerHTML = rows ||
+        '<p style="color:var(--text-muted);font-size:0.85rem;">Default allocations in use.</p>';
+    } else if (perms.allocation_percentages) {
+      document.getElementById('section-alloc').style.display = 'block';
+      document.getElementById('alloc-content').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Allocation data not available.</p>';
+    }
+
+    // Net Worth
+    if (perms.net_worth && d.net_worth) {
+      const nw = d.net_worth;
+      document.getElementById('section-nw').style.display = 'block';
+      document.getElementById('nw-stats').innerHTML = `
+        <div class="stat-item">
+          <div class="stat-label">Assets</div>
+          <div class="stat-value green">${fmt(nw.total_assets_cents)}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Liabilities</div>
+          <div class="stat-value red">${fmt(nw.total_liabilities_cents)}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Net Worth</div>
+          <div class="stat-value ${(nw.net_worth_cents || 0) >= 0 ? 'gold' : 'red'}">${fmt(nw.net_worth_cents)}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Snapshot Date</div>
+          <div class="stat-value" style="font-size:0.9rem;color:var(--text-secondary);">
+            ${nw.snapshot_date ? new Date(nw.snapshot_date).toLocaleDateString() : '—'}
+          </div>
+        </div>
+      `;
+    } else if (perms.net_worth) {
+      document.getElementById('section-nw').style.display = 'block';
+      document.getElementById('nw-stats').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No net worth snapshot available yet.</p>';
+    }
+
+    // Affiliate Tree
+    if (perms.affiliate_tree && d.affiliate_tree) {
+      const a = d.affiliate_tree;
+      document.getElementById('section-aff').style.display = 'block';
+      document.getElementById('aff-content').innerHTML = `
+        <div class="stat-item">
+          <div class="stat-label">Referral Code</div>
+          <div class="stat-value" style="font-size:0.95rem;color:var(--gold-light);">${escHtml(a.referral_code)}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Level</div>
+          <div class="stat-value blue">${a.affiliate_level || '—'}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Status</div>
+          <div class="stat-value" style="font-size:0.85rem;color:${a.status === 'active' ? 'var(--green)' : 'var(--text-muted)'};text-transform:capitalize;">${a.status || '—'}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Personal Recruits</div>
+          <div class="stat-value green">${a.total_personal_recruits || a.personal_recruits_count || 0}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Total Earned</div>
+          <div class="stat-value gold">${fmt(a.total_earned_cents)}</div>
+        </div>
+      `;
+    } else if (perms.affiliate_tree) {
+      document.getElementById('section-aff').style.display = 'block';
+      document.getElementById('aff-content').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No affiliate data available.</p>';
+    }
+  }
+
+  loadVantagePoint();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

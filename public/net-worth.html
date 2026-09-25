@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Net Worth Dashboard — FACTS</title>
+  <meta name="description" content="Track your assets and liabilities to see your complete net worth picture. Free personal finance tool by FACTS.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%24%3C/text%3E%3C/svg%3E">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#080d16', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#243049' },
+            gold: { 300: '#f0d97a', 400: '#e8c96a', 500: '#d4a929', 600: '#c9a227' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .card { background: linear-gradient(145deg, #13192a, #1a2235); border: 1px solid rgba(255,255,255,0.07); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #c9a227, #e8c96a); color: #0d1117; font-weight: 600;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-gold:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); color: #d1d5db;
+      transition: background 0.2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.09); }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.22); color: #f87171;
+      transition: background 0.2s;
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.18); }
+
+    .btn-add-debt {
+      background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.22); color: #f87171;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-add-debt:hover { background: rgba(239,68,68,0.18); transform: translateY(-1px); }
+
+    .input {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+      color: #f1f5f9; border-radius: 0.5rem; padding: 0.55rem 0.85rem; font-size: 0.875rem;
+      transition: border-color 0.2s; width: 100%; outline: none;
+    }
+    .input:focus { border-color: rgba(201,162,39,0.5); box-shadow: 0 0 0 2px rgba(201,162,39,0.08); }
+    .input::placeholder { color: #4b5563; }
+    .input option { background: #13192a; color: #f1f5f9; }
+
+    /* Summary cards */
+    .summary-asset { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.18); }
+    .summary-debt  { background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.18); }
+    .summary-net   {
+      background: linear-gradient(135deg, rgba(201,162,39,0.10), rgba(201,162,39,0.05));
+      border: 1px solid rgba(201,162,39,0.25);
+    }
+    .summary-net-negative { background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.25); }
+
+    /* Entry row */
+    .entry-row { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.15s; }
+    .entry-row:last-child { border-bottom: none; }
+    .entry-row:hover { background: rgba(255,255,255,0.02); }
+
+    /* Category badges */
+    .badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
+    .badge-real_estate, .badge-mortgage    { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+    .badge-vehicle, .badge-auto_loan       { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.25); }
+    .badge-bank                            { background: rgba(34,197,94,0.15);  color: #86efac; border: 1px solid rgba(34,197,94,0.25); }
+    .badge-investment                      { background: rgba(20,184,166,0.15); color: #5eead4; border: 1px solid rgba(20,184,166,0.25); }
+    .badge-retirement                      { background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.25); }
+    .badge-crypto                          { background: rgba(249,115,22,0.15); color: #fdba74; border: 1px solid rgba(249,115,22,0.25); }
+    .badge-personal                        { background: rgba(236,72,153,0.15); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.25); }
+    .badge-credit_card                     { background: rgba(239,68,68,0.15);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
+    .badge-student_loan                    { background: rgba(234,179,8,0.15);  color: #fde047; border: 1px solid rgba(234,179,8,0.25); }
+    .badge-personal_loan                   { background: rgba(244,63,94,0.15);  color: #fda4af; border: 1px solid rgba(244,63,94,0.25); }
+    .badge-medical                         { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+    .badge-other                           { background: rgba(107,114,128,0.15);color: #9ca3af; border: 1px solid rgba(107,114,128,0.25); }
+
+    /* Progress bar track */
+    .progress-track { background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; height: 6px; }
+    .progress-fill  { height: 100%; border-radius: 999px; transition: width 0.6s ease; }
+
+    /* Chart period toggle */
+    .period-btn { padding: 5px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; transition: all 0.15s; border: 1px solid transparent; }
+    .period-btn.active { background: rgba(201,162,39,0.18); color: #e8c96a; border-color: rgba(201,162,39,0.35); }
+    .period-btn:not(.active) { background: rgba(255,255,255,0.04); color: #6b7280; }
+    .period-btn:not(.active):hover { background: rgba(255,255,255,0.08); color: #9ca3af; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-up { animation: fadeUp 0.45s ease forwards; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px);
+      z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal { background: #13192a; border: 1px solid rgba(201,162,39,0.20); border-radius: 1rem; padding: 1.5rem; width: 100%; max-width: 440px; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 100;
+      padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 500;
+      display: none; animation: fadeUp 0.3s ease; max-width: 320px;
+    }
+    .toast-success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.30); color: #4ade80; }
+    .toast-error   { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.30); color: #f87171; }
+
+    /* Ratio bar */
+    .ratio-bar { height: 10px; border-radius: 999px; overflow: hidden; display: flex; }
+    .ratio-asset { background: linear-gradient(90deg, #16a34a, #4ade80); transition: width 0.6s ease; }
+    .ratio-debt  { background: linear-gradient(90deg, #dc2626, #f87171); transition: width 0.6s ease; }
+
+    /* Spin */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 0.8s linear infinite; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #1a2235; border-radius: 3px; }
+  </style>
+  <script defer src="/nav-bar.js"></script>
+</head>
+<body class="min-h-screen" style="background:#0d1117; color:#f1f5f9;">
+
+  <!-- Toast notification -->
+  <div id="toast"></div>
+
+  <!-- ────────── AUTH GATE ────────── -->
+  <div id="auth-gate" class="hidden min-h-screen flex flex-col items-center justify-center px-4 text-center">
+    <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6" style="background:rgba(201,162,39,0.10); border:1px solid rgba(201,162,39,0.25);">💰</div>
+    <h2 class="text-2xl font-bold text-white mb-2">Sign in to view your Net Worth Dashboard</h2>
+    <p class="text-gray-400 text-sm mb-8 max-w-sm">Your assets and liabilities are saved securely and synced across devices.</p>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <a href="/login" class="btn-gold px-8 py-3 rounded-xl text-sm inline-block text-center">Sign In →</a>
+      <a href="/signup" class="btn-outline px-8 py-3 rounded-xl text-sm inline-block text-center">Create Free Account</a>
+    </div>
+    <a href="/" class="mt-8 text-xs text-gray-600 hover:text-gray-400 transition-colors">← Back to Dashboard</a>
+  </div>
+
+  <!-- ────────── PRO GATE ────────── -->
+  <div id="pro-gate" class="hidden min-h-screen flex flex-col items-center justify-center px-4 text-center">
+    <div class="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl mb-6" style="background:linear-gradient(135deg,rgba(201,162,39,0.15),rgba(168,85,247,0.15)); border:1px solid rgba(201,162,39,0.30);">🔒</div>
+    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-4" style="background:rgba(201,162,39,0.15); color:#c9a227; border:1px solid rgba(201,162,39,0.25);">PAID FEATURE</div>
+    <h2 class="text-2xl font-bold text-white mb-3">Unlock Net Worth Dashboard</h2>
+    <p class="text-gray-400 text-sm mb-3 max-w-sm">Track all your assets and liabilities in one place. Know your real financial picture.</p>
+    <ul class="text-sm text-gray-400 mb-8 space-y-1.5 text-left max-w-xs">
+      <li class="flex items-center gap-2"><span style="color:#c9a227;">✓</span> Track assets — real estate, investments, savings</li>
+      <li class="flex items-center gap-2"><span style="color:#c9a227;">✓</span> Track liabilities — mortgages, loans, credit cards</li>
+      <li class="flex items-center gap-2"><span style="color:#c9a227;">✓</span> Net worth summary with category breakdown</li>
+      <li class="flex items-center gap-2"><span style="color:#c9a227;">✓</span> Historical trend chart to track your progress</li>
+    </ul>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <a href="/pricing.html" class="btn-gold px-8 py-3 rounded-xl text-sm inline-block text-center font-semibold">Upgrade Now →</a>
+      <a href="/" class="btn-outline px-8 py-3 rounded-xl text-sm inline-block text-center">← Back to Dashboard</a>
+    </div>
+  </div>
+
+  <!-- ────────── LOADING ────────── -->
+  <div id="loading-state" class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-10 h-10 rounded-full border-2 mx-auto mb-4 spin" style="border-color:rgba(201,162,39,0.25); border-top-color:#c9a227;"></div>
+      <p class="text-gray-500 text-sm">Loading your data...</p>
+    </div>
+  </div>
+
+  <!-- ────────── MAIN APP ────────── -->
+  <div id="app" class="hidden">
+
+    <!-- Header -->
+    <header class="sticky border-b" style="top:44px;z-index:40;background:rgba(13,17,23,0.95); backdrop-filter:blur(12px); border-color:rgba(255,255,255,0.06);">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+        <a href="/" class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors no-underline flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+          <span>← Back to Dashboard</span>
+        </a>
+
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center text-base" style="background:rgba(201,162,39,0.12); border:1px solid rgba(201,162,39,0.25);">💰</div>
+          <span class="font-bold text-white text-sm sm:text-base">Net Worth Dashboard</span>
+        </div>
+
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <span id="header-username" class="text-xs text-gray-500 hidden sm:block"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 pb-20">
+
+      <!-- ══════ HERO ══════ -->
+      <div class="mb-10 animate-up text-center py-8 px-6 rounded-2xl relative overflow-hidden" style="background:linear-gradient(145deg,#13192a,#1a2235); border:1px solid rgba(201,162,39,0.15);">
+        <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(ellipse at 50% 0%, rgba(201,162,39,0.07), transparent 65%);"></div>
+        <p class="text-xs font-semibold uppercase tracking-widest mb-3" style="color:#c9a227;">Your Net Worth</p>
+        <p id="hero-net-worth" class="text-5xl sm:text-6xl font-extrabold mb-2 gold-text">$0</p>
+        <p class="text-sm text-gray-500 mb-6">Total Assets minus Total Liabilities</p>
+
+        <!-- Ratio bar -->
+        <div class="max-w-sm mx-auto">
+          <div class="ratio-bar mb-2" id="ratio-bar">
+            <div class="ratio-asset" id="ratio-asset-fill" style="width:50%"></div>
+            <div class="ratio-debt"  id="ratio-debt-fill"  style="width:50%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500">
+            <span id="ratio-asset-label">Assets: $0 (50%)</span>
+            <span id="ratio-debt-label">Liabilities: $0 (50%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ SUMMARY CARDS ══════ -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 animate-up">
+        <div class="summary-asset rounded-2xl p-5">
+          <p class="text-xs font-semibold text-green-400 uppercase tracking-wide mb-2">Total Assets</p>
+          <p id="total-assets" class="text-2xl sm:text-3xl font-bold text-white">$0</p>
+          <p id="asset-count" class="text-xs text-gray-500 mt-1">0 entries</p>
+        </div>
+        <div class="summary-debt rounded-2xl p-5">
+          <p class="text-xs font-semibold text-red-400 uppercase tracking-wide mb-2">Total Liabilities</p>
+          <p id="total-debts" class="text-2xl sm:text-3xl font-bold text-white">$0</p>
+          <p id="debt-count" class="text-xs text-gray-500 mt-1">0 entries</p>
+        </div>
+        <div id="net-worth-card" class="summary-net rounded-2xl p-5">
+          <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:#c9a227;">Net Worth</p>
+          <p id="net-worth-value" class="text-2xl sm:text-3xl font-bold" style="color:#e8c96a;">$0</p>
+          <p id="net-worth-label" class="text-xs text-gray-500 mt-1">Assets – Liabilities</p>
+        </div>
+      </div>
+
+      <!-- ══════ TWO-COLUMN: ASSETS + LIABILITIES ══════ -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+
+        <!-- Assets -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full inline-block" style="background:#4ade80;"></span>
+              Assets
+            </h2>
+            <button onclick="openAddModal('asset')" class="btn-gold text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              + Add
+            </button>
+          </div>
+
+          <div id="asset-list" class="card rounded-2xl overflow-hidden">
+            <div id="asset-empty" class="py-10 text-center text-gray-600 text-sm">
+              No assets yet.<br><span class="text-xs">Add home, savings, investments...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liabilities -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full inline-block" style="background:#f87171;"></span>
+              Liabilities
+            </h2>
+            <button onclick="openAddModal('debt')" class="btn-add-debt text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              + Add
+            </button>
+          </div>
+
+          <div id="debt-list" class="card rounded-2xl overflow-hidden">
+            <div id="debt-empty" class="py-10 text-center text-gray-600 text-sm">
+              No liabilities yet.<br><span class="text-xs">Add mortgage, loans, credit cards...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ CATEGORY BREAKDOWN ══════ -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+
+        <!-- Assets by type -->
+        <div class="card rounded-2xl p-5">
+          <h3 class="text-sm font-bold text-white mb-4">Assets by Category</h3>
+          <div id="asset-breakdown">
+            <p class="text-xs text-gray-600 text-center py-4">No assets added yet</p>
+          </div>
+        </div>
+
+        <!-- Liabilities by type -->
+        <div class="card rounded-2xl p-5">
+          <h3 class="text-sm font-bold text-white mb-4">Liabilities by Category</h3>
+          <div id="debt-breakdown">
+            <p class="text-xs text-gray-600 text-center py-4">No liabilities added yet</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ NET WORTH TREND CHART ══════ -->
+      <div class="card rounded-2xl p-5 mb-10">
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <h3 class="text-sm font-bold text-white">Net Worth Trend</h3>
+          <div class="flex gap-1.5">
+            <button onclick="setPeriod('M')" class="period-btn active" id="period-M">M</button>
+            <button onclick="setPeriod('Q')" class="period-btn" id="period-Q">Q</button>
+            <button onclick="setPeriod('Y')" class="period-btn" id="period-Y">Y</button>
+          </div>
+        </div>
+        <div id="chart-empty" class="hidden py-10 text-center text-gray-600 text-sm">
+          <p class="text-2xl mb-2">📈</p>
+          <p class="font-medium text-gray-500 mb-1">Build your trend</p>
+          <p class="text-xs max-w-xs mx-auto">Your net worth will be charted over time as you visit this page. Check back tomorrow to see your first data point.</p>
+        </div>
+        <div id="chart-container" style="position:relative; height:260px;">
+          <canvas id="nw-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Tips footer -->
+      <div class="p-4 rounded-xl text-xs text-gray-600" style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);">
+        <p class="font-semibold text-gray-500 mb-1">Tips for an accurate picture</p>
+        <p>Include all assets: checking &amp; savings, retirement accounts (401k, IRA), investment portfolios, real estate equity, vehicles, and other valuables. For liabilities: mortgage balance, auto loans, student loans, credit card balances, and any personal loans.</p>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ════════════════ ADD / EDIT MODAL ════════════════ -->
+  <div id="entry-modal" class="modal-backdrop hidden" onclick="closeModalIfBackdrop(event)">
+    <div class="modal animate-up">
+      <div class="flex items-center justify-between mb-5">
+        <h3 id="modal-title" class="text-base font-bold text-white">Add Asset</h3>
+        <button onclick="closeModal()" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style="background:rgba(255,255,255,0.05); color:#9ca3af;">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="entry-form" onsubmit="saveEntry(event)">
+        <input type="hidden" id="modal-id">
+        <input type="hidden" id="modal-type">
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Name</label>
+            <input id="modal-name" class="input" type="text" placeholder="e.g. Primary Home, Chase Savings, Tesla..." required maxlength="200" autocomplete="off">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Category</label>
+            <select id="modal-category" class="input">
+              <!-- Populated by JS based on type -->
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Value ($)</label>
+            <input id="modal-value" class="input" type="number" placeholder="0.00" min="0" step="0.01" required>
+          </div>
+
+          <div id="interest-rate-row" class="hidden">
+            <label class="block text-xs font-medium text-gray-400 mb-1.5">Interest Rate (%)</label>
+            <input id="modal-interest" class="input" type="number" placeholder="e.g. 6.5" min="0" max="100" step="0.01">
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="closeModal()" class="btn-outline flex-1 py-2.5 rounded-lg text-sm font-medium">Cancel</button>
+          <button type="submit" id="modal-submit" class="btn-gold flex-1 py-2.5 rounded-lg text-sm">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ════════════════ DELETE CONFIRM MODAL ════════════════ -->
+  <div id="delete-modal" class="modal-backdrop hidden" onclick="closeDeleteIfBackdrop(event)">
+    <div class="modal">
+      <h3 class="text-base font-bold text-white mb-2">Delete Entry?</h3>
+      <p id="delete-name" class="text-sm text-gray-400 mb-6">This will permanently remove this entry.</p>
+      <div class="flex gap-3">
+        <button onclick="closeDeleteModal()" class="btn-outline flex-1 py-2.5 rounded-lg text-sm font-medium">Cancel</button>
+        <button onclick="confirmDelete()" class="btn-danger flex-1 py-2.5 rounded-lg text-sm font-semibold">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ JAVASCRIPT ════════════════ -->
+  <script>
+    // ── State ───────────────────────────────────────────────────────────
+    var entries      = [];
+    var deletePending = null;
+    var chartInstance = null;
+    var currentPeriod = 'M';
+    var allSnapshots  = [];
+    var cryptoTrackerValue = 0;  // live value from Crypto Tracker (Pro)
+
+    // ── Category maps ───────────────────────────────────────────────────
+    var ASSET_CATS = [
+      { value: 'real_estate',    label: '🏠 Real Estate' },
+      { value: 'vehicle',        label: '🚗 Vehicle' },
+      { value: 'bank',           label: '🏦 Bank / Cash' },
+      { value: 'investment',     label: '📈 Investment' },
+      { value: 'retirement',     label: '🏦 Retirement (401k/IRA)' },
+      { value: 'life_insurance', label: '🛡️ Life Insurance' },
+      { value: 'crypto',         label: '₿ Crypto' },
+      { value: 'personal',       label: '💎 Personal Property' },
+      { value: 'other',          label: '📦 Other' }
+    ];
+    var DEBT_CATS = [
+      { value: 'mortgage',     label: '🏠 Mortgage' },
+      { value: 'student_loan', label: '🎓 Student Loan' },
+      { value: 'auto_loan',    label: '🚗 Auto Loan' },
+      { value: 'credit_card',  label: '💳 Credit Card' },
+      { value: 'personal_loan',label: '💰 Personal Loan' },
+      { value: 'medical',      label: '🏥 Medical Debt' },
+      { value: 'other',        label: '📦 Other' }
+    ];
+    var CAT_LABELS = {};
+    ASSET_CATS.concat(DEBT_CATS).forEach(function(c) { CAT_LABELS[c.value] = c.label; });
+
+    // ── Category bar colors for breakdown ───────────────────────────────
+    var CAT_COLORS = {
+      real_estate:  '#3b82f6', mortgage:     '#3b82f6',
+      vehicle:      '#8b5cf6', auto_loan:    '#8b5cf6',
+      bank:         '#22c55e',
+      investment:   '#14b8a6',
+      retirement:      '#6366f1',
+      life_insurance:  '#0ea5e9',
+      crypto:          '#f97316',
+      personal:     '#ec4899',
+      credit_card:  '#ef4444',
+      student_loan: '#eab308',
+      personal_loan:'#f43f5e',
+      medical:      '#f59e0b',
+      other:        '#6b7280'
+    };
+
+    // ── Init ────────────────────────────────────────────────────────────
+    async function init() {
+      try {
+        var res = await fetch('/api/net-worth', { credentials: 'include' });
+        if (res.status === 401) {
+          document.getElementById('loading-state').classList.add('hidden');
+          document.getElementById('auth-gate').classList.remove('hidden');
+          return;
+        }
+        if (res.status === 403) {
+          document.getElementById('loading-state').classList.add('hidden');
+          document.getElementById('pro-gate').classList.remove('hidden');
+          return;
+        }
+        if (!res.ok) throw new Error('Server error');
+        var data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Failed to load');
+
+        entries = data.entries || [];
+
+        try {
+          var meRes = await fetch('/api/auth/me', { credentials: 'include' });
+          if (meRes.ok) {
+            var me = await meRes.json();
+            var name = (me.user && (me.user.name || me.user.email)) || '';
+            if (name) document.getElementById('header-username').textContent = name.split(' ')[0];
+          }
+        } catch(e) {}
+
+        // Fetch live crypto portfolio value from Crypto Tracker
+        try {
+          var cryptoRes = await fetch('/api/crypto/net-worth-value', { credentials: 'include' });
+          if (cryptoRes.ok) {
+            var cryptoData = await cryptoRes.json();
+            cryptoTrackerValue = (cryptoData.success && cryptoData.value > 0) ? parseFloat(cryptoData.value) : 0;
+          }
+        } catch(e) { cryptoTrackerValue = 0; }
+
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        render();
+
+        // Auto-snapshot after load
+        await takeSnapshot();
+
+      } catch(err) {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('auth-gate').classList.remove('hidden');
+      }
+    }
+
+    // ── Snapshot ────────────────────────────────────────────────────────
+    async function takeSnapshot() {
+      try {
+        await fetch('/api/net-worth/snapshot', { method: 'POST', credentials: 'include' });
+      } catch(e) {}
+      try {
+        var res = await fetch('/api/net-worth/snapshots', { credentials: 'include' });
+        if (res.ok) {
+          var data = await res.json();
+          allSnapshots = (data.snapshots || data.data || data) || [];
+          if (!Array.isArray(allSnapshots)) allSnapshots = [];
+          renderChart(allSnapshots, currentPeriod);
+        }
+      } catch(e) {
+        renderChart([], currentPeriod);
+      }
+    }
+
+    // ── Format currency ─────────────────────────────────────────────────
+    function fmt(val) {
+      var n = parseFloat(val) || 0;
+      var prefix = n < 0 ? '-$' : '$';
+      return prefix + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function fmtShort(val) {
+      var n = Math.abs(parseFloat(val) || 0);
+      if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+      if (n >= 1000)    return '$' + (n/1000).toFixed(1) + 'K';
+      return '$' + n.toFixed(0);
+    }
+
+    // ── Render ──────────────────────────────────────────────────────────
+    function render() {
+      var assets = entries.filter(function(e) { return e.type === 'asset'; });
+      var debts  = entries.filter(function(e) { return e.type === 'debt';  });
+
+      var totalAssets = assets.reduce(function(s,e) { return s + parseFloat(e.value||0); }, 0) + cryptoTrackerValue;
+      var totalDebts  = debts.reduce(function(s,e)  { return s + parseFloat(e.value||0); }, 0);
+      var netWorth    = totalAssets - totalDebts;
+
+      // Hero
+      document.getElementById('hero-net-worth').textContent = fmt(netWorth);
+
+      // Ratio bar
+      var total = totalAssets + totalDebts;
+      var assetPct = total > 0 ? (totalAssets / total * 100) : 50;
+      var debtPct  = total > 0 ? (totalDebts  / total * 100) : 50;
+      document.getElementById('ratio-asset-fill').style.width = assetPct.toFixed(1) + '%';
+      document.getElementById('ratio-debt-fill').style.width  = debtPct.toFixed(1)  + '%';
+      document.getElementById('ratio-asset-label').textContent = 'Assets: ' + fmtShort(totalAssets) + ' (' + assetPct.toFixed(0) + '%)';
+      document.getElementById('ratio-debt-label').textContent  = 'Liabilities: ' + fmtShort(totalDebts) + ' (' + debtPct.toFixed(0) + '%)';
+
+      // Stat cards
+      document.getElementById('total-assets').textContent = fmt(totalAssets);
+      document.getElementById('total-debts').textContent  = fmt(totalDebts);
+      document.getElementById('asset-count').textContent  = assets.length + ' entr' + (assets.length === 1 ? 'y' : 'ies');
+      document.getElementById('debt-count').textContent   = debts.length  + ' entr' + (debts.length  === 1 ? 'y' : 'ies');
+
+      var nwEl   = document.getElementById('net-worth-value');
+      var nwCard = document.getElementById('net-worth-card');
+      var nwLbl  = document.getElementById('net-worth-label');
+      nwEl.textContent = fmt(netWorth);
+      if (netWorth >= 0) {
+        nwEl.style.color = '#e8c96a';
+        nwCard.className = 'summary-net rounded-2xl p-5';
+        nwLbl.textContent = 'Assets – Liabilities';
+      } else {
+        nwEl.style.color = '#f87171';
+        nwCard.className = 'summary-net-negative rounded-2xl p-5';
+        nwLbl.textContent = 'Negative net worth';
+      }
+
+      renderList('asset', assets, totalAssets);
+      renderList('debt',  debts,  totalDebts);
+      renderBreakdown('asset', assets, totalAssets);
+      renderBreakdown('debt',  debts,  totalDebts);
+    }
+
+    // ── Render entry list ───────────────────────────────────────────────
+    function renderList(type, list, total) {
+      var container = document.getElementById(type + '-list');
+
+      // If asset list is empty and no crypto, show empty state
+      if (list.length === 0 && (type !== 'asset' || cryptoTrackerValue <= 0)) {
+        var emptyMsg = type === 'asset'
+          ? 'No assets yet.<br><span class="text-xs">Add home, savings, investments...</span>'
+          : 'No liabilities yet.<br><span class="text-xs">Add mortgage, loans, credit cards...</span>';
+        container.innerHTML = '<div class="py-10 text-center text-gray-600 text-sm">' + emptyMsg + '</div>';
+        return;
+      }
+
+      var isAsset = type === 'asset';
+      var accentColor = isAsset ? '#4ade80' : '#f87171';
+
+      // Prepend live Crypto Tracker row for assets
+      var cryptoRow = '';
+      if (isAsset && cryptoTrackerValue > 0) {
+        cryptoRow = [
+          '<div class="entry-row flex items-center gap-2 px-4 py-3" style="background:rgba(249,115,22,0.04);border-left:2px solid #f97316;">',
+            '<div class="flex-1 min-w-0">',
+              '<p class="text-sm font-medium text-white truncate">Crypto Portfolio <span style="font-size:.7rem;background:rgba(249,115,22,.15);color:#fb923c;border-radius:4px;padding:1px 6px;margin-left:4px;">Live</span></p>',
+              '<div class="flex items-center gap-1.5 mt-0.5">',
+                '<span class="badge badge-crypto">₿ Crypto</span>',
+                '<a href="/crypto-tracker" style="font-size:.7rem;color:#f97316;text-decoration:none;opacity:.8;">View details →</a>',
+              '</div>',
+            '</div>',
+            '<span class="text-sm font-semibold flex-shrink-0 ml-1" style="color:#4ade80;">' + fmt(cryptoTrackerValue) + '</span>',
+            '<div class="flex gap-1 flex-shrink-0 ml-2" style="width:62px;"></div>',
+          '</div>'
+        ].join('');
+      }
+
+      container.innerHTML = cryptoRow + list.map(function(e) {
+        var cat = e.category || 'other';
+        var catLabel = (CAT_LABELS[cat] || cat).replace(/^[^\s]+\s/, ''); // strip emoji for space
+        var fullLabel = CAT_LABELS[cat] || cat;
+        var interestHtml = (!isAsset && e.interest_rate && parseFloat(e.interest_rate) > 0)
+          ? '<span class="text-xs text-gray-500 ml-1">' + parseFloat(e.interest_rate).toFixed(2) + '% APR</span>'
+          : '';
+
+        return [
+          '<div class="entry-row flex items-center gap-2 px-4 py-3">',
+            '<div class="flex-1 min-w-0">',
+              '<p class="text-sm font-medium text-white truncate">' + escapeHtml(e.name) + '</p>',
+              '<div class="flex items-center gap-1.5 mt-0.5">',
+                '<span class="badge badge-' + escapeHtml(cat) + '">' + escapeHtml(fullLabel) + '</span>',
+                interestHtml,
+              '</div>',
+            '</div>',
+            '<span class="text-sm font-semibold flex-shrink-0 ml-1" style="color:' + accentColor + ';">' + fmt(e.value) + '</span>',
+            '<div class="flex gap-1 flex-shrink-0 ml-2">',
+              '<button onclick="openEditModal(' + e.id + ')" class="w-7 h-7 rounded-md flex items-center justify-center transition-colors" style="background:rgba(255,255,255,0.05); color:#9ca3af;" title="Edit">',
+                '<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>',
+              '</button>',
+              '<button onclick="openDeleteModal(' + e.id + ',\'' + escapeAttr(e.name) + '\')" class="w-7 h-7 rounded-md flex items-center justify-center transition-colors" style="background:rgba(239,68,68,0.08); color:#f87171;" title="Delete">',
+                '<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>',
+              '</button>',
+            '</div>',
+          '</div>'
+        ].join('');
+      }).join('');
+    }
+
+    // ── Render category breakdown bars ──────────────────────────────────
+    function renderBreakdown(type, list, total) {
+      var container = document.getElementById(type + '-breakdown');
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-600 text-center py-4">No ' + (type === 'asset' ? 'assets' : 'liabilities') + ' added yet</p>';
+        return;
+      }
+
+      // Group by category
+      var groups = {};
+      list.forEach(function(e) {
+        var cat = e.category || 'other';
+        if (!groups[cat]) groups[cat] = 0;
+        groups[cat] += parseFloat(e.value || 0);
+      });
+      // Add live Crypto Tracker value to 'crypto' category for asset breakdown
+      if (type === 'asset' && cryptoTrackerValue > 0) {
+        groups['crypto'] = (groups['crypto'] || 0) + cryptoTrackerValue;
+      }
+
+      // Sort descending
+      var sorted = Object.keys(groups).map(function(k) { return { cat: k, val: groups[k] }; });
+      sorted.sort(function(a,b) { return b.val - a.val; });
+
+      container.innerHTML = sorted.map(function(g) {
+        var pct = total > 0 ? (g.val / total * 100) : 0;
+        var color = CAT_COLORS[g.cat] || '#6b7280';
+        var label = CAT_LABELS[g.cat] || g.cat;
+        return [
+          '<div class="mb-3 last:mb-0">',
+            '<div class="flex justify-between items-center mb-1">',
+              '<span class="text-xs text-gray-300">' + escapeHtml(label) + '</span>',
+              '<div class="flex items-center gap-2">',
+                '<span class="text-xs text-gray-500">' + pct.toFixed(0) + '%</span>',
+                '<span class="text-xs font-semibold text-white">' + fmtShort(g.val) + '</span>',
+              '</div>',
+            '</div>',
+            '<div class="progress-track">',
+              '<div class="progress-fill" style="width:' + pct.toFixed(1) + '%; background:' + color + ';"></div>',
+            '</div>',
+          '</div>'
+        ].join('');
+      }).join('');
+    }
+
+    // ── Chart ───────────────────────────────────────────────────────────
+    function setPeriod(p) {
+      currentPeriod = p;
+      ['M','Q','Y'].forEach(function(k) {
+        var btn = document.getElementById('period-' + k);
+        btn.className = 'period-btn' + (k === p ? ' active' : '');
+      });
+      renderChart(allSnapshots, p);
+    }
+
+    function groupSnapshotsByPeriod(snapshots, period) {
+      if (!snapshots || snapshots.length === 0) return [];
+      var groups = {};
+      snapshots.forEach(function(s) {
+        var d = new Date(s.snapshot_date || s.created_at || s.date);
+        var key;
+        if (period === 'M') {
+          key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+        } else if (period === 'Q') {
+          key = d.getFullYear() + '-Q' + Math.ceil((d.getMonth()+1)/3);
+        } else {
+          key = String(d.getFullYear());
+        }
+        if (!groups[key]) groups[key] = { label: key, nw: [], assets: [], debts: [] };
+        groups[key].nw.push(parseFloat(s.net_worth || 0));
+        groups[key].assets.push(parseFloat(s.total_assets || 0));
+        groups[key].debts.push(parseFloat(s.total_debts || s.total_liabilities || 0));
+      });
+      var avg = function(arr) { return arr.reduce(function(a,b){return a+b;},0)/arr.length; };
+      return Object.keys(groups).sort().map(function(k) {
+        var g = groups[k];
+        return { label: g.label, net_worth: avg(g.nw), total_assets: avg(g.assets), total_debts: avg(g.debts) };
+      });
+    }
+
+    function renderChart(snapshots, period) {
+      var grouped = groupSnapshotsByPeriod(snapshots, period);
+      var chartEl  = document.getElementById('chart-container');
+      var emptyEl  = document.getElementById('chart-empty');
+
+      if (grouped.length < 2) {
+        chartEl.style.display = 'none';
+        emptyEl.classList.remove('hidden');
+        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+      chartEl.style.display = 'block';
+
+      var labels   = grouped.map(function(g) { return g.label; });
+      var nwData   = grouped.map(function(g) { return g.net_worth; });
+      var aData    = grouped.map(function(g) { return g.total_assets; });
+      var dData    = grouped.map(function(g) { return g.total_debts; });
+
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+      var ctx = document.getElementById('nw-chart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Net Worth',
+              data: nwData,
+              borderColor: '#e8c96a',
+              backgroundColor: 'rgba(232,201,106,0.08)',
+              borderWidth: 2.5,
+              pointBackgroundColor: '#e8c96a',
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: false,
+              tension: 0.35
+            },
+            {
+              label: 'Total Assets',
+              data: aData,
+              borderColor: '#4ade80',
+              backgroundColor: 'rgba(74,222,128,0.06)',
+              borderWidth: 1.5,
+              pointBackgroundColor: '#4ade80',
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              fill: false,
+              tension: 0.35
+            },
+            {
+              label: 'Total Liabilities',
+              data: dData,
+              borderColor: '#f87171',
+              backgroundColor: 'rgba(248,113,113,0.06)',
+              borderWidth: 1.5,
+              pointBackgroundColor: '#f87171',
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              fill: false,
+              tension: 0.35
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              labels: {
+                color: '#9ca3af',
+                font: { size: 11, family: 'Inter' },
+                boxWidth: 12,
+                usePointStyle: true,
+                pointStyle: 'circle'
+              }
+            },
+            tooltip: {
+              backgroundColor: '#13192a',
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderWidth: 1,
+              titleColor: '#f1f5f9',
+              bodyColor: '#9ca3af',
+              padding: 10,
+              callbacks: {
+                label: function(ctx) {
+                  return ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y);
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: { color: '#6b7280', font: { size: 11 } }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+                callback: function(v) { return fmtShort(v); }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ── Modal: populate category dropdown ───────────────────────────────
+    function populateCategorySelect(type) {
+      var sel = document.getElementById('modal-category');
+      sel.innerHTML = '';
+      var cats = type === 'asset' ? ASSET_CATS : DEBT_CATS;
+      cats.forEach(function(c) {
+        var opt = document.createElement('option');
+        opt.value = c.value;
+        opt.textContent = c.label;
+        sel.appendChild(opt);
+      });
+    }
+
+    // ── Modal: Add ───────────────────────────────────────────────────────
+    function openAddModal(type) {
+      document.getElementById('modal-id').value   = '';
+      document.getElementById('modal-type').value  = type;
+      document.getElementById('modal-title').textContent = type === 'asset' ? 'Add Asset' : 'Add Liability';
+      document.getElementById('modal-submit').textContent = type === 'asset' ? 'Add Asset' : 'Add Liability';
+      document.getElementById('modal-name').value  = '';
+      document.getElementById('modal-value').value = '';
+      document.getElementById('modal-interest').value = '';
+      populateCategorySelect(type);
+      var irRow = document.getElementById('interest-rate-row');
+      irRow.classList.toggle('hidden', type !== 'debt');
+      document.getElementById('entry-modal').classList.remove('hidden');
+      setTimeout(function() { document.getElementById('modal-name').focus(); }, 80);
+    }
+
+    // ── Modal: Edit ──────────────────────────────────────────────────────
+    function openEditModal(id) {
+      var entry = entries.find(function(e) { return e.id === id; });
+      if (!entry) return;
+      document.getElementById('modal-id').value   = id;
+      document.getElementById('modal-type').value  = entry.type;
+      document.getElementById('modal-title').textContent = 'Edit ' + (entry.type === 'asset' ? 'Asset' : 'Liability');
+      document.getElementById('modal-submit').textContent = 'Save Changes';
+      document.getElementById('modal-name').value  = entry.name;
+      document.getElementById('modal-value').value = parseFloat(entry.value).toFixed(2);
+      document.getElementById('modal-interest').value = entry.interest_rate ? parseFloat(entry.interest_rate).toFixed(2) : '';
+      populateCategorySelect(entry.type);
+      document.getElementById('modal-category').value = entry.category || 'other';
+      var irRow = document.getElementById('interest-rate-row');
+      irRow.classList.toggle('hidden', entry.type !== 'debt');
+      document.getElementById('entry-modal').classList.remove('hidden');
+      setTimeout(function() { document.getElementById('modal-name').focus(); }, 80);
+    }
+
+    function closeModal() { document.getElementById('entry-modal').classList.add('hidden'); }
+    function closeModalIfBackdrop(e) { if (e.target === document.getElementById('entry-modal')) closeModal(); }
+
+    // ── Save ─────────────────────────────────────────────────────────────
+    async function saveEntry(e) {
+      e.preventDefault();
+      var id       = document.getElementById('modal-id').value;
+      var type     = document.getElementById('modal-type').value;
+      var name     = document.getElementById('modal-name').value.trim();
+      var category = document.getElementById('modal-category').value;
+      var value    = parseFloat(document.getElementById('modal-value').value);
+      var interest = document.getElementById('modal-interest').value;
+      var interestRate = interest !== '' ? parseFloat(interest) : null;
+
+      if (!name)                         { showToast('Name is required', 'error'); return; }
+      if (isNaN(value) || value < 0)     { showToast('Enter a valid value ≥ 0', 'error'); return; }
+
+      var btn = document.getElementById('modal-submit');
+      btn.disabled = true;
+      var origText = btn.textContent;
+      btn.textContent = 'Saving...';
+
+      try {
+        var url    = id ? '/api/net-worth/' + id : '/api/net-worth';
+        var method = id ? 'PUT' : 'POST';
+        var body   = { name: name, category: category, value: value };
+        if (type === 'debt' && interestRate !== null && !isNaN(interestRate)) body.interest_rate = interestRate;
+        if (!id) body.type = type;
+
+        var res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(body)
+        });
+        var data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Save failed');
+
+        if (id) {
+          entries = entries.map(function(en) { return en.id === parseInt(id) ? data.entry : en; });
+        } else {
+          entries.push(data.entry);
+        }
+
+        closeModal();
+        render();
+        await takeSnapshot();
+        showToast(id ? 'Entry updated' : (type === 'asset' ? 'Asset added' : 'Liability added'), 'success');
+      } catch(err) {
+        showToast(err.message || 'Something went wrong', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+    }
+
+    // ── Delete ───────────────────────────────────────────────────────────
+    function openDeleteModal(id, name) {
+      deletePending = id;
+      document.getElementById('delete-name').textContent = 'Remove "' + name + '" permanently?';
+      document.getElementById('delete-modal').classList.remove('hidden');
+    }
+    function closeDeleteModal() {
+      deletePending = null;
+      document.getElementById('delete-modal').classList.add('hidden');
+    }
+    function closeDeleteIfBackdrop(e) { if (e.target === document.getElementById('delete-modal')) closeDeleteModal(); }
+
+    async function confirmDelete() {
+      if (!deletePending) return;
+      var id = deletePending;
+      closeDeleteModal();
+      try {
+        var res = await fetch('/api/net-worth/' + id, { method: 'DELETE', credentials: 'include' });
+        var data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Delete failed');
+        entries = entries.filter(function(e) { return e.id !== id; });
+        render();
+        await takeSnapshot();
+        showToast('Entry deleted', 'success');
+      } catch(err) {
+        showToast(err.message || 'Delete failed', 'error');
+      }
+    }
+
+    // ── Toast ────────────────────────────────────────────────────────────
+    var toastTimer = null;
+    function showToast(msg, type) {
+      var el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = type === 'error' ? 'toast-error' : 'toast-success';
+      el.style.display = 'block';
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() { el.style.display = 'none'; }, 3200);
+    }
+
+    // ── Escape helpers ───────────────────────────────────────────────────
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+    function escapeAttr(s) {
+      return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    }
+
+    // ── Keyboard ─────────────────────────────────────────────────────────
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { closeModal(); closeDeleteModal(); }
+    });
+
+    // ── Boot ─────────────────────────────────────────────────────────────
+    init();
+  </script>
+
+  <!-- Polsia Analytics -->
+  <script>
+    (function() {
+      var slug = '__POLSIA_SLUG__';
+      if (!slug || slug === '__POLSIA_SLUG__') return;
+      var s = document.createElement('script');
+      s.src = 'https://polsia.app/analytics.js?slug=' + encodeURIComponent(slug);
+      s.async = true;
+      document.head.appendChild(s);
+    })();
+  </script>
+
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sovereign Dashboard — Future Generations</title>
+  <meta name="description" content="Your Sovereign Command Center — 4x5 Progression Map, Wallets, Compliance Lights.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%9A%94%3C/text%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#080d14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#232f47' },
+            gold:  { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a07c1a' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+
+    body { background: #080d14; color: #f1f5f9; }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .card { background: linear-gradient(145deg, #13192a, #1a2235); border: 1px solid rgba(255,255,255,0.07); }
+    .card-gold {
+      background: linear-gradient(145deg, rgba(201,162,39,0.1), rgba(201,162,39,0.04));
+      border: 1px solid rgba(201,162,39,0.22);
+    }
+    .card-green {
+      background: linear-gradient(145deg, rgba(34,197,94,0.08), rgba(34,197,94,0.03));
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+    .card-red {
+      background: linear-gradient(145deg, rgba(239,68,68,0.1), rgba(239,68,68,0.04));
+      border: 1px solid rgba(239,68,68,0.25);
+    }
+
+    /* Alert banner */
+    #alert-banner {
+      background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.08));
+      border-bottom: 1px solid rgba(239,68,68,0.3);
+    }
+
+    /* FACTS Progress Ring */
+    .ring-track { fill: none; stroke: rgba(255,255,255,0.07); }
+    .ring-fill  { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1.2s ease; }
+
+    /* Slot map */
+    .map-slot {
+      border-radius: 0.75rem;
+      transition: all 0.2s;
+      position: relative;
+      cursor: default;
+    }
+    .map-slot:hover { transform: translateY(-2px); }
+    .slot-active  { background: rgba(34,197,94,0.12); border: 1.5px solid rgba(34,197,94,0.35); }
+    .slot-gold    { background: rgba(201,162,39,0.14); border: 1.5px solid rgba(201,162,39,0.4); }
+    .slot-ghost   { background: rgba(55,65,81,0.5);   border: 1.5px solid rgba(75,85,99,0.4); }
+    .slot-orphan  { background: rgba(249,115,22,0.12); border: 1.5px solid rgba(249,115,22,0.35); }
+    .slot-empty   { background: rgba(255,255,255,0.02); border: 1.5px dashed rgba(255,255,255,0.08); }
+    .slot-locked  { background: rgba(255,255,255,0.02); border: 1.5px dashed rgba(255,255,255,0.05); opacity: 0.4; cursor: not-allowed; }
+
+    /* Depth progress bar */
+    .depth-bar-track { height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+    .depth-bar-fill  { height: 100%; border-radius: 999px; transition: width 0.8s ease; }
+
+    /* Wallet */
+    .wallet-vesting-track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+    .wallet-vesting-fill  { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #c9a227, #e8c96a); transition: width 1s ease; }
+
+    /* Compliance shields */
+    .shield-green  { color: #22c55e; }
+    .shield-yellow { color: #eab308; }
+    .shield-red    { color: #ef4444; }
+
+    /* Btn styles */
+    .btn-gold {
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      color: #0d1117; font-weight: 700;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-outline {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      color: #d1d5db; transition: background 0.2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.09); }
+    .btn-outline:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* View toggle */
+    .view-btn {
+      padding: 0.45rem 1.1rem; border-radius: 0.5rem; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; color: #6b7280; background: transparent; border: none;
+    }
+    .view-btn.active { background: rgba(201,162,39,0.12); color: #e8c96a; border: 1px solid rgba(201,162,39,0.25); }
+    .view-btn:hover:not(.active) { color: #d1d5db; }
+
+    /* Referral link floating bar */
+    #referral-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+      background: rgba(13,17,23,0.96); backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(201,162,39,0.18);
+      transition: transform 0.3s ease;
+    }
+
+    /* Animations */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-1 { animation: fadeUp 0.4s ease 0.05s both; }
+    .anim-2 { animation: fadeUp 0.4s ease 0.12s both; }
+    .anim-3 { animation: fadeUp 0.4s ease 0.2s both; }
+    .anim-4 { animation: fadeUp 0.4s ease 0.28s both; }
+    .anim-5 { animation: fadeUp 0.4s ease 0.36s both; }
+
+    @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+    .loading-skel { height: 1.25rem; background: rgba(255,255,255,0.05); border-radius: 0.4rem; animation: pulse 1.6s ease infinite; }
+
+    /* Phase labels */
+    .phase-label {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.15rem 0.45rem; border-radius: 999px;
+      background: rgba(201,162,39,0.1); color: #c9a227; border: 1px solid rgba(201,162,39,0.2);
+    }
+    .phase-locked-label {
+      background: rgba(255,255,255,0.05); color: #4b5563; border-color: rgba(255,255,255,0.05);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  </style>
+  <script defer src="/nav-bar.js"></script>
+</head>
+<body class="min-h-screen">
+
+  <!-- Auth/Affiliate gates (hidden by default) -->
+  <div id="auth-gate" style="display:none; position:fixed; inset:0; z-index:80; background:rgba(8,13,20,0.97); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:1rem;">
+    <div class="card rounded-2xl p-8 max-w-md w-full text-center" style="border-color:rgba(201,162,39,0.15);">
+      <div class="text-5xl mb-4">🔒</div>
+      <h2 class="text-xl font-bold mb-2">Sign In to Access Your Sovereign Dashboard</h2>
+      <p class="text-gray-400 text-sm mb-6">The Sovereign Command Center requires an active affiliate account.</p>
+      <div class="flex flex-col gap-3">
+        <a href="/login.html" class="btn-gold block py-3 rounded-xl text-sm text-center">Sign In</a>
+        <a href="/signup.html" class="btn-outline block py-2.5 rounded-xl text-sm text-center">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="not-affiliate-gate" style="display:none; position:fixed; inset:0; z-index:80; background:rgba(8,13,20,0.97); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:1rem;">
+    <div class="card rounded-2xl p-8 max-w-md w-full text-center" style="border-color:rgba(201,162,39,0.15);">
+      <div class="text-5xl mb-4">⚔️</div>
+      <h2 class="text-xl font-bold mb-2">You're Not Enrolled in Future Generations</h2>
+      <p class="text-gray-400 text-sm mb-6">The Sovereign Dashboard is exclusive to Future Generations affiliates. Join the program to claim your command center.</p>
+      <div class="flex flex-col gap-3">
+        <a href="/affiliate-dashboard.html" class="btn-gold block py-3 rounded-xl text-sm text-center">Join Future Generations →</a>
+        <a href="/future-generations.html" class="btn-outline block py-2.5 rounded-xl text-sm text-center">Learn More</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading screen -->
+  <div id="loading-screen" class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+      <div class="text-5xl mb-4" style="animation: fadeUp 0.5s ease both;">⚔️</div>
+      <div class="text-sm text-gray-500">Initializing Sovereign Command Center…</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main-content" style="display:none;">
+
+    <!-- Urgent Alert Banner (conditionally shown) -->
+    <div id="alert-banner" style="display:none;" class="px-4 py-2.5">
+      <div class="max-w-6xl mx-auto flex items-center gap-3">
+        <span class="text-red-400 font-bold text-sm" id="alert-text">⚠️ Alert</span>
+        <a id="alert-link" href="#" class="text-xs text-red-300 underline ml-auto">Take Action →</a>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="border-b sticky z-40" style="top:44px; border-color:rgba(255,255,255,0.06); background:rgba(8,13,20,0.96); backdrop-filter:blur(10px);">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <a href="/" class="flex items-center gap-2 no-underline">
+            <div class="w-7 h-7 rounded-md flex items-center justify-center text-sm font-bold" style="background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;">₣</div>
+          </a>
+          <span class="text-gray-600 text-xs">/</span>
+          <a href="/future-generations.html" class="text-xs text-gray-400 hover:text-white transition-colors">Future Generations</a>
+          <span class="text-gray-600 text-xs">/</span>
+          <span class="text-xs font-semibold" style="color:#c9a227;">Sovereign Dashboard</span>
+        </div>
+        <!-- View Toggle -->
+        <div class="flex items-center gap-1 p-1 rounded-lg" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);">
+          <button class="view-btn" id="btn-my-facts" onclick="switchView('facts')">📊 My FACTS</button>
+          <button class="view-btn active" id="btn-my-legacy" onclick="switchView('legacy')">⚔️ My Legacy</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── MY FACTS VIEW ── -->
+    <div id="view-facts" style="display:none;">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 text-center">
+        <div class="text-5xl mb-4">📊</div>
+        <h2 class="text-2xl font-bold mb-2">My FACTS Dashboard</h2>
+        <p class="text-gray-400 text-sm mb-6">Your personal financial command center — allocations, debt, freedom calculator, and more.</p>
+        <a href="/app.html" class="btn-gold inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm">Open FACTS App →</a>
+      </div>
+    </div>
+
+    <!-- ── MY LEGACY VIEW ── -->
+    <div id="view-legacy">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-7 pb-32 space-y-6">
+
+        <!-- ─── SECTION 1: Sovereign Score Header ─── -->
+        <div class="anim-1">
+          <div class="card rounded-2xl p-5 sm:p-6">
+            <div class="flex flex-wrap gap-5 items-center justify-between">
+
+              <!-- FACTS Level Ring -->
+              <div class="flex items-center gap-5">
+                <div class="relative w-20 h-20 flex-shrink-0">
+                  <svg viewBox="0 0 80 80" class="w-20 h-20 -rotate-90">
+                    <circle class="ring-track" cx="40" cy="40" r="33" stroke-width="7"/>
+                    <circle id="ring-fill" class="ring-fill" cx="40" cy="40" r="33" stroke-width="7"
+                      stroke="#c9a227"
+                      stroke-dasharray="207.3"
+                      stroke-dashoffset="207.3"/>
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span id="tfr-level-num" class="text-xl font-extrabold leading-none" style="color:#e8c96a;">—</span>
+                    <span class="text-gray-500 text-[9px] font-semibold uppercase tracking-wide">LEVEL</span>
+                  </div>
+                </div>
+                <div>
+                  <div id="tfr-rank-name" class="text-lg font-extrabold gold-text leading-tight">—</div>
+                  <div id="tfr-phase-label" class="text-xs text-gray-400 mt-0.5">FACTS Game — Phase —</div>
+                  <div id="tfr-xp-label" class="text-xs text-gray-500 mt-1">— XP</div>
+                </div>
+              </div>
+
+              <!-- Divider -->
+              <div class="hidden sm:block w-px self-stretch" style="background:rgba(255,255,255,0.07);"></div>
+
+              <!-- Freedom Clock -->
+              <div class="flex flex-col">
+                <div class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">⏱ Freedom Clock</div>
+                <div id="freedom-clock-value" class="text-2xl font-extrabold" style="color:#e8c96a;">—</div>
+                <div class="text-xs text-gray-500">Survival Runway</div>
+              </div>
+
+              <!-- Divider -->
+              <div class="hidden sm:block w-px self-stretch" style="background:rgba(255,255,255,0.07);"></div>
+
+              <!-- Heartbeat Status -->
+              <div class="flex flex-col">
+                <div class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-2">💓 Monthly Heartbeat</div>
+                <div id="heartbeat-status-block">
+                  <div id="heartbeat-complete" style="display:none;" class="flex items-center gap-2">
+                    <span class="text-green-400 text-lg">✓</span>
+                    <span class="text-sm font-semibold text-green-400">Audit Complete</span>
+                  </div>
+                  <div id="heartbeat-pending" style="display:none;" class="flex flex-col gap-1">
+                    <div class="flex items-center gap-2">
+                      <span class="text-red-400 text-base">⚠</span>
+                      <span class="text-sm font-semibold text-red-400">Audit Pending</span>
+                    </div>
+                    <button onclick="markHeartbeat()" id="heartbeat-btn"
+                      class="btn-gold text-xs px-3 py-1.5 rounded-lg mt-1">
+                      Mark Complete ✓
+                    </button>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">Due: <span id="heartbeat-due-date">—</span></div>
+              </div>
+
+              <!-- Divider -->
+              <div class="hidden sm:block w-px self-stretch" style="background:rgba(255,255,255,0.07);"></div>
+
+              <!-- Affiliate Status -->
+              <div class="flex flex-col">
+                <div class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">📋 Status</div>
+                <div id="aff-status-badge" class="text-sm font-bold">—</div>
+                <div class="text-xs text-gray-500 mt-1" id="aff-grace-note" style="display:none;"></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── SECTION 2: 4x5 Progression Map ─── -->
+        <div class="anim-2">
+          <div class="card rounded-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b" style="border-color:rgba(255,255,255,0.06);">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h2 class="font-bold text-base">⚔️ 4×5 Progression Map</h2>
+                  <p class="text-xs text-gray-500 mt-0.5">5 Phases · 4 Legs each · 5 Deep to unlock next phase</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-gray-500">
+                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-green-500 inline-block"></span>Active</span>
+                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm inline-block" style="background:#c9a227;"></span>Upgraded</span>
+                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-gray-600 inline-block"></span>Ghost</span>
+                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-orange-500 inline-block"></span>Orphan</span>
+                </div>
+              </div>
+            </div>
+            <div class="p-5" id="progression-map-container">
+              <!-- Populated by JS -->
+              <div class="space-y-4">
+                <div class="loading-skel w-full h-28"></div>
+                <div class="loading-skel w-full h-28"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── SECTION 3: Sovereign Bucket (Wallets) ─── -->
+        <div class="anim-3">
+          <div class="card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <h2 class="font-bold text-base">🪙 Sovereign Bucket</h2>
+              <span class="text-xs text-gray-500">Net-30 Payout Cycle</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              <!-- Pending Wallet -->
+              <div class="card rounded-xl p-4">
+                <div class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">⏳ Pending Balance</div>
+                <div id="wallet-pending" class="text-3xl font-extrabold text-yellow-400">—</div>
+                <div class="text-xs text-gray-500 mt-1">90-day vesting period</div>
+                <!-- Vesting progress -->
+                <div id="vesting-bar-container" style="display:none;" class="mt-3">
+                  <div class="flex justify-between text-xs text-gray-500 mb-1.5">
+                    <span>Vesting Progress</span>
+                    <span id="vesting-day-label">Day — of 90</span>
+                  </div>
+                  <div class="wallet-vesting-track">
+                    <div id="vesting-bar-fill" class="wallet-vesting-fill" style="width:0%;"></div>
+                  </div>
+                  <div class="text-xs text-gray-500 mt-1.5" id="vesting-date-label">Vests on —</div>
+                </div>
+              </div>
+              <!-- Approved Wallet -->
+              <div class="card-gold rounded-xl p-4">
+                <div class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">✅ Approved Balance</div>
+                <div id="wallet-approved" class="text-3xl font-extrabold gold-text">—</div>
+                <div class="text-xs text-gray-500 mt-1">Available to cash out (min $50)</div>
+                <button id="cash-out-btn" onclick="requestPayout()" disabled
+                  class="btn-gold w-full mt-3 py-2 rounded-lg text-sm">
+                  Cash Out
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between flex-wrap gap-2 text-xs text-gray-400">
+              <span>Next Payout Date: <span id="next-payout-date" class="text-white font-semibold">—</span></span>
+              <span id="lifetime-earned" class="text-gray-600">Lifetime: $—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── SECTIONS 4 + 5: Legacy Tracker + Orphan Pool Feed (side by side on wide screens) ─── -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 anim-4">
+
+          <!-- Legacy Tracker -->
+          <div class="card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <h2 class="font-bold text-sm">🌿 Legacy Tracker</h2>
+              <span id="legacy-count" class="text-xs text-gray-500">— Active Heirs</span>
+            </div>
+            <div id="legacy-list">
+              <div class="text-xs text-gray-500 text-center py-4">Loading…</div>
+            </div>
+          </div>
+
+          <!-- Orphan Pool Feed -->
+          <div class="card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <h2 class="font-bold text-sm">🔄 Orphan Pool Feed</h2>
+              <span class="text-xs text-gray-500">Company-Assigned Slots</span>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-400">Company Release Rate</span>
+                <span id="orphan-split" class="font-bold text-orange-400">Split: 20:1</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-400">Holding Tank</span>
+                <span id="orphan-tank" class="font-bold text-gray-300">— Free Users Waiting</span>
+              </div>
+              <div class="border-t pt-3" style="border-color:rgba(255,255,255,0.07);">
+                <div class="text-xs text-gray-400 mb-1">Your Next Orphan</div>
+                <div id="orphan-next" class="text-sm font-semibold text-orange-300">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── SECTION 6: Compliance Lights ─── -->
+        <div class="anim-5">
+          <div class="card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <h2 class="font-bold text-sm">🛡 Compliance Lights</h2>
+              <span class="text-xs text-gray-500">Per Team Member — This Month</span>
+            </div>
+            <div id="compliance-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div class="text-xs text-gray-500 col-span-full text-center py-4">Loading…</div>
+            </div>
+            <!-- Legend -->
+            <div class="flex flex-wrap gap-4 mt-4 pt-3 border-t text-xs text-gray-500" style="border-color:rgba(255,255,255,0.06);">
+              <span class="flex items-center gap-1.5"><span class="shield-green">🛡</span> Heartbeat complete + active subscription</span>
+              <span class="flex items-center gap-1.5"><span class="shield-yellow">🛡</span> Logged in but audit pending</span>
+              <span class="flex items-center gap-1.5"><span class="shield-red">🛡</span> Past 7th · inactive or subscription lapsed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── SECTION 7: Sovereign Executive Access ─── -->
+        <div id="sovereign-exec-section" style="display:none;">
+          <div class="card rounded-2xl p-5" style="border-color:rgba(201,162,39,0.22);background:linear-gradient(145deg,rgba(201,162,39,0.06),rgba(201,162,39,0.02));">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-base" style="background:linear-gradient(135deg,rgba(201,162,39,0.25),rgba(201,162,39,0.1));border:1px solid rgba(201,162,39,0.3);">👑</div>
+              <div>
+                <h2 class="font-bold text-sm">Sovereign Executive Access</h2>
+                <p class="text-xs text-gray-500">Your $19,997 Sovereign tier benefits</p>
+              </div>
+              <div class="ml-auto text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(201,162,39,0.12);color:#e8c96a;border:1px solid rgba(201,162,39,0.25);">SOVEREIGN</div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+              <!-- P2P Lending -->
+              <div id="flag-p2p" class="rounded-xl p-4" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-lg">🏦</span>
+                  <span class="text-xs font-bold text-gray-300">P2P Lending Visibility</span>
+                </div>
+                <div id="flag-p2p-status" class="text-xs text-gray-500">—</div>
+                <div class="text-xs text-gray-600 mt-1">Read-only access to FACTS Network lending opportunities</div>
+              </div>
+
+              <!-- Mastermind -->
+              <div id="flag-mastermind" class="rounded-xl p-4" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-lg">🧠</span>
+                  <span class="text-xs font-bold text-gray-300">Mastermind Access</span>
+                </div>
+                <div id="flag-mastermind-status" class="text-xs text-gray-500">—</div>
+                <div class="text-xs text-gray-600 mt-1">Private mastermind group coordination access</div>
+              </div>
+
+              <!-- Annual Summit -->
+              <div id="flag-summit" class="rounded-xl p-4" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-lg">🏔️</span>
+                  <span class="text-xs font-bold text-gray-300">Annual Summit</span>
+                </div>
+                <div id="flag-summit-status" class="text-xs text-gray-500">—</div>
+                <div class="text-xs text-gray-600 mt-1">Invitation to the annual Sovereign Summit</div>
+              </div>
+
+            </div>
+
+            <!-- Priority Orphan note -->
+            <div id="flag-priority-orphan" style="display:none;" class="mt-3 flex items-center gap-3 rounded-xl p-3" style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);">
+              <span class="text-base">⚡</span>
+              <div>
+                <div class="text-xs font-bold text-orange-300">Priority Orphan Assignment</div>
+                <div class="text-xs text-gray-500">You receive orphan placements ahead of the standard queue</div>
+              </div>
+            </div>
+
+            <!-- Not yet unlocked state -->
+            <div id="sovereign-exec-locked" style="display:none;margin-top:14px;">
+              <div class="text-xs text-gray-500 text-center py-2">Upgrade to Sovereign Executive to unlock these benefits. <a href="/pricing.html" class="text-yellow-500 hover:underline">View Pricing →</a></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── Floating Referral Link Bar ─── -->
+    <div id="referral-bar" style="display:none;">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-semibold text-gray-300">Your Referral Link</span>
+            <!-- Toggle -->
+            <div class="flex items-center gap-1 p-0.5 rounded-md" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+              <button id="mode-general-btn" onclick="setReferralMode('general')"
+                class="text-[11px] px-2 py-0.5 rounded font-semibold transition-all"
+                style="background:rgba(201,162,39,0.15); color:#e8c96a;">General</button>
+              <button id="mode-legacy-btn" onclick="setReferralMode('family_legacy')"
+                class="text-[11px] px-2 py-0.5 rounded font-semibold transition-all text-gray-500">Family Legacy</button>
+            </div>
+          </div>
+          <div id="referral-link-text" class="text-xs text-gray-400 truncate font-mono">—</div>
+        </div>
+        <button onclick="copyReferralLink()" id="copy-btn"
+          class="btn-gold px-4 py-2 rounded-lg text-xs flex-shrink-0">
+          📋 Copy Link
+        </button>
+        <button onclick="document.getElementById('referral-bar').style.display='none'"
+          class="text-gray-600 hover:text-gray-400 text-lg leading-none flex-shrink-0">×</button>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+
+  <script>
+    // ── State ────────────────────────────────────────────────────────────────
+    let dashData = null;
+    let currentView = 'legacy';
+    let referralMode = 'general';
+
+    // ── View toggle ──────────────────────────────────────────────────────────
+    function switchView(view) {
+      currentView = view;
+      document.getElementById('view-facts').style.display  = view === 'facts'  ? 'block' : 'none';
+      document.getElementById('view-legacy').style.display = view === 'legacy' ? 'block' : 'none';
+      document.getElementById('btn-my-facts').className  = 'view-btn' + (view === 'facts'  ? ' active' : '');
+      document.getElementById('btn-my-legacy').className = 'view-btn' + (view === 'legacy' ? ' active' : '');
+    }
+
+    // ── Formatters ───────────────────────────────────────────────────────────
+    function fmtCents(cents) {
+      return '$' + (Math.abs(cents || 0) / 100).toFixed(2);
+    }
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    function escHtml(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ── Render: FACTS progress ring ───────────────────────────────────────────
+    function renderRing(level, xpProgress) {
+      const CIRCUMFERENCE = 2 * Math.PI * 33; // ~207.3
+      const fill = document.getElementById('ring-fill');
+      const offset = CIRCUMFERENCE * (1 - (xpProgress / 100));
+      fill.style.strokeDashoffset = offset;
+      document.getElementById('tfr-level-num').textContent = level;
+    }
+
+    // ── Render: Alert banner ─────────────────────────────────────────────────
+    function renderAlerts(d) {
+      const aff = d.affiliate;
+      const hb  = d.heartbeat;
+      const banner = document.getElementById('alert-banner');
+      const text   = document.getElementById('alert-text');
+      const link   = document.getElementById('alert-link');
+
+      if (aff.status === 'at_risk' && aff.grace_period_ends_at) {
+        const daysLeft = Math.max(0, Math.ceil((new Date(aff.grace_period_ends_at) - Date.now()) / 86400000));
+        text.textContent = `⚠️ Payment Failed — ${daysLeft} day${daysLeft !== 1 ? 's' : ''} remaining before affiliate status is revoked`;
+        link.textContent = 'Resolve Now →';
+        link.href = '/settings.html';
+        banner.style.display = 'block';
+      } else if (!hb.this_month_complete) {
+        const today = new Date().getDate();
+        if (today >= 5) { // warn a couple days before the 7th
+          text.textContent = `⚠️ Complete your Heartbeat Audit by the 7th — ${hb.due_date}`;
+          link.textContent = 'Mark Complete →';
+          link.href = '#';
+          link.onclick = (e) => { e.preventDefault(); markHeartbeat(); };
+          banner.style.display = 'block';
+        }
+      }
+    }
+
+    // ── Render: Sovereign Score Header ──────────────────────────────────────
+    function renderHeader(d) {
+      const tfr  = d.tfr;
+      const user = d.user;
+      const hb   = d.heartbeat;
+      const aff  = d.affiliate;
+
+      // FACTS ring
+      renderRing(tfr.level, tfr.xp_progress);
+      document.getElementById('tfr-rank-name').textContent  = tfr.rank_name;
+      document.getElementById('tfr-phase-label').textContent = `FACTS Game — Phase ${tfr.phase}`;
+      document.getElementById('tfr-xp-label').textContent   = `${(tfr.xp || 0).toLocaleString()} XP`;
+
+      // Freedom Clock
+      const runway = user.survival_runway_months;
+      if (runway !== null && runway !== undefined) {
+        document.getElementById('freedom-clock-value').textContent = `${runway}.0 Months`;
+      } else {
+        document.getElementById('freedom-clock-value').textContent = 'N/A';
+        document.getElementById('freedom-clock-value').style.color = '#6b7280';
+      }
+
+      // Heartbeat
+      if (hb.this_month_complete) {
+        document.getElementById('heartbeat-complete').style.display = 'flex';
+      } else {
+        document.getElementById('heartbeat-pending').style.display = 'flex';
+      }
+      document.getElementById('heartbeat-due-date').textContent = fmtDate(hb.due_date + 'T00:00:00');
+
+      // Affiliate status badge
+      const statusColors = {
+        active: 'color:#22c55e;',
+        at_risk: 'color:#ef4444;',
+        paused: 'color:#eab308;',
+        revoked: 'color:#6b7280;'
+      };
+      const statusLabels = {
+        active: '● Active', at_risk: '⚠ At Risk', paused: '⏸ Paused', revoked: '✗ Revoked'
+      };
+      const badge = document.getElementById('aff-status-badge');
+      badge.textContent = statusLabels[aff.status] || aff.status;
+      badge.setAttribute('style', statusColors[aff.status] || 'color:#d1d5db;');
+
+      if (aff.status === 'at_risk' && aff.grace_period_ends_at) {
+        const note = document.getElementById('aff-grace-note');
+        const daysLeft = Math.max(0, Math.ceil((new Date(aff.grace_period_ends_at) - Date.now()) / 86400000));
+        note.textContent = `Grace period: ${daysLeft}d remaining`;
+        note.style.display = 'block';
+      }
+    }
+
+    // ── Render: 4x5 Progression Map ─────────────────────────────────────────
+    function renderProgressionMap(d) {
+      const legs   = d.leg_map;
+      const phases = d.phases;
+      const container = document.getElementById('progression-map-container');
+
+      let html = '';
+      for (const phase of phases) {
+        const phaseLegs = legs.filter(l => l.phase === phase.phase);
+        const isLocked  = !phase.unlocked;
+
+        html += `
+          <div class="mb-5 last:mb-0">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="phase-label ${isLocked ? 'phase-locked-label' : ''}">${phase.label}</span>
+              ${isLocked ? `<span class="text-xs text-gray-600">🔒 LOCKED — ${escHtml(phase.unlock_message || '')}</span>` :
+                phase.all_5deep ? `<span class="text-xs text-green-500 font-semibold">✓ All 5-Deep — Phase Complete</span>` :
+                `<span class="text-xs text-gray-500">${phase.slots_filled}/4 filled</span>`
+              }
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        `;
+
+        for (const leg of phaseLegs) {
+          if (isLocked || leg.empty) {
+            const cls = isLocked ? 'slot-locked' : 'slot-empty';
+            html += `
+              <div class="map-slot ${cls} p-3 flex flex-col items-center justify-center min-h-[90px]">
+                <div class="text-2xl mb-1 opacity-40">${isLocked ? '🔒' : '+'}</div>
+                <div class="text-xs text-gray-600 font-medium">Slot ${leg.slot}</div>
+              </div>
+            `;
+          } else {
+            let slotClass = 'slot-ghost';
+            let statusDot = '◉';
+            let statusColor = '#4b5563';
+            let badgeHtml = '<span class="text-[10px] text-gray-600 font-semibold bg-gray-800 px-1.5 py-0.5 rounded-full">FREE</span>';
+
+            if (leg.recently_upgraded) {
+              slotClass = 'slot-gold';
+              statusDot = '◉'; statusColor = '#c9a227';
+              badgeHtml = '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style="background:rgba(201,162,39,0.15);color:#e8c96a;">UPGRADED</span>';
+            } else if (leg.is_orphan) {
+              slotClass = 'slot-orphan';
+              statusDot = '◉'; statusColor = '#f97316';
+              badgeHtml = leg.is_pro
+                ? '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style="background:rgba(249,115,22,0.12);color:#f97316;">ORPHAN · PAID</span>'
+                : '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style="background:rgba(249,115,22,0.1);color:#fb923c;">ORPHAN</span>';
+            } else if (leg.is_pro) {
+              slotClass = 'slot-active';
+              statusDot = '◉'; statusColor = '#22c55e';
+              badgeHtml = '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style="background:rgba(34,197,94,0.1);color:#22c55e;">ACTIVE</span>';
+            }
+
+            const depthPct = Math.round((leg.depth / 5) * 100);
+            const depthBarColor = leg.depth >= 5 ? '#22c55e' : leg.depth >= 3 ? '#c9a227' : '#4b5563';
+
+            html += `
+              <div class="map-slot ${slotClass} p-3 flex flex-col gap-1.5" title="${escHtml(leg.email)}">
+                <div class="flex items-center justify-between">
+                  <span style="color:${statusColor}; font-size:0.6rem;">${statusDot}</span>
+                  ${badgeHtml}
+                </div>
+                <div class="text-xs font-semibold text-white truncate">${escHtml(leg.name)}</div>
+                <div class="mt-auto">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] text-gray-500">Leg ${leg.slot}: ${leg.depth}/5 Deep</span>
+                    <span class="text-[10px] text-gray-600">${leg.member_count} total</span>
+                  </div>
+                  <div class="depth-bar-track">
+                    <div class="depth-bar-fill" style="width:${depthPct}%; background:${depthBarColor};"></div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        }
+
+        html += `</div></div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ── Render: Sovereign Bucket ─────────────────────────────────────────────
+    function renderWallet(d) {
+      const w = d.wallet;
+      const aff = d.affiliate;
+
+      document.getElementById('wallet-pending').textContent  = fmtCents(w.pending_balance_cents);
+      document.getElementById('wallet-approved').textContent = fmtCents(w.approved_balance_cents);
+      document.getElementById('next-payout-date').textContent = fmtDate(w.next_payout_date + 'T00:00:00');
+      document.getElementById('lifetime-earned').textContent = `Lifetime: ${fmtCents(aff.lifetime_earnings_cents)}`;
+
+      // Cash out button
+      const btn = document.getElementById('cash-out-btn');
+      if (w.can_cash_out) {
+        btn.removeAttribute('disabled');
+        btn.textContent = `Cash Out ${fmtCents(w.approved_balance_cents)}`;
+      } else {
+        btn.disabled = true;
+        btn.textContent = `Cash Out (min $50.00)`;
+      }
+
+      // Vesting bar
+      if (w.vesting_day > 0) {
+        document.getElementById('vesting-bar-container').style.display = 'block';
+        document.getElementById('vesting-day-label').textContent = `Day ${w.vesting_day} of 90`;
+        document.getElementById('vesting-bar-fill').style.width = `${Math.round(w.vesting_day / 90 * 100)}%`;
+        document.getElementById('vesting-date-label').textContent = `Vests on ${fmtDate(w.vesting_completion_date + 'T00:00:00')}`;
+      }
+    }
+
+    // ── Render: Legacy Tracker ───────────────────────────────────────────────
+    function renderLegacy(d) {
+      const fam = d.family_members || [];
+      document.getElementById('legacy-count').textContent = `${fam.length} Active Heir${fam.length !== 1 ? 's' : ''}`;
+
+      const el = document.getElementById('legacy-list');
+      if (!fam.length) {
+        el.innerHTML = `<div class="text-xs text-gray-600 text-center py-4 flex flex-col items-center gap-2">
+          <span class="text-2xl opacity-30">🌿</span>
+          <span>No Family Legacy members tagged yet.</span>
+        </div>`;
+        return;
+      }
+
+      el.innerHTML = fam.map(m => {
+        const heartIcon = m.heartbeat_ok ? '🟢' : m.at_risk ? '🔴' : '🟡';
+        return `
+          <div class="flex items-center gap-3 py-2.5 border-b last:border-0" style="border-color:rgba(255,255,255,0.05);">
+            <span class="text-base">${heartIcon}</span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold text-white truncate">${escHtml(m.name)}</div>
+              <div class="text-xs text-gray-500">${escHtml(m.legacy_anchor || 'Family Legacy')}</div>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${m.is_pro ? 'text-green-400 bg-green-900/20' : 'text-red-400 bg-red-900/20'}">
+              ${m.is_pro ? 'Paid' : 'Free'}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ── Render: Orphan Pool ──────────────────────────────────────────────────
+    function renderOrphanPool(d) {
+      const op = d.orphan_pool;
+      document.getElementById('orphan-tank').textContent = `${op.holding_tank_count} Free Users Waiting`;
+      const nextOrphan = op.next_orphan_slot
+        ? (op.recruits_needed_for_next_orphan > 0
+          ? `Recruit ${op.recruits_needed_for_next_orphan} more personal${op.recruits_needed_for_next_orphan !== 1 ? 's' : ''} to unlock Slot #${op.next_orphan_slot}`
+          : `You qualify for Slot #${op.next_orphan_slot}`)
+        : 'All 20 slots filled';
+      document.getElementById('orphan-next').textContent = nextOrphan;
+    }
+
+    // ── Render: Compliance Lights ────────────────────────────────────────────
+    function renderCompliance(d) {
+      const lights = d.compliance || [];
+      const grid = document.getElementById('compliance-grid');
+
+      if (!lights.length) {
+        grid.innerHTML = `<div class="col-span-full text-xs text-gray-600 text-center py-4">No team members yet. Start recruiting to see compliance lights.</div>`;
+        return;
+      }
+
+      const shieldColors = { green: '#22c55e', yellow: '#eab308', red: '#ef4444' };
+      const shieldLabels = { green: 'Active', yellow: 'Pending', red: 'At Risk' };
+
+      grid.innerHTML = lights.map(m => `
+        <div class="card rounded-xl p-3 flex items-center gap-3">
+          <span style="color:${shieldColors[m.status]}; font-size:1.25rem;" title="${shieldLabels[m.status]}">🛡</span>
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-semibold text-white truncate">${escHtml(m.name)}</div>
+            <div class="text-[10px] mt-0.5" style="color:${shieldColors[m.status]};">${shieldLabels[m.status]}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ── Render: Referral Bar ─────────────────────────────────────────────────
+    function renderReferralBar(d) {
+      const aff  = d.affiliate;
+      const user = d.user;
+
+      // Only visible if FACTS Certified + Sovereign Oath signed
+      if (aff.status === 'active' && user.is_facts_certified && user.sovereign_oath_signed) {
+        document.getElementById('referral-bar').style.display = 'flex';
+        updateReferralLinkDisplay(d);
+      }
+    }
+
+    function updateReferralLinkDisplay(d) {
+      const aff = d.affiliate;
+      const isLegacy = referralMode === 'family_legacy';
+      const link = isLegacy ? aff.family_referral_link : aff.referral_link;
+      document.getElementById('referral-link-text').textContent = link || '—';
+
+      document.getElementById('mode-general-btn').setAttribute('style',
+        isLegacy ? 'color:#6b7280; background:transparent;' :
+        'background:rgba(201,162,39,0.15); color:#e8c96a;');
+      document.getElementById('mode-legacy-btn').setAttribute('style',
+        isLegacy ? 'background:rgba(201,162,39,0.15); color:#e8c96a;' :
+        'color:#6b7280; background:transparent;');
+    }
+
+    async function setReferralMode(mode) {
+      referralMode = mode;
+      updateReferralLinkDisplay(dashData);
+      // Persist to server
+      try {
+        await fetch('/api/affiliate/referral-link-mode', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode })
+        });
+      } catch (e) { /* non-fatal */ }
+    }
+
+    function copyReferralLink() {
+      const aff = dashData?.affiliate;
+      if (!aff) return;
+      const link = referralMode === 'family_legacy' ? aff.family_referral_link : aff.referral_link;
+      navigator.clipboard.writeText(link || '').then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy Link'; }, 2500);
+      }).catch(() => {
+        // Fallback
+        const el = document.createElement('textarea');
+        el.value = link || '';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      });
+    }
+
+    // ── Heartbeat ────────────────────────────────────────────────────────────
+    async function markHeartbeat() {
+      const btn = document.getElementById('heartbeat-btn');
+      if (btn) btn.disabled = true;
+      try {
+        const r = await fetch('/api/affiliate/heartbeat', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (r.ok) {
+          // Update UI immediately
+          document.getElementById('heartbeat-pending').style.display = 'none';
+          document.getElementById('heartbeat-complete').style.display = 'flex';
+          document.getElementById('alert-banner').style.display = 'none';
+          if (dashData) dashData.heartbeat.this_month_complete = true;
+        }
+      } catch (e) {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    // ── Cash Out ─────────────────────────────────────────────────────────────
+    async function requestPayout() {
+      if (!confirm('Request payout of your approved balance? Minimum $50. Net-30 processing.')) return;
+      try {
+        const r = await fetch('/api/affiliate/request-payout', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await r.json();
+        if (data.message || r.ok) {
+          alert('✓ Payout requested! You\'ll receive it within 30 days.');
+          location.reload();
+        } else {
+          alert(data.error || 'Payout request failed. Try again.');
+        }
+      } catch (e) {
+        alert('Network error. Please try again.');
+      }
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    // ── Sovereign Executive flags ─────────────────────────────────────────────
+    async function loadSovereignExecFlags() {
+      try {
+        const res = await fetch('/api/sovereign/flags', { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.success) return;
+
+        // Always show the section (even if not sovereign, shows as locked/grayed)
+        document.getElementById('sovereign-exec-section').style.display = 'block';
+
+        function setFlag(elId, statusElId, active, label) {
+          const el = document.getElementById(elId);
+          const statusEl = document.getElementById(statusElId);
+          if (!el || !statusEl) return;
+          if (active) {
+            el.style.background = 'rgba(201,162,39,0.08)';
+            el.style.borderColor = 'rgba(201,162,39,0.25)';
+            statusEl.innerHTML = `<span style="color:#34d399;font-weight:700;">✓ ${label || 'Unlocked'}</span>`;
+          } else {
+            el.style.opacity = '0.5';
+            statusEl.innerHTML = `<span style="color:#4b5563;">🔒 Sovereign tier required</span>`;
+          }
+        }
+
+        setFlag('flag-p2p',       'flag-p2p-status',       data.p2p_lending_visible, 'Access Granted');
+        setFlag('flag-mastermind','flag-mastermind-status', data.mastermind_access,   'Access Granted');
+        setFlag('flag-summit',    'flag-summit-status',     data.summit_invite,       'Invited');
+
+        // Priority orphan (affiliate-level flag — load via affiliate API)
+        // Use affiliate's priority_orphan field if available
+        if (dashData && dashData.affiliate && dashData.affiliate.priority_orphan) {
+          document.getElementById('flag-priority-orphan').style.display = 'flex';
+        }
+
+        // Show locked notice if not sovereign
+        if (!data.is_sovereign) {
+          document.getElementById('sovereign-exec-locked').style.display = 'block';
+        }
+      } catch (e) {
+        console.warn('[SovereignExec] Failed to load flags:', e.message);
+      }
+    }
+
+    async function init() {
+      try {
+        const r = await fetch('/api/affiliate/sovereign-dashboard', {
+          credentials: 'include'
+        });
+
+        document.getElementById('loading-screen').style.display = 'none';
+
+        if (r.status === 401) {
+          document.getElementById('auth-gate').style.display = 'flex';
+          return;
+        }
+
+        const data = await r.json();
+
+        if (!data.authenticated) {
+          document.getElementById('auth-gate').style.display = 'flex';
+          return;
+        }
+
+        if (!data.is_affiliate) {
+          document.getElementById('not-affiliate-gate').style.display = 'flex';
+          return;
+        }
+
+        dashData = data;
+        referralMode = data.affiliate.referral_link_mode || 'general';
+
+        // Show main content
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('view-legacy').style.display = 'block';
+
+        // Render all sections
+        renderAlerts(data);
+        renderHeader(data);
+        renderProgressionMap(data);
+        renderWallet(data);
+        renderLegacy(data);
+        renderOrphanPool(data);
+        renderCompliance(data);
+        renderReferralBar(data);
+
+        // Load sovereign exec flags async (doesn't block main render)
+        loadSovereignExecFlags();
+
+      } catch (err) {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('view-legacy').style.display = 'block';
+        console.error('Failed to load sovereign dashboard:', err);
+        // Show a graceful error state
+        document.getElementById('progression-map-container').innerHTML = `
+          <div class="text-center py-8 text-gray-500">
+            <div class="text-3xl mb-3">⚠</div>
+            <p class="text-sm">Failed to load dashboard data. <a href="javascript:location.reload()" class="text-yellow-400 underline">Retry</a></p>
+          </div>`;
+      }
+    }
+
+    init();
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<!-- Revolutionary Sweep Widget -->
+<script defer src="/sweep-widget.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

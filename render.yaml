@@ -1,0 +1,14 @@
+services:
+  - type: web
+    runtime: node
+    name: app
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Option A: integer affiliates.id that receives the company keep on each split cycle.
+      # Option B: leave unset and set affiliates.is_master_node = true on the master row.
+      - key: COMPANY_ROOT_ID
+        sync: false

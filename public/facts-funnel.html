@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stolen Wealth Estimator</title>
+    <!-- Google Fonts: Montserrat (used for ESTIMATOR subtitle) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        crimson: '#FF3B30',
+                        platinum: '#A9A9A9',
+                        darkBg: '#0B0F19',
+                        cardBg: '#111827',
+                        goldAccent: '#D4AF37'
+                    },
+                    fontFamily: {
+                        impact: ['Impact', 'Haettenschweiler', 'Arial Narrow Bold', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ── Tailwind CDN fallback ──────────────────────────────── */
+        /* Privacy browsers (DuckDuckGo, Brave, aggressive ad-blockers)
+           block cdn.tailwindcss.com, leaving all utility classes inert.
+           These inline rules duplicate every Tailwind class used on this
+           page so the dark theme, layout, and gold accents always render. */
+
+        /* -- Colors (custom theme tokens) -- */
+        .bg-darkBg       { background-color: #0B0F19; }
+        .bg-cardBg       { background-color: #111827; }
+        .text-white       { color: #fff; }
+        .text-goldAccent  { color: #D4AF37; }
+        .text-darkBg      { color: #0B0F19; }
+        .text-crimson     { color: #FF3B30; }
+        .text-gray-300    { color: #D1D5DB; }
+        .text-gray-400    { color: #9CA3AF; }
+        .text-red-400     { color: #F87171; }
+        .text-green-400   { color: #4ADE80; }
+        .text-yellow-500  { color: #EAB308; }
+        .border-gray-800  { border-color: #1F2937; }
+
+        /* -- Layout -- */
+        .flex             { display: flex; }
+        .grid             { display: grid; }
+        .grid-cols-2      { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .flex-col         { flex-direction: column; }
+        .items-center     { align-items: center; }
+        .justify-center   { justify-content: center; }
+        .justify-between  { justify-content: space-between; }
+        .min-h-screen     { min-height: 100vh; }
+        .w-full           { width: 100%; }
+        .max-w-md         { max-width: 28rem; }
+        .h-8              { height: 2rem; }
+
+        /* -- Spacing -- */
+        .p-3  { padding: 0.75rem; }
+        .p-4  { padding: 1rem; }
+        .p-6  { padding: 1.5rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .pb-6 { padding-bottom: 1.5rem; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .gap-4 { gap: 1rem; }
+        .space-y-5 > * + * { margin-top: 1.25rem; }
+
+        /* -- Typography -- */
+        .font-sans     { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .font-bold     { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .text-2xl      { font-size: 1.5rem; line-height: 2rem; }
+        .text-sm       { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-xs       { font-size: 0.75rem; line-height: 1rem; }
+        .text-\[10px\] { font-size: 10px; line-height: 1.2; }
+        .text-center   { text-align: center; }
+        .uppercase     { text-transform: uppercase; }
+        .tracking-wide    { letter-spacing: 0.025em; }
+        .tracking-wider   { letter-spacing: 0.05em; }
+        .tracking-widest  { letter-spacing: 0.1em; }
+        .leading-tight    { line-height: 1.25; }
+        .select-none      { user-select: none; }
+
+        /* -- Borders & Radius -- */
+        .border       { border-width: 1px; border-style: solid; }
+        .border-b     { border-bottom-width: 1px; border-bottom-style: solid; }
+        .rounded-3xl  { border-radius: 1.5rem; }
+        .rounded-xl   { border-radius: 0.75rem; }
+
+        /* -- Shadows -- */
+        .shadow-2xl   { box-shadow: 0 25px 50px -12px rgba(0,0,0,.25); }
+        .shadow-lg    { box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1); }
+
+        /* -- Gold gradient button -- */
+        .bg-gradient-to-r.from-goldAccent.to-yellow-600 {
+            background: linear-gradient(to right, #D4AF37, #CA8A04);
+        }
+
+        /* -- Transitions -- */
+        .transition-all { transition: all; }
+        .duration-150   { transition-duration: 150ms; }
+        .duration-200   { transition-duration: 200ms; }
+
+        /* -- Diagnostic banner bg variants (set dynamically by JS) -- */
+        .bg-gray-900\/50   { background-color: rgba(17,24,39,0.5); }
+        .bg-red-950\/40    { background-color: rgba(69,10,10,0.4); }
+        .bg-red-900\/20    { background-color: rgba(127,29,29,0.2); }
+        .bg-yellow-900\/20 { background-color: rgba(113,63,18,0.2); }
+        .bg-green-950\/20  { background-color: rgba(5,46,22,0.2); }
+        .border-red-800    { border-color: #991B1B; }
+        .border-red-900\/50 { border-color: rgba(127,29,29,0.5); }
+        .border-yellow-800\/40 { border-color: rgba(133,77,14,0.4); }
+        .border-green-900\/30  { border-color: rgba(20,83,45,0.3); }
+
+        /* -- Button interactive states -- */
+        .hover\:brightness-110:hover { filter: brightness(1.1); }
+        .active\:scale-\[0\.98\]:active { transform: scale(0.98); }
+        .shadow-yellow-600\/10 { box-shadow: 0 10px 15px -3px rgba(202,138,4,0.1); }
+
+        /* ── End Tailwind CDN fallback ─────────────────────────── */
+
+        /* ESTIMATOR HEADER — inline SVG handles STOLEN WEALTH + ESTIMATOR text.
+           ESTIMATOR sits between T's, silver/grey, regular weight.
+           Crimson divider line sits below at 100% of container width. */
+        .stolen-wealth-block {
+            display: inline-block;
+            text-align: center;
+        }
+        .stolen-wealth-block .crimson-divider-line {
+            width: 100%;
+            height: 3px;
+            background: #DC143C;
+        }
+
+        /* Custom range slider styling for a premium look */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #1F2937;
+            height: 6px;
+            border-radius: 9999px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #D4AF37;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            transition: transform 0.1s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Firefox slider thumb (Tailwind CDN doesn't always cover this) */
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #D4AF37;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        input[type="range"]::-moz-range-track {
+            background: #1F2937;
+            height: 6px;
+            border-radius: 9999px;
+            border: none;
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-white font-sans min-h-screen flex items-center justify-center p-4">
+
+    <!-- Main Mobile Container Viewport -->
+    <div class="w-full max-w-md bg-cardBg rounded-3xl p-6 shadow-2xl border border-gray-800 flex flex-col justify-between">
+
+        <!-- HEADER — inline SVG handles STOLEN WEALTH + ESTIMATOR text.
+             Crimson divider line sits below at 100% of .stolen-wealth-block width. -->
+        <div class="text-center mb-6 select-none">
+            <div class="stolen-wealth-block">
+                <!-- SVG header: STOLEN WEALTH + ESTIMATOR.
+                     Both lines use textLength + lengthAdjust="spacingAndGlyphs" so each
+                     character occupies an equal fraction of the specified width —
+                     alignment is pure arithmetic, zero font-metric dependency.
+
+                     STOLEN WEALTH: 13 chars, textLength 900 (full viewBox width), x=0.
+                       slot width = 900 / 13 ≈ 69.23
+                       T-in-STOLEN  starts at 0 + 1*69.23 = 69
+                       T-in-WEALTH  ends   at 0 + 12*69.23 = 831
+
+                     ESTIMATOR: 9 chars, x=69, textLength=762 (831-69).
+                       Fills exactly the T-to-T span. Silver/grey (#B0B0B0),
+                       regular weight. Font-size 46. y=118 tucks it just under
+                       STOLEN WEALTH baseline, above crimson line. -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 210" role="img" aria-label="Stolen Wealth Estimator" style="width: 100%; height: auto; display: block;">
+                    <!-- STOLEN WEALTH — large red Impact headline, full-width so crimson line aligns flush -->
+                    <text x="0" y="100"
+                          font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+                          font-size="110" font-weight="bold" fill="#FF3B30"
+                          textLength="900" lengthAdjust="spacingAndGlyphs">STOLEN WEALTH</text>
+                    <!-- ESTIMATOR — Montserrat Light (weight 300), NOT Impact.
+                         Uses weight 300 (Light) for genuinely thin/airy letterforms.
+                         T-in-STOLEN starts ~x=69; T-in-WEALTH ends ~x=830.
+                         Spans full T-to-T span (x=69, textLength=761).
+                         y=165 places it on its OWN line well below STOLEN WEALTH (y=100). -->
+                    <text x="69" y="165"
+                          font-family="'Montserrat', 'Arial', sans-serif"
+                          font-size="46" font-weight="300" fill="#B0B0B0"
+                          textLength="761" lengthAdjust="spacingAndGlyphs">ESTIMATOR</text>
+                </svg>
+                <!-- Crimson divider — DO NOT TOUCH -->
+                <div class="crimson-divider-line mt-3"></div>
+            </div>
+        </div>
+
+        <!-- LIVE OUTPUT METRICS DISPLAY -->
+        <div class="grid grid-cols-2 gap-4 mb-6 border-b border-gray-800 pb-6 text-center">
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold tracking-wider uppercase leading-tight h-8 flex items-center justify-center">
+                    Current Monthly<br>Wealth Theft
+                </p>
+                <p id="monthly-theft-display" class="text-2xl font-bold text-goldAccent mt-1">$0.00</p>
+            </div>
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold tracking-wider uppercase leading-tight h-8 flex items-center justify-center">
+                    Hypothetical 40-year<br>illustration at 8%
+                </p>
+                <p id="generational-theft-display" class="text-2xl font-bold text-goldAccent mt-1">$0,000</p>
+                <p class="text-[10px] text-gray-500 mt-2 leading-snug">
+                    Illustrative only. Uses a hardcoded 8% annual compound rate. Not a projection, guarantee, or advice.
+                </p>
+            </div>
+        </div>
+
+        <!-- DYNAMIC CAPACITY DIAGNOSTIC READOUT -->
+        <div id="diagnostic-banner" class="mb-6 p-3 bg-gray-900/50 border border-gray-800 rounded-xl text-center transition-all duration-200">
+            <p id="diagnostic-text" class="text-xs font-semibold tracking-wide text-gray-300">
+                Adjust sliders to map your wealth leak profile.
+            </p>
+        </div>
+
+        <!-- INTERACTIVE SLIDERS INPUT BLOCK -->
+        <div class="space-y-5">
+            <!-- 1. Annual Income Slider -->
+            <div>
+                <div class="flex justify-between items-center mb-1 text-sm">
+                    <label class="text-gray-400 font-semibold tracking-wider text-xs uppercase">Annual Income</label>
+                    <span id="income-val" class="text-goldAccent font-bold">$100,000</span>
+                </div>
+                <input type="range" id="input-income" min="0" max="300000" step="5000" value="100000" class="w-full">
+            </div>
+
+            <!-- 2. Non-Mortgage Debt Slider -->
+            <div>
+                <div class="flex justify-between items-center mb-1 text-sm">
+                    <label class="text-gray-400 font-semibold tracking-wider text-xs uppercase">Non-Mortgage Debt</label>
+                    <span id="non-mortgage-val" class="text-goldAccent font-bold">$22,000</span>
+                </div>
+                <input type="range" id="input-non-mortgage" min="0" max="100000" step="1000" value="22000" class="w-full">
+            </div>
+
+            <!-- 3. Mortgage Debt Slider -->
+            <div>
+                <div class="flex justify-between items-center mb-1 text-sm">
+                    <label class="text-gray-400 font-semibold tracking-wider text-xs uppercase">Mortgage Debt</label>
+                    <span id="mortgage-val" class="text-goldAccent font-bold">$255,000</span>
+                </div>
+                <input type="range" id="input-mortgage" min="0" max="750000" step="5000" value="255000" class="w-full">
+            </div>
+
+            <!-- 4. Blended Interest Rate Slider -->
+            <div>
+                <div class="flex justify-between items-center mb-1 text-sm">
+                    <label class="text-gray-400 font-semibold tracking-wider text-xs uppercase">Blended Interest Rate</label>
+                    <span id="rate-val" class="text-goldAccent font-bold">6.60%</span>
+                </div>
+                <input type="range" id="input-rate" min="0.00" max="25.00" step="0.05" value="6.60" class="w-full">
+            </div>
+
+            <!-- 5. Projection Timeline Slider (5–40 years, default 30) -->
+            <div>
+                <div class="flex justify-between items-center mb-1 text-sm">
+                    <label class="text-gray-400 font-semibold tracking-wider text-xs uppercase">Projection Timeline</label>
+                    <span id="projection-years-val" class="text-goldAccent font-bold">30 yrs</span>
+                </div>
+                <input type="range" id="input-projection-years" min="5" max="40" step="1" value="30" class="w-full">
+            </div>
+        </div>
+
+        <!-- PRIMARY CALL TO ACTION BUTTON -->
+        <button id="reclaim-btn" class="w-full mt-6 py-4 bg-gradient-to-r from-goldAccent to-yellow-600 text-darkBg font-bold rounded-xl tracking-wide transition-all duration-150 active:scale-[0.98] shadow-lg shadow-yellow-600/10 hover:brightness-110" style="font-size:0.82rem;line-height:1.35;">
+            Reclaim &amp; Multiply Your Wealth
+        </button>
+
+    </div>
+
+    <!-- ESTIMATOR ENGINE AND LAYOUT ANIMATOR SCRIPT -->
+    <script>
+        // DOM Input Elements
+        const incomeSlider = document.getElementById('input-income');
+        const nonMortgageSlider = document.getElementById('input-non-mortgage');
+        const mortgageSlider = document.getElementById('input-mortgage');
+        const rateSlider = document.getElementById('input-rate');
+        const projectionYearsSlider = document.getElementById('input-projection-years');
+
+        // DOM Value Readout Elements
+        const incomeVal = document.getElementById('income-val');
+        const nonMortgageVal = document.getElementById('non-mortgage-val');
+        const mortgageVal = document.getElementById('mortgage-val');
+        const rateVal = document.getElementById('rate-val');
+        const projectionYearsVal = document.getElementById('projection-years-val');
+
+        // DOM Result Display Elements
+        const monthlyTheftDisplay = document.getElementById('monthly-theft-display');
+        const generationalTheftDisplay = document.getElementById('generational-theft-display');
+        const diagnosticText = document.getElementById('diagnostic-text');
+        const diagnosticBanner = document.getElementById('diagnostic-banner');
+
+        const COMPOUND_RETURN_RATE = 0.08;
+        const DEFAULT_PROJECTION_YEARS = 30;
+        let lastCalcSnapshot = null;
+
+        // Currency Formatter Utility
+        const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+
+        function computeCompoundedLifetime(monthlyWealthTheft, projectionYears) {
+            if (monthlyWealthTheft <= 0) return 0;
+            return monthlyWealthTheft * 12 * ((Math.pow(1 + COMPOUND_RETURN_RATE, projectionYears) - 1) / COMPOUND_RETURN_RATE);
+        }
+
+        /**
+         * Main Core Financial Math Engine
+         */
+        function runWealthTheftCalculations() {
+            // Pull real-time user inputs
+            const annualIncome = parseFloat(incomeSlider.value);
+            const nonMortgageDebt = parseFloat(nonMortgageSlider.value);
+            const mortgageDebt = parseFloat(mortgageSlider.value);
+            const blendedRate = parseFloat(rateSlider.value) / 100;
+            const projectionYears = parseInt(projectionYearsSlider.value, 10) || DEFAULT_PROJECTION_YEARS;
+
+            // Render live text updates to sliders
+            incomeVal.textContent = formatCurrency(annualIncome);
+            nonMortgageVal.textContent = formatCurrency(nonMortgageDebt);
+            mortgageVal.textContent = formatCurrency(mortgageDebt);
+            rateVal.textContent = `${(blendedRate * 100).toFixed(2)}%`;
+            projectionYearsVal.textContent = `${projectionYears} yrs`;
+
+            // Calculate overall liability load
+            const totalLiabilities = nonMortgageDebt + mortgageDebt;
+
+            // Output 1 calculation: Monthly Interest Bleed
+            const monthlyWealthTheft = (totalLiabilities * blendedRate) / 12;
+            monthlyTheftDisplay.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(monthlyWealthTheft);
+
+            // Output 2 calculation: Generational Compounding Opportunity Cost (adjustable horizon @ 8%)
+            const stolenGenerationalWealth = computeCompoundedLifetime(monthlyWealthTheft, projectionYears);
+            generationalTheftDisplay.textContent = formatCurrency(stolenGenerationalWealth);
+
+            lastCalcSnapshot = {
+                income: annualIncome,
+                nonMortgageDebt,
+                mortgageDebt,
+                blendedRate: parseFloat(rateSlider.value) || 0,
+                projectionYears,
+                monthlyBleed: Math.round(monthlyWealthTheft * 100) / 100,
+                lifetimeBleed: Math.round(stolenGenerationalWealth * 100) / 100,
+            };
+
+            // Dynamic Income-Responsive Logic Updates (Capacity Drain Engine)
+            const monthlyGrossIncome = annualIncome / 12;
+
+            if (annualIncome === 0 || monthlyGrossIncome === 0) {
+                // Scenario for $0 base income setting
+                diagnosticBanner.className = "mb-6 p-3 bg-red-950/40 border border-red-800 rounded-xl text-center transition-all duration-200";
+                diagnosticText.innerHTML = `<span class="text-crimson font-bold">CRITICAL SYSTEM FLAG:</span> 100%+ Structural Income Deficit. Asset liquidation is imminent.`;
+            } else {
+                // Calculate capacity percentage lost
+                const capacityDrainPercentage = (monthlyWealthTheft / monthlyGrossIncome) * 100;
+
+                // Dynamic styling profiles based on threat level metrics
+                if (capacityDrainPercentage >= 35) {
+                    diagnosticBanner.className = "mb-6 p-3 bg-red-900/20 border border-red-900/50 rounded-xl text-center transition-all duration-200";
+                    diagnosticText.innerHTML = `<span class="text-red-400 font-bold">${capacityDrainPercentage.toFixed(1)}%</span> of your active working capacity is permanently owned by the banks.`;
+                } else if (capacityDrainPercentage >= 15) {
+                    diagnosticBanner.className = "mb-6 p-3 bg-yellow-900/20 border border-yellow-800/40 rounded-xl text-center transition-all duration-200";
+                    diagnosticText.innerHTML = `<span class="text-yellow-500 font-bold">${capacityDrainPercentage.toFixed(1)}%</span> of your labor capacity is funneled out of your ecosystem.`;
+                } else {
+                    diagnosticBanner.className = "mb-6 p-3 bg-green-950/20 border border-green-900/30 rounded-xl text-center transition-all duration-200";
+                    diagnosticText.innerHTML = `<span class="text-green-400 font-bold">${capacityDrainPercentage.toFixed(1)}%</span> structural drain present. Optimization pathways available.`;
+                }
+            }
+        }
+
+        // Add real-time interactive input listeners
+        const trackingInputs = [incomeSlider, nonMortgageSlider, mortgageSlider, rateSlider, projectionYearsSlider];
+        trackingInputs.forEach(input => {
+            input.addEventListener('input', runWealthTheftCalculations);
+        });
+
+        // Initialize engine outputs on app build
+        window.addEventListener('DOMContentLoaded', () => {
+            runWealthTheftCalculations();
+        });
+
+        // Wire CTA — submit calculator state then navigate to forensic scan
+        document.getElementById('reclaim-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('reclaim-btn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            runWealthTheftCalculations();
+            const calc = lastCalcSnapshot || {
+                income: parseFloat(incomeSlider.value) || 0,
+                nonMortgageDebt: parseFloat(nonMortgageSlider.value) || 0,
+                mortgageDebt: parseFloat(mortgageSlider.value) || 0,
+                blendedRate: parseFloat(rateSlider.value) || 0,
+                projectionYears: parseInt(projectionYearsSlider.value, 10) || DEFAULT_PROJECTION_YEARS,
+                monthlyBleed: 0,
+                lifetimeBleed: 0,
+            };
+
+            try {
+                const resp = await fetch('/api/mod_onboarding/calculator-submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        income: calc.income,
+                        nonMortgageDebt: calc.nonMortgageDebt,
+                        mortgageDebt: calc.mortgageDebt,
+                        blendedRate: calc.blendedRate,
+                        projectionYears: calc.projectionYears,
+                        monthlyBleed: calc.monthlyBleed,
+                        lifetimeBleed: calc.lifetimeBleed,
+                    })
+                });
+                const data = await resp.json();
+
+                if (data.sessionId) {
+                    sessionStorage.setItem('factsSessionId', data.sessionId);
+                    sessionStorage.setItem('factsCalcState', JSON.stringify({
+                        income: calc.income,
+                        nonMortgageDebt: calc.nonMortgageDebt,
+                        mortgageDebt: calc.mortgageDebt,
+                        blendedRate: calc.blendedRate,
+                        projectionYears: calc.projectionYears,
+                        monthlyBleed: data.monthlyBleed,
+                        lifetimeBleed: data.lifetimeBleed,
+                    }));
+                    window.location.href = '/forensic-scan';
+                } else {
+                    window.location.href = '/forensic-scan';
+                }
+            } catch (err) {
+                window.location.href = '/forensic-scan';
+            }
+        });
+    </script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

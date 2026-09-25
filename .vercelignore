@@ -1,0 +1,9 @@
+archive
+node_modules
+.git
+*.md
+docs
+agent-transcripts
+.cursor
+.tmp
+.buildstamp

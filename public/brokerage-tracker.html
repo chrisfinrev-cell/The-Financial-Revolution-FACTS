@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Project Net Zero — Road to Zero | FACTS</title>
+  <meta name="description" content="Educational brokerage position tracker for literacy — track notes on dividends, premiums, and fees against cost basis. Illustrative only, not investment advice.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%F0%9F%94%92%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950:'#080d16', 900:'#0d1117', 800:'#13192a', 700:'#1a2235', 600:'#243049' },
+            gold: { 300:'#f0d97a', 400:'#e8c96a', 500:'#d4a929', 600:'#c9a227', 700:'#a07c1a' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+    body { background: #0a0f1a; color: #f1f5f9; margin: 0; }
+
+    /* ── Gold gradient text ─────────────────── */
+    .gold-text {
+      background: linear-gradient(135deg,#c9a227 0%,#e8c96a 50%,#c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .gold-text-solid { color: #c9a227; }
+
+    /* ── Cards ──────────────────────────────── */
+    .card { background: linear-gradient(145deg,#13192a,#1a2235); border:1px solid rgba(255,255,255,0.07); border-radius:0.875rem; }
+    .card-highlight { background: linear-gradient(145deg,#1a2235,#243049); border:1px solid rgba(201,162,39,0.18); border-radius:0.875rem; }
+
+    /* ── Buttons ─────────────────────────────── */
+    .btn-gold {
+      background: linear-gradient(135deg,#c9a227,#e8c96a); color:#0d1117; font-weight:700;
+      transition:opacity 0.2s,transform 0.15s; border:none; cursor:pointer;
+    }
+    .btn-gold:hover { opacity:0.88; transform:translateY(-1px); }
+    .btn-ghost {
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#94a3b8;
+      transition:background 0.2s; cursor:pointer;
+    }
+    .btn-ghost:hover { background:rgba(255,255,255,0.09); color:#e2e8f0; }
+    .btn-danger {
+      background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); color:#f87171;
+      transition:background 0.2s; cursor:pointer;
+    }
+    .btn-danger:hover { background:rgba(239,68,68,0.18); }
+
+    /* ── Inputs ──────────────────────────────── */
+    .input {
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10);
+      color:#f1f5f9; border-radius:0.5rem; padding:0.6rem 0.9rem; font-size:0.875rem;
+      transition:border-color 0.2s; width:100%; outline:none;
+    }
+    .input:focus { border-color:rgba(201,162,39,0.5); box-shadow:0 0 0 2px rgba(201,162,39,0.08); }
+    .input option { background:#1a2235; color:#f1f5f9; }
+    select.input { cursor:pointer; }
+
+    /* ── Meter / Progress bar ─────────────────── */
+    .meter-track {
+      background:rgba(255,255,255,0.07); border-radius:99px; overflow:hidden;
+      height:10px; width:100%; position:relative;
+    }
+    .meter-fill {
+      height:100%; border-radius:99px; transition:width 0.8s ease;
+      background: linear-gradient(90deg,#374151,#4b6cb7,#c9a227);
+    }
+    .meter-fill.infinite {
+      background: linear-gradient(90deg,#c9a227,#e8c96a,#f0d97a,#e8c96a,#c9a227);
+      background-size:200% 100%;
+      animation:goldShimmer 2.5s linear infinite;
+    }
+    @keyframes goldShimmer {
+      0%{background-position:200% 0} 100%{background-position:-200% 0}
+    }
+
+    /* ── Leaderboard table ───────────────────── */
+    .lb-table { width:100%; border-collapse:collapse; }
+    .lb-table th { font-size:0.72rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.06em; padding:0.6rem 0.75rem; border-bottom:1px solid rgba(255,255,255,0.07); text-align:left; }
+    .lb-table td { padding:0.75rem; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.875rem; vertical-align:middle; }
+    .lb-table tr:last-child td { border-bottom:none; }
+    .lb-table tr:hover td { background:rgba(255,255,255,0.025); }
+
+    /* ── Activity badges ─────────────────────── */
+    .badge-buy      { background:rgba(239,68,68,0.15);  color:#f87171;  border:1px solid rgba(239,68,68,0.25);  }
+    .badge-sell     { background:rgba(34,197,94,0.15);  color:#4ade80;  border:1px solid rgba(34,197,94,0.25);  }
+    .badge-dividend { background:rgba(59,130,246,0.15); color:#60a5fa;  border:1px solid rgba(59,130,246,0.25); }
+    .badge-premium  { background:rgba(168,85,247,0.15); color:#c084fc;  border:1px solid rgba(168,85,247,0.25); }
+    .badge-lending  { background:rgba(20,184,166,0.15); color:#2dd4bf;  border:1px solid rgba(20,184,166,0.25); }
+    .badge-options  { background:rgba(251,191,36,0.15);  color:#fbbf24;  border:1px solid rgba(251,191,36,0.25); }
+    .badge-infinite { background:rgba(201,162,39,0.18); color:#e8c96a;  border:1px solid rgba(201,162,39,0.3);  }
+    .badge { font-size:0.72rem; font-weight:600; padding:0.15rem 0.55rem; border-radius:99px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
+
+    /* ── Modal ───────────────────────────────── */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999;
+      display:flex; align-items:center; justify-content:center; padding:1rem;
+      backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+    }
+    .modal-box {
+      background:#13192a; border:1px solid rgba(201,162,39,0.2);
+      border-radius:1rem; max-width:480px; width:100%; max-height:90vh;
+      overflow-y:auto; padding:1.75rem;
+    }
+
+    /* ── Discipline bar ──────────────────────── */
+    #discipline-bar {
+      background:rgba(10,15,26,0.95); border-bottom:1px solid rgba(255,255,255,0.06);
+      padding:0.55rem 1rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;
+      position:sticky; top:44px; z-index:100;
+    }
+
+    /* ── Vault lock screen ───────────────────── */
+    #vault-lock-screen {
+      min-height:80vh; display:flex; align-items:center; justify-content:center;
+      flex-direction:column; text-align:center; padding:2rem;
+    }
+    .vault-door {
+      width:120px; height:120px; border-radius:50%;
+      background:linear-gradient(145deg,#1a2235,#243049);
+      border:3px solid rgba(201,162,39,0.3);
+      display:flex; align-items:center; justify-content:center;
+      font-size:3.5rem; margin-bottom:1.5rem;
+      box-shadow:0 0 40px rgba(201,162,39,0.08);
+      animation:vaultPulse 3s ease-in-out infinite;
+    }
+    @keyframes vaultPulse {
+      0%,100% { box-shadow:0 0 30px rgba(201,162,39,0.08); }
+      50%      { box-shadow:0 0 60px rgba(201,162,39,0.18); }
+    }
+
+    /* ── FAB (floating action button) ─────────── */
+    #fab {
+      position:fixed; bottom:1.5rem; right:1.5rem; z-index:500;
+      width:56px; height:56px; border-radius:50%;
+      background:linear-gradient(135deg,#c9a227,#e8c96a);
+      border:none; cursor:pointer; font-size:1.5rem; font-weight:700; color:#0d1117;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 24px rgba(201,162,39,0.4);
+      transition:transform 0.15s,box-shadow 0.15s;
+    }
+    #fab:hover { transform:scale(1.08); box-shadow:0 6px 32px rgba(201,162,39,0.55); }
+
+    /* ── Entity flow diagram ────────────────── */
+    .flow-node {
+      background:rgba(26,34,53,0.8); border:1px solid rgba(201,162,39,0.25);
+      border-radius:0.625rem; padding:0.6rem 1.1rem; font-size:0.8rem;
+      font-weight:600; color:#e8c96a; text-align:center; position:relative;
+    }
+    .flow-arrow { color:#64748b; font-size:0.75rem; text-align:center; padding:0.15rem 0; }
+
+    /* ── Hall of Fame gold treatment ─────────── */
+    .hof-row td { background:rgba(201,162,39,0.05) !important; }
+    .hof-row:hover td { background:rgba(201,162,39,0.09) !important; }
+
+    /* ── Infinite badge glow ─────────────────── */
+    .inf-badge {
+      display:inline-flex; align-items:center; gap:4px;
+      background:linear-gradient(135deg,#c9a227,#e8c96a);
+      color:#0d1117; font-weight:800; font-size:0.78rem;
+      padding:0.2rem 0.65rem; border-radius:99px;
+      box-shadow:0 0 12px rgba(201,162,39,0.5);
+      animation:infGlow 2s ease-in-out infinite;
+    }
+    @keyframes infGlow {
+      0%,100% { box-shadow:0 0 10px rgba(201,162,39,0.4); }
+      50%      { box-shadow:0 0 22px rgba(201,162,39,0.8); }
+    }
+
+    /* ── Silent Architect panel ─────────────── */
+    #architect-panel {
+      background: linear-gradient(145deg,#0d1117,#13192a);
+      border-left:3px solid rgba(201,162,39,0.25);
+    }
+
+    /* ── Responsive ─────────────────────────── */
+    @media(min-width:768px){
+      #fab { bottom:2rem; right:2rem; }
+      .desktop-table { display:table; }
+      .mobile-cards  { display:none; }
+    }
+    @media(max-width:767px){
+      .desktop-table { display:none; }
+      .mobile-cards  { display:block; }
+      .modal-box { padding:1.25rem; }
+    }
+
+    /* ── Protection score badge ─────────────── */
+    .prot-protected { color:#4ade80; }
+    .prot-exposed   { color:#f87171; }
+    .prot-mixed     { color:#fbbf24; }
+
+    /* ── Tab toggle ─────────────────────────── */
+    .tab-btn { padding:0.4rem 1rem; border-radius:99px; font-size:0.8rem; font-weight:600; cursor:pointer; transition:all 0.15s; border:none; }
+    .tab-btn.active { background:rgba(201,162,39,0.15); color:#e8c96a; border:1px solid rgba(201,162,39,0.3); }
+    .tab-btn.inactive { background:transparent; color:#64748b; border:1px solid transparent; }
+    .tab-btn:hover:not(.active) { color:#94a3b8; background:rgba(255,255,255,0.04); }
+
+    /* ── Net exposure chart container ─────── */
+    .chart-container { position:relative; height:160px; width:100%; }
+  </style>
+</head>
+<body class="min-h-screen" style="background:#080d16;">
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- DISCIPLINE STATUS BAR (always visible above content)     -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="discipline-bar" style="display:none;">
+  <div id="disc-vault-dot" style="width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;margin-top:1px;box-shadow:0 0 6px #4ade80;"></div>
+  <span id="disc-vault-label" class="text-xs font-semibold text-slate-400">Net Zero Active</span>
+  <div class="tfr-div" style="width:1px;height:16px;background:rgba(255,255,255,0.1);"></div>
+  <span id="disc-streak"></span>
+  <span id="disc-lock-warning" style="display:none;"></span>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- VAULT LOCK SCREEN                                        -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="vault-lock-screen" style="display:none;">
+  <div class="vault-door">🔒</div>
+  <h1 class="text-2xl md:text-3xl font-black mb-2">Your Project Net Zero Has Been Sealed</h1>
+  <p class="text-slate-400 text-sm mb-6 max-w-sm leading-relaxed">
+    30 days without a brokerage entry. Your recovery progress is hidden until you reactivate.
+  </p>
+  <div id="vault-lock-stats" class="card p-4 mb-6 max-w-xs w-full text-left space-y-2">
+    <div class="flex justify-between text-sm"><span class="text-slate-500">Last Entry:</span><span id="vl-last-entry" class="text-slate-300 font-medium">—</span></div>
+    <div class="flex justify-between text-sm"><span class="text-slate-500">Previous Streak:</span><span id="vl-streak" class="text-gold-400 font-bold">—</span></div>
+    <div class="flex justify-between text-sm"><span class="text-slate-500">Times Reactivated:</span><span id="vl-reactivations" class="text-slate-300 font-medium">—</span></div>
+  </div>
+  <button id="btn-reactivate" onclick="reactivateVault()"
+    class="btn-gold px-8 py-3 rounded-xl text-base font-bold shadow-lg">
+    🔓 Reactivate Project Net Zero
+  </button>
+  <p class="text-slate-600 text-xs mt-4">Reactivation resets your streak to 0. Build it back.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- MAIN CONTENT                                             -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="main-content" style="padding:1.5rem 1rem 6rem; max-width:1100px; margin:0 auto; display:none;">
+
+  <!-- Header row -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-xl md:text-2xl font-black gold-text">Project Net Zero</h1>
+      <p class="text-slate-400 text-sm mt-0.5 font-semibold tracking-wide">Educational tracker — Road to Zero (illustrative)</p>
+    </div>
+    <!-- Architect toggle -->
+    <button id="architect-toggle-btn" onclick="toggleArchitect()"
+      class="tab-btn inactive text-xs flex items-center gap-1.5">
+      🏛️ Silent Architect
+    </button>
+  </div>
+  <div class="mb-4 p-3 rounded-lg text-xs text-slate-400" style="background:#1c1a03;border:1px solid rgba(250,204,21,0.25);line-height:1.55;">
+    <strong style="color:#facc15;">Educational only.</strong> Not investment advice. FACTS is not a broker-dealer or RIA.
+    Tracking tools are for literacy/organization. Securities involve risk of loss. Consult a licensed professional before investing.
+  </div>
+
+  <!-- ─── ONBOARDING MODULE (shown when zero assets) ─────── -->
+  <div id="onboarding-module" style="display:none;">
+    <div class="card-highlight p-8 text-center max-w-lg mx-auto">
+      <div class="text-4xl mb-4">🏛️</div>
+      <h2 class="text-xl font-black mb-2">Your Road to Zero Starts Here</h2>
+      <p class="text-slate-400 text-sm leading-relaxed mb-6">
+        Educational tracker for brokerage positions and how dividends, premiums, and fees can be noted against cost basis.
+        Goal framing of <strong class="text-gold-400">$0 net exposure</strong> is illustrative only — not a promise of profit or “free money.”
+      </p>
+      <div class="text-left space-y-3 mb-8">
+        <div class="flex items-start gap-3 bg-navy-800 rounded-lg p-3">
+          <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0" style="background:rgba(201,162,39,0.2);color:#e8c96a;">1</span>
+          <div>
+            <p class="text-sm font-semibold text-white">Enter your first ticker symbol</p>
+            <p class="text-xs text-slate-500">The asset you want to track — AAPL, T, JEPI, etc.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 bg-navy-800 rounded-lg p-3">
+          <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0" style="background:rgba(201,162,39,0.2);color:#e8c96a;">2</span>
+          <div>
+            <p class="text-sm font-semibold text-white">Log your opening position</p>
+            <p class="text-xs text-slate-500">Record your initial buy — shares, date, amount paid.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 bg-navy-800 rounded-lg p-3">
+          <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0" style="background:rgba(201,162,39,0.2);color:#e8c96a;">3</span>
+          <div>
+            <p class="text-sm font-semibold text-white">Watch the Road to Zero begin</p>
+            <p class="text-xs text-slate-500">Every dividend, premium, and fee chips away at your cost basis.</p>
+          </div>
+        </div>
+      </div>
+      <button onclick="openModal('asset')" class="btn-gold px-8 py-3 rounded-xl text-base font-bold w-full">
+        + Add Your First Asset
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── COMMAND CENTER (shown when assets exist) ────────── -->
+  <div id="command-center" style="display:none;">
+
+    <!-- SILENT ARCHITECT PANEL (collapsible) -->
+    <div id="architect-panel" class="rounded-xl p-5 mb-6" style="display:none;">
+      <h3 class="text-sm font-bold text-gold-400 mb-4 flex items-center gap-2">🏛️ Silent Architect Overlay</h3>
+
+      <!-- Ownership filter -->
+      <div class="flex items-center gap-2 mb-5 flex-wrap">
+        <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Filter:</span>
+        <button class="tab-btn active" onclick="setEntityFilter('all', this)">All</button>
+        <button class="tab-btn inactive" onclick="setEntityFilter('personal', this)">Personal</button>
+        <button class="tab-btn inactive" onclick="setEntityFilter('entity', this)">Entity</button>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-5">
+        <!-- Entity flow map -->
+        <div>
+          <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-3">Entity Flow Map</p>
+          <div id="entity-flow-map" class="space-y-1">
+            <div class="flow-node" id="fn-holding">🏛️ Wyoming Holding Co</div>
+            <div class="flow-arrow">↓ licenses strategy</div>
+            <div class="flow-node" id="fn-llc">🏢 Operating LLC</div>
+            <div class="flow-arrow">↓ executes trades</div>
+            <div class="flow-node" id="fn-brokerage">💰 Brokerage Account (EIN)</div>
+          </div>
+          <p id="flow-map-cta" class="text-xs text-amber-400 mt-3 leading-relaxed" style="display:none;">
+            ⚠️ All positions are in personal accounts. Structure through an entity for asset protection.
+          </p>
+        </div>
+
+        <!-- Asset protection score -->
+        <div>
+          <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-3">Asset Protection Score</p>
+          <div class="card p-4">
+            <div id="prot-badge" class="text-2xl font-black mb-1">—</div>
+            <div id="prot-score-text" class="text-sm font-semibold mb-1">—</div>
+            <div id="prot-detail" class="text-xs text-slate-500">—</div>
+            <div class="mt-3 text-xs text-slate-600 leading-relaxed">
+              Assets held in personal accounts are exposed to personal liability. Entity-owned assets add a layer of protection.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hall of Fame (infinite return assets) -->
+    <div id="hof-section" class="mb-5" style="display:none;">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="inf-badge">∞</div>
+        <h3 class="text-sm font-bold text-gold-400">Infinite Return Hall of Fame</h3>
+      </div>
+      <div id="hof-list" class="space-y-2"></div>
+    </div>
+
+    <!-- Leaderboard section heading -->
+    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+      <h3 class="text-sm font-bold text-slate-300 flex items-center gap-1.5">
+        📊 Recovery Leaderboard
+        <span class="text-xs text-slate-600 font-normal">sorted by velocity</span>
+      </h3>
+      <div class="flex items-center gap-2">
+        <span id="asset-count-badge" class="text-xs text-slate-500"></span>
+        <button id="add-ticker-btn" onclick="openModal('asset')" class="btn-gold px-3 py-1.5 rounded-lg text-xs font-bold" style="display:none;">
+          + Add Ticker
+        </button>
+      </div>
+    </div>
+
+    <!-- Desktop table -->
+    <div class="desktop-table card overflow-hidden mb-6">
+      <table class="lb-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Ticker</th>
+            <th>Entity</th>
+            <th>Progress</th>
+            <th>Recovery %</th>
+            <th>Net Exposure</th>
+            <th>Velocity</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Mobile cards -->
+    <div class="mobile-cards space-y-3 mb-6" id="asset-cards"></div>
+
+    <!-- Asset detail panel (shown when expanded) -->
+    <div id="asset-detail-panel" class="card p-5 mb-6" style="display:none;">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <div>
+          <h3 id="detail-ticker" class="text-lg font-black gold-text"></h3>
+          <p id="detail-entity" class="text-xs text-slate-500"></p>
+        </div>
+        <button onclick="closeDetail()" class="btn-ghost px-3 py-1.5 rounded-lg text-xs">✕ Close</button>
+      </div>
+
+      <!-- Metrics grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <div class="card p-3 text-center">
+          <div id="d-recovery" class="text-xl font-black gold-text">—</div>
+          <div class="text-xs text-slate-500 mt-0.5">Recovery %</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div id="d-exposure" class="text-xl font-black text-white">—</div>
+          <div class="text-xs text-slate-500 mt-0.5">Net Exposure</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div id="d-cost-basis" class="text-xl font-black text-white">—</div>
+          <div class="text-xs text-slate-500 mt-0.5">True Cost Basis/sh</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div id="d-yield" class="text-xl font-black text-white">—</div>
+          <div class="text-xs text-slate-500 mt-0.5">Yield on True Cost</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div id="d-shares" class="text-xl font-black text-white">—</div>
+          <div class="text-xs text-slate-500 mt-0.5">Total Shares</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div id="d-avg-cost" class="text-xl font-black text-white">—</div>
+          <div class="text-xs text-slate-500 mt-0.5">Avg Cost/Share</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div id="d-total-in" class="text-xl font-black text-red-400">—</div>
+          <div class="text-xs text-slate-500 mt-0.5">Total Invested</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div id="d-total-recovered" class="text-xl font-black text-green-400">—</div>
+          <div class="text-xs text-slate-500 mt-0.5">Total Recovered</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div id="d-velocity" class="text-xl font-black text-blue-400">—</div>
+          <div class="text-xs text-slate-500 mt-0.5">Velocity/day</div>
+        </div>
+        <!-- Current Price (prominent) -->
+        <div class="card-highlight p-3 text-center col-span-2 md:col-span-1">
+          <div class="flex items-center justify-center gap-2">
+            <span id="d-price" class="text-xl font-black gold-text">—</span>
+          </div>
+          <div class="text-xs text-slate-500 mt-0.5">Current Price</div>
+          <div class="mt-1">
+            <input id="d-price-override" type="number" class="input text-xs py-1 text-center" placeholder="Manual override" step="0.01" min="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Net exposure chart -->
+      <div class="mb-5">
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Net Exposure Over Time</p>
+        <div class="chart-container"><canvas id="exposure-chart"></canvas></div>
+      </div>
+
+      <!-- Transaction history -->
+      <div>
+        <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+          <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Transaction History</p>
+          <button id="add-tx-btn" onclick="openModal('transaction')" class="btn-gold px-3 py-1.5 rounded-lg text-xs font-bold">+ Add Transaction</button>
+        </div>
+        <div id="tx-history" class="space-y-2">
+          <p class="text-slate-600 text-sm text-center py-4">No transactions yet. Add your first entry.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /command-center -->
+</div><!-- /main-content -->
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- FLOATING ACTION BUTTON                                   -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<button id="fab" onclick="openModal('choose')" aria-label="Add asset or transaction">+</button>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- MODAL                                                    -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="modal" class="modal-overlay" style="display:none;" onclick="handleModalBg(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+
+    <!-- Choose path -->
+    <div id="modal-choose" style="display:none;">
+      <h2 class="text-lg font-black mb-4">What do you want to add?</h2>
+      <div class="space-y-3">
+        <button onclick="openModal('asset')" class="w-full card p-4 text-left hover:border-gold-600 transition-colors cursor-pointer" style="border:1px solid rgba(255,255,255,0.07);">
+          <div class="font-bold text-white mb-1">📈 New Asset</div>
+          <div class="text-xs text-slate-500">Add a ticker symbol to start tracking (e.g. AAPL, T, JEPI)</div>
+        </button>
+        <button onclick="openModal('transaction')" class="w-full card p-4 text-left hover:border-gold-600 transition-colors cursor-pointer" style="border:1px solid rgba(255,255,255,0.07);">
+          <div class="font-bold text-white mb-1">💰 New Transaction</div>
+          <div class="text-xs text-slate-500">Log a buy, sell, dividend, option premium, or lending fee</div>
+        </button>
+      </div>
+      <button onclick="closeModal()" class="btn-ghost w-full py-2.5 rounded-lg text-sm mt-4">Cancel</button>
+    </div>
+
+    <!-- New Asset form -->
+    <div id="modal-asset" style="display:none;">
+      <h2 class="text-lg font-black mb-4">Add New Asset</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Ticker Symbol *</label>
+          <input id="a-ticker" type="text" class="input" placeholder="e.g. AAPL, T, JEPI" style="text-transform:uppercase">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Entity Owner</label>
+          <select id="a-entity" class="input">
+            <option value="personal">Personal (SSN)</option>
+            <option value="llc">Operating LLC</option>
+            <option value="holding_co">Holding Company</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Allocation Goal % <span class="text-slate-600 font-normal">(optional)</span></label>
+          <input id="a-goal" type="number" class="input" placeholder="e.g. 10" min="0" max="100" step="0.1">
+        </div>
+        <div id="asset-form-error" class="text-red-400 text-xs" style="display:none;"></div>
+        <div class="flex gap-2 pt-1">
+          <button onclick="submitAsset()" class="btn-gold flex-1 py-2.5 rounded-lg text-sm font-bold">Create Asset</button>
+          <button onclick="closeModal()" class="btn-ghost flex-1 py-2.5 rounded-lg text-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Transaction form -->
+    <div id="modal-transaction" style="display:none;">
+      <h2 class="text-lg font-black mb-4">Log Transaction</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Asset *</label>
+          <select id="t-asset" class="input">
+            <option value="">Select an asset...</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Date *</label>
+          <input id="t-date" type="date" class="input">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Activity Type *</label>
+          <select id="t-type" class="input" onchange="handleTypeChange()">
+            <option value="">Select type...</option>
+            <option value="buy"            style="color:#f87171">Buy (capital out 🔴)</option>
+            <option value="sell"           style="color:#4ade80">Sell (capital in 🟢)</option>
+            <option value="dividend"       style="color:#60a5fa">Dividend (income 🟢)</option>
+            <option value="option_premium" style="color:#c084fc">Option Premium (income 🟢)</option>
+            <option value="lending_fee"    style="color:#2dd4bf">Lending Fee (income 🟢)</option>
+            <option value="options"        style="color:#fbbf24">Options (configurable 🔶)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
+            Amount (USD) * <span id="t-flow-hint" class="text-slate-600 font-normal"></span>
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+            <input id="t-amount" type="number" class="input" placeholder="0.00" step="0.01" min="0" style="padding-left:1.75rem">
+          </div>
+          <p class="text-xs text-slate-600 mt-1">Enter the absolute value — sign is set automatically by activity type.</p>
+        </div>
+        <div id="share-count-row">
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Share Count *</label>
+          <input id="t-shares" type="number" class="input" placeholder="e.g. 100" step="0.000001" min="0">
+        </div>
+
+        <!-- Fee field (shown for Buy, Sell, Options) -->
+        <div id="fee-row" style="display:none;">
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Fee <span class="text-slate-600 font-normal">(USD)</span></label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+            <input id="t-fee" type="number" class="input" placeholder="0.00" step="0.01" min="0" style="padding-left:1.75rem">
+          </div>
+        </div>
+
+        <!-- Options-specific fields -->
+        <div id="options-fields" style="display:none;">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Call or Put *</label>
+              <select id="t-call-put" class="input">
+                <option value="">Select...</option>
+                <option value="call">Call</option>
+                <option value="put">Put</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Strike Price *</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+                <input id="t-strike" type="number" class="input" placeholder="0.00" step="0.01" min="0" style="padding-left:1.75rem">
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <div>
+              <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Expiry Date</label>
+              <input id="t-expiry" type="date" class="input">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Price/Share <span class="text-slate-600 font-normal">(optional)</span></label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+                <input id="t-price" type="number" class="input" placeholder="0.00" step="0.01" min="0" style="padding-left:1.75rem">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Notes <span class="text-slate-600 font-normal">(optional)</span></label>
+          <input id="t-notes" type="text" class="input" placeholder="e.g. Q4 dividend reinvestment">
+        </div>
+        <div id="tx-form-error" class="text-red-400 text-xs" style="display:none;"></div>
+        <div class="flex gap-2 pt-1">
+          <button onclick="submitTransaction()" class="btn-gold flex-1 py-2.5 rounded-lg text-sm font-bold">Log Transaction</button>
+          <button onclick="closeModal()" class="btn-ghost flex-1 py-2.5 rounded-lg text-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- nav bar injected by nav-bar.js -->
+<script src="/nav-bar.js" defer></script>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
+let allAssets      = [];
+let discipline     = null;
+let currentFilter  = 'all';
+let expandedAsset  = null;
+let exposureChart  = null;
+let architectOpen  = false;
+
+// ══════════════════════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  // Set today as default date in transaction form
+  document.getElementById('t-date').value = new Date().toISOString().split('T')[0];
+
+  await Promise.all([loadDiscipline(), loadAssets()]);
+});
+
+// ══════════════════════════════════════════════════════════════
+//  LOAD DISCIPLINE
+// ══════════════════════════════════════════════════════════════
+async function loadDiscipline() {
+  try {
+    const res = await fetch('/api/brokerage/discipline');
+    if (!res.ok) return;
+    const data = await res.json();
+    discipline = data.discipline;
+    renderDisciplineBar();
+  } catch (e) { /* silently ignore */ }
+}
+
+function renderDisciplineBar() {
+  if (!discipline) return;
+  const bar = document.getElementById('discipline-bar');
+  bar.style.display = 'flex';
+
+  const dot   = document.getElementById('disc-vault-dot');
+  const label = document.getElementById('disc-vault-label');
+  const streak = document.getElementById('disc-streak');
+  const warn  = document.getElementById('disc-lock-warning');
+
+  if (discipline.vault_status === 'locked') {
+    dot.style.background = '#f87171';
+    dot.style.boxShadow  = '0 0 6px #f87171';
+    label.textContent    = 'Net Zero Locked';
+    label.className = 'text-xs font-semibold text-red-400';
+  } else {
+    dot.style.background = '#4ade80';
+    dot.style.boxShadow  = '0 0 6px #4ade80';
+    label.textContent    = 'Net Zero Active';
+    label.className = 'text-xs font-semibold text-slate-400';
+  }
+
+  if (discipline.streak_count > 0) {
+    streak.innerHTML = `<span class="text-xs font-semibold" style="color:#e8c96a;">🔥 ${discipline.streak_count}-week streak</span>`;
+  } else {
+    streak.innerHTML = `<span class="text-xs text-slate-600">No streak yet</span>`;
+  }
+
+  if (discipline.days_until_lock > 0 && discipline.days_until_lock <= 10 && discipline.vault_status !== 'locked') {
+    warn.style.display = 'inline';
+    warn.innerHTML = `<span class="text-xs font-semibold text-amber-400">⚠️ Net Zero locks in ${discipline.days_until_lock} day${discipline.days_until_lock === 1 ? '' : 's'}</span>`;
+  } else {
+    warn.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  LOAD ASSETS
+// ══════════════════════════════════════════════════════════════
+async function loadAssets() {
+  try {
+    const res = await fetch('/api/brokerage/assets');
+
+    if (res.status === 423) {
+      // Vault locked
+      await loadDiscipline();
+      showVaultLock();
+      return;
+    }
+
+    if (res.status === 401) {
+      window.location.href = '/login.html?next=/brokerage-tracker';
+      return;
+    }
+
+    if (!res.ok) {
+      showError('Failed to load assets');
+      return;
+    }
+
+    const data = await res.json();
+    allAssets = data.assets || [];
+    renderPage();
+  } catch (e) {
+    console.error('loadAssets error:', e);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RENDER PAGE
+// ══════════════════════════════════════════════════════════════
+function renderPage() {
+  document.getElementById('vault-lock-screen').style.display = 'none';
+
+  const mc = document.getElementById('main-content');
+  mc.style.display = 'block';
+
+  if (allAssets.length === 0) {
+    document.getElementById('onboarding-module').style.display = 'block';
+    document.getElementById('command-center').style.display   = 'none';
+    document.getElementById('fab').style.display = 'none';
+  } else {
+    document.getElementById('onboarding-module').style.display = 'none';
+    document.getElementById('command-center').style.display   = 'block';
+    document.getElementById('fab').style.display = 'flex';
+    // Show Add Ticker button when at least 1 asset exists
+    document.getElementById('add-ticker-btn').style.display = allAssets.length > 0 ? 'inline-flex' : 'none';
+    renderLeaderboard();
+    renderArchitectPanel();
+    populateAssetDropdown();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  VAULT LOCK
+// ══════════════════════════════════════════════════════════════
+function showVaultLock() {
+  document.getElementById('main-content').style.display        = 'none';
+  document.getElementById('vault-lock-screen').style.display  = 'flex';
+  document.getElementById('fab').style.display = 'none';
+
+  if (discipline) {
+    const lastEntry = discipline.last_entry_date
+      ? new Date(discipline.last_entry_date).toLocaleDateString()
+      : 'Never';
+    document.getElementById('vl-last-entry').textContent    = lastEntry;
+    document.getElementById('vl-streak').textContent        = `${discipline.streak_count || 0} weeks`;
+    document.getElementById('vl-reactivations').textContent = discipline.reactivation_count || 0;
+  }
+}
+
+async function reactivateVault() {
+  const btn = document.getElementById('btn-reactivate');
+  btn.disabled = true;
+  btn.textContent = 'Reactivating...';
+  try {
+    const res = await fetch('/api/brokerage/discipline/reactivate', { method:'POST', headers:{'Content-Type':'application/json'} });
+    if (!res.ok) {
+      const d = await res.json();
+      alert(d.error || 'Failed to reactivate');
+      btn.disabled = false;
+      btn.textContent = '🔓 Reactivate Project Net Zero';
+      return;
+    }
+    // Brief celebration then reload
+    btn.textContent = '✅ Net Zero Unlocked!';
+    document.querySelector('.vault-door').textContent = '🔓';
+    setTimeout(() => location.reload(), 1200);
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = '🔓 Reactivate Project Net Zero';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  LEADERBOARD
+// ══════════════════════════════════════════════════════════════
+function getFilteredAssets() {
+  if (currentFilter === 'all') return allAssets;
+  if (currentFilter === 'personal') return allAssets.filter(a => a.entity_owner === 'personal');
+  if (currentFilter === 'entity') return allAssets.filter(a => a.entity_owner !== 'personal');
+  return allAssets;
+}
+
+function renderLeaderboard() {
+  const assets = getFilteredAssets();
+  const infiniteAssets = assets.filter(a => a.infinite_return);
+  const activeAssets   = assets.filter(a => !a.infinite_return);
+
+  // HOF section
+  const hofSection = document.getElementById('hof-section');
+  const hofList    = document.getElementById('hof-list');
+  if (infiniteAssets.length > 0) {
+    hofSection.style.display = 'block';
+    hofList.innerHTML = infiniteAssets.map(a => renderHOFCard(a)).join('');
+  } else {
+    hofSection.style.display = 'none';
+  }
+
+  // Asset count badge
+  document.getElementById('asset-count-badge').textContent =
+    `${assets.length} position${assets.length !== 1 ? 's' : ''}`;
+
+  // Desktop table
+  const tbody = document.getElementById('leaderboard-tbody');
+  tbody.innerHTML = '';
+  activeAssets.forEach((asset, i) => {
+    const tr = document.createElement('tr');
+    tr.className = 'cursor-pointer';
+    tr.onclick = () => openDetail(asset.id);
+    tr.innerHTML = renderLeaderboardRow(asset, i + 1);
+    tbody.appendChild(tr);
+  });
+
+  // Mobile cards
+  const cardsContainer = document.getElementById('asset-cards');
+  cardsContainer.innerHTML = assets.map(a => renderAssetCard(a)).join('');
+}
+
+function renderHOFCard(a) {
+  return `
+    <div class="card-highlight p-4 flex items-center justify-between gap-4 cursor-pointer" onclick="openDetail(${a.id})">
+      <div class="flex items-center gap-3">
+        <div class="inf-badge">∞</div>
+        <div>
+          <span class="font-black text-lg text-white">${a.ticker_symbol}</span>
+          <span class="text-xs text-slate-500 ml-2">${entityLabel(a.entity_owner)}</span>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="font-black text-gold-400">${a.recovery_percentage.toFixed(1)}% recovered</div>
+        <div class="text-xs text-green-400">Net Exposure: ${fmt(a.net_exposure)}</div>
+      </div>
+    </div>`;
+}
+
+function renderLeaderboardRow(a, rank) {
+  const pct = Math.min(100, a.recovery_percentage);
+  const gradientWidth = Math.max(2, pct);
+  return `
+    <td><span class="text-slate-500 font-bold text-sm">#${rank}</span></td>
+    <td><span class="font-black text-white">${a.ticker_symbol}</span></td>
+    <td><span class="text-xs ${entityColor(a.entity_owner)}">${entityLabel(a.entity_owner)}</span></td>
+    <td style="min-width:100px;">
+      <div class="meter-track"><div class="meter-fill" style="width:${gradientWidth}%"></div></div>
+    </td>
+    <td>
+      <span class="font-bold ${pct >= 80 ? 'text-gold-400' : 'text-slate-300'}">${a.recovery_percentage.toFixed(1)}%</span>
+    </td>
+    <td><span class="${a.net_exposure <= 0 ? 'text-green-400' : 'text-red-400'} font-semibold">${fmt(a.net_exposure)}</span></td>
+    <td><span class="text-blue-400 text-sm">${a.recovery_velocity > 0 ? '+' : ''}${a.recovery_velocity.toFixed(2)}%/day</span></td>
+    <td><span class="badge badge-sell">🟢 Active</span></td>
+    <td><span class="text-slate-600 text-sm">→</span></td>`;
+}
+
+function renderAssetCard(a) {
+  const pct = Math.min(100, a.recovery_percentage);
+  const isInf = a.infinite_return;
+  return `
+    <div class="card p-4 cursor-pointer ${isInf ? 'border-gold-600' : ''}" style="${isInf ? 'border-color:rgba(201,162,39,0.3)' : ''}" onclick="openDetail(${a.id})">
+      <div class="flex justify-between items-start mb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-black text-white text-base">${a.ticker_symbol}</span>
+            ${isInf ? '<div class="inf-badge">∞</div>' : ''}
+          </div>
+          <span class="text-xs ${entityColor(a.entity_owner)}">${entityLabel(a.entity_owner)}</span>
+        </div>
+        <div class="text-right">
+          <div class="font-bold ${isInf ? 'text-gold-400' : 'text-slate-300'}">${a.recovery_percentage.toFixed(1)}%</div>
+          <div class="text-xs ${a.net_exposure <= 0 ? 'text-green-400' : 'text-red-400'}">${fmt(a.net_exposure)}</div>
+        </div>
+      </div>
+      <div class="meter-track">
+        <div class="meter-fill ${isInf ? 'infinite' : ''}" style="width:${Math.max(2,pct)}%"></div>
+      </div>
+      <div class="flex justify-between mt-2 text-xs text-slate-500">
+        <span>Recovery velocity: ${a.recovery_velocity > 0 ? '+' : ''}${a.recovery_velocity.toFixed(2)}%/day</span>
+        <span class="text-slate-600">Tap to expand →</span>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ASSET DETAIL
+// ══════════════════════════════════════════════════════════════
+async function openDetail(assetId) {
+  expandedAsset = assetId;
+  const panel = document.getElementById('asset-detail-panel');
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior:'smooth', block:'start' });
+
+  // Pre-fill asset id in transaction modal
+  document.getElementById('t-asset').value = assetId;
+
+  // Setup manual price override
+  const priceOverride = document.getElementById('d-price-override');
+  priceOverride.value = '';
+  priceOverride.onchange = function() {
+    const val = parseFloat(this.value);
+    if (val > 0) {
+      document.getElementById('d-price').textContent = `$${val.toFixed(2)}`;
+    }
+  };
+
+  try {
+    const res  = await fetch(`/api/brokerage/assets/${assetId}`);
+    if (!res.ok) { closeDetail(); return; }
+    const data = await res.json();
+    const a    = data.asset;
+    const txs  = data.transactions;
+    const chartData = data.chart_data;
+
+    document.getElementById('detail-ticker').textContent = a.ticker_symbol;
+    document.getElementById('detail-entity').textContent = entityLabel(a.entity_owner);
+
+    document.getElementById('d-recovery').innerHTML     = a.infinite_return
+      ? '<span class="inf-badge" style="font-size:1rem">∞</span>'
+      : `${a.recovery_percentage.toFixed(1)}%`;
+    document.getElementById('d-exposure').textContent   = fmt(a.net_exposure);
+    document.getElementById('d-exposure').className     = `text-xl font-black ${a.net_exposure <= 0 ? 'text-green-400' : 'text-white'}`;
+    document.getElementById('d-cost-basis').textContent = a.true_cost_basis_per_share != null ? `$${a.true_cost_basis_per_share.toFixed(2)}` : '—';
+    document.getElementById('d-yield').textContent      = a.yield_on_true_cost === 'Infinite' ? '∞' : (a.yield_on_true_cost ? `${a.yield_on_true_cost}%` : '—');
+    document.getElementById('d-shares').textContent     = a.total_shares ? a.total_shares.toLocaleString() : '0';
+    document.getElementById('d-avg-cost').textContent    = a.average_cost_per_share != null ? `$${a.average_cost_per_share.toFixed(2)}` : '—';
+    document.getElementById('d-total-in').textContent   = `$${(a.total_buy_cost || 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+    document.getElementById('d-total-recovered').textContent = `$${(a.total_recovered || 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+    document.getElementById('d-velocity').textContent   = `${a.recovery_velocity > 0 ? '+' : ''}${a.recovery_velocity.toFixed(2)}%`;
+
+    // Current price (fetched from Yahoo Finance or manual override)
+    if (a.current_price && a.current_price > 0) {
+      document.getElementById('d-price').textContent = `$${parseFloat(a.current_price).toFixed(2)}`;
+    } else {
+      document.getElementById('d-price').textContent = '—';
+    }
+
+    // Chart
+    renderExposureChart(chartData);
+
+    // Transactions — full ledger with running balance
+    renderTxHistory(txs, assetId);
+
+  } catch(e) {
+    console.error('openDetail error:', e);
+  }
+}
+
+function closeDetail() {
+  document.getElementById('asset-detail-panel').style.display = 'none';
+  expandedAsset = null;
+}
+
+function renderExposureChart(chartData) {
+  const ctx = document.getElementById('exposure-chart').getContext('2d');
+  if (exposureChart) { exposureChart.destroy(); exposureChart = null; }
+
+  if (!chartData || chartData.length === 0) return;
+
+  exposureChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartData.map(d => new Date(d.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})),
+      datasets: [{
+        data: chartData.map(d => d.net_exposure),
+        borderColor: '#c9a227',
+        backgroundColor: 'rgba(201,162,39,0.06)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3,
+        pointRadius: chartData.length > 20 ? 0 : 3,
+        pointBackgroundColor: '#c9a227'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{ display:false }, tooltip:{
+        callbacks:{
+          label: ctx => `Net Exposure: ${fmt(ctx.raw)}`
+        }
+      }},
+      scales: {
+        x: { ticks:{color:'#64748b',font:{size:10}}, grid:{color:'rgba(255,255,255,0.04)'} },
+        y: {
+          ticks:{color:'#64748b',font:{size:10}, callback: v => `$${v.toLocaleString()}`},
+          grid:{color:'rgba(255,255,255,0.04)'}
+        }
+      }
+    }
+  });
+}
+
+function renderTxHistory(txs, assetId) {
+  const container = document.getElementById('tx-history');
+  if (!txs || txs.length === 0) {
+    container.innerHTML = '<p class="text-slate-600 text-sm text-center py-4">No transactions yet.</p>';
+    return;
+  }
+
+  // Sort by date ascending for running balance calculation, then display reversed
+  const sorted = [...txs].sort((a, b) => new Date(a.date) - new Date(b.date));
+  let runningShares = 0;
+  const withBalance = sorted.map(t => {
+    const shares = parseFloat(t.share_count) || 0;
+    const isBuy = t.activity_type === 'buy';
+    const isOptions = t.activity_type === 'options' && t.call_put;
+    // For options with call_put, shares entered are directional
+    if (['buy','sell'].includes(t.activity_type)) {
+      runningShares += isBuy ? shares : -shares;
+    }
+    const balanceLabel = ['buy','sell'].includes(t.activity_type)
+      ? runningShares.toLocaleString(undefined,{maximumFractionDigits:4})
+      : '—';
+    return { ...t, running_shares: balanceLabel };
+  });
+
+  // Display newest first (original order was DESC)
+  const displayTx = withBalance.reverse();
+
+  container.innerHTML = `
+    <!-- Ledger header -->
+    <div class="text-xs text-slate-600 uppercase tracking-wider font-semibold mb-2 px-1 grid" style="grid-template-columns:100px 1fr 70px 80px 70px 90px 1fr">
+      <span>Date</span><span>Type</span><span>Shares</span><span>Price</span><span>Fee</span><span>Amount</span><span>Notes</span>
+    </div>
+    ${displayTx.map(t => {
+      const isIncome = t.activity_type !== 'buy';
+      const pricePerShare = t.price_per_share || (t.share_count && t.cash_flow ? (Math.abs(parseFloat(t.cash_flow)) / parseFloat(t.share_count)).toFixed(2) : '—');
+      const feeStr = t.fee && parseFloat(t.fee) > 0 ? `$${parseFloat(t.fee).toFixed(2)}` : '—';
+      const amountColor = isIncome ? 'text-green-400' : 'text-red-400';
+      const amountPrefix = isIncome ? '+' : '-';
+      const amountVal = Math.abs(parseFloat(t.cash_flow)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      const strikeStr = t.strike_price ? `$${parseFloat(t.strike_price).toFixed(2)}` : '';
+      const cpStr = t.call_put ? t.call_put.toUpperCase() : '';
+      const expiryStr = t.expiry_date ? new Date(t.expiry_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}) : '';
+
+      let typeLabel = activityLabel(t.activity_type);
+      if (t.activity_type === 'options' && cpStr) {
+        typeLabel = `${cpStr} ${strikeStr}`;
+      }
+
+      return `
+      <div class="flex items-center gap-1 py-2 px-2 rounded-lg hover:bg-white/5 group text-sm" style="border-bottom:1px solid rgba(255,255,255,0.04);grid-template-columns:100px 1fr 70px 80px 70px 90px 1fr">
+        <span class="text-slate-400 text-xs shrink-0">${new Date(t.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'})}</span>
+        <div class="flex items-center gap-1 min-w-0">
+          <span class="badge ${activityBadgeClass(t.activity_type)}" style="font-size:0.65rem">${activityLabel(t.activity_type)}</span>
+          ${cpStr ? `<span class="text-xs text-amber-400 font-semibold">${cpStr}</span>` : ''}
+        </div>
+        <span class="text-slate-300 text-xs text-right">${t.share_count ? parseFloat(t.share_count).toLocaleString(undefined,{maximumFractionDigits:4}) : '—'}</span>
+        <span class="text-slate-300 text-xs text-right">${typeof pricePerShare === 'number' ? `$${pricePerShare.toFixed(2)}` : pricePerShare}</span>
+        <span class="text-slate-500 text-xs text-right">${feeStr}</span>
+        <span class="font-semibold ${amountColor} text-xs text-right">${amountPrefix}$${amountVal}</span>
+        <div class="flex items-center gap-1 min-w-0">
+          <span class="text-slate-400 text-xs truncate flex-1">${t.notes || ''}</span>
+          ${t.expiry_date ? `<span class="text-xs text-slate-600 shrink-0">exp:${expiryStr}</span>` : ''}
+          <button onclick="deleteTx(${t.id},${assetId})" class="btn-danger px-1.5 py-0.5 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity shrink-0">✕</button>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+async function deleteTx(txId, assetId) {
+  if (!confirm('Delete this transaction?')) return;
+  try {
+    const res = await fetch(`/api/brokerage/transactions/${txId}`, { method:'DELETE' });
+    if (res.ok) {
+      await loadAssets();
+      if (expandedAsset === assetId) openDetail(assetId);
+    }
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SILENT ARCHITECT
+// ══════════════════════════════════════════════════════════════
+function toggleArchitect() {
+  architectOpen = !architectOpen;
+  const panel = document.getElementById('architect-panel');
+  const btn   = document.getElementById('architect-toggle-btn');
+  panel.style.display = architectOpen ? 'block' : 'none';
+  btn.className = `tab-btn ${architectOpen ? 'active' : 'inactive'} text-xs flex items-center gap-1.5`;
+}
+
+function setEntityFilter(filter, btnEl) {
+  currentFilter = filter;
+  document.querySelectorAll('[onclick^="setEntityFilter"]').forEach(b => b.className = 'tab-btn inactive');
+  if (btnEl) btnEl.className = 'tab-btn active';
+  renderLeaderboard();
+  renderArchitectPanel();
+}
+
+function renderArchitectPanel() {
+  const total    = allAssets.length;
+  const entityN  = allAssets.filter(a => a.entity_owner !== 'personal').length;
+  const personalN = allAssets.filter(a => a.entity_owner === 'personal').length;
+
+  // Flow map node highlighting
+  const fnHolding  = document.getElementById('fn-holding');
+  const fnLLC      = document.getElementById('fn-llc');
+  const fnBrokerage= document.getElementById('fn-brokerage');
+  const hasHolding = allAssets.some(a => a.entity_owner === 'holding_co');
+  const hasLLC     = allAssets.some(a => a.entity_owner === 'llc');
+
+  const inactiveStyle = 'opacity:0.35;filter:grayscale(80%)';
+  fnHolding.style.cssText   = hasHolding ? '' : inactiveStyle;
+  fnLLC.style.cssText       = hasLLC ? '' : inactiveStyle;
+  fnBrokerage.style.cssText = entityN > 0 ? '' : inactiveStyle;
+
+  const cta = document.getElementById('flow-map-cta');
+  cta.style.display = personalN === total && total > 0 ? 'block' : 'none';
+
+  // Asset protection score
+  const pct = total > 0 ? Math.round((entityN / total) * 100) : 0;
+  const badge = document.getElementById('prot-badge');
+  const scoreText = document.getElementById('prot-score-text');
+  const detail    = document.getElementById('prot-detail');
+
+  if (total === 0) {
+    badge.innerHTML = '<span style="color:#64748b">—</span>';
+    scoreText.textContent = 'No assets yet';
+    scoreText.className = 'text-sm font-semibold text-slate-500';
+    detail.textContent = 'Add assets to see your protection score.';
+  } else if (entityN === total) {
+    badge.innerHTML = '🛡️ <span class="prot-protected">Protected</span>';
+    scoreText.textContent = '100% — All positions held in entity accounts';
+    scoreText.className = 'text-sm font-semibold text-green-400';
+    detail.textContent = `${entityN} of ${total} positions under entity protection.`;
+  } else if (personalN === total) {
+    badge.innerHTML = '⚠️ <span class="prot-exposed">Exposed</span>';
+    scoreText.textContent = '0% — All positions in personal accounts';
+    scoreText.className = 'text-sm font-semibold text-red-400';
+    detail.textContent = `${personalN} of ${total} positions exposed to personal liability.`;
+  } else {
+    badge.innerHTML = '⚡ <span class="prot-mixed">Mixed</span>';
+    scoreText.textContent = `${pct}% — ${entityN} of ${total} positions in entity accounts`;
+    scoreText.className = 'text-sm font-semibold text-amber-400';
+    detail.textContent = `${personalN} position${personalN !== 1 ? 's' : ''} still in personal accounts.`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════════════════════
+function openModal(type) {
+  document.getElementById('modal').style.display = 'flex';
+  ['choose','asset','transaction'].forEach(t =>
+    document.getElementById('modal-' + t).style.display = t === type ? 'block' : 'none'
+  );
+  clearErrors();
+  if (type === 'asset')   document.getElementById('a-ticker').focus();
+  if (type === 'transaction') {
+    handleTypeChange();
+    document.getElementById('t-asset').value = expandedAsset || '';
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+  clearErrors();
+}
+
+function handleModalBg(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+function clearErrors() {
+  ['asset-form-error','tx-form-error'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.textContent = ''; }
+  });
+}
+
+function handleTypeChange() {
+  const type     = document.getElementById('t-type').value;
+  const shareRow = document.getElementById('share-count-row');
+  const feeRow   = document.getElementById('fee-row');
+  const optsRow  = document.getElementById('options-fields');
+  const hint     = document.getElementById('t-flow-hint');
+
+  shareRow.style.display = ['buy','sell','options'].includes(type) ? 'block' : 'none';
+  feeRow.style.display   = ['buy','sell','options'].includes(type) ? 'block' : 'none';
+  optsRow.style.display  = type === 'options' ? 'block' : 'none';
+
+  if (type === 'buy') {
+    hint.textContent = '— will be recorded as negative (capital out)';
+    hint.style.color = '#f87171';
+  } else if (type) {
+    hint.textContent = '— will be recorded as positive (capital in)';
+    hint.style.color = '#4ade80';
+  } else {
+    hint.textContent = '';
+  }
+}
+
+function populateAssetDropdown() {
+  const sel = document.getElementById('t-asset');
+  const currentVal = sel.value;
+  sel.innerHTML = '<option value="">Select an asset...</option>';
+  allAssets.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = `${a.ticker_symbol} (${entityLabel(a.entity_owner)})`;
+    sel.appendChild(opt);
+  });
+  if (currentVal) sel.value = currentVal;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SUBMIT ASSET
+// ══════════════════════════════════════════════════════════════
+async function submitAsset() {
+  const ticker  = document.getElementById('a-ticker').value.trim().toUpperCase();
+  const entity  = document.getElementById('a-entity').value;
+  const goal    = document.getElementById('a-goal').value;
+  const errEl   = document.getElementById('asset-form-error');
+
+  if (!ticker) { showError('asset-form-error', 'Ticker symbol is required'); return; }
+
+  try {
+    const res = await fetch('/api/brokerage/assets', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ticker_symbol: ticker, entity_owner: entity, goal_percent: goal ? parseFloat(goal) : null })
+    });
+    const data = await res.json();
+    if (!res.ok) { showError('asset-form-error', data.error || 'Failed to create asset'); return; }
+
+    closeModal();
+    await loadAssets();
+    // Open detail for the new asset
+    openDetail(data.asset.id);
+  } catch(e) {
+    showError('asset-form-error', 'Network error. Please try again.');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SUBMIT TRANSACTION
+// ══════════════════════════════════════════════════════════════
+async function submitTransaction() {
+  const assetId  = document.getElementById('t-asset').value;
+  const date     = document.getElementById('t-date').value;
+  const type     = document.getElementById('t-type').value;
+  const amount   = document.getElementById('t-amount').value;
+  const shares   = document.getElementById('t-shares').value;
+  const fee      = document.getElementById('t-fee').value;
+  const notes    = document.getElementById('t-notes').value;
+  const callPut  = document.getElementById('t-call-put').value;
+  const strike   = document.getElementById('t-strike').value;
+  const expiry   = document.getElementById('t-expiry').value;
+  const price    = document.getElementById('t-price').value;
+
+  if (!assetId) { showError('tx-form-error', 'Please select an asset'); return; }
+  if (!date)    { showError('tx-form-error', 'Date is required'); return; }
+  if (!type)    { showError('tx-form-error', 'Activity type is required'); return; }
+  if (!amount || parseFloat(amount) <= 0) { showError('tx-form-error', 'Amount must be greater than 0'); return; }
+  if (['buy','sell'].includes(type) && (!shares || parseFloat(shares) <= 0)) {
+    showError('tx-form-error', 'Share count is required for buy/sell transactions'); return;
+  }
+  if (type === 'options' && !callPut) {
+    showError('tx-form-error', 'Call or Put is required for options'); return;
+  }
+  if (type === 'options' && (!strike || parseFloat(strike) <= 0)) {
+    showError('tx-form-error', 'Strike price is required for options'); return;
+  }
+
+  try {
+    const res = await fetch('/api/brokerage/transactions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        asset_id: parseInt(assetId),
+        date, activity_type: type,
+        cash_flow_input: parseFloat(amount),
+        share_count: shares ? parseFloat(shares) : null,
+        fee: fee ? parseFloat(fee) : null,
+        call_put: callPut || null,
+        strike_price: strike ? parseFloat(strike) : null,
+        expiry_date: expiry || null,
+        price_per_share: price ? parseFloat(price) : null,
+        notes: notes || null
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) { showError('tx-form-error', data.error || 'Failed to log transaction'); return; }
+
+    // Reset form fields but keep asset selected
+    document.getElementById('t-amount').value  = '';
+    document.getElementById('t-shares').value  = '';
+    document.getElementById('t-fee').value     = '';
+    document.getElementById('t-notes').value   = '';
+    document.getElementById('t-call-put').value = '';
+    document.getElementById('t-strike').value  = '';
+    document.getElementById('t-expiry').value  = '';
+    document.getElementById('t-price').value   = '';
+    document.getElementById('t-type').value    = '';
+    handleTypeChange();
+    closeModal();
+
+    await loadAssets();
+    await loadDiscipline();
+    if (expandedAsset) openDetail(expandedAsset);
+  } catch(e) {
+    showError('tx-form-error', 'Network error. Please try again.');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════════
+function fmt(val) {
+  if (val == null) return '—';
+  const n = parseFloat(val);
+  const prefix = n < 0 ? '-$' : '$';
+  return prefix + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function entityLabel(e) {
+  if (e === 'llc') return 'LLC';
+  if (e === 'holding_co') return 'Holding Co';
+  return 'Personal';
+}
+
+function entityColor(e) {
+  if (e === 'llc') return 'text-blue-400';
+  if (e === 'holding_co') return 'text-purple-400';
+  return 'text-slate-500';
+}
+
+function activityLabel(type) {
+  const labels = {
+    buy:'Buy', sell:'Sell', dividend:'Dividend',
+    option_premium:'Premium', lending_fee:'Lending Fee', options:'Options'
+  };
+  return labels[type] || type;
+}
+
+function activityBadgeClass(type) {
+  const classes = {
+    buy:'badge-buy', sell:'badge-sell', dividend:'badge-dividend',
+    option_premium:'badge-premium', lending_fee:'badge-lending', options:'badge-options'
+  };
+  return classes[type] || '';
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+// Keyboard: Escape closes modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0a0f1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FACTS">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <title>Sign Up — FACTS</title>
+    <meta name="description" content="Create your FACTS account and start allocating your income across 6 purpose-driven categories.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-deep: #0a0f1a;
+            --bg-card: #111827;
+            --bg-elevated: #1a2332;
+            --accent-green: #10b981;
+            --accent-gold: #f59e0b;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-rose: #f43f5e;
+            --accent-cyan: #06b6d4;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #1e293b;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+
+        .ambient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+        }
+        .ambient::before {
+            content: ''; position: absolute; top: -20%; right: -10%;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .ambient::after {
+            content: ''; position: absolute; bottom: -10%; left: -10%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .signup-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--accent-green);
+            letter-spacing: -0.5px;
+        }
+
+        .logo-subtitle {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .error-message {
+            display: none;
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px solid var(--accent-rose);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--accent-rose);
+            line-height: 1.5;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .password-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-input-wrapper .form-input {
+            padding-right: 48px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+            outline: none;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-primary);
+        }
+
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .password-requirements {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            transition: color 0.2s ease;
+        }
+
+        .requirement.met {
+            color: var(--accent-green);
+        }
+
+        .requirement-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.65rem;
+            line-height: 1;
+        }
+
+        .requirement:not(.met) .requirement-icon {
+            border: 2px solid var(--text-muted);
+        }
+
+        .requirement.met .requirement-icon {
+            background: var(--accent-green);
+            color: #000;
+            font-weight: 700;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: var(--accent-green);
+            color: #000;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: #0ea271;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 24px rgba(16, 185, 129, 0.25);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .links a:hover {
+            color: var(--text-primary);
+        }
+
+        .links a .highlight {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .links a .highlight:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            color: var(--text-muted) !important;
+            font-size: 0.85rem !important;
+        }
+
+        .disclaimer-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            background: rgba(201,162,39,0.06);
+            border: 1px solid rgba(201,162,39,0.14);
+            border-radius: 10px;
+        }
+        .disclaimer-row input[type="checkbox"] {
+            width: 18px; height: 18px; margin-top: 3px;
+            accent-color: #c9a227; cursor: pointer; flex-shrink: 0;
+        }
+        .disclaimer-row label {
+            font-size: 0.82rem; color: #94a3b8; cursor: pointer; line-height: 1.5;
+        }
+        .disclaimer-row label strong { color: #f1f5f9; }
+
+        /* Android Chrome: 100vh includes address bar, making content unreachable.
+           Switch to top-aligned scrollable layout on mobile/tablet. */
+        @media (max-width: 768px) {
+            body {
+                align-items: flex-start;
+                padding-top: 32px;
+                padding-bottom: 40px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+                padding-top: 40px;
+            }
+
+            .signup-card {
+                padding: 32px 24px;
+                border-radius: 16px;
+            }
+
+            .logo {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+    <script defer src="/nav-bar.js"></script>
+</head>
+<body>
+    <div class="ambient"></div>
+
+    <div class="signup-card">
+        <div class="logo-section">
+            <div class="logo">FACTS</div>
+            <div class="logo-subtitle">by FACTS</div>
+        </div>
+
+        <!-- Beta invite disclosure (shown when ?ref= param is present) -->
+        <div id="beta-invite-notice" style="display:none; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:12px 16px; margin-bottom:20px;">
+            <div style="font-size:0.78rem; font-weight:700; color:#f59e0b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">🔒 Beta Invitation</div>
+            <div style="font-size:0.85rem; color:#94a3b8; line-height:1.5;">
+                You've been invited to the <strong style="color:#f1f5f9;">FACTS Beta</strong> — a pre-release version of the platform. After signing up, you will be required to accept a <strong style="color:#f1f5f9;">Non-Disclosure Agreement</strong> before accessing the app.
+            </div>
+        </div>
+
+        <div class="error-message" id="error-message"></div>
+
+        <form id="signup-form" novalidate>
+            <div class="form-group">
+                <label for="name">Name (optional)</label>
+                <input type="text" class="form-input" id="name" name="name" placeholder="Your name" autocomplete="name">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-input" id="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="user-id">User ID (optional)</label>
+                <input type="text" class="form-input" id="user-id" name="user-id" placeholder="Choose a unique username" autocomplete="username">
+                <div style="margin-top: 8px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+                    Create a unique username to sign in with instead of your email.
+                </div>
+            </div>
+
+            <div class="form-group" id="invite-code-group">
+                <button type="button" id="invite-code-toggle" onclick="document.getElementById('invite-code-fields').style.display=document.getElementById('invite-code-fields').style.display==='none'?'block':'none';this.querySelector('.toggle-arrow').textContent=document.getElementById('invite-code-fields').style.display==='none'?'▸':'▾'" style="background:none;border:none;color:var(--text-muted);font-size:0.82rem;cursor:pointer;padding:0;font-family:inherit;display:flex;align-items:center;gap:6px;">
+                    <span class="toggle-arrow">▸</span> Have a referral or promo code?
+                </button>
+                <div id="invite-code-fields" style="display:none;margin-top:10px;">
+                    <label for="invite-code" style="font-size:0.78rem;">Invite Code <span style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
+                    <input type="text" class="form-input" id="invite-code" name="invite-code" placeholder="Enter code if you have one" autocomplete="off" style="margin-top:6px;">
+                    <div style="margin-top: 6px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+                        No code? No problem — just sign up without one!
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-input-wrapper">
+                    <input type="password" class="form-input" id="password" name="password" placeholder="Create a password" autocomplete="new-password" required>
+                    <button type="button" class="toggle-password" data-target="password" aria-label="Toggle password visibility">
+                        <svg class="eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <svg class="eye-slash-icon" style="display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="password-requirements" id="password-requirements">
+                    <div class="requirement" id="req-length">
+                        <span class="requirement-icon"></span>
+                        <span>At least 10 characters</span>
+                    </div>
+                    <div class="requirement" id="req-letter">
+                        <span class="requirement-icon"></span>
+                        <span>At least 1 letter</span>
+                    </div>
+                    <div class="requirement" id="req-number">
+                        <span class="requirement-icon"></span>
+                        <span>At least 1 number</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <div class="password-input-wrapper">
+                    <input type="password" class="form-input" id="confirm-password" name="confirm-password" placeholder="Confirm your password" autocomplete="new-password" required>
+                    <button type="button" class="toggle-password" data-target="confirm-password" aria-label="Toggle password visibility">
+                        <svg class="eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <svg class="eye-slash-icon" style="display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- NDA / Beta Agreement Acceptance -->
+            <div class="disclaimer-row" style="margin-bottom:12px;">
+                <input type="checkbox" id="nda-accept" required>
+                <label for="nda-accept">
+                    I agree to the <strong>FACTS Beta Non-Disclosure Agreement</strong>. I will not publicly share, reproduce, or distribute proprietary features, the FACTS methodology, Sweep Engine, sovereignty scoring protocols, or any non-public details of this platform without explicit written permission.
+                </label>
+            </div>
+
+            <!-- Legal Disclaimer Acceptance -->
+            <div class="disclaimer-row">
+                <input type="checkbox" id="disclaimer-accept" required>
+                <label for="disclaimer-accept">
+                    I acknowledge that <strong>FACTS is an educational platform</strong>. FACTS is not a bank, RIA, or broker-dealer. FACTS does not guarantee outcomes. All financial decisions are made solely by me. FACTS is strictly non-custodial and does not hold, move, or manage user funds.
+                </label>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">Create Account</button>
+        </form>
+
+        <div class="links">
+            <a href="/login.html">Already have an account? <span class="highlight">Log in</span></a>
+            <a href="/" class="back-link">Back to home</a>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        var passwordInput = document.getElementById('password');
+        var confirmInput = document.getElementById('confirm-password');
+        var form = document.getElementById('signup-form');
+        var submitBtn = document.getElementById('submit-btn');
+        var errorMessage = document.getElementById('error-message');
+
+        // ── Referral code handling ──
+        var urlParams = new URLSearchParams(window.location.search);
+        var refCode = urlParams.get('ref') || '';
+        var funnelSessionId = urlParams.get('session') || '';
+        if (refCode) {
+            // Show beta invite disclosure
+            document.getElementById('beta-invite-notice').style.display = 'block';
+            // Auto-expand invite code section for referral visitors
+            var inviteFields = document.getElementById('invite-code-fields');
+            if (inviteFields) inviteFields.style.display = 'block';
+            var toggleArrow = document.querySelector('#invite-code-toggle .toggle-arrow');
+            if (toggleArrow) toggleArrow.textContent = '\u25be';
+        }
+
+        var reqLength = document.getElementById('req-length');
+        var reqLetter = document.getElementById('req-letter');
+        var reqNumber = document.getElementById('req-number');
+
+        // Password toggle functionality
+        document.querySelectorAll('.toggle-password').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var targetId = this.getAttribute('data-target');
+                var input = document.getElementById(targetId);
+                var eyeIcon = this.querySelector('.eye-icon');
+                var eyeSlashIcon = this.querySelector('.eye-slash-icon');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    eyeIcon.style.display = 'none';
+                    eyeSlashIcon.style.display = 'block';
+                } else {
+                    input.type = 'password';
+                    eyeIcon.style.display = 'block';
+                    eyeSlashIcon.style.display = 'none';
+                }
+            });
+        });
+
+        function checkRequirements() {
+            var pw = passwordInput.value;
+
+            var hasLength = pw.length >= 10;
+            var hasLetter = /[a-zA-Z]/.test(pw);
+            var hasNumber = /[0-9]/.test(pw);
+
+            updateRequirement(reqLength, hasLength);
+            updateRequirement(reqLetter, hasLetter);
+            updateRequirement(reqNumber, hasNumber);
+
+            return hasLength && hasLetter && hasNumber;
+        }
+
+        function updateRequirement(el, met) {
+            if (met) {
+                el.classList.add('met');
+                el.querySelector('.requirement-icon').textContent = '\u2713';
+            } else {
+                el.classList.remove('met');
+                el.querySelector('.requirement-icon').textContent = '';
+            }
+        }
+
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.classList.add('visible');
+        }
+
+        function hideError() {
+            errorMessage.classList.remove('visible');
+            errorMessage.textContent = '';
+        }
+
+        passwordInput.addEventListener('input', checkRequirements);
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            hideError();
+
+            var email = document.getElementById('email').value.trim();
+            var password = passwordInput.value;
+            var confirmPassword = confirmInput.value;
+            var name = document.getElementById('name').value.trim();
+            var userId = document.getElementById('user-id').value.trim();
+            var inviteCode = document.getElementById('invite-code').value.trim();
+
+            // Validate email
+            if (!email) {
+                showError('Email is required.');
+                return;
+            }
+
+            // Validate password requirements
+            if (!checkRequirements()) {
+                showError('Password does not meet all requirements.');
+                return;
+            }
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                showError('Passwords do not match.');
+                return;
+            }
+
+            // Validate NDA checkbox
+            var ndaCheck = document.getElementById('nda-accept');
+            if (!ndaCheck.checked) {
+                showError('You must agree to the Beta Non-Disclosure Agreement to create an account.');
+                return;
+            }
+
+            // Validate disclaimer checkbox
+            var disclaimerCheck = document.getElementById('disclaimer-accept');
+            if (!disclaimerCheck.checked) {
+                showError('You must acknowledge the legal disclaimer to create an account.');
+                return;
+            }
+
+            // Disable button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating account...';
+
+            var payload = { email: email, password: password, disclaimer_accepted: true, nda_accepted: true };
+            if (name) {
+                payload.name = name;
+            }
+            if (userId) {
+                payload.user_id = userId;
+            }
+            if (inviteCode) {
+                payload.invite_code = inviteCode;
+            }
+            if (refCode) {
+                payload.ref_code = refCode;
+            }
+            if (funnelSessionId) {
+                payload.funnel_session_id = funnelSessionId;
+            }
+
+            fetch('/api/auth/signup', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                redirect: 'manual',
+                body: JSON.stringify(payload)
+            })
+            .then(function(res) {
+                // Handle legacy 303 redirect (belt-and-suspenders)
+                if (res.type === 'opaqueredirect' || res.status === 303 || res.redirected) {
+                    try {
+                        fetch('/api/mod_affiliate/on-register', {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            keepalive: true,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ref_code: payload.ref_code || null })
+                        }).catch(function() {});
+                    } catch (e) {}
+                    window.location.href = '/app';
+                    return;
+                }
+                return res.json().then(function(data) {
+                    // JSON success — server confirmed signup, session saved to DB
+                    if (data.success && data.redirect) {
+                        var newId = (data.user && data.user.id) || data.userId || data.user_id;
+                        try {
+                            fetch('/api/mod_affiliate/on-register', {
+                                method: 'POST',
+                                credentials: 'same-origin',
+                                keepalive: true,
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    user_id: newId || undefined,
+                                    ref_code: payload.ref_code || null
+                                })
+                            }).catch(function() {});
+                        } catch (e) {}
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    throw new Error(data.error || data.message || 'Something went wrong. Please try again.');
+                });
+            })
+            .catch(function(err) {
+                showError(err.message || 'Something went wrong. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Account';
+            });
+        });
+    })();
+    </script>
+
+    <!-- Polsia Analytics -->
+    <script>
+    (function() {
+        var slug = 'financial-revolution';
+        if (!slug || slug === '__POLSIA_' + 'SLUG__') return;
+        var vid = localStorage.getItem('polsia_vid');
+        if (!vid) {
+            vid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0;
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+            localStorage.setItem('polsia_vid', vid);
+        }
+        new Image().src = 'https://polsia.com/api/beacon/pixel?s=' + encodeURIComponent(slug) + '&v=' + encodeURIComponent(vid);
+    })();
+    </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

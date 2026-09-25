@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Community — FACTS</title>
+  <meta name="description" content="We all can win when we believe and see others like us accomplishing what we want to accomplish. Join the FACTS community.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#060b14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1f2940' },
+            gold: { 200: '#fde68a', 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a8831e' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0d1117; color: #e2e8f0; font-family: 'Inter', system-ui, sans-serif; margin: 0; min-height: 100vh; min-height: 100dvh; }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+
+    /* Sticky sub-nav below global 44px nav */
+    .comm-subnav {
+      background: rgba(13,17,23,0.97);
+      border-bottom: 1px solid rgba(201,162,39,0.14);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 44px; z-index: 40;
+    }
+
+    /* Tab buttons */
+    .tab-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 16px; font-size: 0.85rem; font-weight: 600;
+      color: #64748b; background: transparent; border: none;
+      border-bottom: 2px solid transparent; cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      font-family: inherit; white-space: nowrap;
+    }
+    .tab-btn:hover { color: #e2e8f0; }
+    .tab-btn.active { color: #c9a227; border-bottom-color: #c9a227; }
+    .tab-count {
+      font-size: 0.7rem; background: rgba(201,162,39,0.15);
+      color: #c9a227; border-radius: 999px; padding: 1px 7px;
+      font-weight: 700;
+    }
+
+    /* Filter pills */
+    .filter-pill {
+      padding: 5px 14px; border-radius: 9999px;
+      font-size: 0.78rem; font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03); color: #64748b;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap; user-select: none;
+    }
+    .filter-pill:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.15); }
+    .filter-pill.active { background: rgba(201,162,39,0.12); color: #e8c96a; border-color: rgba(201,162,39,0.35); }
+
+    /* Sort */
+    .sort-btn {
+      padding: 5px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
+      color: #64748b; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .sort-btn.active { background: rgba(201,162,39,0.12); color: #e8c96a; border-color: rgba(201,162,39,0.35); }
+
+    /* Cards */
+    .post-card {
+      background: #13192a; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px; transition: border-color 0.2s;
+      overflow: hidden;
+    }
+    .post-card:hover { border-color: rgba(201,162,39,0.18); }
+    .post-card.pinned {
+      background: linear-gradient(135deg, rgba(201,162,39,0.06) 0%, #13192a 60%);
+      border-color: rgba(201,162,39,0.22);
+    }
+
+    /* Win card special */
+    .win-amount {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25);
+      color: #6ee7b7; border-radius: 8px; padding: 3px 10px;
+      font-size: 0.8rem; font-weight: 700;
+    }
+
+    /* Q&A answered badge */
+    .answered-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25);
+      color: #6ee7b7; border-radius: 6px; padding: 2px 8px;
+      font-size: 0.72rem; font-weight: 600;
+    }
+    .unanswered-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(251,191,36,0.10); border: 1px solid rgba(251,191,36,0.2);
+      color: #fbbf24; border-radius: 6px; padding: 2px 8px;
+      font-size: 0.72rem; font-weight: 600;
+    }
+
+    /* Type/category badge */
+    .badge {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      padding: 2px 9px; border-radius: 6px; letter-spacing: 0.01em;
+    }
+    .badge-win     { background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
+    .badge-question{ background: rgba(59,130,246,0.12); color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+    .badge-tip     { background: rgba(6,182,212,0.12);  color: #67e8f9; border: 1px solid rgba(6,182,212,0.25); }
+
+    /* Action buttons */
+    .action-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 500;
+      color: #64748b; background: transparent; border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .action-btn:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
+    .action-btn.reacted { color: #f59e0b; border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.08); }
+    .action-btn.voted { color: #60a5fa; border-color: rgba(96,165,250,0.35); background: rgba(96,165,250,0.08); }
+
+    /* Post button (FAB) */
+    .post-fab {
+      position: fixed; bottom: 24px; right: 20px; z-index: 50;
+      display: flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #c9a227, #a8831e);
+      color: #000; font-weight: 700; font-size: 0.9rem;
+      padding: 13px 20px; border-radius: 999px;
+      border: none; cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 20px rgba(201,162,39,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .post-fab:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(201,162,39,0.45); }
+    .post-fab:active { transform: translateY(0); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px); z-index: 200;
+      display: flex; align-items: flex-end; justify-content: center;
+    }
+    @media (min-width: 640px) {
+      .modal-overlay { align-items: center; }
+    }
+    .modal-box {
+      background: #13192a; border: 1px solid rgba(201,162,39,0.2);
+      border-radius: 20px 20px 0 0; width: 100%; max-width: 600px;
+      padding: 24px; max-height: 90vh; overflow-y: auto;
+    }
+    @media (min-width: 640px) {
+      .modal-box { border-radius: 20px; }
+    }
+
+    /* Form inputs */
+    .form-input, .form-select, .form-textarea {
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+      padding: 10px 14px; color: #e2e8f0; font-family: inherit;
+      font-size: 0.9rem; outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: rgba(201,162,39,0.4);
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: #475569; }
+    .form-select { appearance: none; cursor: pointer; }
+    .form-select option { background: #13192a; }
+    .form-textarea { resize: vertical; min-height: 100px; }
+
+    /* Comment input */
+    .comment-input {
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+      padding: 9px 13px; color: #e2e8f0; font-family: inherit;
+      font-size: 0.85rem; resize: none; outline: none; transition: border-color 0.2s;
+    }
+    .comment-input:focus { border-color: rgba(201,162,39,0.4); }
+    .comment-input::placeholder { color: #475569; }
+
+    /* Pro upsell */
+    .pro-upsell {
+      background: rgba(139,92,246,0.07); border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 10px; padding: 12px 16px; font-size: 0.82rem; color: #94a3b8;
+    }
+
+    /* Skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Toast */
+    #comm-toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: #1e293b; color: #e8c96a; border: 1px solid rgba(201,162,39,0.3);
+      padding: 9px 22px; border-radius: 999px; font-size: 0.82rem; font-weight: 500;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 9999;
+    }
+    #comm-toast.show { opacity: 1; }
+
+    /* Stats bar */
+    .stat-pill {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 10px 16px; text-align: center;
+    }
+
+    /* Comments section */
+    .comments-section { display: none; }
+    .comments-section.open { display: block; }
+
+    /* Mobile bottom pad */
+    @media (max-width: 640px) {
+      .comm-main { padding-bottom: 90px; }
+    }
+
+    /* Category label map */
+    .cat-label { text-transform: capitalize; }
+  </style>
+</head>
+<body>
+<script src="/nav-bar.js"></script>
+
+<!-- Sub-navigation -->
+<div class="comm-subnav">
+  <div class="max-w-2xl mx-auto px-4">
+    <!-- Tabs -->
+    <div class="flex border-b border-white border-opacity-5" style="gap:0;">
+      <button class="tab-btn active" data-tab="win" id="tab-win">
+        🏆 Money Wins <span class="tab-count" id="count-win">—</span>
+      </button>
+      <button class="tab-btn" data-tab="question" id="tab-question">
+        ❓ Q&amp;A <span class="tab-count" id="count-question">—</span>
+      </button>
+      <button class="tab-btn" data-tab="tip" id="tab-tip">
+        💡 Tips <span class="tab-count" id="count-tip">—</span>
+      </button>
+    </div>
+    <!-- Filters -->
+    <div class="flex items-center gap-2 py-3 overflow-x-auto" style="scrollbar-width:none;" id="filter-row">
+      <!-- Populated by JS based on active tab -->
+    </div>
+    <!-- Sort -->
+    <div class="flex items-center justify-between pb-3">
+      <div class="flex gap-2" id="sort-row">
+        <button class="sort-btn active" data-sort="latest">Latest</button>
+        <button class="sort-btn" data-sort="celebrated">Most Celebrated</button>
+      </div>
+      <span id="post-count" class="text-xs text-slate-500"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Hero banner -->
+<div class="max-w-2xl mx-auto px-4 pt-5">
+  <div class="rounded-2xl p-5 mb-5" style="background: linear-gradient(135deg, rgba(201,162,39,0.08), rgba(13,19,42,0.8)); border: 1px solid rgba(201,162,39,0.2);">
+    <div class="flex items-start gap-4">
+      <div class="text-3xl flex-shrink-0">🌟</div>
+      <div>
+        <h1 class="text-lg font-bold text-gold-300 mb-1" style="font-family:'Space Grotesk',sans-serif;">The FACTS Community</h1>
+        <p class="text-sm text-slate-400 leading-relaxed">"We all can win when we believe and see others like us accomplishing what we want to accomplish."</p>
+        <p class="text-xs text-slate-500 mt-1">— CP</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-4 gap-2 mb-5" id="stats-bar">
+    <div class="stat-pill">
+      <div class="text-lg font-bold text-gold-400" id="stat-wins">—</div>
+      <div class="text-xs text-slate-500 mt-0.5">Wins</div>
+    </div>
+    <div class="stat-pill">
+      <div class="text-lg font-bold text-blue-400" id="stat-questions">—</div>
+      <div class="text-xs text-slate-500 mt-0.5">Questions</div>
+    </div>
+    <div class="stat-pill">
+      <div class="text-lg font-bold text-cyan-400" id="stat-tips">—</div>
+      <div class="text-xs text-slate-500 mt-0.5">Tips</div>
+    </div>
+    <div class="stat-pill">
+      <div class="text-lg font-bold text-yellow-400" id="stat-celebrations">—</div>
+      <div class="text-xs text-slate-500 mt-0.5">🎉</div>
+    </div>
+  </div>
+
+  <!-- Pro upsell for free users -->
+  <div id="free-upsell" style="display:none;" class="pro-upsell flex items-center justify-between gap-3 mb-5">
+    <div>
+      <span class="font-semibold text-slate-300">You're in browse mode.</span>
+      <span class="text-slate-400"> Upgrade to a paid plan to share wins, ask questions, and join the conversation.</span>
+    </div>
+    <a href="/pricing.html" class="flex-shrink-0 text-xs font-bold text-violet-400 border border-violet-500 border-opacity-40 rounded-lg px-3 py-1.5 hover:bg-violet-500 hover:bg-opacity-10 transition-colors whitespace-nowrap">Upgrade →</a>
+  </div>
+</div>
+
+<!-- Main content -->
+<main class="comm-main max-w-2xl mx-auto px-4">
+  <div id="posts-container" class="space-y-4"></div>
+  <div id="scroll-sentinel" style="height:40px;"></div>
+  <div id="loading-indicator" class="py-6 text-center" style="display:none;">
+    <div class="inline-block w-5 h-5 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+  <div id="empty-state" style="display:none;" class="py-16 text-center">
+    <div class="text-4xl mb-3">💬</div>
+    <p class="text-slate-400 text-sm">No posts yet. Be the first to share!</p>
+  </div>
+</main>
+
+<!-- FAB: Post button (shown for Pro users) -->
+<button class="post-fab" id="post-fab" style="display:none;" onclick="openPostModal()">
+  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  Share
+</button>
+
+<!-- Post Creation Modal -->
+<div class="modal-overlay" id="post-modal" style="display:none;" onclick="closeOnOverlay(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-lg font-bold text-gold-300">Share with Community</h2>
+      <button onclick="closePostModal()" class="text-slate-500 hover:text-slate-300 transition-colors">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Type selector -->
+    <div class="grid grid-cols-3 gap-2 mb-4">
+      <button class="post-type-btn active" data-type="win" onclick="setPostType('win')">
+        <div class="text-xl mb-1">🏆</div>
+        <div class="text-xs font-semibold">Money Win</div>
+        <div class="text-xs text-slate-500">Share a milestone</div>
+      </button>
+      <button class="post-type-btn" data-type="question" onclick="setPostType('question')">
+        <div class="text-xl mb-1">❓</div>
+        <div class="text-xs font-semibold">Ask a Question</div>
+        <div class="text-xs text-slate-500">Get community help</div>
+      </button>
+      <button class="post-type-btn" data-type="tip" onclick="setPostType('tip')">
+        <div class="text-xl mb-1">💡</div>
+        <div class="text-xs font-semibold">Share a Tip</div>
+        <div class="text-xs text-slate-500">What's working for you</div>
+      </button>
+    </div>
+
+    <style>
+      .post-type-btn {
+        border: 2px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.03);
+        border-radius: 12px; padding: 12px 8px; cursor: pointer;
+        color: #94a3b8; transition: all 0.15s; font-family: inherit; text-align: center;
+      }
+      .post-type-btn:hover { border-color: rgba(201,162,39,0.3); color: #e2e8f0; }
+      .post-type-btn.active { border-color: rgba(201,162,39,0.5); background: rgba(201,162,39,0.07); color: #e8c96a; }
+    </style>
+
+    <form id="post-form" onsubmit="submitPost(event)" class="space-y-3">
+      <!-- Title (optional for wins/tips, required for questions) -->
+      <div id="title-field">
+        <label class="text-xs font-medium text-slate-400 mb-1 block" id="title-label">Summary (optional)</label>
+        <input type="text" id="post-title" class="form-input" placeholder="Brief summary..." maxlength="200">
+      </div>
+
+      <!-- Category -->
+      <div>
+        <label class="text-xs font-medium text-slate-400 mb-1 block">Category</label>
+        <select id="post-category" class="form-select form-input">
+          <option value="">Select a category...</option>
+        </select>
+      </div>
+
+      <!-- Amount (for wins only) -->
+      <div id="amount-field" style="display:none;">
+        <label class="text-xs font-medium text-slate-400 mb-1 block">Dollar Amount (optional)</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+          <input type="number" id="post-amount" class="form-input" style="padding-left:24px;" placeholder="0" min="0" max="9999999" step="0.01">
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div>
+        <label class="text-xs font-medium text-slate-400 mb-1 block" id="content-label">Your story</label>
+        <textarea id="post-content" class="form-textarea" placeholder="Share your experience..." maxlength="2000" rows="4"></textarea>
+        <div class="text-xs text-slate-500 text-right mt-1"><span id="content-count">0</span>/2000</div>
+      </div>
+
+      <!-- Anonymous toggle -->
+      <div class="flex items-center gap-3">
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="post-anonymous" class="sr-only">
+          <div class="w-10 h-5 bg-slate-700 rounded-full peer peer-checked:bg-gold-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+        </label>
+        <span class="text-sm text-slate-400">Post anonymously</span>
+      </div>
+
+      <!-- No-links notice -->
+      <p class="text-xs text-slate-500">⚠️ Links are not allowed in posts.</p>
+
+      <!-- Submit -->
+      <button type="submit" id="submit-btn" class="w-full font-bold text-black rounded-xl py-3 transition-all"
+              style="background: linear-gradient(135deg,#c9a227,#a8831e);">
+        <span id="submit-label">Post to Community</span>
+      </button>
+      <div id="post-error" class="text-xs text-red-400 text-center" style="display:none;"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Comments Modal -->
+<div class="modal-overlay" id="comments-modal" style="display:none;" onclick="closeOnOverlayComments(event)">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:600px;">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-base font-bold text-slate-200" id="comments-title">Comments</h2>
+      <button onclick="closeCommentsModal()" class="text-slate-500 hover:text-slate-300 transition-colors">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div id="comments-list" class="space-y-3 mb-4 max-h-80 overflow-y-auto"></div>
+
+    <div id="comment-form-area"></div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-overlay" id="report-modal" style="display:none;" onclick="closeOnOverlayReport(event)">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:400px;">
+    <h2 class="text-base font-bold text-slate-200 mb-4">Report Post</h2>
+    <select id="report-reason" class="form-select form-input mb-3">
+      <option value="">Select a reason...</option>
+      <option value="spam">Spam or self-promotion</option>
+      <option value="inappropriate">Inappropriate content</option>
+      <option value="misinformation">Financial misinformation</option>
+      <option value="harassment">Harassment or bullying</option>
+      <option value="other">Other</option>
+    </select>
+    <div class="flex gap-3">
+      <button onclick="closeReportModal()" class="flex-1 py-2.5 rounded-xl text-sm text-slate-400 border border-slate-700 hover:border-slate-600 transition-colors">Cancel</button>
+      <button onclick="submitReport()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.35);">Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<div id="comm-toast"></div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+const state = {
+  activeTab: 'win',
+  activeCategory: null,
+  activeSort: 'latest',
+  page: 1,
+  loading: false,
+  allLoaded: false,
+  posts: [],
+  userIsPro: false,
+  userId: null,
+  isCreator: false,
+  currentPostId: null,
+  reportPostId: null
+};
+
+const WIN_CATEGORIES = [
+  { value: 'debt_payoff', label: '💳 Debt Payoff' },
+  { value: 'savings_milestone', label: '🏦 Savings Milestone' },
+  { value: 'allocation_victory', label: '⚙️ Allocation Win' },
+  { value: 'investment_gain', label: '📈 Investment Gain' }
+];
+const QA_CATEGORIES = [
+  { value: 'budgeting', label: '📊 Budgeting' },
+  { value: 'debt', label: '💳 Debt' },
+  { value: 'saving', label: '🏦 Saving' },
+  { value: 'investing', label: '📈 Investing' },
+  { value: 'education', label: '🎓 Education' },
+  { value: 'financial_freedom', label: '🌟 Financial Freedom' }
+];
+const TIP_CATEGORIES = [
+  { value: 'budgeting', label: '📊 Budgeting' },
+  { value: 'debt', label: '💳 Debt' },
+  { value: 'saving', label: '🏦 Saving' },
+  { value: 'investing', label: '📈 Investing' },
+  { value: 'education', label: '🎓 Education' },
+  { value: 'general', label: '💡 General' }
+];
+
+function getCategoriesForTab(tab) {
+  if (tab === 'win') return WIN_CATEGORIES;
+  if (tab === 'question') return QA_CATEGORIES;
+  return TIP_CATEGORIES;
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  await checkAuth();
+  loadStats();
+  renderFilters();
+  renderSortButtons();
+  loadPosts(true);
+  initInfiniteScroll();
+}
+
+async function checkAuth() {
+  try {
+    const r = await fetch('/api/auth/me');
+    const d = await r.json();
+    if (d.authenticated && d.user) {
+      state.userId = d.user.id;
+      state.isCreator = d.user.is_creator || false;
+
+      // Check pro access
+      const proR = await fetch('/api/user/subscription-status');
+      if (proR.ok) {
+        const proD = await proR.json();
+        state.userIsPro = proD.has_pro_access || false;
+      }
+
+      if (state.userIsPro) {
+        document.getElementById('post-fab').style.display = 'flex';
+        document.getElementById('free-upsell').style.display = 'none';
+      } else {
+        document.getElementById('free-upsell').style.display = 'flex';
+      }
+    } else {
+      document.getElementById('free-upsell').style.display = 'flex';
+    }
+  } catch (e) {}
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch('/api/community/stats');
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('stat-wins').textContent = fmt(d.stats.total_wins);
+      document.getElementById('stat-questions').textContent = fmt(d.stats.total_questions);
+      document.getElementById('stat-tips').textContent = fmt(d.stats.total_tips);
+      document.getElementById('stat-celebrations').textContent = fmt(d.stats.total_celebrations);
+      document.getElementById('count-win').textContent = fmt(d.stats.total_wins);
+      document.getElementById('count-question').textContent = fmt(d.stats.total_questions);
+      document.getElementById('count-tip').textContent = fmt(d.stats.total_tips);
+    }
+  } catch (e) {}
+}
+
+function fmt(n) {
+  const num = parseInt(n) || 0;
+  if (num >= 1000) return (num/1000).toFixed(1).replace('.0','') + 'k';
+  return num.toString();
+}
+
+// ─── Tab switching ────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.activeTab = btn.dataset.tab;
+    state.activeCategory = null;
+    state.activeSort = 'latest';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderFilters();
+    renderSortButtons();
+    loadPosts(true);
+  });
+});
+
+function renderFilters() {
+  const row = document.getElementById('filter-row');
+  const cats = getCategoriesForTab(state.activeTab);
+  row.innerHTML = '';
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'filter-pill' + (state.activeCategory === null ? ' active' : '');
+  allBtn.textContent = 'All';
+  allBtn.onclick = () => { state.activeCategory = null; renderFilters(); loadPosts(true); };
+  row.appendChild(allBtn);
+
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-pill' + (state.activeCategory === cat.value ? ' active' : '');
+    btn.textContent = cat.label;
+    btn.onclick = () => { state.activeCategory = cat.value; renderFilters(); loadPosts(true); };
+    row.appendChild(btn);
+  });
+}
+
+function renderSortButtons() {
+  const row = document.getElementById('sort-row');
+  row.innerHTML = '';
+  const sorts = state.activeTab === 'question'
+    ? [['latest','Latest'],['celebrated','Most Upvoted'],['unanswered','Unanswered']]
+    : [['latest','Latest'],['celebrated','Most Celebrated']];
+  sorts.forEach(([val, label]) => {
+    const btn = document.createElement('button');
+    btn.className = 'sort-btn' + (state.activeSort === val ? ' active' : '');
+    btn.textContent = label;
+    btn.onclick = () => {
+      state.activeSort = val;
+      renderSortButtons();
+      loadPosts(true);
+    };
+    row.appendChild(btn);
+  });
+}
+
+// ─── Load posts ───────────────────────────────────────────────────────────────
+async function loadPosts(reset) {
+  if (state.loading) return;
+  if (!reset && state.allLoaded) return;
+
+  if (reset) {
+    state.page = 1;
+    state.posts = [];
+    state.allLoaded = false;
+    document.getElementById('posts-container').innerHTML = '';
+    renderSkeletons();
+  }
+
+  state.loading = true;
+  document.getElementById('loading-indicator').style.display = reset ? 'none' : 'block';
+
+  try {
+    const params = new URLSearchParams({
+      type: state.activeTab,
+      sort: state.activeSort,
+      page: state.page,
+      limit: 20
+    });
+    if (state.activeCategory) params.append('category', state.activeCategory);
+
+    const r = await fetch('/api/community/posts?' + params);
+    const d = await r.json();
+
+    document.getElementById('posts-container').querySelectorAll('.skeleton-card').forEach(el => el.remove());
+    document.getElementById('loading-indicator').style.display = 'none';
+
+    if (d.success) {
+      state.posts.push(...d.posts);
+      document.getElementById('post-count').textContent = `${d.total} post${d.total !== 1 ? 's' : ''}`;
+
+      if (d.posts.length === 0 && state.page === 1) {
+        document.getElementById('empty-state').style.display = 'block';
+      } else {
+        document.getElementById('empty-state').style.display = 'none';
+        d.posts.forEach(post => renderPost(post));
+      }
+
+      if (d.posts.length < 20) state.allLoaded = true;
+      else state.page++;
+    }
+  } catch (e) {
+    document.getElementById('posts-container').querySelectorAll('.skeleton-card').forEach(el => el.remove());
+    document.getElementById('loading-indicator').style.display = 'none';
+  }
+
+  state.loading = false;
+}
+
+function renderSkeletons() {
+  const container = document.getElementById('posts-container');
+  for (let i = 0; i < 4; i++) {
+    const div = document.createElement('div');
+    div.className = 'skeleton-card post-card p-5 space-y-3';
+    div.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="skeleton rounded-full" style="width:32px;height:32px;flex-shrink:0;"></div>
+        <div class="skeleton rounded" style="height:14px;width:120px;"></div>
+      </div>
+      <div class="skeleton rounded" style="height:16px;width:80%;"></div>
+      <div class="skeleton rounded" style="height:14px;width:60%;"></div>
+    `;
+    container.appendChild(div);
+  }
+}
+
+// ─── Render a post card ───────────────────────────────────────────────────────
+function renderPost(post) {
+  const container = document.getElementById('posts-container');
+  const card = document.createElement('div');
+  card.className = 'post-card' + (post.is_pinned ? ' pinned' : '');
+  card.id = 'post-' + post.id;
+
+  const typeBadgeClass = { win: 'badge-win', question: 'badge-question', tip: 'badge-tip' }[post.type] || 'badge-tip';
+  const typeLabel = { win: '🏆 Win', question: '❓ Question', tip: '💡 Tip' }[post.type] || post.type;
+
+  // Category display
+  const cats = [...WIN_CATEGORIES, ...QA_CATEGORIES, ...TIP_CATEGORIES];
+  const catObj = cats.find(c => c.value === post.category);
+  const catDisplay = catObj ? catObj.label : '';
+
+  // Amount display
+  const amountHtml = post.amount && post.type === 'win'
+    ? `<span class="win-amount">$${parseFloat(post.amount).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>`
+    : '';
+
+  // Answer status for Q&A
+  const answerBadge = post.type === 'question'
+    ? (post.is_answered
+        ? '<span class="answered-badge">✓ Answered</span>'
+        : '<span class="unanswered-badge">Awaiting answer</span>')
+    : '';
+
+  // Pin indicator
+  const pinHtml = post.is_pinned ? '<span class="text-xs text-gold-500 font-semibold">📌 Pinned</span>' : '';
+
+  // Reaction/celebrate button
+  const reactBtn = `
+    <button class="action-btn${post.user_reacted ? ' reacted' : ''}" onclick="toggleReact(${post.id}, this)" id="react-btn-${post.id}">
+      🎉 <span id="react-count-${post.id}">${post.reaction_count}</span>
+    </button>`;
+
+  // Comment button
+  const commentBtn = `
+    <button class="action-btn" onclick="openComments(${post.id}, '${escHtml(post.title || post.content.substring(0, 40))}')">
+      💬 <span>${post.comment_count}</span>
+    </button>`;
+
+  // Report button
+  const reportBtn = state.userId
+    ? `<button class="action-btn ml-auto" onclick="openReport(${post.id})" title="Report post" style="padding:6px 8px;">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+       </button>`
+    : '';
+
+  // Admin controls
+  const adminHtml = state.isCreator
+    ? `<div class="flex items-center gap-2 px-5 pb-3 pt-0">
+        <button onclick="adminDelete(${post.id})" class="text-xs text-red-400 hover:text-red-300 transition-colors border border-red-900 border-opacity-40 rounded px-2 py-1">Delete</button>
+        <button onclick="adminPin(${post.id})" class="text-xs text-gold-500 hover:text-gold-300 transition-colors border border-yellow-900 border-opacity-40 rounded px-2 py-1">${post.is_pinned ? 'Unpin' : 'Pin'}</button>
+       </div>`
+    : '';
+
+  const timeAgo = formatTimeAgo(post.created_at);
+
+  card.innerHTML = `
+    <div class="p-5">
+      <!-- Header -->
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+               style="background: linear-gradient(135deg, rgba(201,162,39,0.25), rgba(201,162,39,0.08)); color: #c9a227; border: 1px solid rgba(201,162,39,0.2);">
+            ${post.display_name.charAt(0).toUpperCase()}
+          </div>
+          <span class="text-sm font-semibold text-slate-300">${escHtml(post.display_name)}</span>
+          <span class="text-xs text-slate-500">${timeAgo}</span>
+          ${pinHtml}
+        </div>
+        <span class="badge ${typeBadgeClass} flex-shrink-0">${typeLabel}</span>
+      </div>
+
+      <!-- Category + amount -->
+      <div class="flex items-center flex-wrap gap-2 mb-2">
+        ${catDisplay ? `<span class="text-xs text-slate-500">${catDisplay}</span>` : ''}
+        ${amountHtml}
+        ${answerBadge}
+      </div>
+
+      <!-- Title -->
+      ${post.title ? `<h3 class="text-base font-semibold text-slate-100 mb-2" style="font-family:'Space Grotesk',sans-serif;">${escHtml(post.title)}</h3>` : ''}
+
+      <!-- Content -->
+      <p class="text-sm text-slate-300 leading-relaxed">${escHtml(post.content)}</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-2 px-5 pb-4 border-t border-white border-opacity-5 pt-3">
+      ${reactBtn}
+      ${commentBtn}
+      ${reportBtn}
+    </div>
+    ${adminHtml}
+  `;
+
+  container.appendChild(card);
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatTimeAgo(dateStr) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diff = (now - d) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  if (diff < 604800) return Math.floor(diff/86400) + 'd ago';
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+
+// ─── React (celebrate) ────────────────────────────────────────────────────────
+async function toggleReact(postId, btn) {
+  if (!state.userId) { toast('Sign in to celebrate wins'); return; }
+  if (!state.userIsPro) { toast('Upgrade to a paid plan to celebrate posts'); return; }
+
+  btn.disabled = true;
+  try {
+    const r = await fetch(`/api/community/posts/${postId}/react`, { method:'POST', headers:{'Content-Type':'application/json'} });
+    const d = await r.json();
+    if (d.success) {
+      if (d.reacted) { btn.classList.add('reacted'); }
+      else { btn.classList.remove('reacted'); }
+      document.getElementById('react-count-' + postId).textContent = d.reaction_count;
+    } else {
+      toast(d.error || 'Could not react');
+    }
+  } catch (e) { toast('Network error'); }
+  btn.disabled = false;
+}
+
+// ─── Comments ─────────────────────────────────────────────────────────────────
+let commentsPostId = null;
+async function openComments(postId, title) {
+  commentsPostId = postId;
+  document.getElementById('comments-title').textContent = title.substring(0, 50) + (title.length > 50 ? '…' : '');
+  document.getElementById('comments-list').innerHTML = '<div class="text-center py-4 text-slate-500 text-sm">Loading…</div>';
+  document.getElementById('comment-form-area').innerHTML = '';
+  document.getElementById('comments-modal').style.display = 'flex';
+
+  try {
+    const r = await fetch(`/api/community/posts/${postId}/comments`);
+    const d = await r.json();
+    const list = document.getElementById('comments-list');
+
+    if (!d.success || !d.comments.length) {
+      list.innerHTML = '<div class="text-center py-4 text-slate-500 text-sm">No comments yet. Be the first!</div>';
+    } else {
+      list.innerHTML = '';
+      d.comments.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'rounded-xl p-3 ' + (c.is_helpful ? 'bg-green-900 bg-opacity-20 border border-green-800 border-opacity-30' : 'bg-white bg-opacity-3');
+        div.style.background = c.is_helpful ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)';
+        div.innerHTML = `
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="text-xs font-semibold text-slate-300">${escHtml(c.display_name)}</span>
+            ${c.is_helpful ? '<span class="text-xs text-green-400 font-semibold">✓ Helpful Answer</span>' : ''}
+            <span class="text-xs text-slate-500 ml-auto">${formatTimeAgo(c.created_at)}</span>
+          </div>
+          <p class="text-sm text-slate-300">${escHtml(c.content)}</p>
+          <div class="flex items-center gap-2 mt-2">
+            <button class="action-btn${c.user_voted ? ' voted' : ''}" onclick="voteComment(${c.id}, this)" style="padding:4px 10px; font-size:0.75rem;">
+              👍 <span class="vote-count-${c.id}">${c.vote_count}</span>
+            </button>
+            ${state.isCreator ? `<button onclick="adminDeleteComment(${c.id})" class="text-xs text-red-400 hover:text-red-300 transition-colors">Delete</button>` : ''}
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    // Comment form
+    const formArea = document.getElementById('comment-form-area');
+    if (!state.userId) {
+      formArea.innerHTML = '<div class="pro-upsell text-center text-sm"><a href="/login" class="text-violet-400 font-semibold hover:underline">Sign in</a> to join the conversation.</div>';
+    } else if (!state.userIsPro) {
+      formArea.innerHTML = '<div class="pro-upsell flex items-center justify-between gap-3"><span class="text-slate-400 text-sm">Upgrade to a paid plan to comment.</span><a href="/pricing.html" class="text-xs font-bold text-violet-400 border border-violet-500 border-opacity-40 rounded-lg px-3 py-1.5 hover:bg-violet-500 hover:bg-opacity-10 transition-colors whitespace-nowrap">Upgrade →</a></div>';
+    } else {
+      formArea.innerHTML = `
+        <div class="flex gap-3 mt-1">
+          <textarea id="new-comment" class="comment-input" rows="2" placeholder="Share your thoughts…" maxlength="1000"></textarea>
+          <button onclick="submitComment(${postId})" class="flex-shrink-0 font-semibold text-sm text-black rounded-xl px-4 transition-all" style="background:linear-gradient(135deg,#c9a227,#a8831e);">Post</button>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">Links are not allowed.</p>
+      `;
+    }
+  } catch (e) {
+    document.getElementById('comments-list').innerHTML = '<div class="text-center py-4 text-slate-500 text-sm">Failed to load comments.</div>';
+  }
+}
+
+async function submitComment(postId) {
+  const ta = document.getElementById('new-comment');
+  const content = (ta ? ta.value : '').trim();
+  if (!content) return;
+
+  try {
+    const r = await fetch(`/api/community/posts/${postId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    });
+    const d = await r.json();
+    if (d.success) {
+      // Update comment count on card
+      const card = document.getElementById('post-' + postId);
+      if (card) {
+        const btn = card.querySelectorAll('.action-btn')[1];
+        if (btn) {
+          const spans = btn.querySelectorAll('span');
+          if (spans.length) spans[spans.length-1].textContent = parseInt(spans[spans.length-1].textContent||0) + 1;
+        }
+      }
+      // Re-open to refresh
+      const title = document.getElementById('comments-title').textContent;
+      openComments(postId, title);
+    } else {
+      toast(d.error || 'Failed to post comment');
+    }
+  } catch (e) { toast('Network error'); }
+}
+
+async function voteComment(commentId, btn) {
+  if (!state.userId) { toast('Sign in to vote'); return; }
+  if (!state.userIsPro) { toast('Upgrade to a paid plan to vote'); return; }
+
+  btn.disabled = true;
+  try {
+    const r = await fetch(`/api/community/comments/${commentId}/vote`, { method:'POST', headers:{'Content-Type':'application/json'} });
+    const d = await r.json();
+    if (d.success) {
+      if (d.voted) btn.classList.add('voted'); else btn.classList.remove('voted');
+      const countEl = btn.querySelector('.vote-count-' + commentId);
+      if (countEl) countEl.textContent = d.vote_count;
+    }
+  } catch (e) {}
+  btn.disabled = false;
+}
+
+function closeCommentsModal() { document.getElementById('comments-modal').style.display = 'none'; }
+function closeOnOverlayComments(e) { if (e.target === document.getElementById('comments-modal')) closeCommentsModal(); }
+
+// ─── Report ───────────────────────────────────────────────────────────────────
+function openReport(postId) {
+  if (!state.userId) { toast('Sign in to report posts'); return; }
+  state.reportPostId = postId;
+  document.getElementById('report-reason').value = '';
+  document.getElementById('report-modal').style.display = 'flex';
+}
+
+async function submitReport() {
+  const reason = document.getElementById('report-reason').value;
+  if (!reason) { toast('Select a reason'); return; }
+  try {
+    const r = await fetch(`/api/community/posts/${state.reportPostId}/report`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ reason })
+    });
+    const d = await r.json();
+    toast(d.message || 'Report submitted');
+    closeReportModal();
+  } catch (e) { toast('Network error'); }
+}
+
+function closeReportModal() { document.getElementById('report-modal').style.display = 'none'; }
+function closeOnOverlayReport(e) { if (e.target === document.getElementById('report-modal')) closeReportModal(); }
+
+// ─── Post Creation Modal ──────────────────────────────────────────────────────
+let currentPostType = 'win';
+
+function openPostModal() {
+  if (!state.userIsPro) {
+    toast('Upgrade to a paid plan to post');
+    return;
+  }
+  // Preset type to current tab
+  setPostType(state.activeTab);
+  document.getElementById('post-error').style.display = 'none';
+  document.getElementById('post-form').reset();
+  document.getElementById('content-count').textContent = '0';
+  document.getElementById('post-modal').style.display = 'flex';
+}
+
+function closePostModal() { document.getElementById('post-modal').style.display = 'none'; }
+function closeOnOverlay(e) { if (e.target === document.getElementById('post-modal')) closePostModal(); }
+
+function setPostType(type) {
+  currentPostType = type;
+  document.querySelectorAll('.post-type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+
+  // Update category options
+  const cats = getCategoriesForTab(type);
+  const sel = document.getElementById('post-category');
+  sel.innerHTML = '<option value="">Select a category...</option>';
+  cats.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.value;
+    opt.textContent = c.label;
+    sel.appendChild(opt);
+  });
+
+  // Show/hide amount field
+  document.getElementById('amount-field').style.display = type === 'win' ? 'block' : 'none';
+
+  // Update labels
+  const labels = {
+    win: { title: 'Title (optional)', content: 'Tell us about your win! What happened? How did you do it?', placeholder: 'I paid off my car loan after 18 months...' },
+    question: { title: 'Your question', content: 'Describe what you need help with', placeholder: 'How do I handle...' },
+    tip: { title: 'Tip headline (optional)', content: 'What\'s working for you? Share the details', placeholder: 'The 24-hour rule changed everything...' }
+  };
+  const l = labels[type] || labels.tip;
+  document.getElementById('title-label').textContent = l.title;
+  document.getElementById('content-label').textContent = l.content;
+  document.getElementById('post-content').placeholder = l.placeholder;
+}
+
+// Content counter
+document.getElementById('post-content').addEventListener('input', function() {
+  document.getElementById('content-count').textContent = this.value.length;
+});
+
+async function submitPost(e) {
+  e.preventDefault();
+  const errDiv = document.getElementById('post-error');
+  errDiv.style.display = 'none';
+
+  const title = document.getElementById('post-title').value.trim();
+  const content = document.getElementById('post-content').value.trim();
+  const category = document.getElementById('post-category').value;
+  const amount = document.getElementById('post-amount').value;
+  const is_anonymous = document.getElementById('post-anonymous').checked;
+
+  if (!content) { showErr('Content is required'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  const label = document.getElementById('submit-label');
+  btn.disabled = true;
+  label.textContent = 'Posting…';
+
+  try {
+    const r = await fetch('/api/community/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: currentPostType, title, content, category: category || null, amount: amount || null, is_anonymous })
+    });
+    const d = await r.json();
+    if (d.success) {
+      closePostModal();
+      toast('🎉 Posted successfully!');
+      loadStats();
+      loadPosts(true);
+    } else {
+      showErr(d.error || 'Failed to post');
+    }
+  } catch (err) {
+    showErr('Network error. Please try again.');
+  }
+
+  btn.disabled = false;
+  label.textContent = 'Post to Community';
+}
+
+function showErr(msg) {
+  const div = document.getElementById('post-error');
+  div.textContent = msg;
+  div.style.display = 'block';
+}
+
+// ─── Admin actions ────────────────────────────────────────────────────────────
+async function adminDelete(postId) {
+  if (!confirm('Delete this post?')) return;
+  const r = await fetch(`/api/admin/community/posts/${postId}`, { method:'DELETE' });
+  const d = await r.json();
+  if (d.success) {
+    document.getElementById('post-' + postId).remove();
+    toast('Post deleted');
+  }
+}
+
+async function adminPin(postId) {
+  const r = await fetch(`/api/admin/community/posts/${postId}/pin`, { method:'PATCH', headers:{'Content-Type':'application/json'} });
+  const d = await r.json();
+  if (d.success) {
+    toast(d.is_pinned ? 'Post pinned' : 'Post unpinned');
+    loadPosts(true);
+  }
+}
+
+async function adminDeleteComment(commentId) {
+  if (!confirm('Delete this comment?')) return;
+  const r = await fetch(`/api/admin/community/comments/${commentId}`, { method:'DELETE' });
+  const d = await r.json();
+  if (d.success) {
+    toast('Comment deleted');
+    openComments(commentsPostId, document.getElementById('comments-title').textContent);
+  }
+}
+
+// ─── Infinite scroll ──────────────────────────────────────────────────────────
+function initInfiniteScroll() {
+  const sentinel = document.getElementById('scroll-sentinel');
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !state.loading && !state.allLoaded) {
+      loadPosts(false);
+    }
+  }, { rootMargin: '200px' });
+  observer.observe(sentinel);
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('comm-toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ─── Start ────────────────────────────────────────────────────────────────────
+init();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

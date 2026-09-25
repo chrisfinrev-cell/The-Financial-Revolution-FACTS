@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Beta Agreement — FACTS Finance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-deep: #0a0f1a;
+      --bg-card: #111827;
+      --bg-elevated: #1a2332;
+      --accent-green: #10b981;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #1e293b;
+    }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .ambient {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+    .ambient::before {
+      content: ''; position: absolute; top: -20%; right: -10%;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .ambient::after {
+      content: ''; position: absolute; bottom: -10%; left: -10%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(59,130,246,0.04) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .container {
+      position: relative; z-index: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--accent-green); letter-spacing: -0.5px;
+      text-align: center; margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .logo span { color: var(--text-muted); font-weight: 400; font-size: 0.8rem; }
+    .beta-badge {
+      display: inline-block;
+      background: rgba(245,158,11,0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245,158,11,0.3);
+      font-size: 0.7rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 999px;
+      letter-spacing: 1px; text-transform: uppercase;
+      text-align: center; width: 100%; margin-bottom: 20px;
+    }
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem; font-weight: 700;
+      text-align: center; margin-bottom: 8px;
+    }
+    .subtitle {
+      text-align: center; color: var(--text-secondary);
+      font-size: 0.9rem; margin-bottom: 28px; line-height: 1.5;
+    }
+    .nda-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 24px;
+      max-height: 220px;
+      overflow-y: auto;
+      font-size: 0.875rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+    .nda-box::-webkit-scrollbar { width: 6px; }
+    .nda-box::-webkit-scrollbar-track { background: var(--bg-deep); }
+    .nda-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .nda-box p { margin-bottom: 12px; }
+    .nda-box p:last-child { margin-bottom: 0; }
+    .nda-box strong { color: var(--text-primary); }
+    .checkbox-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      margin-bottom: 24px; cursor: pointer; user-select: none;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 20px; height: 20px; flex-shrink: 0;
+      accent-color: var(--accent-green); cursor: pointer;
+      margin-top: 1px;
+    }
+    .checkbox-row label {
+      font-size: 0.9rem; color: var(--text-secondary);
+      line-height: 1.5; cursor: pointer;
+    }
+    .checkbox-row label strong { color: var(--text-primary); }
+    .agree-btn {
+      width: 100%; padding: 16px;
+      background: var(--accent-green); color: #000;
+      border: none; border-radius: 12px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s ease;
+      opacity: 0.4; pointer-events: none;
+    }
+    .agree-btn.active {
+      opacity: 1; pointer-events: auto;
+    }
+    .agree-btn.active:hover { background: #0ea271; transform: translateY(-1px); }
+    .agree-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .error-msg {
+      text-align: center; color: #f87171;
+      font-size: 0.85rem; margin-top: 12px; display: none;
+    }
+    .loading-state {
+      text-align: center; padding: 60px 20px;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent-green);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Fix mobile scroll: allow page to scroll when content exceeds viewport */
+    @media (max-width: 768px) {
+      body {
+        align-items: flex-start;
+        padding-top: 32px;
+        padding-bottom: 40px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+    @media (max-width: 480px) {
+      .container { padding: 28px 20px; }
+      h1 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient"></div>
+
+  <!-- Loading state -->
+  <div id="loading-state" class="container loading-state">
+    <div class="spinner"></div>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Checking your account…</p>
+  </div>
+
+  <!-- NDA Agreement -->
+  <div id="nda-container" class="container" style="display:none;">
+    <div class="logo">
+      FACTS <span>Finance</span>
+    </div>
+    <div class="beta-badge">🔒 Beta Access — Invite Only</div>
+    <h1>Welcome to the FACTS Beta</h1>
+    <p class="subtitle">Before you continue, please review and accept our Beta Non-Disclosure Agreement.</p>
+
+    <div class="nda-box">
+      <p>
+        <strong>FACTS Finance Beta Non-Disclosure & Acceptable Use Agreement (v1)</strong>
+      </p>
+      <p>
+        This is a <strong>pre-release product</strong> under active development. Features, functionality, and data may change at any time. By continuing, you acknowledge and agree to the following:
+      </p>
+      <p>
+        <strong>1. Confidentiality.</strong> You agree not to share proprietary features, screenshots, internal workflows, pricing structures, or any non-public details about the FACTS platform with individuals outside of this beta program without explicit written permission from the FACTS team.
+      </p>
+      <p>
+        <strong>2. Feedback Encouraged.</strong> Your feedback is valuable and appreciated. You are encouraged to report bugs, suggest improvements, and share your experience with the FACTS team directly.
+      </p>
+      <p>
+        <strong>3. No Warranties.</strong> This beta software is provided "as-is" without warranty of any kind. Data stored during the beta period may be modified or reset as part of development.
+      </p>
+      <p>
+        <strong>4. Eligibility.</strong> This agreement applies to all accounts created before the official public launch of FACTS Finance.
+      </p>
+      <p>
+        This agreement remains in effect until the official public launch of FACTS Finance on or around June 30, 2026.
+      </p>
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="nda-checkbox" onchange="onCheckboxChange()">
+      <label for="nda-checkbox">
+        I have read and agree to the <strong>FACTS Beta Non-Disclosure Agreement</strong>. I understand this is a pre-release product and I will not publicly share proprietary features or screenshots until official launch.
+      </label>
+    </div>
+
+    <button class="agree-btn" id="agree-btn" onclick="acceptNda()">
+      I Agree — Enter FACTS Beta
+    </button>
+    <p class="error-msg" id="error-msg"></p>
+  </div>
+
+  <script>
+    const APP_URL = window.location.origin;
+
+    function onCheckboxChange() {
+      const checked = document.getElementById('nda-checkbox').checked;
+      const btn = document.getElementById('agree-btn');
+      btn.classList.toggle('active', checked);
+    }
+
+    async function acceptNda() {
+      const btn = document.getElementById('agree-btn');
+      const errEl = document.getElementById('error-msg');
+
+      btn.disabled = true;
+      btn.textContent = 'Recording agreement…';
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/nda/accept', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Failed to record agreement');
+        }
+
+        // Redirect to app
+        const redirectTo = new URLSearchParams(window.location.search).get('next') || '/app.html';
+        window.location.href = redirectTo;
+      } catch (err) {
+        errEl.textContent = err.message || 'Something went wrong. Please try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'I Agree — Enter FACTS Beta';
+      }
+    }
+
+    async function init() {
+      try {
+        const authRes = await fetch('/api/auth/me');
+        const authData = await authRes.json();
+
+        if (!authData.authenticated) {
+          window.location.href = '/login.html?next=/nda.html';
+          return;
+        }
+
+        // If NDA already accepted or not required, skip to app
+        if (!authData.user.nda_required || authData.user.nda_accepted) {
+          const next = new URLSearchParams(window.location.search).get('next') || '/app.html';
+          window.location.href = next;
+          return;
+        }
+
+        // Show NDA page
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('nda-container').style.display = 'block';
+      } catch (err) {
+        console.error('NDA init error:', err);
+        window.location.href = '/login.html';
+      }
+    }
+
+    init();
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

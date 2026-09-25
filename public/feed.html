@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Feed — FACTS</title>
+  <meta name="description" content="Financial wisdom, CP quotes, community wins, and tips — all in one scroll.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#060b14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1f2940' },
+            gold: { 200: '#fde68a', 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a8831e' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0d1117; color: #e2e8f0; font-family: 'Inter', system-ui, sans-serif; margin: 0; min-height: 100vh; min-height: 100dvh; }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+
+    /* sticky sub-nav below the global 44px nav bar */
+    .feed-subnav {
+      background: rgba(13,17,23,0.97);
+      border-bottom: 1px solid rgba(201,162,39,0.14);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 44px; z-index: 40;
+    }
+
+    /* Type badge styles */
+    .badge-quote   { background: rgba(201,162,39,0.15); color: #e8c96a; border: 1px solid rgba(201,162,39,0.3); }
+    .badge-news    { background: rgba(59,130,246,0.12); color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+    .badge-story   { background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
+    .badge-tip     { background: rgba(6,182,212,0.12);  color: #67e8f9; border: 1px solid rgba(6,182,212,0.25); }
+    .badge-digest  { background: rgba(139,92,246,0.12); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.25); }
+
+    /* Quote card special styling */
+    .card-quote {
+      background: linear-gradient(135deg, rgba(201,162,39,0.08) 0%, rgba(13,19,42,0.95) 100%);
+      border: 1px solid rgba(201,162,39,0.25);
+    }
+    .card-quote .quote-mark {
+      font-size: 4rem; line-height: 1; color: rgba(201,162,39,0.25);
+      font-family: Georgia, serif; user-select: none;
+    }
+
+    /* Regular cards */
+    .card-base {
+      background: #13192a;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: border-color 0.2s;
+    }
+    .card-base:hover { border-color: rgba(201,162,39,0.2); }
+
+    /* Action buttons */
+    .action-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 12px; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 500;
+      color: #64748b; background: transparent;
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer; transition: all 0.15s;
+      font-family: inherit;
+    }
+    .action-btn:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
+    .action-btn.liked { color: #f43f5e; border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.07); }
+    .action-btn.bookmarked { color: #e8c96a; border-color: rgba(201,162,39,0.3); background: rgba(201,162,39,0.07); }
+
+    /* Filter pills */
+    .filter-pill {
+      padding: 5px 14px; border-radius: 9999px;
+      font-size: 0.78rem; font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: #64748b; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap; user-select: none;
+    }
+    .filter-pill:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.15); }
+    .filter-pill.active { background: rgba(201,162,39,0.12); color: #e8c96a; border-color: rgba(201,162,39,0.35); }
+
+    /* Sort toggle */
+    .sort-btn {
+      padding: 5px 12px; border-radius: 8px;
+      font-size: 0.78rem; font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: #64748b; cursor: pointer; transition: all 0.15s;
+      font-family: inherit;
+    }
+    .sort-btn.active { background: rgba(201,162,39,0.12); color: #e8c96a; border-color: rgba(201,162,39,0.35); }
+
+    /* Comment box */
+    .comment-input {
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 10px 14px;
+      color: #e2e8f0; font-family: inherit; font-size: 0.88rem;
+      resize: none; outline: none; transition: border-color 0.2s;
+    }
+    .comment-input:focus { border-color: rgba(201,162,39,0.4); }
+    .comment-input::placeholder { color: #475569; }
+
+    /* Pro upsell */
+    .pro-upsell {
+      background: rgba(139,92,246,0.07);
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 10px; padding: 12px 16px;
+      font-size: 0.82rem; color: #94a3b8;
+    }
+
+    /* Infinite scroll sentinel */
+    #scroll-sentinel { height: 40px; }
+
+    /* Skeleton loader */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Copied toast */
+    #copy-toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: #1e293b; color: #e8c96a;
+      border: 1px solid rgba(201,162,39,0.3);
+      padding: 8px 20px; border-radius: 999px;
+      font-size: 0.82rem; font-weight: 500;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s; z-index: 1000;
+    }
+    #copy-toast.show { opacity: 1; }
+
+    /* Mobile bottom spacing for FAB/nav */
+    @media (max-width: 640px) {
+      .feed-main { padding-bottom: 80px; }
+    }
+  </style>
+</head>
+<body>
+<script src="/nav-bar.js"></script>
+
+<!-- Sub-navigation -->
+<div class="feed-subnav">
+  <div class="max-w-2xl mx-auto px-4">
+    <!-- Filter row -->
+    <div class="flex items-center gap-2 py-3 overflow-x-auto" style="scrollbar-width:none;">
+      <button class="filter-pill active" data-filter="all">✨ All</button>
+      <button class="filter-pill" data-filter="quote">💛 CP Quotes</button>
+      <button class="filter-pill" data-filter="news">📰 News</button>
+      <button class="filter-pill" data-filter="story">🏆 Wins</button>
+      <button class="filter-pill" data-filter="tip">💡 Tips</button>
+      <button class="filter-pill" data-filter="digest">📋 Digest</button>
+      <button class="filter-pill" data-filter="bookmarks">🔖 Saved</button>
+    </div>
+    <!-- Sort row -->
+    <div class="flex items-center justify-between pb-3">
+      <div class="flex gap-2">
+        <button class="sort-btn active" data-sort="for_you">For You</button>
+        <button class="sort-btn" data-sort="latest">Latest</button>
+      </div>
+      <span id="feed-count" class="text-xs text-slate-500"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Main feed -->
+<main class="feed-main max-w-2xl mx-auto px-4 pt-5">
+  <!-- Auth check banner (shown if not logged in) -->
+  <div id="guest-banner" style="display:none;" class="mb-5 rounded-xl p-4 text-center"
+       style="background:rgba(201,162,39,0.07); border:1px solid rgba(201,162,39,0.2);">
+    <p class="text-sm text-slate-400 mb-2">Sign in to like, save, and comment on posts.</p>
+    <a href="/login" class="inline-block text-xs font-semibold text-gold-400 border border-gold-500 rounded-lg px-4 py-2 hover:bg-gold-500 hover:bg-opacity-10 transition-colors">Sign In →</a>
+  </div>
+
+  <!-- Feed container -->
+  <div id="feed-container" class="space-y-4"></div>
+
+  <!-- Scroll sentinel for infinite scroll -->
+  <div id="scroll-sentinel"></div>
+
+  <!-- Loading indicator -->
+  <div id="feed-loading" class="hidden flex justify-center py-8">
+    <div class="flex gap-1.5">
+      <div class="w-2 h-2 rounded-full bg-gold-500 animate-bounce" style="animation-delay:0s"></div>
+      <div class="w-2 h-2 rounded-full bg-gold-500 animate-bounce" style="animation-delay:.15s"></div>
+      <div class="w-2 h-2 rounded-full bg-gold-500 animate-bounce" style="animation-delay:.3s"></div>
+    </div>
+  </div>
+
+  <!-- End of feed -->
+  <div id="feed-end" style="display:none;" class="text-center py-10 text-slate-600 text-sm">
+    <div class="text-2xl mb-2">🌟</div>
+    You're all caught up!
+  </div>
+
+  <!-- Empty state -->
+  <div id="feed-empty" style="display:none;" class="text-center py-16 text-slate-600">
+    <div class="text-4xl mb-3">📭</div>
+    <p class="font-medium">Nothing here yet.</p>
+    <p class="text-sm mt-1">Check back soon for new content.</p>
+  </div>
+</main>
+
+<!-- Copy toast -->
+<div id="copy-toast">Copied to clipboard ✓</div>
+
+<script>
+(function() {
+  // ── State ────────────────────────────────────────────────────────────────
+  let currentUser = null;
+  let currentFilter = 'all';
+  let currentSort = 'for_you';
+  let page = 1;
+  let hasMore = true;
+  let isLoading = false;
+  const PAGE_SIZE = 10;
+  const allPosts = []; // accumulated posts
+  const likedSet = new Set();
+  const bookmarkedSet = new Set();
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+  async function init() {
+    await checkAuth();
+    setupFilters();
+    setupSort();
+    loadFeed(true);
+    setupInfiniteScroll();
+  }
+
+  // ── Auth check ───────────────────────────────────────────────────────────
+  async function checkAuth() {
+    try {
+      const r = await fetch('/api/auth/me');
+      const d = await r.json();
+      if (d.authenticated && d.user) {
+        currentUser = d.user;
+      } else {
+        document.getElementById('guest-banner').style.display = '';
+      }
+    } catch(e) { /* non-fatal */ }
+  }
+
+  // ── Filter setup ─────────────────────────────────────────────────────────
+  function setupFilters() {
+    document.querySelectorAll('[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        resetFeed();
+        loadFeed(true);
+      });
+    });
+  }
+
+  // ── Sort setup ───────────────────────────────────────────────────────────
+  function setupSort() {
+    document.querySelectorAll('[data-sort]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSort = btn.dataset.sort;
+        resetFeed();
+        loadFeed(true);
+      });
+    });
+  }
+
+  // ── Reset ─────────────────────────────────────────────────────────────────
+  function resetFeed() {
+    page = 1;
+    hasMore = true;
+    allPosts.length = 0;
+    document.getElementById('feed-container').innerHTML = '';
+    document.getElementById('feed-end').style.display = 'none';
+    document.getElementById('feed-empty').style.display = 'none';
+  }
+
+  // ── Load feed ─────────────────────────────────────────────────────────────
+  async function loadFeed(initial) {
+    if (isLoading || !hasMore) return;
+    isLoading = true;
+
+    if (initial) {
+      showSkeletons(3);
+    } else {
+      document.getElementById('feed-loading').classList.remove('hidden');
+    }
+
+    try {
+      let url;
+      if (currentFilter === 'bookmarks') {
+        url = `/api/feed/bookmarks?page=${page}&limit=${PAGE_SIZE}`;
+      } else {
+        const typeParam = currentFilter === 'all' ? '' : `&type=${currentFilter}`;
+        url = `/api/feed/posts?page=${page}&limit=${PAGE_SIZE}&sort=${currentSort}${typeParam}`;
+      }
+
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('Feed load failed');
+      const d = await r.json();
+
+      if (initial) clearSkeletons();
+      document.getElementById('feed-loading').classList.add('hidden');
+
+      const posts = d.posts || [];
+      if (d.liked_ids) d.liked_ids.forEach(id => likedSet.add(id));
+      if (d.bookmarked_ids) d.bookmarked_ids.forEach(id => bookmarkedSet.add(id));
+
+      if (posts.length === 0 && page === 1) {
+        document.getElementById('feed-empty').style.display = '';
+      } else {
+        posts.forEach(post => appendPost(post));
+        allPosts.push(...posts);
+        document.getElementById('feed-count').textContent = allPosts.length + ' posts';
+
+        if (posts.length < PAGE_SIZE) {
+          hasMore = false;
+          if (allPosts.length > 0) document.getElementById('feed-end').style.display = '';
+        } else {
+          page++;
+        }
+      }
+    } catch(err) {
+      if (initial) clearSkeletons();
+      document.getElementById('feed-loading').classList.add('hidden');
+      console.error('Feed error:', err);
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  // ── Append post card ──────────────────────────────────────────────────────
+  function appendPost(post) {
+    const card = buildCard(post);
+    document.getElementById('feed-container').appendChild(card);
+  }
+
+  // ── Build card ────────────────────────────────────────────────────────────
+  function buildCard(post) {
+    const div = document.createElement('div');
+    div.dataset.postId = post.id;
+    div.className = post.type === 'quote' ? 'card-quote rounded-2xl p-6' : 'card-base rounded-2xl p-5';
+
+    const isLiked = likedSet.has(post.id);
+    const isBookmarked = bookmarkedSet.has(post.id);
+    const badgeClass = 'badge-' + post.type;
+    const badgeLabel = { quote: '💛 CP Quote', news: '📰 News', story: '🏆 Win', tip: '💡 Tip', digest: '📋 Digest' }[post.type] || post.type;
+    const timeAgo = formatRelTime(post.created_at);
+    const isPro = currentUser && currentUser.is_pro;
+
+    if (post.type === 'quote') {
+      div.innerHTML = `
+        <div class="flex items-start justify-between mb-4">
+          <span class="badge-quote text-xs font-semibold px-3 py-1 rounded-full">${badgeLabel}</span>
+          ${post.pinned ? '<span class="text-xs text-gold-400">📌 Pinned</span>' : ''}
+        </div>
+        <div class="quote-mark leading-none mb-1">&ldquo;</div>
+        <blockquote class="text-lg font-medium text-gold-200 leading-relaxed mb-2" style="font-family:'Space Grotesk',sans-serif;">
+          ${escHtml(post.content)}
+        </blockquote>
+        <p class="text-gold-500 text-sm font-semibold mt-3">— ${escHtml(post.author || 'CP')}</p>
+        <div class="mt-5 flex items-center gap-2 flex-wrap">
+          ${actionBtn('like', post.id, isLiked, post.like_count)}
+          ${actionBtn('bookmark', post.id, isBookmarked, post.bookmark_count)}
+          <button class="action-btn copy-btn" data-text="${escAttr(post.content + '\n— ' + (post.author || 'CP'))}">
+            📋 Copy
+          </button>
+          <span class="ml-auto text-xs text-slate-600">${timeAgo}</span>
+        </div>
+        <div class="mt-4 comments-section" data-post-id="${post.id}">
+          ${buildCommentsSection(post, isPro)}
+        </div>
+      `;
+    } else {
+      div.innerHTML = `
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="${badgeClass} text-xs font-semibold px-3 py-1 rounded-full">${badgeLabel}</span>
+            ${post.category ? `<span class="text-xs text-slate-600">${escHtml(post.category)}</span>` : ''}
+          </div>
+          ${post.pinned ? '<span class="text-xs text-gold-400 shrink-0">📌 Pinned</span>' : ''}
+        </div>
+        ${post.title ? `<h3 class="text-base font-semibold text-white mb-2 leading-snug">${escHtml(post.title)}</h3>` : ''}
+        <p class="text-sm text-slate-300 leading-relaxed whitespace-pre-line">${escHtml(post.content)}</p>
+        ${post.source_url ? `<a href="${escAttr(post.source_url)}" target="_blank" rel="noopener" class="inline-block mt-3 text-xs text-blue-400 hover:underline">Read more →</a>` : ''}
+        <div class="mt-4 flex items-center gap-2 flex-wrap">
+          ${actionBtn('like', post.id, isLiked, post.like_count)}
+          ${actionBtn('bookmark', post.id, isBookmarked, post.bookmark_count)}
+          <button class="action-btn share-btn" data-id="${post.id}" data-title="${escAttr(post.title || '')}">
+            🔗 Share
+          </button>
+          <span class="ml-auto text-xs text-slate-600">
+            ${post.author ? escHtml(post.author) + ' · ' : ''}${timeAgo}
+          </span>
+        </div>
+        <div class="mt-4 comments-section" data-post-id="${post.id}">
+          ${buildCommentsSection(post, isPro)}
+        </div>
+      `;
+    }
+
+    // Wire up like button
+    const likeBtn = div.querySelector('.like-btn');
+    if (likeBtn) likeBtn.addEventListener('click', () => toggleLike(post.id, div));
+
+    // Wire up bookmark button
+    const bookmarkBtn = div.querySelector('.bookmark-btn');
+    if (bookmarkBtn) bookmarkBtn.addEventListener('click', () => toggleBookmark(post.id, div));
+
+    // Wire up copy button
+    const copyBtn = div.querySelector('.copy-btn');
+    if (copyBtn) copyBtn.addEventListener('click', () => copyText(copyBtn.dataset.text));
+
+    // Wire up share button
+    const shareBtn = div.querySelector('.share-btn');
+    if (shareBtn) shareBtn.addEventListener('click', () => sharePost(post));
+
+    // Wire up comment form
+    const commentForm = div.querySelector('.comment-form');
+    if (commentForm) {
+      commentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitComment(post.id, div);
+      });
+    }
+
+    // Wire up load comments toggle
+    const toggleBtn = div.querySelector('.toggle-comments');
+    if (toggleBtn) toggleBtn.addEventListener('click', () => loadComments(post.id, div));
+
+    return div;
+  }
+
+  function actionBtn(type, postId, active, count) {
+    const icon = type === 'like' ? (active ? '❤️' : '🤍') : (active ? '🔖' : '🏷️');
+    const activeClass = type === 'like' ? 'liked' : 'bookmarked';
+    return `<button class="action-btn ${type}-btn ${active ? activeClass : ''}" data-post-id="${postId}">
+      ${icon} <span class="${type}-count">${count > 0 ? count : ''}</span>
+    </button>`;
+  }
+
+  function buildCommentsSection(post, isPro) {
+    const commentCount = post.comment_count || 0;
+    if (!isPro && !currentUser) {
+      return `<div class="pro-upsell">
+        💬 <strong style="color:#c4b5fd;">Paid members</strong> can join the conversation.
+        <a href="/pricing.html" class="ml-1 text-purple-400 hover:underline font-medium">Upgrade →</a>
+      </div>`;
+    }
+    if (!isPro) {
+      return `<div class="pro-upsell">
+        💬 <strong style="color:#c4b5fd;">Paid members</strong> can comment on posts.
+        <a href="/pricing.html" class="ml-1 text-purple-400 hover:underline font-medium">Upgrade →</a>
+      </div>`;
+    }
+    return `
+      <div class="mt-1">
+        ${commentCount > 0 ? `<button class="toggle-comments text-xs text-slate-500 hover:text-slate-300 transition-colors mb-3">
+          💬 ${commentCount} comment${commentCount !== 1 ? 's' : ''} — tap to load
+        </button>
+        <div class="comments-list space-y-3 mb-3"></div>` : ''}
+        <form class="comment-form flex gap-2">
+          <textarea class="comment-input flex-1" rows="1" placeholder="Share your thoughts..." maxlength="500" style="min-height:38px;max-height:120px;"></textarea>
+          <button type="submit" class="shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                  style="background:rgba(201,162,39,0.15);color:#e8c96a;border:1px solid rgba(201,162,39,0.3);">
+            Post
+          </button>
+        </form>
+      </div>
+    `;
+  }
+
+  // ── Like toggle ───────────────────────────────────────────────────────────
+  async function toggleLike(postId, cardEl) {
+    if (!currentUser) { window.location.href = '/login'; return; }
+    const btn = cardEl.querySelector('.like-btn');
+    const countEl = btn.querySelector('.like-count');
+    const isLiked = likedSet.has(postId);
+
+    // Optimistic update
+    if (isLiked) {
+      likedSet.delete(postId);
+      btn.classList.remove('liked');
+      btn.querySelector('.like-count').textContent && (countEl.textContent = Math.max(0, parseInt(countEl.textContent || 0) - 1) || '');
+      btn.innerHTML = btn.innerHTML.replace('❤️', '🤍');
+    } else {
+      likedSet.add(postId);
+      btn.classList.add('liked');
+      const c = parseInt(countEl.textContent || 0) + 1;
+      countEl.textContent = c;
+      btn.innerHTML = btn.innerHTML.replace('🤍', '❤️');
+    }
+
+    try {
+      await fetch(`/api/feed/posts/${postId}/like`, { method: 'POST', headers: {'Content-Type':'application/json'} });
+    } catch(e) { /* revert optimistic on failure */ }
+  }
+
+  // ── Bookmark toggle ───────────────────────────────────────────────────────
+  async function toggleBookmark(postId, cardEl) {
+    if (!currentUser) { window.location.href = '/login'; return; }
+    const btn = cardEl.querySelector('.bookmark-btn');
+    const isBookmarked = bookmarkedSet.has(postId);
+
+    if (isBookmarked) {
+      bookmarkedSet.delete(postId);
+      btn.classList.remove('bookmarked');
+      btn.innerHTML = btn.innerHTML.replace('🔖', '🏷️');
+    } else {
+      bookmarkedSet.add(postId);
+      btn.classList.add('bookmarked');
+      btn.innerHTML = btn.innerHTML.replace('🏷️', '🔖');
+    }
+
+    try {
+      await fetch(`/api/feed/posts/${postId}/bookmark`, { method: 'POST', headers: {'Content-Type':'application/json'} });
+    } catch(e) { /* non-fatal */ }
+  }
+
+  // ── Submit comment ────────────────────────────────────────────────────────
+  async function submitComment(postId, cardEl) {
+    const textarea = cardEl.querySelector('.comment-input');
+    const content = textarea.value.trim();
+    if (!content) return;
+
+    textarea.disabled = true;
+    try {
+      const r = await fetch(`/api/feed/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ content })
+      });
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      textarea.value = '';
+      prependComment(d.comment, cardEl);
+    } catch(e) {
+      alert('Failed to post comment. Please try again.');
+    } finally {
+      textarea.disabled = false;
+    }
+  }
+
+  function prependComment(comment, cardEl) {
+    let list = cardEl.querySelector('.comments-list');
+    if (!list) {
+      list = document.createElement('div');
+      list.className = 'comments-list space-y-3 mb-3';
+      const form = cardEl.querySelector('.comment-form');
+      form.parentNode.insertBefore(list, form);
+    }
+    const el = document.createElement('div');
+    el.className = 'text-sm rounded-xl p-3';
+    el.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)';
+    el.innerHTML = `<span class="font-medium text-slate-300">${escHtml(comment.author || 'You')}</span>
+      <span class="text-slate-600 text-xs ml-2">just now</span>
+      <p class="text-slate-400 mt-1">${escHtml(comment.content)}</p>`;
+    list.prepend(el);
+  }
+
+  // ── Load comments ─────────────────────────────────────────────────────────
+  async function loadComments(postId, cardEl) {
+    const toggleBtn = cardEl.querySelector('.toggle-comments');
+    if (toggleBtn) toggleBtn.style.display = 'none';
+    const list = cardEl.querySelector('.comments-list');
+
+    try {
+      const r = await fetch(`/api/feed/posts/${postId}/comments`);
+      const d = await r.json();
+      if (!list) return;
+      list.innerHTML = '';
+      (d.comments || []).forEach(c => {
+        const el = document.createElement('div');
+        el.className = 'text-sm rounded-xl p-3';
+        el.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)';
+        el.innerHTML = `<span class="font-medium text-slate-300">${escHtml(c.author || 'Member')}</span>
+          <span class="text-slate-600 text-xs ml-2">${formatRelTime(c.created_at)}</span>
+          <p class="text-slate-400 mt-1">${escHtml(c.content)}</p>`;
+        list.appendChild(el);
+      });
+    } catch(e) { /* non-fatal */ }
+  }
+
+  // ── Share ─────────────────────────────────────────────────────────────────
+  async function sharePost(post) {
+    const url = window.location.origin + '/feed?post=' + post.id;
+    if (navigator.share) {
+      try { await navigator.share({ title: post.title || 'FACTS Feed', text: post.content.slice(0,100), url }); return; } catch(e) {}
+    }
+    copyText(url);
+  }
+
+  // ── Copy ──────────────────────────────────────────────────────────────────
+  function copyText(text) {
+    navigator.clipboard.writeText(text).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = 0;
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta);
+    });
+    const toast = document.getElementById('copy-toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  // ── Infinite scroll ───────────────────────────────────────────────────────
+  function setupInfiniteScroll() {
+    const sentinel = document.getElementById('scroll-sentinel');
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore && !isLoading) {
+        loadFeed(false);
+      }
+    }, { rootMargin: '200px' });
+    io.observe(sentinel);
+  }
+
+  // ── Skeleton ──────────────────────────────────────────────────────────────
+  function showSkeletons(n) {
+    const c = document.getElementById('feed-container');
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement('div');
+      s.className = 'skeleton-card card-base rounded-2xl p-5';
+      s.innerHTML = `
+        <div class="flex gap-2 mb-4">
+          <div class="skeleton h-5 w-20 rounded-full"></div>
+          <div class="skeleton h-5 w-16 rounded-full"></div>
+        </div>
+        <div class="skeleton h-5 w-3/4 mb-2 rounded"></div>
+        <div class="skeleton h-4 w-full mb-1 rounded"></div>
+        <div class="skeleton h-4 w-5/6 mb-1 rounded"></div>
+        <div class="skeleton h-4 w-2/3 rounded"></div>
+        <div class="flex gap-2 mt-5">
+          <div class="skeleton h-8 w-16 rounded-lg"></div>
+          <div class="skeleton h-8 w-16 rounded-lg"></div>
+          <div class="skeleton h-8 w-16 rounded-lg"></div>
+        </div>`;
+      c.appendChild(s);
+    }
+  }
+  function clearSkeletons() {
+    document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
+  }
+
+  // ── Utils ─────────────────────────────────────────────────────────────────
+  function escHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function escAttr(s) { return escHtml(s); }
+  function formatRelTime(iso) {
+    if (!iso) return '';
+    const diff = Date.now() - new Date(iso).getTime();
+    const m = Math.floor(diff/60000), h = Math.floor(diff/3600000), d = Math.floor(diff/86400000);
+    if (diff < 60000) return 'just now';
+    if (m < 60) return m + 'm ago';
+    if (h < 24) return h + 'h ago';
+    if (d < 7) return d + 'd ago';
+    return new Date(iso).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  }
+
+  // ── Start ─────────────────────────────────────────────────────────────────
+  init();
+})();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

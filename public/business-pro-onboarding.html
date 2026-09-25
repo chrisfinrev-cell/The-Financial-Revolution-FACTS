@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0a0f1a">
+    <title>FACTS Business — Financial Architect Onboarding</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-deep: #0a0f1a;
+            --bg-card: #111827;
+            --bg-elevated: #1a2332;
+            --accent-blue: #3b82f6;
+            --accent-blue-dim: rgba(59,130,246,0.15);
+            --accent-blue-border: rgba(59,130,246,0.35);
+            --accent-green: #10b981;
+            --accent-gold: #f59e0b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #1e293b;
+            --border-hover: #334155;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,h2,h3 { font-family: 'Space Grotesk', sans-serif; }
+
+        /* ─── Ambient glow ─── */
+        .ambient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+        }
+        .ambient::before {
+            content: ''; position: absolute; top: -15%; left: -10%;
+            width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .ambient::after {
+            content: ''; position: absolute; bottom: -20%; right: -10%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* ─── Layout ─── */
+        .page-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─── Header ─── */
+        .tier-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59,130,246,0.12);
+            border: 1px solid rgba(59,130,246,0.35);
+            color: var(--accent-blue);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+        .page-title span { color: var(--accent-blue); }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        /* ─── Progress steps ─── */
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 48px;
+        }
+        .step-dot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+        .step-dot .dot {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: var(--bg-card);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700; color: var(--text-muted);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        .step-dot .label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-align: center;
+            white-space: nowrap;
+        }
+        .step-dot.active .dot {
+            border-color: var(--accent-blue);
+            background: rgba(59,130,246,0.15);
+            color: var(--accent-blue);
+        }
+        .step-dot.active .label { color: var(--accent-blue); }
+        .step-dot.done .dot {
+            border-color: var(--accent-green);
+            background: rgba(16,185,129,0.12);
+            color: var(--accent-green);
+        }
+        .step-dot.done .label { color: var(--accent-green); }
+
+        .step-line {
+            flex: 2;
+            height: 2px;
+            background: var(--border);
+            margin-bottom: 22px;
+        }
+        .step-line.done { background: var(--accent-green); }
+
+        /* ─── Section card ─── */
+        .section-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 36px;
+            margin-bottom: 24px;
+            transition: border-color 0.3s;
+        }
+        .section-card.active { border-color: var(--accent-blue); }
+        .section-card.done { border-color: var(--accent-green); }
+        .section-card.locked { opacity: 0.5; pointer-events: none; }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .section-number {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: var(--accent-blue-dim);
+            border: 2px solid var(--accent-blue-border);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700; font-size: 1rem;
+            color: var(--accent-blue);
+            flex-shrink: 0;
+        }
+        .section-card.done .section-number {
+            background: rgba(16,185,129,0.12);
+            border-color: rgba(16,185,129,0.4);
+            color: var(--accent-green);
+        }
+        .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
+        .section-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; }
+
+        /* ─── Path selector ─── */
+        .path-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        @media (max-width: 520px) {
+            .path-grid { grid-template-columns: 1fr; }
+        }
+
+        .path-option {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .path-option:hover { border-color: var(--border-hover); }
+        .path-option.selected {
+            border-color: var(--accent-blue);
+            background: rgba(59,130,246,0.08);
+        }
+        .path-option input[type="radio"] {
+            position: absolute; opacity: 0; pointer-events: none;
+        }
+        .path-letter {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--accent-blue);
+            margin-bottom: 6px;
+        }
+        .path-option.selected .path-letter { color: var(--accent-blue); }
+        .path-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .path-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .path-option.selected .path-desc { color: var(--text-secondary); }
+
+        /* ─── Burn calculator ─── */
+        .burn-notice {
+            background: rgba(59,130,246,0.06);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            font-size: 0.86rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .burn-notice strong { color: var(--accent-blue); }
+
+        .burn-field label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .burn-field .input-wrap {
+            display: flex;
+            align-items: center;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+            margin-bottom: 16px;
+        }
+        .burn-field .input-wrap:focus-within { border-color: var(--accent-blue); }
+        .burn-field .currency { padding: 0 14px; color: var(--accent-blue); font-weight: 700; font-size: 1rem; }
+        .burn-field input[type="number"] {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1rem;
+            padding: 14px 0 14px 0;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+        }
+        .burn-field input[type="number"]::-webkit-inner-spin-button,
+        .burn-field input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+        .sovereignty-box {
+            background: linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(245,158,11,0.03) 100%);
+            border: 1px solid rgba(245,158,11,0.3);
+            border-radius: 12px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .sovereignty-box .label-col { flex: 1; min-width: 140px; }
+        .sovereignty-box .sl-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+        .sovereignty-box .sl-name {
+            font-weight: 700;
+            color: var(--accent-gold);
+            font-size: 0.95rem;
+        }
+        .sovereignty-box .sl-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .sovereignty-box .sl-amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+            white-space: nowrap;
+        }
+
+        /* ─── 5-Bucket layout ─── */
+        .bucket-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .bucket-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .bucket-num {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 800; font-size: 0.85rem;
+            color: var(--accent-blue);
+            flex-shrink: 0;
+        }
+        .bucket-info { flex: 1; }
+        .bucket-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+        .bucket-type {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .bucket-desc {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .bucket-alloc {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--accent-green);
+            white-space: nowrap;
+            flex-shrink: 0;
+            align-self: center;
+        }
+
+        /* ─── Confirmation ─── */
+        .confirm-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .confirm-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            padding: 14px 16px;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .confirm-item:hover { border-color: var(--border-hover); }
+        .confirm-item.checked {
+            border-color: rgba(16,185,129,0.4);
+            background: rgba(16,185,129,0.06);
+        }
+        .confirm-item input[type="checkbox"] {
+            width: 18px; height: 18px;
+            accent-color: var(--accent-green);
+            cursor: pointer; flex-shrink: 0; margin-top: 1px;
+        }
+        .confirm-item .ci-text {
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+        .confirm-item.checked .ci-text { color: var(--text-primary); }
+
+        /* ─── Buttons ─── */
+        .btn-primary {
+            background: var(--accent-blue);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59,130,246,0.25);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .btn-primary.green {
+            background: var(--accent-green);
+        }
+        .btn-primary.green:hover:not(:disabled) {
+            background: #059669;
+            box-shadow: 0 8px 24px rgba(16,185,129,0.25);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 24px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--border-hover); color: var(--text-primary); }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* ─── Status messages ─── */
+        .status-msg {
+            font-size: 0.88rem;
+            min-height: 20px;
+            text-align: center;
+            margin-top: 10px;
+            color: var(--text-muted);
+        }
+
+        /* ─── Legacy Pivot notice ─── */
+        .legacy-notice {
+            display: none;
+            background: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.3);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .legacy-notice strong { color: var(--accent-gold); }
+        .legacy-notice.visible { display: block; }
+
+        /* ─── Loading overlay ─── */
+        #loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-deep);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 999;
+        }
+        .loader {
+            width: 44px; height: 44px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ─── Done screen ─── */
+        #done-screen {
+            display: none;
+            text-align: center;
+            padding: 60px 24px;
+        }
+        .done-icon { font-size: 4rem; margin-bottom: 20px; }
+        .done-title {
+            font-size: 2rem; font-weight: 800;
+            margin-bottom: 12px; color: var(--accent-blue);
+        }
+        .done-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient"></div>
+
+    <!-- Loading screen -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Main onboarding content (hidden until auth check) -->
+    <div class="page-wrap" id="main-content" style="display:none;">
+
+        <div class="tier-badge">💼 FACTS Business — Levels 7–9</div>
+
+        <h1 class="page-title">Welcome, <span>Financial Architect</span></h1>
+        <p class="page-subtitle">
+            You are no longer just running a business — you are engineering a Sovereign Entity.
+            Before you access your dashboard, complete your Business setup. This takes 3 minutes.
+        </p>
+
+        <!-- Progress steps -->
+        <div class="progress-steps">
+            <div class="step-dot active" id="step-dot-1">
+                <div class="dot">1</div>
+                <div class="label">Path</div>
+            </div>
+            <div class="step-line" id="step-line-1"></div>
+            <div class="step-dot locked" id="step-dot-2">
+                <div class="dot">2</div>
+                <div class="label">Burn Rate</div>
+            </div>
+            <div class="step-line" id="step-line-2"></div>
+            <div class="step-dot locked" id="step-dot-3">
+                <div class="dot">3</div>
+                <div class="label">6 Buckets</div>
+            </div>
+        </div>
+
+        <!-- STEP 1: Path Selection -->
+        <div class="section-card active" id="step1-card">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <div>
+                    <div class="section-title">Select Your Path</div>
+                    <div class="section-desc">This determines your SURVIVAL_BURN calculation and defines your 30-day action plan.</div>
+                </div>
+            </div>
+
+            <div class="path-grid">
+                <label class="path-option" data-path="A" onclick="selectPath('A')">
+                    <input type="radio" name="path_type" value="A">
+                    <div class="path-letter">A</div>
+                    <div class="path-name">The Side-Hustle</div>
+                    <div class="path-desc">You have a separate job. This business is your secondary income stream.</div>
+                </label>
+
+                <label class="path-option" data-path="B" onclick="selectPath('B')">
+                    <input type="radio" name="path_type" value="B">
+                    <div class="path-letter">B</div>
+                    <div class="path-name">The Full-Timer</div>
+                    <div class="path-desc">This business is your primary — and only — source of income.</div>
+                </label>
+
+                <label class="path-option" data-path="C" onclick="selectPath('C')">
+                    <input type="radio" name="path_type" value="C">
+                    <div class="path-letter">C</div>
+                    <div class="path-name">The Funded Baby</div>
+                    <div class="path-desc">Your business has an active loan or ongoing debt obligation.</div>
+                </label>
+
+                <label class="path-option" data-path="D" onclick="selectPath('D')">
+                    <input type="radio" name="path_type" value="D">
+                    <div class="path-letter">D</div>
+                    <div class="path-name">The Legacy Pivot</div>
+                    <div class="path-desc">An existing, messy business. Requires the 30-day Financial Cleanse.</div>
+                </label>
+            </div>
+
+            <div class="legacy-notice" id="legacy-notice">
+                <strong>⚠️ Path D: Legacy Pivot</strong> — Your first 30 days are a Financial Cleanse.
+                You will audit all existing accounts, reconcile liabilities, and rebuild your Clearing account from zero.
+                The platform will guide you through each step.
+            </div>
+
+            <button class="btn-primary" id="step1-btn" onclick="goToStep2()" disabled>
+                Confirm Path →
+            </button>
+            <div class="status-msg" id="step1-status"></div>
+        </div>
+
+        <!-- STEP 2: Survival Burn -->
+        <div class="section-card locked" id="step2-card">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <div>
+                    <div class="section-title">Set Your SURVIVAL_BURN</div>
+                    <div class="section-desc" id="burn-desc">
+                        Your monthly non-negotiable floor — the number below which everything stops.
+                    </div>
+                </div>
+            </div>
+
+            <div class="burn-notice" id="burn-notice">
+                <strong>Path B (Full-Timer):</strong> SURVIVAL_BURN = Business Fixed Costs + Personal Necessities.
+            </div>
+
+            <div class="burn-field">
+                <label>Monthly SURVIVAL_BURN</label>
+                <div class="input-wrap">
+                    <span class="currency">$</span>
+                    <input type="number" id="survival-burn-input" placeholder="e.g. 8500"
+                        min="0" step="100" oninput="updateSovereigntyFloor()">
+                </div>
+            </div>
+
+            <div class="sovereignty-box">
+                <div class="label-col">
+                    <div class="sl-label">Your Goal</div>
+                    <div class="sl-name">SOVEREIGNTY_FLOOR</div>
+                    <div class="sl-desc">6× your SURVIVAL_BURN — the Operating Reserve target</div>
+                </div>
+                <div class="sl-amount" id="sovereignty-amount">$—</div>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <div class="btn-row">
+                    <button class="btn-secondary" onclick="goBackToStep1()">← Back</button>
+                    <button class="btn-primary" id="step2-btn" onclick="saveAndGoToStep3()" disabled style="flex:1;">
+                        Save & Continue →
+                    </button>
+                </div>
+                <div class="status-msg" id="step2-status"></div>
+            </div>
+        </div>
+
+        <!-- STEP 3: 5-Bucket Protocol -->
+        <div class="section-card locked" id="step3-card">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <div>
+                    <div class="section-title">6-Bucket Protocol</div>
+                    <div class="section-desc">
+                        Open these 5 accounts and confirm below. Your Friday Sweep depends on this structure.
+                    </div>
+                </div>
+            </div>
+
+            <div class="bucket-list">
+                <div class="bucket-row">
+                    <div class="bucket-num">1</div>
+                    <div class="bucket-info">
+                        <div class="bucket-name">Clearing</div>
+                        <div class="bucket-type">Checking Account</div>
+                        <div class="bucket-desc">All revenue flows in here first. Every dollar enters through Clearing before it moves anywhere.</div>
+                    </div>
+                    <div class="bucket-alloc">Revenue Hub</div>
+                </div>
+
+                <div class="bucket-row">
+                    <div class="bucket-num">2</div>
+                    <div class="bucket-info">
+                        <div class="bucket-name">Tax Shield</div>
+                        <div class="bucket-type">HYSA / Money Market</div>
+                        <div class="bucket-desc">25% of every deposit moves here immediately. Do not touch it — that money is not yours.</div>
+                    </div>
+                    <div class="bucket-alloc">25%</div>
+                </div>
+
+                <div class="bucket-row">
+                    <div class="bucket-num">3</div>
+                    <div class="bucket-info">
+                        <div class="bucket-name">Operating Reserve</div>
+                        <div class="bucket-type">HYSA / Money Market</div>
+                        <div class="bucket-desc">Your Safety Haven. Keep funding until you hit your SOVEREIGNTY_FLOOR, then maintain it.</div>
+                    </div>
+                    <div class="bucket-alloc">Variable</div>
+                </div>
+
+                <div class="bucket-row">
+                    <div class="bucket-num">4</div>
+                    <div class="bucket-info">
+                        <div class="bucket-name">Growth & Innovation</div>
+                        <div class="bucket-type">HYSA / Money Market</div>
+                        <div class="bucket-desc">15% for marketing. 10% for R&D and product development. Fuel your engine, not your ego.</div>
+                    </div>
+                    <div class="bucket-alloc">25%</div>
+                </div>
+
+                <div class="bucket-row">
+                    <div class="bucket-num">5</div>
+                    <div class="bucket-info">
+                        <div class="bucket-name">Wealth Bridge</div>
+                        <div class="bucket-type">Checking Account</div>
+                        <div class="bucket-desc">Your sweep point. Once Operating Reserve hits SOVEREIGNTY_FLOOR, surplus moves here for brokerage transfers.</div>
+                    </div>
+                    <div class="bucket-alloc">Surplus</div>
+                </div>
+            </div>
+
+            <!-- Confirmation checkboxes -->
+            <div class="confirm-checklist">
+                <label class="confirm-item" id="ci-opened" onclick="toggleConfirm(this)">
+                    <input type="checkbox" name="bucket_confirm" value="opened">
+                    <div class="ci-text">I have opened (or will open within 72 hours) all 5 interest-bearing, no-fee accounts as described above.</div>
+                </label>
+
+                <label class="confirm-item" id="ci-sweep" onclick="toggleConfirm(this)">
+                    <input type="checkbox" name="bucket_confirm" value="sweep">
+                    <div class="ci-text">I understand the Friday Sweep Protocol and commit to executing it weekly.</div>
+                </label>
+
+                <label class="confirm-item" id="ci-heartbeat" onclick="toggleConfirm(this)">
+                    <input type="checkbox" name="bucket_confirm" value="heartbeat">
+                    <div class="ci-text">I will complete my first Heartbeat Audit on the 1st of the following month.</div>
+                </label>
+
+                <label class="confirm-item" id="ci-truth" onclick="toggleConfirm(this)">
+                    <input type="checkbox" name="bucket_confirm" value="truth">
+                    <div class="ci-text">I commit to operating from Truth. My 5-tier affiliate commissions are a reward for discipline, not wishful thinking.</div>
+                </label>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="goBackToStep2()">← Back</button>
+                <button class="btn-primary green" id="step3-btn" onclick="completeCertification()" disabled style="flex:1;">
+                    Complete Setup →
+                </button>
+            </div>
+            <div class="status-msg" id="step3-status"></div>
+        </div>
+    </div>
+
+    <!-- Done screen (shown after completion) -->
+    <div class="page-wrap" id="done-screen">
+        <div class="done-icon">🏛️</div>
+        <h1 class="done-title">Architecture Complete</h1>
+        <p class="done-subtitle">
+            Your foundation is set. Your 6 Buckets are certified. Your path is confirmed.
+            FACTS starts now.
+        </p>
+        <button class="btn-primary green" onclick="goToDashboard()">
+            Enter Your Dashboard →
+        </button>
+    </div>
+
+    <script>
+    let selectedPath = null;
+    let burnCents = 0;
+    let step3Checks = {};
+    let isSaving = false;
+
+    // ─── Path selection ────────────────────────────────────────────────────────
+    function selectPath(p) {
+        selectedPath = p;
+        document.querySelectorAll('.path-option').forEach(el => {
+            el.classList.toggle('selected', el.dataset.path === p);
+        });
+        document.getElementById('step1-btn').disabled = false;
+
+        // Legacy Pivot notice
+        const notice = document.getElementById('legacy-notice');
+        if (notice) notice.classList.toggle('visible', p === 'D');
+    }
+
+    // ─── Step navigation ───────────────────────────────────────────────────────
+    function goToStep2() {
+        if (!selectedPath) return;
+
+        // Update progress indicators
+        setStepState('step-dot-1', 'done');
+        setStepState('step-dot-2', 'active');
+        document.getElementById('step-line-1').classList.add('done');
+
+        setCardState('step1-card', 'done');
+        setCardState('step2-card', 'active');
+        setCardState('step3-card', 'locked');
+
+        // Update burn notice based on path
+        const burnNotice = document.getElementById('burn-notice');
+        if (burnNotice) {
+            if (selectedPath === 'B') {
+                burnNotice.innerHTML = '<strong>Path B (Full-Timer):</strong> SURVIVAL_BURN = Business Fixed Costs + Personal Necessities.';
+            } else if (selectedPath === 'A') {
+                burnNotice.innerHTML = '<strong>Path A (Side-Hustle):</strong> SURVIVAL_BURN = Business Fixed Costs + Debt Service (if any).';
+            } else if (selectedPath === 'C') {
+                burnNotice.innerHTML = '<strong>Path C (Funded Baby):</strong> SURVIVAL_BURN = Business Fixed Costs + Debt Service (loan repayment).';
+            } else if (selectedPath === 'D') {
+                burnNotice.innerHTML = '<strong>Path D (Legacy Pivot):</strong> SURVIVAL_BURN = Business Fixed Costs + Debt Service. Run the Cleanse first to get an accurate number.';
+            }
+        }
+
+        document.getElementById('step2-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function goBackToStep1() {
+        setStepState('step-dot-1', 'active');
+        setStepState('step-dot-2', 'locked');
+        document.getElementById('step-line-1').classList.remove('done');
+
+        setCardState('step1-card', 'active');
+        setCardState('step2-card', 'locked');
+        document.getElementById('step1-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function saveAndGoToStep3() {
+        const burnInput = document.getElementById('survival-burn-input');
+        const burnVal = parseFloat(burnInput.value);
+        if (!burnVal || burnVal <= 0) {
+            showStatus('step2-status', 'Enter your monthly SURVIVAL_BURN amount.', 'error');
+            return;
+        }
+        burnCents = Math.round(burnVal * 100);
+
+        if (isSaving) return;
+        isSaving = true;
+
+        const btn = document.getElementById('step2-btn');
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+        showStatus('step2-status', '', '');
+
+        try {
+            const res = await fetch('/api/business-pro/onboarding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    path_type: selectedPath,
+                    survival_burn_cents: burnCents
+                })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || 'Save failed.');
+            }
+
+            // Update progress
+            setStepState('step-dot-2', 'done');
+            setStepState('step-dot-3', 'active');
+            document.getElementById('step-line-2').classList.add('done');
+
+            setCardState('step2-card', 'done');
+            setCardState('step3-card', 'active');
+
+            document.getElementById('step3-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (err) {
+            showStatus('step2-status', err.message, 'error');
+            btn.disabled = false;
+            btn.textContent = 'Save & Continue →';
+        }
+        isSaving = false;
+    }
+
+    function goBackToStep2() {
+        setStepState('step-dot-2', 'active');
+        setStepState('step-dot-3', 'locked');
+        document.getElementById('step-line-2').classList.remove('done');
+
+        setCardState('step2-card', 'active');
+        setCardState('step3-card', 'locked');
+        document.getElementById('step2-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ─── Confirm checkboxes ────────────────────────────────────────────────────
+    function toggleConfirm(el) {
+        const cb = el.querySelector('input[type="checkbox"]');
+        if (!cb) return;
+        setTimeout(() => {
+            el.classList.toggle('checked', cb.checked);
+            updateStep3Btn();
+        }, 0);
+    }
+
+    function updateStep3Btn() {
+        const checkboxes = document.querySelectorAll('#step3-card input[type="checkbox"]');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        document.getElementById('step3-btn').disabled = !allChecked;
+    }
+
+    async function completeCertification() {
+        const checkboxes = document.querySelectorAll('#step3-card input[type="checkbox"]');
+        if (!Array.from(checkboxes).every(cb => cb.checked)) return;
+
+        if (isSaving) return;
+        isSaving = true;
+
+        const btn = document.getElementById('step3-btn');
+        btn.disabled = true;
+        btn.textContent = 'Certifying…';
+        showStatus('step3-status', '', '');
+
+        try {
+            const res = await fetch('/api/business-pro/bucket-cert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ confirmed: true })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || 'Certification failed.');
+            }
+
+            // Show done screen
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('done-screen').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        } catch (err) {
+            showStatus('step3-status', err.message, 'error');
+            btn.disabled = false;
+            btn.textContent = 'Complete Setup →';
+        }
+        isSaving = false;
+    }
+
+    // ─── Sovereignty Floor calculator ─────────────────────────────────────────
+    function updateSovereigntyFloor() {
+        const input = document.getElementById('survival-burn-input');
+        const amtEl = document.getElementById('sovereignty-amount');
+        const btn2 = document.getElementById('step2-btn');
+
+        const val = parseFloat(input.value);
+        if (val && val > 0) {
+            const floor = val * 6;
+            amtEl.textContent = '$' + floor.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            btn2.disabled = false;
+        } else {
+            amtEl.textContent = '$—';
+            btn2.disabled = true;
+        }
+    }
+
+    // ─── Dashboard redirect ────────────────────────────────────────────────────
+    function goToDashboard() {
+        window.location.href = '/';
+    }
+
+    // ─── UI helpers ───────────────────────────────────────────────────────────
+    function setStepState(id, state) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.className = 'step-dot ' + state;
+        if (state === 'done') el.querySelector('.dot').textContent = '✓';
+    }
+
+    function setCardState(id, state) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.className = 'section-card ' + state;
+    }
+
+    function showStatus(id, msg, type) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = msg;
+        el.style.color = type === 'error' ? '#f43f5e' : type === 'ok' ? '#10b981' : 'var(--text-muted)';
+    }
+
+    // ─── Init: auth check ─────────────────────────────────────────────────────
+    async function init() {
+        try {
+            const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
+            const data = await res.json();
+
+            if (!data.authenticated) {
+                window.location.href = '/login.html?redirect=/business-pro-onboarding.html';
+                return;
+            }
+
+            const user = data.user;
+
+            // Not a Business tier user — redirect to dashboard
+            if (['business_core', 'business_bundle'].includes(user.pricing_tier) === false) {
+                window.location.href = '/';
+                return;
+            }
+
+            // If onboarding already fully complete, redirect to dashboard
+            if (user.business_path_type && user.bucket_cert_completed) {
+                window.location.href = '/';
+                return;
+            }
+
+            // Pre-fill if partially done
+            if (user.business_path_type) {
+                selectedPath = user.business_path_type;
+                document.querySelectorAll('.path-option').forEach(el => {
+                    el.classList.toggle('selected', el.dataset.path === selectedPath);
+                });
+                document.getElementById('step1-btn').disabled = false;
+                // Auto-advance to step 2
+                if (!user.bucket_cert_completed) {
+                    goToStep2();
+                }
+            }
+
+        } catch (err) {
+            console.error('Init error:', err);
+            window.location.href = '/login.html';
+        } finally {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+    </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

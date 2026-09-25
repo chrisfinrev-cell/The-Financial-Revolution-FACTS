@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <title>Level 1 — Ground Zero Intelligence Gate | FACTS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-deep:    #0a0f1a;
+      --bg-card:    #111827;
+      --bg-elev:    #1a2332;
+      --gold:       #f59e0b;
+      --gold-dim:   rgba(245,158,11,0.12);
+      --gold-border:rgba(245,158,11,0.35);
+      --green:      #10b981;
+      --green-dim:  rgba(16,185,129,0.12);
+      --blue:       #3b82f6;
+      --blue-dim:   rgba(59,130,246,0.12);
+      --red:        #ef4444;
+      --text:       #f1f5f9;
+      --text-sec:   #94a3b8;
+      --text-muted: #64748b;
+      --border:     #1e293b;
+      --border-h:   #334155;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      -webkit-overflow-scrolling: touch;
+      overflow-y: auto;
+    }
+    h1,h2,h3,h4 { font-family: 'Space Grotesk', sans-serif; }
+
+    /* Ambient glow */
+    .ambient {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .ambient::before {
+      content: ''; position: absolute; top: -10%; left: -5%;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%);
+    }
+    .ambient::after {
+      content: ''; position: absolute; bottom: -15%; right: -5%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%);
+    }
+
+    .wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 40px 20px 100px;
+      position: relative; z-index: 1;
+    }
+
+    /* ── Top bar ── */
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 40px;
+    }
+    .logo-link {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--gold); text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .level-badge {
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+      color: var(--gold);
+      padding: 5px 14px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ── Page title ── */
+    .page-title { margin-bottom: 32px; }
+    .page-title h1 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+    .page-title h1 span { color: var(--gold); }
+    .page-title p {
+      color: var(--text-sec);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      max-width: 580px;
+    }
+
+    /* ── Progress steps ── */
+    .steps-bar {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      margin-bottom: 40px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 80px;
+      cursor: pointer;
+      position: relative;
+    }
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 16px;
+      left: calc(50% + 16px);
+      right: calc(-50% + 16px);
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+      transition: background 0.3s;
+    }
+    .step-item.done:not(:last-child)::after {
+      background: var(--gold);
+    }
+    .step-dot {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--border-h);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--text-muted);
+      position: relative; z-index: 1;
+      transition: all 0.3s;
+    }
+    .step-item.active .step-dot {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+    }
+    .step-item.done .step-dot {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+    .step-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 6px;
+      text-align: center;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .step-item.active .step-label { color: var(--gold); }
+    .step-item.done .step-label { color: var(--green); }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex; align-items: flex-start; gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .card-icon.gold { background: var(--gold-dim); border: 1px solid var(--gold-border); }
+    .card-icon.blue { background: var(--blue-dim); border: 1px solid rgba(59,130,246,0.3); }
+    .card-icon.green { background: var(--green-dim); border: 1px solid rgba(16,185,129,0.3); }
+    .card-icon.purple { background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.3); }
+    .card-header-text h2 {
+      font-size: 1.2rem; font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .card-header-text p {
+      color: var(--text-sec); font-size: 0.875rem; line-height: 1.5;
+    }
+
+    /* ── Form elements ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-sec);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    input, select, textarea {
+      background: var(--bg-elev);
+      border: 1px solid var(--border-h);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold);
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
+    select option { background: var(--bg-elev); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ── Item list (creditors, liabilities, assets) ── */
+    .item-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .item-row {
+      background: var(--bg-elev);
+      border: 1px solid var(--border-h);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .item-row .item-fields {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 10px;
+      flex: 1;
+    }
+    /* Liability fields: 5 fields need responsive stacking */
+    .item-row .item-fields.liability-fields {
+      grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr;
+    }
+    /* Asset fields: 3 fields */
+    .item-row .item-fields.asset-fields {
+      grid-template-columns: 1.5fr 2fr 1fr;
+    }
+    @media (max-width: 768px) {
+      .item-row .item-fields.liability-fields {
+        grid-template-columns: 1fr 1fr;
+      }
+      .item-row .item-fields.liability-fields select,
+      .item-row .item-fields.liability-fields input[data-field="name"] {
+        grid-column: 1 / -1;
+      }
+      .item-row .item-fields.asset-fields {
+        grid-template-columns: 1fr 1fr;
+      }
+      .item-row .item-fields.asset-fields select {
+        grid-column: 1 / -1;
+      }
+    }
+    @media (max-width: 540px) {
+      .item-row { flex-direction: column; align-items: stretch; }
+      .item-row .item-fields { grid-template-columns: 1fr; }
+      .item-row .item-fields.liability-fields { grid-template-columns: 1fr; }
+      .item-row .item-fields.asset-fields { grid-template-columns: 1fr; }
+      .item-row .item-fields .field-name { grid-column: 1 / -1; }
+      .item-row .remove-btn { align-self: flex-end; }
+    }
+    .item-row input, .item-row select {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      font-size: 0.875rem;
+    }
+    .item-row .remove-btn {
+      background: none; border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem; cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+    .item-row .remove-btn:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+
+    .add-item-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: none;
+      border: 1px dashed var(--border-h);
+      border-radius: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 12px 16px;
+      width: 100%;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .add-item-btn:hover { color: var(--gold); border-color: var(--gold-border); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px;
+      border: none; border-radius: 10px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem; font-weight: 700;
+      padding: 13px 28px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-gold {
+      background: var(--gold);
+      color: #0a0f1a;
+    }
+    .btn-gold:hover { background: #fbbf24; transform: translateY(-1px); }
+    .btn-gold:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-h);
+      color: var(--text-sec);
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    .btn-row {
+      display: flex; gap: 12px; justify-content: flex-end;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .btn-row .btn-gold { min-width: 180px; }
+
+    /* ── Lock banner ── */
+    .lock-banner {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .lock-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .lock-text { font-size: 0.875rem; color: var(--text-sec); }
+    .lock-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+    /* ── Progress tracker chips ── */
+    .intake-chips {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-bottom: 28px;
+    }
+    .chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.78rem; font-weight: 600;
+      border: 1px solid;
+    }
+    .chip.done { background: var(--green-dim); border-color: rgba(16,185,129,0.4); color: var(--green); }
+    .chip.todo { background: var(--bg-elev); border-color: var(--border-h); color: var(--text-muted); }
+    .chip.active { background: var(--gold-dim); border-color: var(--gold-border); color: var(--gold); }
+
+    /* ── Reality Check screen ── */
+    #reality-check-screen {
+      display: none;
+      text-align: center;
+    }
+    .reality-icon {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .reality-title {
+      font-size: clamp(1.5rem, 3.5vw, 2rem);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .reality-subtitle {
+      color: var(--text-sec); font-size: 0.95rem;
+      line-height: 1.6; max-width: 520px; margin: 0 auto 36px;
+    }
+    .leak-display {
+      background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(245,158,11,0.08));
+      border: 1px solid rgba(239,68,68,0.35);
+      border-radius: 20px;
+      padding: 36px 40px;
+      margin: 0 auto 36px;
+      max-width: 440px;
+    }
+    .leak-label {
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;
+    }
+    .leak-amount {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      font-weight: 700;
+      color: #ef4444;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .leak-period {
+      font-size: 0.85rem; color: var(--text-muted);
+    }
+    .reality-message {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--text-sec);
+      max-width: 560px;
+      margin: 0 auto 36px;
+    }
+    .reality-message strong { color: var(--gold); }
+
+    /* ── Success unlock ── */
+    #unlock-success {
+      display: none;
+      text-align: center;
+    }
+    .unlock-seal {
+      width: 80px; height: 80px;
+      background: var(--green-dim);
+      border: 2px solid var(--green);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 20px;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--bg-elev);
+      border: 1px solid var(--border-h);
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 0.9rem; font-weight: 600;
+      color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      z-index: 9999;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.success { border-color: rgba(16,185,129,0.5); color: var(--green); }
+    #toast.error { border-color: rgba(239,68,68,0.5); color: #ef4444; }
+
+    /* ── Loading overlay ── */
+    #loading { display: none; }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border-h);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 60px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hidden { display: none !important; }
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    /* Income / expense rows */
+    .income-row .item-fields { grid-template-columns: 2fr 1fr 1fr; }
+    .expense-row .item-fields { grid-template-columns: 1fr 2fr 1fr; }
+    @media (max-width: 540px) {
+      .income-row .item-fields,
+      .expense-row .item-fields { grid-template-columns: 1fr; }
+    }
+
+    /* Small helper text */
+    .helper { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+    .source-note {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .source-note span { color: var(--gold); }
+  </style>
+</head>
+<body>
+<div class="ambient"></div>
+<div class="wrap">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <a href="/app" class="logo-link">⚡ FACTS</a>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="level-badge">Level 1 — Ground Zero</span>
+      <a href="/app" style="display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-sec);font-size:0.82rem;font-weight:500;text-decoration:none;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-sec)'">← Back to Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Loading Spinner (shown while fetching initial status) -->
+  <div id="loading"><div class="spinner"></div></div>
+
+  <!-- Main content (hidden until loaded) -->
+  <div id="main-content" class="hidden">
+
+    <!-- Page title -->
+    <div class="page-title">
+      <h1>Ground Zero <span>Intelligence Gate</span></h1>
+      <p>Before Level 2 unlocks, we need a clear picture of your financial reality. Complete all 4 data intakes below. No guesswork — just the truth.</p>
+    </div>
+
+    <!-- Level 2 lock notice -->
+    <div class="lock-banner" id="lock-banner">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-text">
+        <strong>Level 2 is locked</strong>
+        Complete all 4 intakes to unlock Strategy Mapping and see exactly how to redirect your money.
+      </div>
+    </div>
+
+    <!-- Progress chips -->
+    <div class="intake-chips" id="intake-chips">
+      <span class="chip" id="chip-1">📊 Credit Intake</span>
+      <span class="chip" id="chip-2">💸 Cash Flow</span>
+      <span class="chip" id="chip-3">🧾 Liability Sync</span>
+      <span class="chip" id="chip-4">🏦 Asset Audit</span>
+    </div>
+
+    <!-- Step progress bar -->
+    <div class="steps-bar" id="steps-bar">
+      <div class="step-item" data-step="1" onclick="goToStep(1)">
+        <div class="step-dot" id="sdot-1">1</div>
+        <div class="step-label">Credit</div>
+      </div>
+      <div class="step-item" data-step="2" onclick="goToStep(2)">
+        <div class="step-dot" id="sdot-2">2</div>
+        <div class="step-label">Cash Flow</div>
+      </div>
+      <div class="step-item" data-step="3" onclick="goToStep(3)">
+        <div class="step-dot" id="sdot-3">3</div>
+        <div class="step-label">Liabilities</div>
+      </div>
+      <div class="step-item" data-step="4" onclick="goToStep(4)">
+        <div class="step-dot" id="sdot-4">4</div>
+        <div class="step-label">Assets</div>
+      </div>
+    </div>
+
+    <!-- ════ STEP 1: Credit Intake ════ -->
+    <div class="step-panel" id="panel-1">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon gold">📊</div>
+          <div class="card-header-text">
+            <h2>Credit Intake</h2>
+            <p>List every creditor — credit cards, loans, and any account charging you interest. Source: annualcreditreport.com</p>
+          </div>
+        </div>
+
+        <div class="source-note">
+          <span>💡</span>
+          Pull your free credit report at <strong>annualcreditreport.com</strong> and enter the details below. Include all open accounts with balances.
+        </div>
+
+        <div class="form-grid" style="margin-bottom:20px;">
+          <div class="form-group">
+            <label>Credit Score (optional)</label>
+            <input type="number" id="credit-score" placeholder="e.g. 720" min="300" max="850">
+          </div>
+          <div class="form-group">
+            <label>Total Debt</label>
+            <input type="number" id="total-debt" placeholder="e.g. 24500" step="0.01">
+            <span class="helper">Sum of all balances below (we'll auto-calculate)</span>
+          </div>
+        </div>
+
+        <label style="display:block;margin-bottom:12px;">Creditors &amp; Accounts</label>
+        <div class="item-list" id="creditor-list"></div>
+
+        <button class="add-item-btn" onclick="addCreditor()">
+          ＋ Add Creditor / Account
+        </button>
+
+        <div class="btn-row">
+          <button class="btn btn-gold" id="save-credit-btn" onclick="saveCredit()">
+            Save &amp; Continue →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ STEP 2: Cash Flow Intake ════ -->
+    <div class="step-panel" id="panel-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon blue">💸</div>
+          <div class="card-header-text">
+            <h2>Cash Flow Intake</h2>
+            <p>Your real-world income vs. spending. Use bank statements to find the truth — not the budget you wish you had.</p>
+          </div>
+        </div>
+
+        <div class="source-note">
+          <span>💡</span>
+          Use your last 2–3 months of bank statements. Include ALL income sources and ALL regular spending categories.
+        </div>
+
+        <h4 style="font-size:0.9rem;font-weight:700;color:var(--text-sec);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:12px;">Income Sources</h4>
+        <div class="item-list" id="income-list"></div>
+        <button class="add-item-btn" onclick="addIncome()">＋ Add Income Source</button>
+
+        <div style="margin:24px 0 12px; border-top:1px solid var(--border); padding-top:24px;">
+          <h4 style="font-size:0.9rem;font-weight:700;color:var(--text-sec);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:12px;">Monthly Expenses</h4>
+        </div>
+        <div class="item-list" id="expense-list"></div>
+        <button class="add-item-btn" onclick="addExpense()">＋ Add Expense Category</button>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goToStep(1)">← Back</button>
+          <button class="btn btn-gold" onclick="saveCashflow()">Save &amp; Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ STEP 3: Liability Sync ════ -->
+    <div class="step-panel" id="panel-3">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon gold">🧾</div>
+          <div class="card-header-text">
+            <h2>Liability Sync</h2>
+            <p>Every bill, statement, and obligation with a due date and minimum payment. These are your monthly non-negotiables.</p>
+          </div>
+        </div>
+
+        <div class="source-note">
+          <span>💡</span>
+          Gather your bills and statements. Include credit cards, auto loans, student loans, rent/mortgage, subscriptions, and any recurring payment obligation.
+        </div>
+
+        <div class="item-list" id="liability-list"></div>
+        <button class="add-item-btn" onclick="addLiability()">＋ Add Liability</button>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goToStep(2)">← Back</button>
+          <button class="btn btn-gold" onclick="saveLiability()">Save &amp; Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ STEP 4: Asset Audit ════ -->
+    <div class="step-panel" id="panel-4">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon green">🏦</div>
+          <div class="card-header-text">
+            <h2>Asset Audit</h2>
+            <p>Manual entry of what you own. Current liquidity, retirement accounts, equity, and anything with value.</p>
+          </div>
+        </div>
+
+        <div class="source-note">
+          <span>💡</span>
+          Log in to each account and enter the current balance. Be honest — this is your true net worth baseline.
+        </div>
+
+        <div class="item-list" id="asset-list"></div>
+        <button class="add-item-btn" onclick="addAsset()">＋ Add Asset</button>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goToStep(3)">← Back</button>
+          <button class="btn btn-gold" id="save-asset-btn" onclick="saveAssets()">Complete Ground Zero →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ REALITY CHECK SCREEN ════ -->
+    <div id="reality-check-screen">
+      <div class="card" style="padding:48px 36px;">
+        <span class="reality-icon">⚠️</span>
+        <h2 class="reality-title">System Reality Check</h2>
+        <p class="reality-subtitle">Based on your credit intake and liability sync, here's what the system is extracting from you every single day.</p>
+
+        <div class="leak-display">
+          <div class="leak-label">Total Daily Interest Leak</div>
+          <div class="leak-amount" id="leak-amount">$0.00</div>
+          <div class="leak-period">per day, every day, in perpetuity</div>
+        </div>
+
+        <div class="reality-message" id="reality-message">
+          You are currently paying the system <strong id="leak-inline">$0.00</strong> per day just to exist.
+          Level 2 will show you how to redirect that velocity back to yourself.
+        </div>
+
+        <button class="btn btn-gold" style="margin:0 auto;display:flex;" onclick="acknowledgeRealityCheck()">
+          I Understand — Unlock Level 2 →
+        </button>
+      </div>
+    </div>
+
+    <!-- ════ UNLOCK SUCCESS ════ -->
+    <div id="unlock-success">
+      <div class="card" style="padding:60px 36px; text-align:center;">
+        <div class="unlock-seal">✅</div>
+        <h2 style="font-size:1.6rem;margin-bottom:12px;">Level 2 Unlocked</h2>
+        <p style="color:var(--text-sec);font-size:0.95rem;line-height:1.6;max-width:440px;margin:0 auto 32px;">
+          Ground Zero complete. You now have a full financial intelligence snapshot. Level 2 — Strategy Mapping — shows you exactly how to redirect every dollar.
+        </p>
+        <a href="/app" class="btn btn-gold" style="margin:0 auto;">
+          Go to Dashboard →
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div>
+
+<!-- Toast notification -->
+<div id="toast"></div>
+
+<script>
+// ─── State ──────────────────────────────────────────────────────────
+let currentStep = 1;
+let status = {
+  credit_completed: false,
+  cashflow_completed: false,
+  liability_completed: false,
+  asset_completed: false,
+  reality_check_shown: false,
+  level2_unlocked: false,
+  daily_interest_leak: 0,
+};
+let savedData = { credit: null, cashflow: null, liabilities: [], assets: [] };
+
+// ─── Boot ────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  // Check auth
+  const me = await fetch('/api/auth/me').then(r => r.json()).catch(() => null);
+  if (!me || !me.user) {
+    window.location.href = '/login';
+    return;
+  }
+
+  // Load status
+  const data = await fetch('/api/level1/status').then(r => r.json()).catch(() => null);
+  if (data && data.success) {
+    status = data.status;
+    savedData = { credit: data.credit, cashflow: data.cashflow, liabilities: data.liabilities, assets: data.assets };
+  }
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('main-content').classList.remove('hidden');
+
+  // If already fully complete + reality check shown
+  if (status.level2_unlocked) {
+    showUnlockSuccess();
+    return;
+  }
+
+  // If all 4 done but reality check not yet shown
+  if (status.credit_completed && status.cashflow_completed && status.liability_completed && status.asset_completed && !status.reality_check_shown) {
+    showRealityCheck();
+    return;
+  }
+
+  // Populate forms with saved data
+  populateForms();
+  updateStepUI();
+
+  // Go to first incomplete step
+  const firstIncomplete = getFirstIncompleteStep();
+  goToStep(firstIncomplete, true);
+});
+
+function getFirstIncompleteStep() {
+  if (!status.credit_completed) return 1;
+  if (!status.cashflow_completed) return 2;
+  if (!status.liability_completed) return 3;
+  if (!status.asset_completed) return 4;
+  return 1;
+}
+
+// ─── Step Navigation ─────────────────────────────────────────────────
+function goToStep(n, force = false) {
+  // Allow going back to any completed step
+  if (!force && n > 1) {
+    const stepComplete = [
+      null,
+      status.credit_completed,
+      status.cashflow_completed,
+      status.liability_completed,
+      status.asset_completed,
+    ];
+    // Can go to step n if step n-1 is complete
+    if (n > 1 && !stepComplete[n-1]) return;
+  }
+
+  currentStep = n;
+
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${n}`).classList.add('active');
+
+  updateStepUI();
+}
+
+function updateStepUI() {
+  const completed = [status.credit_completed, status.cashflow_completed, status.liability_completed, status.asset_completed];
+  const chips = ['chip-1','chip-2','chip-3','chip-4'];
+  const icons = ['📊','💸','🧾','🏦'];
+  const labels = ['Credit Intake','Cash Flow','Liability Sync','Asset Audit'];
+
+  for (let i = 0; i < 4; i++) {
+    const stepEl = document.querySelector(`.step-item[data-step="${i+1}"]`);
+    const dot = document.getElementById(`sdot-${i+1}`);
+    const chip = document.getElementById(chips[i]);
+
+    stepEl.classList.remove('active','done');
+    chip.classList.remove('active','done','todo');
+
+    if (completed[i]) {
+      stepEl.classList.add('done');
+      dot.textContent = '✓';
+      chip.classList.add('done');
+      chip.textContent = `✓ ${labels[i]}`;
+    } else if (currentStep === i+1) {
+      stepEl.classList.add('active');
+      dot.textContent = i+1;
+      chip.classList.add('active');
+      chip.textContent = `${icons[i]} ${labels[i]}`;
+    } else {
+      dot.textContent = i+1;
+      chip.classList.add('todo');
+      chip.textContent = `${icons[i]} ${labels[i]}`;
+    }
+  }
+
+  // Show/hide lock banner
+  const allDone = completed.every(Boolean);
+  document.getElementById('lock-banner').style.display = allDone ? 'none' : 'flex';
+}
+
+// ─── Populate saved data into forms ──────────────────────────────────
+function populateForms() {
+  // Step 1: Credit
+  if (savedData.credit) {
+    const c = savedData.credit;
+    if (c.credit_score) document.getElementById('credit-score').value = c.credit_score;
+    const creditors = c.creditors || [];
+    for (const cred of creditors) addCreditor(cred);
+  }
+  if (document.getElementById('creditor-list').children.length === 0) addCreditor();
+
+  // Step 2: Cashflow
+  if (savedData.cashflow) {
+    const cf = savedData.cashflow;
+    for (const s of (cf.income_sources || [])) addIncome(s);
+    for (const e of (cf.monthly_expenses || [])) addExpense(e);
+  }
+  if (document.getElementById('income-list').children.length === 0) addIncome();
+  if (document.getElementById('expense-list').children.length === 0) addExpense();
+
+  // Step 3: Liabilities
+  for (const l of (savedData.liabilities || [])) addLiability(l);
+  if (document.getElementById('liability-list').children.length === 0) addLiability();
+
+  // Step 4: Assets
+  for (const a of (savedData.assets || [])) addAsset(a);
+  if (document.getElementById('asset-list').children.length === 0) addAsset();
+}
+
+// ─── STEP 1: Creditor rows ────────────────────────────────────────────
+function addCreditor(data = {}) {
+  const list = document.getElementById('creditor-list');
+  const div = document.createElement('div');
+  div.className = 'item-row';
+  div.innerHTML = `
+    <div class="item-fields">
+      <div class="field-name">
+        <input type="text" placeholder="Creditor name (e.g. Chase Visa)" value="${esc(data.name || '')}" data-field="name">
+      </div>
+      <input type="number" placeholder="Balance ($)" value="${data.balance_cents ? (data.balance_cents/100).toFixed(2) : ''}" step="0.01" data-field="balance" min="0">
+      <input type="number" placeholder="APR %" value="${data.apr || ''}" step="0.01" data-field="apr" min="0" max="100">
+    </div>
+    <select data-field="account_type" title="Account Type">
+      <option value="credit_card" ${data.account_type==='credit_card'?'selected':''}>Credit Card</option>
+      <option value="personal_loan" ${data.account_type==='personal_loan'?'selected':''}>Personal Loan</option>
+      <option value="auto_loan" ${data.account_type==='auto_loan'?'selected':''}>Auto Loan</option>
+      <option value="student_loan" ${data.account_type==='student_loan'?'selected':''}>Student Loan</option>
+      <option value="medical" ${data.account_type==='medical'?'selected':''}>Medical</option>
+      <option value="mortgage" ${data.account_type==='mortgage'?'selected':''}>Mortgage</option>
+      <option value="other" ${data.account_type==='other'?'selected':''}>Other</option>
+    </select>
+    <button class="remove-btn" onclick="removeRow(this)" title="Remove">✕</button>
+  `;
+  list.appendChild(div);
+  autoCalcTotalDebt();
+  div.querySelectorAll('input').forEach(i => i.addEventListener('input', autoCalcTotalDebt));
+}
+
+function autoCalcTotalDebt() {
+  let total = 0;
+  document.querySelectorAll('#creditor-list input[data-field="balance"]').forEach(i => {
+    total += parseFloat(i.value || 0);
+  });
+  document.getElementById('total-debt').value = total.toFixed(2);
+}
+
+async function saveCredit() {
+  const creditors = [];
+  document.querySelectorAll('#creditor-list .item-row').forEach(row => {
+    const name = row.querySelector('[data-field="name"]').value.trim();
+    const balance = parseFloat(row.querySelector('[data-field="balance"]').value || 0);
+    const apr = parseFloat(row.querySelector('[data-field="apr"]').value || 0);
+    const account_type = row.querySelector('[data-field="account_type"]').value;
+    if (name) creditors.push({ name, balance_cents: Math.round(balance * 100), apr, account_type });
+  });
+
+  if (creditors.length === 0) { toast('Add at least one creditor.', 'error'); return; }
+
+  const btn = document.getElementById('save-credit-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  const r = await post('/api/level1/credit-intake', {
+    credit_score: parseInt(document.getElementById('credit-score').value) || null,
+    total_debt_cents: Math.round(parseFloat(document.getElementById('total-debt').value || 0) * 100),
+    creditors,
+  });
+
+  btn.disabled = false; btn.textContent = 'Save & Continue →';
+
+  if (r.success) {
+    status.credit_completed = true;
+    updateStepUI();
+    toast('Credit intake saved ✓', 'success');
+    setTimeout(() => goToStep(2), 600);
+  } else {
+    toast(r.message || 'Failed to save.', 'error');
+  }
+}
+
+// ─── STEP 2: Cash Flow rows ───────────────────────────────────────────
+function addIncome(data = {}) {
+  const list = document.getElementById('income-list');
+  const div = document.createElement('div');
+  div.className = 'item-row income-row';
+  div.innerHTML = `
+    <div class="item-fields">
+      <input type="text" placeholder="Source (e.g. Salary, Freelance)" value="${esc(data.label || '')}" data-field="label">
+      <input type="number" placeholder="$/month" value="${data.amount_cents ? (data.amount_cents/100).toFixed(0) : ''}" min="0" data-field="amount">
+      <select data-field="frequency" title="Frequency">
+        <option value="monthly" ${data.frequency==='monthly'?'selected':''}>Monthly</option>
+        <option value="biweekly" ${data.frequency==='biweekly'?'selected':''}>Bi-weekly</option>
+        <option value="weekly" ${data.frequency==='weekly'?'selected':''}>Weekly</option>
+        <option value="annual" ${data.frequency==='annual'?'selected':''}>Annual</option>
+      </select>
+    </div>
+    <button class="remove-btn" onclick="removeRow(this)" title="Remove">✕</button>
+  `;
+  list.appendChild(div);
+}
+
+const EXPENSE_CATS = ['Housing','Food','Transport','Utilities','Insurance','Subscriptions','Healthcare','Childcare','Debt Payments','Entertainment','Other'];
+function addExpense(data = {}) {
+  const list = document.getElementById('expense-list');
+  const div = document.createElement('div');
+  div.className = 'item-row expense-row';
+  const catOpts = EXPENSE_CATS.map(c => `<option value="${c}" ${data.category===c?'selected':''}>${c}</option>`).join('');
+  div.innerHTML = `
+    <div class="item-fields">
+      <select data-field="category" title="Category">${catOpts}</select>
+      <input type="text" placeholder="Label (e.g. Rent)" value="${esc(data.label || '')}" data-field="label">
+      <input type="number" placeholder="$/month" value="${data.amount_cents ? (data.amount_cents/100).toFixed(0) : ''}" min="0" data-field="amount">
+    </div>
+    <button class="remove-btn" onclick="removeRow(this)" title="Remove">✕</button>
+  `;
+  list.appendChild(div);
+}
+
+async function saveCashflow() {
+  const income_sources = [];
+  let monthly_income_cents = 0;
+  document.querySelectorAll('#income-list .item-row').forEach(row => {
+    const label = row.querySelector('[data-field="label"]').value.trim();
+    const amount = parseFloat(row.querySelector('[data-field="amount"]').value || 0);
+    const frequency = row.querySelector('[data-field="frequency"]').value;
+    if (label && amount > 0) {
+      const monthly = frequency === 'biweekly' ? amount * 2.167
+        : frequency === 'weekly' ? amount * 4.333
+        : frequency === 'annual' ? amount / 12 : amount;
+      monthly_income_cents += Math.round(monthly * 100);
+      income_sources.push({ label, amount_cents: Math.round(amount * 100), frequency });
+    }
+  });
+
+  if (monthly_income_cents === 0) { toast('Add at least one income source.', 'error'); return; }
+
+  const monthly_expenses = [];
+  document.querySelectorAll('#expense-list .item-row').forEach(row => {
+    const category = row.querySelector('[data-field="category"]').value;
+    const label = row.querySelector('[data-field="label"]').value.trim();
+    const amount = parseFloat(row.querySelector('[data-field="amount"]').value || 0);
+    if (amount > 0) monthly_expenses.push({ category, label: label || category, amount_cents: Math.round(amount * 100) });
+  });
+
+  const r = await post('/api/level1/cashflow-intake', { monthly_income_cents, income_sources, monthly_expenses });
+
+  if (r.success) {
+    status.cashflow_completed = true;
+    updateStepUI();
+    toast('Cash flow saved ✓', 'success');
+    setTimeout(() => goToStep(3), 600);
+  } else {
+    toast(r.message || 'Failed to save.', 'error');
+  }
+}
+
+// ─── STEP 3: Liability rows ───────────────────────────────────────────
+const LIABILITY_TYPES = [
+  { value: 'credit_card', label: 'Credit Card' },
+  { value: 'auto_loan', label: 'Auto Loan' },
+  { value: 'student_loan', label: 'Student Loan' },
+  { value: 'personal_loan', label: 'Personal Loan' },
+  { value: 'mortgage', label: 'Mortgage' },
+  { value: 'medical', label: 'Medical Debt' },
+  { value: 'other', label: 'Other' },
+];
+function addLiability(data = {}) {
+  const list = document.getElementById('liability-list');
+  const div = document.createElement('div');
+  div.className = 'item-row';
+  const typeOpts = LIABILITY_TYPES.map(t => `<option value="${t.value}" ${data.liability_type===t.value?'selected':''}>${t.label}</option>`).join('');
+  div.innerHTML = `
+    <div class="item-fields liability-fields">
+      <select data-field="type" title="Type">${typeOpts}</select>
+      <input type="text" placeholder="Creditor / Bill Name" value="${esc(data.creditor_name||'')}" data-field="name">
+      <input type="number" placeholder="Balance ($)" value="${data.balance_cents?(data.balance_cents/100).toFixed(2):''}" step="0.01" min="0" data-field="balance">
+      <input type="number" placeholder="APR %" value="${data.apr||''}" step="0.01" min="0" max="100" data-field="apr">
+      <input type="number" placeholder="Min Pmt ($)" value="${data.min_payment_cents?(data.min_payment_cents/100).toFixed(2):''}" step="0.01" min="0" data-field="min_payment">
+    </div>
+    <button class="remove-btn" onclick="removeRow(this)" title="Remove">✕</button>
+  `;
+  list.appendChild(div);
+}
+
+async function saveLiability() {
+  const items = [];
+  document.querySelectorAll('#liability-list .item-row').forEach(row => {
+    const liability_type = row.querySelector('[data-field="type"]').value;
+    const creditor_name = row.querySelector('[data-field="name"]').value.trim();
+    const balance = parseFloat(row.querySelector('[data-field="balance"]').value || 0);
+    const apr = parseFloat(row.querySelector('[data-field="apr"]').value || 0);
+    const min_payment = parseFloat(row.querySelector('[data-field="min_payment"]').value || 0);
+    if (creditor_name) items.push({
+      liability_type, creditor_name,
+      balance_cents: Math.round(balance * 100),
+      apr,
+      min_payment_cents: Math.round(min_payment * 100),
+    });
+  });
+
+  if (items.length === 0) { toast('Add at least one liability.', 'error'); return; }
+
+  const r = await post('/api/level1/liability-sync', { items });
+  if (r.success) {
+    status.liability_completed = true;
+    updateStepUI();
+    toast('Liabilities saved ✓', 'success');
+    setTimeout(() => goToStep(4), 600);
+  } else {
+    toast(r.message || 'Failed to save.', 'error');
+  }
+}
+
+// ─── STEP 4: Asset rows ────────────────────────────────────────────────
+const ASSET_TYPES = [
+  { value: 'checking', label: '🏦 Checking Account' },
+  { value: 'savings', label: '💰 Savings Account' },
+  { value: 'investment', label: '📈 Brokerage / Investment' },
+  { value: 'retirement_401k', label: '🏛️ 401k' },
+  { value: 'retirement_ira', label: '🏛️ IRA / Roth IRA' },
+  { value: 'hsa', label: '🏥 HSA' },
+  { value: 'real_estate', label: '🏠 Real Estate Equity' },
+  { value: 'vehicle', label: '🚗 Vehicle Value' },
+  { value: 'crypto', label: '🔷 Crypto' },
+  { value: 'other', label: '📦 Other' },
+];
+function addAsset(data = {}) {
+  const list = document.getElementById('asset-list');
+  const div = document.createElement('div');
+  div.className = 'item-row';
+  const typeOpts = ASSET_TYPES.map(t => `<option value="${t.value}" ${data.asset_type===t.value?'selected':''}>${t.label}</option>`).join('');
+  div.innerHTML = `
+    <div class="item-fields asset-fields">
+      <select data-field="type" title="Asset Type">${typeOpts}</select>
+      <input type="text" placeholder="Label (e.g. Chase Savings)" value="${esc(data.label||'')}" data-field="label">
+      <input type="number" placeholder="Value ($)" value="${data.value_cents?(data.value_cents/100).toFixed(2):''}" step="0.01" min="0" data-field="value">
+    </div>
+    <button class="remove-btn" onclick="removeRow(this)" title="Remove">✕</button>
+  `;
+  list.appendChild(div);
+}
+
+async function saveAssets() {
+  const items = [];
+  document.querySelectorAll('#asset-list .item-row').forEach(row => {
+    const asset_type = row.querySelector('[data-field="type"]').value;
+    const label = row.querySelector('[data-field="label"]').value.trim();
+    const value = parseFloat(row.querySelector('[data-field="value"]').value || 0);
+    if (value > 0) items.push({ asset_type, label: label || asset_type, value_cents: Math.round(value * 100) });
+  });
+
+  if (items.length === 0) { toast('Add at least one asset.', 'error'); return; }
+
+  const r = await post('/api/level1/asset-audit', { items });
+  if (r.success) {
+    status.asset_completed = true;
+    status.daily_interest_leak = r.daily_interest_leak || 0;
+    updateStepUI();
+    toast('Asset audit complete ✓', 'success');
+    setTimeout(() => showRealityCheck(), 800);
+  } else {
+    toast(r.message || 'Failed to save.', 'error');
+  }
+}
+
+// ─── Reality Check ─────────────────────────────────────────────────────
+function showRealityCheck() {
+  // Hide step panels and top elements
+  document.getElementById('steps-bar').style.display = 'none';
+  document.getElementById('intake-chips').style.display = 'none';
+  document.getElementById('lock-banner').style.display = 'none';
+  document.querySelectorAll('.step-panel').forEach(p => p.style.display = 'none');
+
+  const leak = status.daily_interest_leak || 0;
+  const leakFormatted = '$' + leak.toFixed(2);
+  document.getElementById('leak-amount').textContent = leakFormatted;
+  document.getElementById('leak-inline').textContent = leakFormatted;
+
+  document.getElementById('reality-check-screen').style.display = 'block';
+}
+
+async function acknowledgeRealityCheck() {
+  const r = await post('/api/level1/reality-check-seen', {});
+  if (r.success) {
+    document.getElementById('reality-check-screen').style.display = 'none';
+    showUnlockSuccess();
+  } else {
+    toast(r.message || 'Error.', 'error');
+  }
+}
+
+// ─── Unlock Success ─────────────────────────────────────────────────────
+function showUnlockSuccess() {
+  document.getElementById('steps-bar').style.display = 'none';
+  document.getElementById('intake-chips').style.display = 'none';
+  document.getElementById('lock-banner').style.display = 'none';
+  document.querySelectorAll('.step-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('reality-check-screen').style.display = 'none';
+  document.getElementById('unlock-success').style.display = 'block';
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────
+function removeRow(btn) {
+  btn.closest('.item-row').remove();
+}
+
+async function post(url, body) {
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return await r.json();
+  } catch (e) {
+    return { success: false, message: 'Network error.' };
+  }
+}
+
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

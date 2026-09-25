@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FACTS — Complete User Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #C5A55A;
+      --gold-light: #e8c97a;
+      --gold-dim: rgba(197,165,90,0.15);
+      --dark: #080c10;
+      --dark-2: #0f1620;
+      --dark-3: #161e2a;
+      --dark-4: #1d2638;
+      --text: #e8e8ea;
+      --text-muted: #8a94a6;
+      --border: rgba(197,165,90,0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── SHELL ── */
+    .shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: var(--dark-2);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      gap: 16px;
+    }
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .topbar-brand .logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #C5A55A, #8a6a2a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -1px;
+    }
+    .topbar-brand .name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: .5px;
+    }
+    .topbar-brand .sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .progress-track {
+      flex: 1;
+      max-width: 420px;
+      height: 4px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      border-radius: 4px;
+      transition: width .4s ease;
+    }
+    .slide-counter {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .slide-counter span { color: var(--gold); }
+
+    /* ── VIEWPORT ── */
+    .viewport {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── SLIDES ── */
+    .slides-track {
+      display: flex;
+      height: 100%;
+      transition: transform .45s cubic-bezier(.22,1,.36,1);
+    }
+
+    .slide {
+      min-width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 16px 28px;
+      background: var(--dark-2);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      border: none;
+      font-family: 'Syne', sans-serif;
+    }
+    .nav-btn.prev {
+      background: var(--dark-3);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .nav-btn.prev:hover { background: var(--dark-4); color: var(--text); }
+    .nav-btn.next {
+      background: linear-gradient(135deg, #C5A55A, #a07840);
+      color: #0a0a0a;
+    }
+    .nav-btn.next:hover { opacity: .9; transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: .35; cursor: not-allowed; transform: none !important; }
+
+    .dot-nav {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .dot.active { background: var(--gold); width: 18px; border-radius: 3px; }
+    .dot:hover:not(.active) { background: rgba(197,165,90,0.5); }
+
+    /* ═══════════════════════════════════════
+       SLIDE CONTENT STYLES
+    ═══════════════════════════════════════ */
+
+    /* Slide 1 — Cover */
+    .slide-cover {
+      background: radial-gradient(ellipse at 60% 40%, rgba(197,165,90,0.12) 0%, transparent 60%),
+                  linear-gradient(180deg, #0d1520 0%, #080c10 100%);
+      text-align: center;
+    }
+    .slide-cover .eyebrow {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    .slide-cover h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(38px, 6vw, 72px);
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .slide-cover h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+    .slide-cover .subtitle {
+      font-size: clamp(14px, 2vw, 18px);
+      color: var(--text-muted);
+      max-width: 560px;
+      line-height: 1.7;
+      margin: 0 auto 32px;
+    }
+    .gold-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold-dim);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 8px 20px;
+      font-size: 13px;
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .cover-glow {
+      position: absolute;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(197,165,90,0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Slide generic */
+    .slide-inner {
+      width: 100%;
+      max-width: 860px;
+    }
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .slide-tag .tag-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+    .slide-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(26px, 4vw, 48px);
+      line-height: 1.15;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .slide-title em { font-style: italic; color: var(--gold); }
+    .slide-lead {
+      font-size: clamp(14px, 1.6vw, 17px);
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 32px;
+      max-width: 700px;
+    }
+
+    /* Concept grid */
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .concept-card {
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      transition: border-color .2s;
+    }
+    .concept-card:hover { border-color: var(--gold); }
+    .concept-card .icon { font-size: 24px; margin-bottom: 10px; }
+    .concept-card .label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 5px;
+    }
+    .concept-card .desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Steps list */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .step-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      transition: border-color .2s;
+    }
+    .step-row:hover { border-color: var(--gold); }
+    .step-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #C5A55A, #a07840);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #0a0a0a;
+      flex-shrink: 0;
+    }
+    .step-content .step-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+    .step-content .step-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Two-col */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 8px;
+    }
+    @media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* Allocation buckets */
+    .bucket-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .bucket-pct {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--gold);
+      min-width: 60px;
+      font-family: 'Syne', sans-serif;
+    }
+    .bucket-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .bucket-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .bucket-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bucket-bar {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    }
+
+    /* Feature pills */
+    .pill-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 600;
+      transition: border-color .2s;
+    }
+    .pill:hover { border-color: var(--gold); }
+    .pill .icon { font-size: 16px; }
+
+    /* Stat highlight */
+    .stat-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .stat-box {
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      flex: 1;
+      min-width: 140px;
+    }
+    .stat-box .stat-val {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--gold);
+      font-family: 'Syne', sans-serif;
+    }
+    .stat-box .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* Comparison table */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    .compare-table th {
+      font-size: 12px;
+      color: var(--gold);
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+    }
+    .compare-table td {
+      font-size: 13px;
+      color: var(--text);
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .compare-table tr:hover td { background: var(--dark-3); }
+    .check { color: #34d399; }
+    .cross { color: #f87171; }
+
+    /* CTA Slide */
+    .slide-cta {
+      background: radial-gradient(ellipse at 50% 30%, rgba(197,165,90,0.14) 0%, transparent 60%),
+                  linear-gradient(180deg, #0d1520 0%, #080c10 100%);
+      text-align: center;
+    }
+
+    /* Gradient backgrounds per slide */
+    .bg-warm { background: linear-gradient(160deg, #0f1a10 0%, #080c10 100%); }
+    .bg-cool { background: linear-gradient(160deg, #0d1020 0%, #080c10 100%); }
+    .bg-purple { background: linear-gradient(160deg, #100d20 0%, #080c10 100%); }
+
+    /* Decorative corner glow */
+    .corner-glow {
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(197,165,90,0.07), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Keyboard hint */
+    .key-hint {
+      position: fixed;
+      bottom: 72px;
+      right: 24px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      pointer-events: none;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 600px) {
+      .slide { padding: 24px 20px; }
+      .topbar { padding: 12px 16px; }
+      .progress-track { display: none; }
+      .nav-btn { padding: 10px 16px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="logo">F</div>
+      <div>
+        <div class="name">FACTS</div>
+        <div class="sub">User Guide</div>
+      </div>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="slide-counter"><span id="current-num">1</span> / <span id="total-num">14</span></div>
+  </div>
+
+  <!-- VIEWPORT -->
+  <div class="viewport">
+    <div class="slides-track" id="slides-track">
+
+      <!-- ═══ SLIDE 1: COVER ═══ -->
+      <div class="slide slide-cover">
+        <div class="corner-glow"></div>
+        <div class="eyebrow">Financial Revolution · Complete User Guide</div>
+        <h1>Your money.<br>Allocated <em>before</em> you spend it.</h1>
+        <p class="subtitle">
+          FACTS (Financial Allocation Control &amp; Tracking System) is not a budget app.
+          It's a confidence-first framework that puts you in control before a single dollar moves.
+        </p>
+        <div class="gold-pill">📖 A-to-Z walkthrough · 14 slides</div>
+        <div class="cover-glow"></div>
+      </div>
+
+      <!-- ═══ SLIDE 2: WHO IS THIS FOR ═══ -->
+      <div class="slide bg-cool">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Who</div>
+          <h2 class="slide-title">Built for people who want <em>clarity</em>, not guilt.</h2>
+          <p class="slide-lead">
+            Whether you're an individual, a couple syncing finances, or a family building generational wealth — FACTS was designed for you.
+          </p>
+          <div class="concept-grid">
+            <div class="concept-card">
+              <div class="icon">👤</div>
+              <div class="label">Individuals</div>
+              <div class="desc">Take full control of where every dollar goes — no surprises at month-end.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">👫</div>
+              <div class="label">Couples</div>
+              <div class="desc">Family mode lets you share visibility and stay aligned on shared goals.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">🏡</div>
+              <div class="label">Families</div>
+              <div class="desc">Up to 5 members under one plan. Parents guide, children learn the system early.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">💼</div>
+              <div class="label">Business Owners</div>
+              <div class="desc">Business Core tier adds a 5-bucket allocation system tuned for operating finances.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 3: WHY FACTS ═══ -->
+      <div class="slide bg-warm">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Why</div>
+          <h2 class="slide-title">Budgeting makes people feel bad.<br><em>FACTS doesn't.</em></h2>
+          <p class="slide-lead">
+            Traditional budgeting tracks spending after the fact — and leaves you feeling like you failed. FACTS flips the model: you allocate first, then live confidently inside that allocation.
+          </p>
+          <div class="two-col">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:12px;">❌ Traditional Budgeting</div>
+              <div class="steps-list">
+                <div class="step-row" style="border-color:rgba(248,113,113,0.2);">
+                  <div class="step-content">
+                    <div class="step-title">Reactive</div>
+                    <div class="step-desc">You spend first, then see what you have left.</div>
+                  </div>
+                </div>
+                <div class="step-row" style="border-color:rgba(248,113,113,0.2);">
+                  <div class="step-content">
+                    <div class="step-title">Guilt-driven</div>
+                    <div class="step-desc">Every overspend feels like a personal failure.</div>
+                  </div>
+                </div>
+                <div class="step-row" style="border-color:rgba(248,113,113,0.2);">
+                  <div class="step-content">
+                    <div class="step-title">No direction</div>
+                    <div class="step-desc">Money has nowhere to go, so it disappears.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#34d399;margin-bottom:12px;">✅ FACTS Approach</div>
+              <div class="steps-list">
+                <div class="step-row" style="border-color:rgba(52,211,153,0.2);">
+                  <div class="step-content">
+                    <div class="step-title">Proactive</div>
+                    <div class="step-desc">You allocate every dollar before you spend it.</div>
+                  </div>
+                </div>
+                <div class="step-row" style="border-color:rgba(52,211,153,0.2);">
+                  <div class="step-content">
+                    <div class="step-title">Confidence-based</div>
+                    <div class="step-desc">Spend freely inside your allocation — no guilt.</div>
+                  </div>
+                </div>
+                <div class="step-row" style="border-color:rgba(52,211,153,0.2);">
+                  <div class="step-content">
+                    <div class="step-title">Direction</div>
+                    <div class="step-desc">Every dollar has a job before the month begins.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 4: ACCOUNT CREATION ═══ -->
+      <div class="slide bg-cool">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Step 1 · Getting Started</div>
+          <h2 class="slide-title"><em>Create your account</em> &amp; complete onboarding.</h2>
+          <p class="slide-lead">Sign up at <strong style="color:var(--gold);">app.factsmoney.com</strong> — the process takes under 5 minutes and sets up your entire financial profile.</p>
+          <div class="steps-list">
+            <div class="step-row">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">Sign up with email &amp; password</div>
+                <div class="step-desc">Create your account — free to start, upgrade when you're ready.</div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">Complete Phase Zero onboarding</div>
+                <div class="step-desc">A rapid-fire form captures your income sources, account counts, and account nicknames — all in one place.</div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">Confirm your Execution Gate</div>
+                <div class="step-desc">A 72-hour unlock period locks in your commitment — and releases 2,500 Sovereign Credits (a $25 Aura Restored value) upon confirmation.</div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <div class="step-title">Your dashboard is revealed</div>
+                <div class="step-desc">Everything is now active and ready to configure with your real numbers.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 5: INCOME SOURCES ═══ -->
+      <div class="slide bg-purple">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Step 2 · Income</div>
+          <h2 class="slide-title">Add every <em>income source</em> — not just your paycheck.</h2>
+          <p class="slide-lead">
+            FACTS captures all the ways money flows in. This gives you a complete picture of total income to allocate.
+          </p>
+          <div class="concept-grid">
+            <div class="concept-card">
+              <div class="icon">💵</div>
+              <div class="label">Salary</div>
+              <div class="desc">Regular employment income — weekly, bi-weekly, or monthly.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">🎯</div>
+              <div class="label">Bonus</div>
+              <div class="desc">Performance bonuses, year-end payouts, commissions.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">📈</div>
+              <div class="label">Dividends</div>
+              <div class="desc">Investment income from stocks, funds, or other holdings.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">🏦</div>
+              <div class="label">Interest</div>
+              <div class="desc">Savings account interest, CDs, bond yields.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">🎁</div>
+              <div class="label">Gifts</div>
+              <div class="desc">Cash gifts, windfalls, any non-earned income received.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">➕</div>
+              <div class="label">Other</div>
+              <div class="desc">Side hustles, rental income, freelance — anything else.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 6: 6 ALLOCATION CATEGORIES ═══ -->
+      <div class="slide bg-cool">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Step 3 · The System</div>
+          <h2 class="slide-title">The <em>6 allocation categories</em> — with smart defaults.</h2>
+          <p class="slide-lead">FACTS divides your income across 6 proven categories. The percentages are defaults — you customize them to fit your life.</p>
+          <div style="margin-top:4px;">
+            <div class="bucket-row">
+              <div><div class="bucket-name">🏠 Necessities</div><div class="bucket-desc">Housing, utilities, food, transportation, healthcare</div></div>
+              <div class="bucket-bar-wrap"><div class="bucket-bar" style="width:50%"></div></div>
+              <div class="bucket-pct">50%</div>
+            </div>
+            <div class="bucket-row">
+              <div><div class="bucket-name">🛡️ Reserve</div><div class="bucket-desc">Emergency fund, strategic savings, opportunity capital</div></div>
+              <div class="bucket-bar-wrap"><div class="bucket-bar" style="width:10%"></div></div>
+              <div class="bucket-pct">10%</div>
+            </div>
+            <div class="bucket-row">
+              <div><div class="bucket-name">⚡ Velocity</div><div class="bucket-desc">Debt elimination, credit cards, student loans, auto loans</div></div>
+              <div class="bucket-bar-wrap"><div class="bucket-bar" style="width:10%"></div></div>
+              <div class="bucket-pct">10%</div>
+            </div>
+            <div class="bucket-row">
+              <div><div class="bucket-name">📈 Growth</div><div class="bucket-desc">401k, IRA, brokerage, index funds, retirement</div></div>
+              <div class="bucket-bar-wrap"><div class="bucket-bar" style="width:10%"></div></div>
+              <div class="bucket-pct">10%</div>
+            </div>
+            <div class="bucket-row">
+              <div><div class="bucket-name">✨ Lifestyle</div><div class="bucket-desc">Dining, entertainment, travel, hobbies — guilt-free</div></div>
+              <div class="bucket-bar-wrap"><div class="bucket-bar" style="width:10%"></div></div>
+              <div class="bucket-pct">10%</div>
+            </div>
+            <div class="bucket-row">
+              <div><div class="bucket-name">🏛️ Legacy</div><div class="bucket-desc">Generational wealth, estate planning, charitable giving</div></div>
+              <div class="bucket-bar-wrap"><div class="bucket-bar" style="width:10%"></div></div>
+              <div class="bucket-pct">10%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 7: CUSTOMIZING ALLOCATIONS ═══ -->
+      <div class="slide bg-warm">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Step 4 · Customize</div>
+          <h2 class="slide-title">Make the percentages <em>yours</em>.</h2>
+          <p class="slide-lead">
+            Defaults are a starting point — your financial reality is unique. FACTS lets you adjust every category percentage until your allocations total exactly 100%.
+          </p>
+          <div class="steps-list">
+            <div class="step-row">
+              <div class="step-num">→</div>
+              <div class="step-content">
+                <div class="step-title">Navigate to Settings → Allocations</div>
+                <div class="step-desc">Find the allocation sliders in your account settings.</div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num">→</div>
+              <div class="step-content">
+                <div class="step-title">Adjust each category percentage</div>
+                <div class="step-desc">Drag sliders or type in percentages — the total must stay at 100%.</div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num">→</div>
+              <div class="step-content">
+                <div class="step-title">FACTS recalculates dollar amounts in real-time</div>
+                <div class="step-desc">As you change a percentage, the dollar amount updates instantly based on your total income.</div>
+              </div>
+            </div>
+            <div class="step-row">
+              <div class="step-num">→</div>
+              <div class="step-content">
+                <div class="step-title">Save — your dashboard reflects the new allocation</div>
+                <div class="step-desc">Every report and tracking view updates automatically with your custom split.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 8: ADDING EXPENSES & INCOME ═══ -->
+      <div class="slide bg-cool">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Step 5 · Tracking</div>
+          <h2 class="slide-title">One entry point for <em>everything</em> — income and expenses.</h2>
+          <p class="slide-lead">
+            FACTS has a single, unified transaction entry. Whether you received money or spent it, it all goes through the same flow.
+          </p>
+          <div class="two-col">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px;">Adding an Expense</div>
+              <div class="steps-list">
+                <div class="step-row">
+                  <div class="step-num">1</div>
+                  <div class="step-content">
+                    <div class="step-title">Tap "+ Add Transaction"</div>
+                    <div class="step-desc">Available from your main dashboard.</div>
+                  </div>
+                </div>
+                <div class="step-row">
+                  <div class="step-num">2</div>
+                  <div class="step-content">
+                    <div class="step-title">Select "Expense" type</div>
+                    <div class="step-desc">Choose the category and subcategory.</div>
+                  </div>
+                </div>
+                <div class="step-row">
+                  <div class="step-num">3</div>
+                  <div class="step-content">
+                    <div class="step-title">Enter amount, date, description</div>
+                    <div class="step-desc">FACTS logs it and updates your allocation tracking.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px;">Adding Income</div>
+              <div class="steps-list">
+                <div class="step-row">
+                  <div class="step-num">1</div>
+                  <div class="step-content">
+                    <div class="step-title">Tap "+ Add Transaction"</div>
+                    <div class="step-desc">Same entry point — select "Income" type.</div>
+                  </div>
+                </div>
+                <div class="step-row">
+                  <div class="step-num">2</div>
+                  <div class="step-content">
+                    <div class="step-title">Choose income source</div>
+                    <div class="step-desc">Salary, bonus, dividends, interest, gifts, or other.</div>
+                  </div>
+                </div>
+                <div class="step-row">
+                  <div class="step-num">3</div>
+                  <div class="step-content">
+                    <div class="step-title">Enter amount &amp; save</div>
+                    <div class="step-desc">FACTS recalculates your allocation targets automatically.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 9: SUBCATEGORIES ═══ -->
+      <div class="slide bg-purple">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Step 6 · Organization</div>
+          <h2 class="slide-title"><em>25 default subcategories</em> — plus your own custom ones.</h2>
+          <p class="slide-lead">Each of the 6 main categories has pre-built subcategories for common expenses. You can add custom subcategories for anything that doesn't fit.</p>
+          <div class="pill-grid">
+            <div class="pill"><span class="icon">🏠</span> Rent / Mortgage</div>
+            <div class="pill"><span class="icon">💡</span> Utilities</div>
+            <div class="pill"><span class="icon">🚗</span> Auto Payment</div>
+            <div class="pill"><span class="icon">🛒</span> Groceries</div>
+            <div class="pill"><span class="icon">🍽️</span> Dining Out</div>
+            <div class="pill"><span class="icon">🎬</span> Entertainment</div>
+            <div class="pill"><span class="icon">👗</span> Clothing</div>
+            <div class="pill"><span class="icon">⚕️</span> Medical</div>
+            <div class="pill"><span class="icon">💊</span> Pharmacy</div>
+            <div class="pill"><span class="icon">🎓</span> Education</div>
+            <div class="pill"><span class="icon">🐾</span> Pet Care</div>
+            <div class="pill"><span class="icon">💪</span> Gym / Health</div>
+            <div class="pill"><span class="icon">✈️</span> Travel</div>
+            <div class="pill"><span class="icon">📱</span> Phone / Internet</div>
+            <div class="pill"><span class="icon">🔒</span> Insurance</div>
+            <div class="pill" style="border-style:dashed;color:var(--gold);">✨ + Create Custom</div>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:16px;">
+            Custom subcategories are permanent additions to your account — name them anything that fits your life.
+          </p>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 10: REPORTS ═══ -->
+      <div class="slide bg-cool">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Step 7 · Insights</div>
+          <h2 class="slide-title">Three reports that tell your <em>complete financial story</em>.</h2>
+          <p class="slide-lead">
+            FACTS generates reports automatically from your transactions — no setup required.
+          </p>
+          <div class="concept-grid">
+            <div class="concept-card">
+              <div class="icon">📊</div>
+              <div class="label">Overall Summary</div>
+              <div class="desc">Total income vs. total spending vs. allocation targets — your financial pulse at a glance.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">💸</div>
+              <div class="label">Expense Breakdown</div>
+              <div class="desc">Spending by category and subcategory. See exactly where money goes each month.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">💰</div>
+              <div class="label">Income Breakdown</div>
+              <div class="desc">All income sources by type. Understand your full earning picture over time.</div>
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:14px 18px;background:var(--dark-3);border:1px solid var(--border);border-radius:10px;">
+            <div style="font-size:12px;color:var(--text-muted);line-height:1.6;">
+              💡 <strong style="color:var(--text);">Pro tip:</strong> Reports update in real-time as you add transactions. No waiting for end-of-month — your financial picture is always current.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 11: DEBT REDUCTION ═══ -->
+      <div class="slide bg-warm">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Step 8 · Debt</div>
+          <h2 class="slide-title"><em>Crush debt faster</em> — with 4 comparison strategies.</h2>
+          <p class="slide-lead">
+            Enter your debts and let FACTS model four proven payoff strategies side-by-side. Choose the one that fits your psychology and your math.
+          </p>
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Strategy</th>
+                <th>How It Works</th>
+                <th>Best For</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:var(--gold);">Avalanche</strong></td>
+                <td>Pay highest interest rate first</td>
+                <td>Minimizing total interest paid</td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--gold);">Snowball</strong></td>
+                <td>Pay smallest balance first</td>
+                <td>Quick wins, psychological momentum</td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--gold);">Hybrid</strong></td>
+                <td>Balance of interest rate &amp; balance size</td>
+                <td>Middle-ground approach</td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--gold);">Custom</strong></td>
+                <td>You define the payoff order</td>
+                <td>Specific life circumstances</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:16px;padding:14px 18px;background:var(--dark-3);border:1px solid var(--border);border-radius:10px;">
+            <div style="font-size:12px;color:var(--text-muted);line-height:1.6;">
+              📉 FACTS shows your debt-free date for each strategy — and tracks your actual paydown progress as you log payments.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 12: FINANCIAL FREEDOM NUMBER ═══ -->
+      <div class="slide bg-cool">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Step 9 · Freedom</div>
+          <h2 class="slide-title">Your <em>Financial Freedom Number</em> — calculated &amp; visualized.</h2>
+          <p class="slide-lead">
+            What's the number that means money is no longer a worry? FACTS calculates it from your expenses and shows you a sunset visualization of when you'll reach it.
+          </p>
+          <div class="concept-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="concept-card">
+              <div class="icon">🧮</div>
+              <div class="label">The Calculation</div>
+              <div class="desc">Based on your annual expenses × a multiplier. Represents the nest egg where investment returns cover your costs indefinitely.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">🌅</div>
+              <div class="label">Sunset Visualization</div>
+              <div class="desc">A visual timeline showing your projected path to financial independence based on current savings rate.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">📍</div>
+              <div class="label">Progress Tracking</div>
+              <div class="desc">As you grow your net worth, the visualization updates — you can watch freedom get closer in real time.</div>
+            </div>
+            <div class="concept-card">
+              <div class="icon">🎯</div>
+              <div class="label">What-If Modeling <span style="font-size:10px;color:var(--gold);">(Pro)</span></div>
+              <div class="desc">Adjust assumptions — what if you increase savings by $200/month? See the impact instantly.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 13: IMPORT / EXPORT / PRO ═══ -->
+      <div class="slide bg-purple">
+        <div class="corner-glow"></div>
+        <div class="slide-inner">
+          <div class="slide-tag"><span class="tag-dot"></span>Steps 10–11 · Data &amp; Pro Features</div>
+          <h2 class="slide-title">Import your history. <em>Export</em> on demand. Go further with Pro.</h2>
+          <p class="slide-lead">FACTS handles data migration in and advanced automation out — and Pro unlocks the full system.</p>
+          <div class="two-col">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px;">Data Import / Export</div>
+              <div class="steps-list">
+                <div class="step-row">
+                  <div class="step-content">
+                    <div class="step-title">CSV Import</div>
+                    <div class="step-desc">Upload transaction history from any bank export file.</div>
+                  </div>
+                </div>
+                <div class="step-row">
+                  <div class="step-content">
+                    <div class="step-title">OFX / QFX Import</div>
+                    <div class="step-desc">Bank and Quicken standard formats fully supported.</div>
+                  </div>
+                </div>
+                <div class="step-row">
+                  <div class="step-content">
+                    <div class="step-title">CSV Export <span style="font-size:10px;color:var(--gold);">(Pro)</span></div>
+                    <div class="step-desc">Download your full transaction history anytime.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px;">Pro Features</div>
+              <div class="steps-list">
+                <div class="step-row">
+                  <div class="step-content">
+                    <div class="step-title">Plaid Integration</div>
+                    <div class="step-desc">Auto-import transactions from 10,000+ banks.</div>
+                  </div>
+                </div>
+                <div class="step-row">
+                  <div class="step-content">
+                    <div class="step-title">Net Worth Dashboard</div>
+                    <div class="step-desc">Full assets + liabilities view with trend tracking.</div>
+                  </div>
+                </div>
+                <div class="step-row">
+                  <div class="step-content">
+                    <div class="step-title">What-If Scenarios</div>
+                    <div class="step-desc">Model life changes — raise, house purchase, kids.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SLIDE 14: CTA ═══ -->
+      <div class="slide slide-cta">
+        <div class="corner-glow"></div>
+        <div style="text-align:center;max-width:620px;">
+          <div class="eyebrow">You're ready.</div>
+          <h1 style="font-family:'Instrument Serif',serif;font-size:clamp(36px,5.5vw,64px);line-height:1.1;color:#fff;margin-bottom:20px;">
+            Every day without a plan is a day your money has <em style="color:var(--gold);">no direction.</em>
+          </h1>
+          <p style="font-size:clamp(14px,1.8vw,17px);color:var(--text-muted);line-height:1.7;margin-bottom:36px;">
+            You've seen the system. You know what FACTS does and how to use it.<br>
+            Now it's time to let your money start working for you.
+          </p>
+          <a href="https://app.factsmoney.com/signup.html"
+             style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#C5A55A,#a07840);color:#0a0a0a;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;padding:16px 36px;border-radius:12px;text-decoration:none;transition:all .2s;box-shadow:0 8px 32px rgba(197,165,90,0.3);"
+             onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 40px rgba(197,165,90,0.4)'"
+             onmouseout="this.style.transform='';this.style.boxShadow='0 8px 32px rgba(197,165,90,0.3)'">
+            Start Your FACTS Journey →
+          </a>
+          <div style="margin-top:24px;font-size:12px;color:var(--text-muted);">
+            Free to start · No credit card required · Setup in under 5 minutes
+          </div>
+        </div>
+        <div class="cover-glow"></div>
+      </div>
+
+    </div><!-- /slides-track -->
+  </div><!-- /viewport -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn prev" id="btn-prev" onclick="prevSlide()" disabled>← Back</button>
+    <div class="dot-nav" id="dot-nav"></div>
+    <button class="nav-btn next" id="btn-next" onclick="nextSlide()">Next →</button>
+  </div>
+
+</div><!-- /shell -->
+
+<div class="key-hint">← → arrow keys to navigate</div>
+
+<script>
+  const TOTAL = 14;
+  let current = 0;
+
+  const track = document.getElementById('slides-track');
+  const progressFill = document.getElementById('progress-fill');
+  const currentNum = document.getElementById('current-num');
+  const totalNum = document.getElementById('total-num');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  const dotNav = document.getElementById('dot-nav');
+
+  totalNum.textContent = TOTAL;
+
+  // Build dots
+  for (let i = 0; i < TOTAL; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goTo(i);
+    dotNav.appendChild(dot);
+  }
+
+  function updateUI() {
+    track.style.transform = `translateX(-${current * 100}%)`;
+    progressFill.style.width = `${((current + 1) / TOTAL) * 100}%`;
+    currentNum.textContent = current + 1;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === TOTAL - 1;
+    btnNext.textContent = current === TOTAL - 2 ? 'Finish ✓' : 'Next →';
+    const dots = dotNav.querySelectorAll('.dot');
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  function goTo(n) {
+    current = Math.max(0, Math.min(TOTAL - 1, n));
+    updateUI();
+  }
+  function nextSlide() { goTo(current + 1); }
+  function prevSlide() { goTo(current - 1); }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+  });
+
+  // Touch swipe
+  let touchX = null;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 50) { dx > 0 ? nextSlide() : prevSlide(); }
+    touchX = null;
+  }, { passive: true });
+
+  updateUI();
+</script>
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

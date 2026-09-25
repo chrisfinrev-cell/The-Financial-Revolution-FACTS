@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>family Invite — FACTS</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0f1a;
+      --card: #111827;
+      --elevated: #1a2332;
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --text: #e8e0d4;
+      --muted: #a89a7e;
+      --subtle: #6b5c44;
+      --border: rgba(201,162,39,0.15);
+      --success: #10b981;
+      --error: #f43f5e;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: -1px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+    }
+
+    /* Android Chrome: 100vh includes address bar, making content unreachable.
+       Switch to top-aligned scrollable layout on mobile/tablet. */
+    @media (max-width: 768px) {
+      body {
+        align-items: flex-start;
+        padding-top: 32px;
+        padding-bottom: 40px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .card { padding: 32px 24px; }
+    }
+
+    .invite-icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(201,162,39,0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 20px;
+    }
+
+    .family-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .invite-meta {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .invite-meta strong { color: var(--text); }
+
+    .role-badge {
+      display: inline-block;
+      background: rgba(201,162,39,0.15);
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 100px;
+      border: 1px solid rgba(201,162,39,0.3);
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .expiry {
+      font-size: 12px;
+      color: var(--subtle);
+      margin-bottom: 28px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-accept {
+      background: var(--gold);
+      color: #0a0f1a;
+    }
+    .btn-accept:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-accept:active { transform: translateY(0); }
+
+    .btn-decline {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid rgba(168,154,126,0.25);
+    }
+    .btn-decline:hover { color: var(--error); border-color: rgba(244,63,94,0.3); }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0 20px;
+      color: var(--subtle);
+      font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .login-prompt {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .btn-login, .btn-signup {
+      display: block;
+      width: 100%;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--elevated);
+      color: var(--text);
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.15s ease;
+      margin-bottom: 8px;
+    }
+    .btn-login:hover, .btn-signup:hover {
+      border-color: rgba(201,162,39,0.4);
+      background: rgba(201,162,39,0.06);
+    }
+
+    .loading-state {
+      padding: 40px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(201,162,39,0.3);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-message {
+      padding: 20px 0;
+    }
+
+    .status-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .status-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .status-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .go-home {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 24px;
+      background: var(--gold);
+      color: #0a0f1a;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.15s;
+    }
+    .go-home:hover { background: var(--gold-light); }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .alert-error { background: rgba(244,63,94,0.1); color: #f87171; border: 1px solid rgba(244,63,94,0.25); }
+    .alert-success { background: rgba(16,185,129,0.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
+  </style>
+</head>
+<body>
+  <div class="logo">FACTS</div>
+
+  <div class="card">
+    <!-- Loading -->
+    <div id="loading" class="loading-state">
+      <span class="spinner"></span> Loading invite…
+    </div>
+
+    <!-- Invite valid: not logged in -->
+    <div id="view-not-authed" style="display:none">
+      <div class="invite-icon">🏠</div>
+      <div class="family-name" id="family-name-1"></div>
+      <div class="invite-meta" id="invite-meta-1"></div>
+      <div class="role-badge" id="role-badge-1"></div>
+      <div class="expiry" id="expiry-1"></div>
+
+      <div class="divider">Log in to accept</div>
+      <p class="login-prompt">You need a FACTS account to join this family.</p>
+      <a id="login-link" href="/login.html" class="btn-login">Log in to my account</a>
+      <a id="signup-link" href="/signup.html" class="btn-signup">Create a new account</a>
+    </div>
+
+    <!-- Invite valid: logged in — can accept/decline -->
+    <div id="view-authed" style="display:none">
+      <div id="alert-box" style="display:none" class="alert"></div>
+      <div class="invite-icon">🏠</div>
+      <div class="family-name" id="family-name-2"></div>
+      <div class="invite-meta" id="invite-meta-2"></div>
+      <div class="role-badge" id="role-badge-2"></div>
+      <div class="expiry" id="expiry-2"></div>
+
+      <div class="btn-group">
+        <button id="btn-accept" class="btn btn-accept" onclick="acceptInvite()">
+          Accept &amp; Join family
+        </button>
+        <button id="btn-decline" class="btn btn-decline" onclick="declineInvite()">
+          Decline Invite
+        </button>
+      </div>
+    </div>
+
+    <!-- Invalid / expired / already used -->
+    <div id="view-invalid" style="display:none" class="status-message">
+      <div class="status-icon">⏱️</div>
+      <div class="status-title" id="invalid-title">Invite Unavailable</div>
+      <div class="status-body" id="invalid-body"></div>
+      <a href="/app.html" class="go-home">Go to FACTS →</a>
+    </div>
+
+    <!-- Success state -->
+    <div id="view-success" style="display:none" class="status-message">
+      <div class="status-icon">🎉</div>
+      <div class="status-title">You're in!</div>
+      <div class="status-body" id="success-body">Welcome to your family. Everyone can track, share, and build wealth together.</div>
+      <a href="/app.html" class="go-home">Open FACTS →</a>
+    </div>
+  </div>
+
+  <script>
+    const token = new URLSearchParams(window.location.search).get('token');
+    const BASE = window.location.origin;
+    let inviteData = null;
+
+    async function init() {
+      if (!token) {
+        showInvalid('No invite token', 'This link is missing its invite token. Please check the email you received.');
+        return;
+      }
+
+      // 1. Load invite details
+      let res, data;
+      try {
+        res = await fetch(`/api/family-invite/${token}`);
+        data = await res.json();
+      } catch (e) {
+        showInvalid('Connection error', 'Could not load invite details. Please try again.');
+        return;
+      }
+
+      hide('loading');
+
+      if (!data.valid) {
+        const messages = {
+          expired: 'This invite link has expired. Ask the family owner to send a new one.',
+          accepted: 'This invite has already been accepted.',
+          declined: 'This invite was declined.',
+          cancelled: 'This invite has been cancelled by the sender.'
+        };
+        showInvalid('Invite Unavailable', messages[data.status] || data.reason || 'This invite is no longer valid.');
+        return;
+      }
+
+      inviteData = data;
+
+      // 2. Check if user is logged in (use a protected endpoint as auth probe)
+      let sessionRes;
+      try {
+        sessionRes = await fetch('/api/settings/all', { credentials: 'same-origin' });
+      } catch (e) { sessionRes = { ok: false }; }
+
+      const roleLabels = { co_admin: 'Co-Admin', adult: 'Adult Member', minor: 'Junior Member' };
+      const roleLabel = roleLabels[data.role] || 'Member';
+      const inviterLabel = data.invited_by_name ? `by ${data.invited_by_name}` : '';
+      const expires = new Date(data.expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+      if (sessionRes.ok) {
+        // Logged in
+        fill('family-name-2', data.household_name);
+        fill('invite-meta-2', `You've been invited ${inviterLabel} to join this family as a member.`);
+        fill('role-badge-2', `Role: ${roleLabel}`);
+        fill('expiry-2', `Expires ${expires}`);
+        show('view-authed');
+      } else {
+        // Not logged in — show login/signup links with invite token preserved
+        fill('family-name-1', data.household_name);
+        fill('invite-meta-1', `You've been invited ${inviterLabel} to join this FACTS family.`);
+        fill('role-badge-1', `Role: ${roleLabel}`);
+        fill('expiry-1', `Expires ${expires}`);
+
+        const inviteRedirect = encodeURIComponent(window.location.pathname + window.location.search);
+        document.getElementById('login-link').href = `/login.html?next=${inviteRedirect}`;
+        document.getElementById('signup-link').href = `/signup.html?next=${inviteRedirect}`;
+        show('view-not-authed');
+      }
+    }
+
+    async function acceptInvite() {
+      const btn = document.getElementById('btn-accept');
+      const decBtn = document.getElementById('btn-decline');
+      btn.disabled = true;
+      decBtn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Joining…';
+      hideAlert();
+
+      try {
+        const res = await fetch(`/api/family-invite/${token}/accept`, {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to accept');
+
+        hide('view-authed');
+        show('view-success');
+        document.getElementById('success-body').textContent =
+          `Welcome to ${inviteData.household_name}! You've joined as ${data.role === 'co_admin' ? 'Co-Admin' : data.role === 'minor' ? 'Junior Member' : 'Adult Member'}.`;
+      } catch (err) {
+        btn.disabled = false;
+        decBtn.disabled = false;
+        btn.innerHTML = 'Accept &amp; Join family';
+        showAlert('error', err.message);
+      }
+    }
+
+    async function declineInvite() {
+      if (!confirm('Decline this invite? The sender will not be notified.')) return;
+      const btn = document.getElementById('btn-decline');
+      btn.disabled = true;
+      btn.textContent = 'Declining…';
+      hideAlert();
+
+      try {
+        const res = await fetch(`/api/family-invite/${token}/decline`, {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        if (!res.ok) {
+          const d = await res.json();
+          throw new Error(d.error || 'Failed to decline');
+        }
+        showInvalid('Invite Declined', 'You\'ve declined this invite. No worries — you can always ask to be re-invited.');
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Decline Invite';
+        showAlert('error', err.message);
+      }
+    }
+
+    function showInvalid(title, body) {
+      hide('loading');
+      document.getElementById('invalid-title').textContent = title;
+      document.getElementById('invalid-body').textContent = body;
+      show('view-invalid');
+    }
+
+    function showAlert(type, msg) {
+      const el = document.getElementById('alert-box');
+      el.className = `alert alert-${type}`;
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function hideAlert() {
+      const el = document.getElementById('alert-box');
+      el.style.display = 'none';
+    }
+
+    function show(id) { document.getElementById(id).style.display = ''; }
+    function hide(id) { document.getElementById(id).style.display = 'none'; }
+    function fill(id, text) { document.getElementById(id).textContent = text; }
+
+    init();
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

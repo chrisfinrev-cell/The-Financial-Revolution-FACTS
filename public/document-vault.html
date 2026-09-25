@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Vault | FACTS</title>
+  <meta name="description" content="Your secure financial go-bag. Upload receipts, statements, credit reports, and benefits packages all in one place.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#070c14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1e293b' },
+            gold: { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a07c18' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    body { background: #0d1117; color: #e5e7eb; min-height: 100vh; min-height: 100dvh; }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #13192a, #1a2235);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { border-color: rgba(201,162,39,0.2); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      color: #0d1117; font-weight: 700; border-radius: 0.6rem;
+      transition: opacity 0.2s, transform 0.15s; border: none; cursor: pointer;
+      padding: 10px 20px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-gold:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #9ca3af; border-radius: 0.6rem;
+      transition: all 0.2s; cursor: pointer;
+      padding: 8px 16px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.08); color: #e5e7eb; border-color: rgba(255,255,255,0.2); }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.2);
+      color: #f87171; border-radius: 0.5rem;
+      padding: 6px 12px; font-size: 12px; cursor: pointer;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.4); }
+
+    .category-card {
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem; cursor: pointer;
+      transition: all 0.2s;
+      background: linear-gradient(145deg, #13192a, #1a2235);
+      position: relative; overflow: hidden;
+    }
+    .category-card:hover:not(.locked) { border-color: rgba(201,162,39,0.35); box-shadow: 0 4px 20px rgba(0,0,0,0.3); transform: translateY(-1px); }
+    .category-card.active { border-color: rgba(201,162,39,0.5); box-shadow: 0 0 0 1px rgba(201,162,39,0.15); }
+    .category-card.locked { cursor: default; opacity: 0.6; }
+
+    .drop-zone {
+      border: 2px dashed rgba(201,162,39,0.25);
+      border-radius: 0.75rem;
+      transition: all 0.2s;
+      background: rgba(201,162,39,0.02);
+    }
+    .drop-zone.drag-over { border-color: rgba(201,162,39,0.6); background: rgba(201,162,39,0.06); }
+
+    .doc-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 0.75rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: border-color 0.15s;
+    }
+    .doc-item:hover { border-color: rgba(255,255,255,0.12); }
+
+    .input-field {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #e5e7eb; border-radius: 0.5rem;
+      padding: 10px 14px; font-size: 14px; width: 100%;
+      outline: none; transition: border-color 0.2s;
+    }
+    .input-field:focus { border-color: rgba(201,162,39,0.5); }
+    .input-field::placeholder { color: #4b5563; }
+
+    .pro-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700;
+      background: rgba(201,162,39,0.2); color: #e8c96a; border: 1px solid rgba(201,162,39,0.35);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-box {
+      background: #13192a; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1.25rem; width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto; padding: 28px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #1a2235 25%, #1e293b 50%, #1a2235 75%);
+      background-size: 1000px 100%; animation: shimmer 2s infinite; border-radius: 0.5rem;
+    }
+
+    .page-body { padding-top: 44px; }
+
+    @media (max-width: 640px) {
+      .modal-box { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <script src="/nav-bar.js"></script>
+
+  <div class="page-body">
+
+    <!-- Hero Header -->
+    <div style="background: linear-gradient(180deg, #0a0f1a 0%, #0d1117 100%); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 36px 24px 28px;">
+      <div style="max-width: 1000px; margin: 0 auto;">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span style="font-size: 28px;">🗄️</span>
+              <h1 style="font-size: clamp(22px, 4vw, 32px); font-weight: 800; margin: 0;" class="gold-text">Document Vault</h1>
+            </div>
+            <p style="font-size: 14px; color: #6b7280; max-width: 480px; line-height: 1.6; margin: 0;">
+              Your secure financial go-bag — receipts, statements, credit reports, and benefits packages, all in one place.
+            </p>
+          </div>
+          <div id="proStatusArea" style="flex-shrink: 0;">
+            <div class="skeleton" style="width: 90px; height: 24px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div style="max-width: 1000px; margin: 0 auto; padding: 28px 24px 100px;">
+
+      <!-- Pro Gate (shown for free users) -->
+      <div id="proGate" style="display: none;">
+        <div class="card" style="padding: 40px 32px; text-align: center; max-width: 500px; margin: 0 auto;">
+          <div style="font-size: 48px; margin-bottom: 16px;">🔐</div>
+          <h2 style="font-size: 20px; font-weight: 800; color: #f1f5f9; margin-bottom: 8px;">Paid Feature</h2>
+          <p style="font-size: 14px; color: #6b7280; line-height: 1.7; margin-bottom: 24px;">
+            The Document Vault is available to paid subscribers. Securely store receipts, bank statements, credit reports, and your employer benefits package.
+          </p>
+          <a href="/pricing.html" class="btn-gold" style="display: inline-flex; text-decoration: none; margin-bottom: 16px;">
+            ⚡ Upgrade Now
+          </a>
+          <p style="font-size: 12px; color: #4b5563;">From $25/month · Cancel anytime</p>
+        </div>
+      </div>
+
+      <!-- Vault Content (shown for Pro users) -->
+      <div id="vaultContent" style="display: none;">
+
+        <!-- Live Categories Grid -->
+        <div style="margin-bottom: 32px;">
+          <div style="font-size: 11px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px;">📂 Your Documents</div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 24px;" id="categoryGrid">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Document Panel (shown when a category is selected) -->
+        <div id="documentPanel" style="display: none;">
+          <div class="card" style="padding: 0; overflow: hidden;">
+            <!-- Panel Header -->
+            <div style="padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="panelIcon" style="font-size: 24px;"></span>
+                <div>
+                  <h2 id="panelTitle" style="font-size: 17px; font-weight: 700; color: #f1f5f9; margin: 0;"></h2>
+                  <p id="panelDesc" style="font-size: 12px; color: #6b7280; margin: 2px 0 0;"></p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="btn-gold" id="uploadBtn" onclick="openUploadModal()">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                  Upload
+                </button>
+                <button class="btn-outline" onclick="closePanel()">✕ Close</button>
+              </div>
+            </div>
+
+            <!-- Benefits Masterclass CTA (only for benefits_packages) -->
+            <div id="benefitsMCBanner" style="display:none; padding: 14px 24px; background: rgba(201,162,39,0.06); border-bottom: 1px solid rgba(201,162,39,0.15);">
+              <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <span style="font-size:20px;">🎓</span>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; font-weight:600; color:#e8c96a;">Benefits Masterclass connected</div>
+                  <div style="font-size:12px; color:#6b7280;">Upload your package PDF, fill the verification form, and all 6 calculators auto-populate with your real numbers.</div>
+                </div>
+                <a href="/benefits-masterclass" class="btn-gold" style="text-decoration:none; white-space:nowrap; padding:8px 16px; font-size:13px;">Open Calculators →</a>
+              </div>
+            </div>
+
+            <!-- Scan Receipt CTA (only for receipts category) -->
+            <div id="scanReceiptBanner" style="display:none; padding: 14px 24px; background: rgba(52,211,153,0.06); border-bottom: 1px solid rgba(52,211,153,0.15);">
+              <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <span style="font-size:20px;">📷</span>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; font-weight:600; color:#34d399;">AI Receipt Scanner available</div>
+                  <div style="font-size:12px; color:#6b7280;">Snap a photo and AI auto-fills vendor, amount & FACTS category — one tap to save.</div>
+                </div>
+                <a href="/receipt-scanner" style="background:#f5c542;color:#000;font-weight:700;padding:8px 16px;border-radius:8px;font-size:13px;text-decoration:none;white-space:nowrap;">🧾 Scan Receipt →</a>
+              </div>
+            </div>
+
+            <!-- Credit Report special notice -->
+            <div id="creditReportBanner" style="display:none; padding: 14px 24px; background: rgba(59,130,246,0.06); border-bottom: 1px solid rgba(59,130,246,0.15);">
+              <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <span style="font-size:20px;">📊</span>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; font-weight:600; color:#93c5fd;">Credit reports stored here</div>
+                  <div style="font-size:12px; color:#6b7280;">Download your free annual reports from <a href="https://annualcreditreport.com" target="_blank" style="color:#60a5fa;">annualcreditreport.com</a> — Equifax, Experian, and TransUnion. Upload all 3 for a complete picture.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Document List -->
+            <div style="padding: 20px 24px;">
+              <div id="docsLoading" style="display:none; padding: 20px 0; text-align: center; color: #4b5563; font-size: 13px;">Loading documents…</div>
+              <div id="docsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+              <div id="docsEmpty" style="display:none; padding: 32px 0; text-align: center;">
+                <div style="font-size: 32px; margin-bottom: 12px; opacity: 0.5;" id="emptyIcon">📂</div>
+                <p style="color: #4b5563; font-size: 13px;" id="emptyMsg">No documents yet. Upload your first one above.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coming Soon Section -->
+        <div style="margin-top: 32px;">
+          <div style="font-size: 11px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px;">🔒 Coming Soon</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+      </div> <!-- /vaultContent -->
+
+    </div>
+  </div>
+
+  <!-- ═══ UPLOAD MODAL ══════════════════════════════════════════════════════ -->
+  <div id="uploadModal" class="modal-overlay" style="display: none;" onclick="closeUploadModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: #f1f5f9; margin: 0;" id="modalTitle">Upload Document</h3>
+        <button onclick="closeUploadModal()" style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      </div>
+
+      <!-- Drop Zone -->
+      <div class="drop-zone" id="dropZone" style="padding: 32px; text-align: center; margin-bottom: 20px; cursor: pointer;" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+        <div style="font-size: 36px; margin-bottom: 12px;">📤</div>
+        <p style="font-size: 14px; color: #9ca3af; margin-bottom: 6px;">Drop your file here or <span style="color: #e8c96a; font-weight: 600;">click to browse</span></p>
+        <p style="font-size: 12px; color: #4b5563;" id="acceptHint">Supported: PDF, JPG, PNG, HEIC · Max 20 MB</p>
+        <input type="file" id="fileInput" style="display:none;" onchange="handleFileSelect(event)">
+      </div>
+
+      <!-- Selected file preview -->
+      <div id="filePreview" style="display:none; padding: 12px 16px; background: rgba(201,162,39,0.07); border: 1px solid rgba(201,162,39,0.2); border-radius: 0.6rem; margin-bottom: 20px; display:none;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span id="fileIcon" style="font-size: 24px;">📄</span>
+          <div style="flex:1; min-width:0;">
+            <div id="fileName" style="font-size: 13px; font-weight: 600; color: #e8c96a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+            <div id="fileSize" style="font-size: 11px; color: #6b7280;"></div>
+          </div>
+          <button onclick="clearFile()" style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:16px;">✕</button>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-size: 12px; color: #9ca3af; margin-bottom: 6px; font-weight: 500;">Notes (optional)</label>
+        <input type="text" id="uploadNotes" class="input-field" placeholder="e.g. Chase Jan 2025, Equifax credit report…">
+      </div>
+
+      <!-- Benefits Package Hint -->
+      <div id="benefitsHint" style="display:none; padding:12px 16px; background: rgba(201,162,39,0.06); border: 1px solid rgba(201,162,39,0.2); border-radius: 0.6rem; margin-bottom: 16px;">
+        <div style="font-size:13px; font-weight:600; color:#e8c96a; margin-bottom:4px;">🎓 Benefits Package PDF</div>
+        <p style="font-size:12px; color:#9ca3af; margin:0;">After upload, you'll be asked to verify key values from your benefits package. These will power all 6 calculators in the Benefits Masterclass.</p>
+      </div>
+
+      <!-- Error message -->
+      <div id="uploadError" style="display:none; padding:10px 14px; background: rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius: 0.5rem; color: #f87171; font-size: 13px; margin-bottom: 16px;"></div>
+
+      <!-- Upload Button -->
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-gold" id="uploadSubmitBtn" onclick="submitUpload()" style="flex:1; justify-content: center;" disabled>
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          <span id="uploadBtnLabel">Upload Document</span>
+        </button>
+        <button class="btn-outline" onclick="closeUploadModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ BENEFITS VERIFICATION MODAL ═══════════════════════════════════════ -->
+  <div id="benefitsModal" class="modal-overlay" style="display: none;" onclick="closeBenefitsModal(event)">
+    <div class="modal-box" style="max-width: 600px;" onclick="event.stopPropagation()">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: #f1f5f9; margin: 0;">🎓 Verify Your Benefits Package</h3>
+        <button onclick="closeBenefitsModal()" style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      </div>
+      <p style="font-size: 13px; color: #6b7280; margin-bottom: 24px; line-height: 1.6;">Review and enter your employer benefits details. These power all 6 calculators in the Benefits Masterclass with your real numbers.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <!-- Employer -->
+        <div style="grid-column: span 2;">
+          <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px; font-weight:500;">Employer Name</label>
+          <input type="text" id="bEmployer" class="input-field" placeholder="e.g. Acme Corp">
+        </div>
+
+        <!-- 401(k) -->
+        <div style="grid-column: span 2; padding: 14px 16px; background: rgba(52,211,153,0.05); border: 1px solid rgba(52,211,153,0.15); border-radius: 0.6rem;">
+          <div style="font-size:12px; font-weight:700; color:#34d399; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;">💰 401(k)</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">My Contribution %</label>
+              <input type="number" id="bContrib" class="input-field" placeholder="3" min="0" max="100" step="0.5" style="padding:8px 12px; font-size:13px;">
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">Match Rate %</label>
+              <input type="number" id="bMatchRate" class="input-field" placeholder="50" min="0" max="200" step="1" style="padding:8px 12px; font-size:13px;">
+              <div style="font-size:10px; color:#4b5563; margin-top:3px;">e.g. 50 = 50¢ per $1</div>
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">Up to % of Salary</label>
+              <input type="number" id="bMatchMax" class="input-field" placeholder="6" min="0" max="25" step="0.5" style="padding:8px 12px; font-size:13px;">
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">Vesting Schedule</label>
+            <select id="bVesting" class="input-field" style="padding:8px 12px; font-size:13px;">
+              <option value="">-- Select --</option>
+              <option value="immediate">Immediate</option>
+              <option value="2year_cliff">2-Year Cliff</option>
+              <option value="3year_cliff">3-Year Cliff</option>
+              <option value="4year_graded">4-Year Graded (25%/yr)</option>
+              <option value="6year_graded">6-Year Graded</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- HSA -->
+        <div style="grid-column: span 2; padding: 14px 16px; background: rgba(96,165,250,0.05); border: 1px solid rgba(96,165,250,0.15); border-radius: 0.6rem;">
+          <div style="font-size:12px; font-weight:700; color:#60a5fa; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;">🏥 HSA</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">Employer Seed $</label>
+              <input type="number" id="bHsaSeed" class="input-field" placeholder="500" min="0" step="50" style="padding:8px 12px; font-size:13px;">
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">My Contribution $</label>
+              <input type="number" id="bHsaContrib" class="input-field" placeholder="2000" min="0" step="50" style="padding:8px 12px; font-size:13px;">
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">Plan Type</label>
+              <select id="bHsaType" class="input-field" style="padding:8px 12px; font-size:13px;">
+                <option value="individual">Individual</option>
+                <option value="family">Family</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dental/Vision -->
+        <div style="padding: 14px 16px; background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.15); border-radius: 0.6rem;">
+          <div style="font-size:12px; font-weight:700; color:#fbbf24; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;">🦷 Dental</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">Annual Max $</label>
+              <input type="number" id="bDentalMax" class="input-field" placeholder="1500" min="0" step="50" style="padding:8px 12px; font-size:13px;">
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">YTD Used $</label>
+              <input type="number" id="bDentalUsed" class="input-field" placeholder="0" min="0" step="10" style="padding:8px 12px; font-size:13px;">
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 14px 16px; background: rgba(167,139,250,0.05); border: 1px solid rgba(167,139,250,0.15); border-radius: 0.6rem;">
+          <div style="font-size:12px; font-weight:700; color:#a78bfa; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;">👁️ Vision</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">Annual Max $</label>
+              <input type="number" id="bVisionMax" class="input-field" placeholder="200" min="0" step="25" style="padding:8px 12px; font-size:13px;">
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">YTD Used $</label>
+              <input type="number" id="bVisionUsed" class="input-field" placeholder="0" min="0" step="10" style="padding:8px 12px; font-size:13px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tuition -->
+        <div style="grid-column: span 2; padding: 14px 16px; background: rgba(249,115,22,0.05); border: 1px solid rgba(249,115,22,0.15); border-radius: 0.6rem;">
+          <div style="font-size:12px; font-weight:700; color:#fb923c; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;">🎓 Tuition Reimbursement</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">Annual Cap $</label>
+              <input type="number" id="bTuitionMax" class="input-field" placeholder="5250" min="0" step="250" style="padding:8px 12px; font-size:13px;">
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; color:#6b7280; margin-bottom:5px;">Education Spent This Year $</label>
+              <input type="number" id="bEduSpent" class="input-field" placeholder="0" min="0" step="100" style="padding:8px 12px; font-size:13px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Salary override -->
+        <div style="grid-column: span 2;">
+          <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px; font-weight:500;">Annual Base Salary $ <span id="salaryFromFacts" style="font-size:11px; color:#4b5563;"></span></label>
+          <input type="number" id="bSalary" class="input-field" placeholder="Auto-filled from FACTS income data" min="0" step="1000">
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div id="benefitsError" style="display:none; padding:10px 14px; background: rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:0.5rem; color:#f87171; font-size:13px; margin-top:16px;"></div>
+
+      <!-- Buttons -->
+      <div style="display:flex; gap:10px; margin-top:24px;">
+        <button class="btn-gold" id="benefitsSaveBtn" onclick="saveBenefitsData()" style="flex:1; justify-content:center;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          Save &amp; Power Calculators
+        </button>
+        <button class="btn-outline" onclick="closeBenefitsModal()">Skip for now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ VIEW/DELETE MODAL ═════════════════════════════════════════════════ -->
+  <div id="viewModal" class="modal-overlay" style="display: none;" onclick="closeViewModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: #f1f5f9; margin: 0;" id="viewDocName">Document</h3>
+        <button onclick="closeViewModal()" style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom: 24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px; color:#6b7280;">File Size</span>
+          <span style="font-size:13px; color:#d1d5db;" id="viewDocSize"></span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px; color:#6b7280;">Uploaded</span>
+          <span style="font-size:13px; color:#d1d5db;" id="viewDocDate"></span>
+        </div>
+        <div id="viewDocNotesRow" style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px; color:#6b7280;">Notes</span>
+          <span style="font-size:13px; color:#d1d5db;" id="viewDocNotes"></span>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <a id="viewDocDownload" href="#" target="_blank" class="btn-gold" style="flex:1; justify-content:center; text-decoration:none;">
+          📥 Open / Download
+        </a>
+        <button class="btn-danger" onclick="deleteCurrentDoc()" style="padding: 10px 16px; font-size:13px;">🗑️ Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════════════════════════
+    // State
+    // ══════════════════════════════════════════════════════════
+    let hasPro = false;
+    let activeCategory = null;
+    let currentDocuments = [];
+    let selectedFile = null;
+    let currentDocId = null;
+    let pendingBenefitsDocId = null;
+    let factsAnnualIncome = 0;
+
+    const LIVE_CATEGORIES = [
+      {
+        id: 'receipts',
+        label: 'Receipts',
+        icon: '🧾',
+        color: 'rgba(52,211,153,0.12)',
+        border: 'rgba(52,211,153,0.25)',
+        desc: 'Upload receipt images or PDFs for expenses, purchases, and reimbursements.',
+        accepts: '.pdf,.jpg,.jpeg,.png,.heic,.heif',
+        acceptHint: 'PDF, JPG, PNG, HEIC · Max 20 MB'
+      },
+      {
+        id: 'financial_transactions',
+        label: 'Financial Statements',
+        icon: '🏦',
+        color: 'rgba(96,165,250,0.12)',
+        border: 'rgba(96,165,250,0.25)',
+        desc: 'Bank statements, brokerage statements, and investment reports (CSV, OFX, QFX, PDF).',
+        accepts: '.pdf,.csv,.ofx,.qfx,.jpg,.jpeg,.png',
+        acceptHint: 'PDF, CSV, OFX, QFX · Max 20 MB'
+      },
+      {
+        id: 'credit_reports',
+        label: 'Credit Reports',
+        icon: '📊',
+        color: 'rgba(251,191,36,0.12)',
+        border: 'rgba(251,191,36,0.25)',
+        desc: 'Annual credit reports from Equifax, Experian, and TransUnion.',
+        accepts: '.pdf,.jpg,.jpeg,.png',
+        acceptHint: 'PDF, JPG, PNG · Max 20 MB'
+      },
+      {
+        id: 'benefits_packages',
+        label: 'Benefits Packages',
+        icon: '🎁',
+        color: 'rgba(201,162,39,0.12)',
+        border: 'rgba(201,162,39,0.35)',
+        desc: 'Employer benefits PDFs — powers the Benefits Masterclass calculators with your real data.',
+        accepts: '.pdf,.jpg,.jpeg,.png',
+        acceptHint: 'PDF, JPG, PNG · Max 20 MB'
+      }
+    ];
+
+    const LOCKED_CATEGORIES = [
+      { icon: '📜', label: 'Wills', desc: 'Last will and testament documents' },
+      { icon: '🏛️', label: 'Trusts', desc: 'Living trusts and trust agreements' },
+      { icon: '🛡️', label: 'Insurance Policies', desc: 'Life, health, and property insurance' },
+      { icon: '📋', label: 'Tax Returns', desc: 'Annual federal and state tax returns' },
+      { icon: '💼', label: 'Pay Stubs', desc: 'Payroll stubs and earnings statements' },
+      { icon: '🏠', label: 'Property Deeds', desc: 'Deeds, titles, and mortgage docs' },
+      { icon: '🚗', label: 'Vehicle Titles', desc: 'Car and vehicle title documents' },
+      { icon: '⚖️', label: 'Power of Attorney', desc: 'Legal authorization documents' }
+    ];
+
+    // ══════════════════════════════════════════════════════════
+    // Init
+    // ══════════════════════════════════════════════════════════
+    async function init() {
+      try {
+        const res = await fetch('/api/vault/summary');
+        if (res.status === 401) {
+          window.location.href = '/login.html?redirect=/document-vault';
+          return;
+        }
+        if (!res.ok) throw new Error('Failed to load vault');
+        const data = await res.json();
+
+        hasPro = data.has_pro;
+
+        document.getElementById('proStatusArea').innerHTML = hasPro
+          ? '<span class="pro-badge">✦ Pro</span>'
+          : '<a href="/pricing.html" class="pro-badge" style="text-decoration:none; cursor:pointer;">Upgrade Now</a>';
+
+        if (!hasPro) {
+          // Show pro gate
+          document.getElementById('proGate').style.display = 'block';
+          return;
+        }
+
+        document.getElementById('vaultContent').style.display = 'block';
+
+        renderCategoryGrid(data.summary);
+        renderLockedCategories();
+
+      } catch (err) {
+        console.error('Vault init error:', err);
+        document.getElementById('vaultContent').style.display = 'block';
+        renderCategoryGrid({});
+        renderLockedCategories();
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // Render Category Cards
+    // ══════════════════════════════════════════════════════════
+    function renderCategoryGrid(summary) {
+      const grid = document.getElementById('categoryGrid');
+      grid.innerHTML = '';
+
+      LIVE_CATEGORIES.forEach(cat => {
+        const s = summary[cat.id] || { count: 0, last_upload: null };
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        card.id = 'catCard_' + cat.id;
+        card.onclick = () => selectCategory(cat.id);
+
+        const lastUpload = s.last_upload
+          ? 'Last: ' + new Date(s.last_upload).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          : 'No uploads yet';
+
+        card.innerHTML = `
+          <div style="padding: 18px 20px;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom: 10px;">
+              <div style="width:44px; height:44px; border-radius:0.6rem; background:${cat.color}; border:1px solid ${cat.border}; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">${cat.icon}</div>
+              ${s.count > 0 ? `<span style="background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-radius:100px; font-size:11px; font-weight:700; color:#9ca3af; padding:2px 8px;">${s.count}</span>` : ''}
+            </div>
+            <div style="font-size:15px; font-weight:700; color:#f1f5f9; margin-bottom:4px;">${cat.label}</div>
+            <div style="font-size:11px; color:#4b5563;">${lastUpload}</div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function renderLockedCategories() {
+      const grid = document.querySelector('#vaultContent > div:last-child > div');
+      LOCKED_CATEGORIES.forEach((cat, idx) => {
+        const featureKey = 'doc_vault_' + cat.label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/_+$/, '');
+        const formId = 'dv-form-' + idx;
+        const inputId = 'dv-email-' + idx;
+        const confirmId = 'dv-confirm-' + idx;
+        const el = document.createElement('div');
+        el.className = 'category-card locked';
+        el.innerHTML = `
+          <div style="padding: 16px 18px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom: 8px;">
+              <span style="font-size:20px; opacity:0.5;">${cat.icon}</span>
+              <div style="font-size:13px; font-weight:600; color:#4b5563;">${cat.label}</div>
+              <span style="margin-left:auto; font-size:11px; color:#374151; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:4px; padding:2px 6px; white-space:nowrap;">Coming Soon</span>
+            </div>
+            <div style="font-size:11px; color:#374151; line-height:1.5; margin-bottom:12px;">${cat.desc}</div>
+            <!-- Notify Me -->
+            <div id="${formId}">
+              <div style="display:flex; gap:6px;">
+                <input id="${inputId}" type="email" placeholder="your@email.com"
+                  style="flex:1; min-width:0; padding:7px 10px; border:1px solid rgba(255,255,255,0.08); border-radius:7px; background:rgba(255,255,255,0.04); color:#9ca3af; font-size:11px; outline:none; box-sizing:border-box;">
+                <button onclick="submitDvWaitlist('${featureKey}','${inputId}','${formId}','${confirmId}')"
+                  style="padding:7px 10px; background:rgba(201,162,39,0.15); border:1px solid rgba(201,162,39,0.3); border-radius:7px; color:#c9a227; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0;">🔔 Notify Me</button>
+              </div>
+            </div>
+            <div id="${confirmId}" style="display:none; font-size:11px; color:#34d399; font-weight:600; margin-top:6px;">✓ You're on the list!</div>
+          </div>
+        `;
+        grid.appendChild(el);
+      });
+    }
+
+    function submitDvWaitlist(featureName, emailInputId, formId, confirmId) {
+      var emailEl = document.getElementById(emailInputId);
+      var email = emailEl ? emailEl.value.trim() : '';
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (emailEl) { emailEl.style.borderColor = '#ef4444'; setTimeout(function(){ emailEl.style.borderColor = ''; }, 2000); }
+        return;
+      }
+      var btn = emailEl ? emailEl.nextElementSibling : null;
+      if (btn) { btn.textContent = '…'; btn.disabled = true; }
+      fetch('/api/waitlist/feature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') },
+        body: JSON.stringify({ feature_name: featureName, email: email })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var formEl = document.getElementById(formId);
+        var confirmEl = document.getElementById(confirmId);
+        if (formEl) formEl.style.display = 'none';
+        if (confirmEl) confirmEl.style.display = 'block';
+      })
+      .catch(function() {
+        if (btn) { btn.textContent = '🔔 Notify Me'; btn.disabled = false; }
+      });
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // Category Selection
+    // ══════════════════════════════════════════════════════════
+    function selectCategory(catId) {
+      // Update active card
+      document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+      const card = document.getElementById('catCard_' + catId);
+      if (card) card.classList.add('active');
+
+      activeCategory = catId;
+      const catInfo = LIVE_CATEGORIES.find(c => c.id === catId);
+      if (!catInfo) return;
+
+      document.getElementById('panelIcon').textContent = catInfo.icon;
+      document.getElementById('panelTitle').textContent = catInfo.label;
+      document.getElementById('panelDesc').textContent = catInfo.desc;
+      document.getElementById('emptyIcon').textContent = catInfo.icon;
+      document.getElementById('emptyMsg').textContent = `No ${catInfo.label.toLowerCase()} yet. Upload your first one above.`;
+
+      // Show/hide special banners
+      document.getElementById('benefitsMCBanner').style.display = catId === 'benefits_packages' ? 'block' : 'none';
+      document.getElementById('creditReportBanner').style.display = catId === 'credit_reports' ? 'block' : 'none';
+      document.getElementById('scanReceiptBanner').style.display = catId === 'receipts' ? 'block' : 'none';
+
+      document.getElementById('documentPanel').style.display = 'block';
+      loadDocuments(catId);
+
+      // Scroll to panel
+      setTimeout(() => {
+        document.getElementById('documentPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 50);
+    }
+
+    function closePanel() {
+      activeCategory = null;
+      document.getElementById('documentPanel').style.display = 'none';
+      document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // Document Loading
+    // ══════════════════════════════════════════════════════════
+    async function loadDocuments(catId) {
+      const list = document.getElementById('docsList');
+      const empty = document.getElementById('docsEmpty');
+      const loading = document.getElementById('docsLoading');
+
+      list.innerHTML = '';
+      empty.style.display = 'none';
+      loading.style.display = 'block';
+
+      try {
+        const res = await fetch('/api/vault/documents?category=' + catId);
+        const data = await res.json();
+        loading.style.display = 'none';
+
+        currentDocuments = data.documents || [];
+        if (currentDocuments.length === 0) {
+          empty.style.display = 'block';
+          return;
+        }
+
+        currentDocuments.forEach(doc => {
+          const el = createDocElement(doc);
+          list.appendChild(el);
+        });
+      } catch (err) {
+        loading.style.display = 'none';
+        empty.style.display = 'block';
+        console.error('Load docs error:', err);
+      }
+    }
+
+    function createDocElement(doc) {
+      const el = document.createElement('div');
+      el.className = 'doc-item';
+
+      const ext = doc.file_name.split('.').pop().toLowerCase();
+      const icon = ext === 'pdf' ? '📄' : ['jpg','jpeg','png','heic'].includes(ext) ? '🖼️' : '📁';
+      const size = doc.file_size_bytes ? formatBytes(doc.file_size_bytes) : '';
+      const date = new Date(doc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+      el.innerHTML = `
+        <span style="font-size:24px; flex-shrink:0;">${icon}</span>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:13px; font-weight:600; color:#e5e7eb; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(doc.file_name)}</div>
+          <div style="font-size:11px; color:#4b5563; margin-top:2px;">${date}${size ? ' · ' + size : ''}${doc.notes ? ' · ' + escHtml(doc.notes) : ''}</div>
+        </div>
+        <button class="btn-outline" onclick="viewDoc(${doc.id})" style="padding:6px 12px; font-size:12px; flex-shrink:0;">View</button>
+      `;
+
+      return el;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // Upload Modal
+    // ══════════════════════════════════════════════════════════
+    function openUploadModal() {
+      if (!activeCategory) return;
+      const cat = LIVE_CATEGORIES.find(c => c.id === activeCategory);
+      document.getElementById('modalTitle').textContent = 'Upload to ' + cat.label;
+      document.getElementById('acceptHint').textContent = cat.acceptHint;
+      document.getElementById('fileInput').accept = cat.accepts;
+      document.getElementById('benefitsHint').style.display = activeCategory === 'benefits_packages' ? 'block' : 'none';
+      document.getElementById('uploadNotes').value = '';
+      document.getElementById('uploadError').style.display = 'none';
+      clearFile();
+      document.getElementById('uploadModal').style.display = 'flex';
+    }
+
+    function closeUploadModal(e) {
+      if (e && e.target !== document.getElementById('uploadModal')) return;
+      document.getElementById('uploadModal').style.display = 'none';
+      clearFile();
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      document.getElementById('dropZone').classList.add('drag-over');
+    }
+    function handleDragLeave() {
+      document.getElementById('dropZone').classList.remove('drag-over');
+    }
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('dropZone').classList.remove('drag-over');
+      if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+    }
+    function handleFileSelect(e) {
+      if (e.target.files.length) setFile(e.target.files[0]);
+    }
+
+    function setFile(file) {
+      selectedFile = file;
+      document.getElementById('filePreview').style.display = 'flex';
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileSize').textContent = formatBytes(file.size);
+      const ext = file.name.split('.').pop().toLowerCase();
+      document.getElementById('fileIcon').textContent = ext === 'pdf' ? '📄' : ['jpg','jpeg','png','heic'].includes(ext) ? '🖼️' : '📁';
+      document.getElementById('uploadSubmitBtn').disabled = false;
+    }
+
+    function clearFile() {
+      selectedFile = null;
+      document.getElementById('filePreview').style.display = 'none';
+      document.getElementById('fileInput').value = '';
+      document.getElementById('uploadSubmitBtn').disabled = true;
+    }
+
+    async function submitUpload() {
+      if (!selectedFile || !activeCategory) return;
+
+      const btn = document.getElementById('uploadSubmitBtn');
+      const label = document.getElementById('uploadBtnLabel');
+      btn.disabled = true;
+      label.textContent = 'Uploading…';
+
+      document.getElementById('uploadError').style.display = 'none';
+
+      try {
+        const form = new FormData();
+        form.append('file', selectedFile);
+        form.append('category', activeCategory);
+        const notes = document.getElementById('uploadNotes').value.trim();
+        if (notes) form.append('notes', notes);
+
+        const res = await fetch('/api/vault/documents', { method: 'POST', body: form });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Upload failed');
+        }
+
+        // Close upload modal
+        document.getElementById('uploadModal').style.display = 'none';
+        clearFile();
+
+        // Refresh documents list
+        await loadDocuments(activeCategory);
+
+        // Refresh category count
+        refreshSummary();
+
+        // If benefits package, show verification form
+        if (activeCategory === 'benefits_packages' && data.benefits_hint) {
+          pendingBenefitsDocId = data.benefits_hint.document_id;
+          setTimeout(() => openBenefitsModal(pendingBenefitsDocId), 400);
+        }
+
+      } catch (err) {
+        document.getElementById('uploadError').textContent = err.message;
+        document.getElementById('uploadError').style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        label.textContent = 'Upload Document';
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // Benefits Verification Modal
+    // ══════════════════════════════════════════════════════════
+    async function openBenefitsModal(docId) {
+      pendingBenefitsDocId = docId;
+      document.getElementById('benefitsError').style.display = 'none';
+
+      // Load existing data + FACTS income
+      try {
+        const res = await fetch('/api/vault/benefits-data');
+        if (res.ok) {
+          const data = await res.json();
+          const b = data.benefits;
+          const facts = data.facts_data;
+
+          // Pre-fill from existing benefits data
+          if (b) {
+            document.getElementById('bEmployer').value = b.employer_name || '';
+            document.getElementById('bContrib').value = b.employee_contribution_percent || '';
+            document.getElementById('bMatchRate').value = b.match_rate_percent || '';
+            document.getElementById('bMatchMax').value = b.match_max_percent || '';
+            document.getElementById('bVesting').value = b.vesting_schedule || '';
+            document.getElementById('bHsaSeed').value = b.hsa_employer_seed_cents != null ? (b.hsa_employer_seed_cents / 100).toFixed(0) : '';
+            document.getElementById('bHsaContrib').value = b.hsa_employee_contribution_cents != null ? (b.hsa_employee_contribution_cents / 100).toFixed(0) : '';
+            document.getElementById('bHsaType').value = b.hsa_plan_type || 'individual';
+            document.getElementById('bDentalMax').value = b.dental_annual_max_cents != null ? (b.dental_annual_max_cents / 100).toFixed(0) : '';
+            document.getElementById('bDentalUsed').value = b.dental_used_cents != null ? (b.dental_used_cents / 100).toFixed(0) : '';
+            document.getElementById('bVisionMax').value = b.vision_annual_max_cents != null ? (b.vision_annual_max_cents / 100).toFixed(0) : '';
+            document.getElementById('bVisionUsed').value = b.vision_used_cents != null ? (b.vision_used_cents / 100).toFixed(0) : '';
+            document.getElementById('bTuitionMax').value = b.tuition_max_cents != null ? (b.tuition_max_cents / 100).toFixed(0) : '';
+            document.getElementById('bEduSpent').value = b.education_spent_cents != null ? (b.education_spent_cents / 100).toFixed(0) : '';
+            const salaryFromBenefits = b.base_salary_cents != null ? (b.base_salary_cents / 100).toFixed(0) : '';
+            document.getElementById('bSalary').value = salaryFromBenefits;
+          }
+
+          // Pre-fill salary from FACTS if not already set
+          if (facts && facts.annual_income_cents > 0) {
+            factsAnnualIncome = facts.annual_income_cents;
+            const factsSalary = Math.round(facts.annual_income_cents / 100);
+            const hint = `(from FACTS: $${factsSalary.toLocaleString()}/yr)`;
+            document.getElementById('salaryFromFacts').textContent = hint;
+            if (!document.getElementById('bSalary').value) {
+              document.getElementById('bSalary').value = factsSalary;
+            }
+          }
+        }
+      } catch (e) {
+        // Non-fatal
+      }
+
+      document.getElementById('benefitsModal').style.display = 'flex';
+    }
+
+    function closeBenefitsModal(e) {
+      if (e && e.target !== document.getElementById('benefitsModal')) return;
+      document.getElementById('benefitsModal').style.display = 'none';
+    }
+
+    async function saveBenefitsData() {
+      document.getElementById('benefitsError').style.display = 'none';
+      const btn = document.getElementById('benefitsSaveBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Saving…';
+
+      const toC = v => v ? Math.round(parseFloat(v) * 100) : null;
+
+      const payload = {
+        document_id: pendingBenefitsDocId || null,
+        employer_name: document.getElementById('bEmployer').value.trim() || null,
+        employee_contribution_percent: document.getElementById('bContrib').value || null,
+        match_rate_percent: document.getElementById('bMatchRate').value || null,
+        match_max_percent: document.getElementById('bMatchMax').value || null,
+        vesting_schedule: document.getElementById('bVesting').value || null,
+        hsa_employer_seed_cents: toC(document.getElementById('bHsaSeed').value),
+        hsa_plan_type: document.getElementById('bHsaType').value,
+        hsa_employee_contribution_cents: toC(document.getElementById('bHsaContrib').value),
+        dental_annual_max_cents: toC(document.getElementById('bDentalMax').value),
+        dental_used_cents: toC(document.getElementById('bDentalUsed').value) || 0,
+        vision_annual_max_cents: toC(document.getElementById('bVisionMax').value),
+        vision_used_cents: toC(document.getElementById('bVisionUsed').value) || 0,
+        tuition_max_cents: toC(document.getElementById('bTuitionMax').value),
+        education_spent_cents: toC(document.getElementById('bEduSpent').value) || 0,
+        base_salary_cents: document.getElementById('bSalary').value ? Math.round(parseFloat(document.getElementById('bSalary').value) * 100) : null
+      };
+
+      try {
+        const res = await fetch('/api/vault/benefits-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Save failed');
+
+        document.getElementById('benefitsModal').style.display = 'none';
+
+        // Show success toast + link to masterclass
+        showToast('✅ Benefits saved! Your calculators are powered up.', () => {
+          window.location.href = '/benefits-masterclass';
+        });
+
+      } catch (err) {
+        document.getElementById('benefitsError').textContent = err.message;
+        document.getElementById('benefitsError').style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg> Save &amp; Power Calculators';
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // View Modal
+    // ══════════════════════════════════════════════════════════
+    function viewDoc(docId) {
+      const doc = currentDocuments.find(d => d.id === docId);
+      if (!doc) return;
+      currentDocId = docId;
+      document.getElementById('viewDocName').textContent = doc.file_name;
+      document.getElementById('viewDocSize').textContent = doc.file_size_bytes ? formatBytes(doc.file_size_bytes) : '—';
+      document.getElementById('viewDocDate').textContent = new Date(doc.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      document.getElementById('viewDocNotes').textContent = doc.notes || '—';
+      document.getElementById('viewDocNotesRow').style.display = doc.notes ? 'flex' : 'none';
+      document.getElementById('viewDocDownload').href = '/api/vault/documents/' + docId + '/download';
+      document.getElementById('viewModal').style.display = 'flex';
+    }
+
+    function closeViewModal(e) {
+      if (e && e.target !== document.getElementById('viewModal')) return;
+      document.getElementById('viewModal').style.display = 'none';
+      currentDocId = null;
+    }
+
+    async function deleteCurrentDoc() {
+      if (!currentDocId) return;
+      if (!confirm('Delete this document? This cannot be undone.')) return;
+
+      try {
+        const res = await fetch('/api/vault/documents/' + currentDocId, { method: 'DELETE' });
+        if (res.ok) {
+          document.getElementById('viewModal').style.display = 'none';
+          currentDocId = null;
+          await loadDocuments(activeCategory);
+          refreshSummary();
+        }
+      } catch (err) {
+        alert('Failed to delete document');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // Helpers
+    // ══════════════════════════════════════════════════════════
+    async function refreshSummary() {
+      try {
+        const res = await fetch('/api/vault/summary');
+        if (!res.ok) return;
+        const data = await res.json();
+        // Update badge counts on category cards
+        LIVE_CATEGORIES.forEach(cat => {
+          const s = data.summary[cat.id] || { count: 0 };
+          const card = document.getElementById('catCard_' + cat.id);
+          if (!card) return;
+          const badge = card.querySelector('span[style*="border-radius:100px"]');
+          if (s.count > 0) {
+            if (badge) badge.textContent = s.count;
+            else {
+              const topRow = card.querySelector('div[style*="justify-content"]');
+              if (topRow) {
+                const b = document.createElement('span');
+                b.style.cssText = 'background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:100px;font-size:11px;font-weight:700;color:#9ca3af;padding:2px 8px;';
+                b.textContent = s.count;
+                topRow.appendChild(b);
+              }
+            }
+          }
+        });
+      } catch (e) {}
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes) return '';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function showToast(msg, onClick) {
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#13192a;border:1px solid rgba(201,162,39,0.4);color:#e8c96a;padding:14px 22px;border-radius:0.75rem;font-size:13px;font-weight:600;z-index:9999;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;';
+      toast.textContent = msg;
+      if (onClick) {
+        toast.style.cursor = 'pointer';
+        toast.onclick = onClick;
+      }
+      document.body.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 5000);
+    }
+
+    // Init on load
+    init();
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

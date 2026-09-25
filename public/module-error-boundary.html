@@ -1,0 +1,147 @@
+<!-- Module Error Boundary Component -->
+<script>
+  /**
+   * ModuleErrorBoundary
+   * Wraps each module's UI section
+   * If module crashes, shows error card instead of crashing entire dashboard
+   */
+  class ModuleErrorBoundary {
+    constructor(moduleId, containerSelector) {
+      this.moduleId = moduleId;
+      this.container = document.querySelector(containerSelector);
+      this.hasError = false;
+
+      if (!this.container) {
+        console.warn(`[ModuleErrorBoundary] Container not found: ${containerSelector}`);
+        return;
+      }
+
+      // Set up error boundary
+      this.setupErrorBoundary();
+    }
+
+    setupErrorBoundary() {
+      // Store original content
+      this.originalContent = this.container.innerHTML;
+
+      // Override console.error for this module
+      const originalError = console.error;
+      window.addEventListener('error', (e) => {
+        if (this.container.contains(e.target) || e.filename?.includes(this.moduleId)) {
+          this.handleError(e.error || e.message);
+        }
+      });
+
+      // Catch unhandled promise rejections
+      window.addEventListener('unhandledrejection', (e) => {
+        if (e.reason?.moduleId === this.moduleId) {
+          this.handleError(e.reason);
+        }
+      });
+    }
+
+    handleError(error) {
+      console.error(`[Module Error - ${this.moduleId}]`, error);
+      this.hasError = true;
+      this.renderErrorCard(error);
+    }
+
+    renderErrorCard(error) {
+      const errorHtml = `
+        <div class="module-error-card" style="
+          padding: 24px;
+          border: 1px solid #fee;
+          border-radius: 8px;
+          background-color: #fef2f2;
+          margin: 16px 0;
+        ">
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div style="
+              color: #dc2626;
+              font-size: 24px;
+              flex-shrink: 0;
+            ">⚠️</div>
+            <div style="flex: 1;">
+              <h3 style="margin: 0 0 8px 0; color: #991b1b; font-size: 18px;">
+                Module Error
+              </h3>
+              <p style="margin: 0 0 8px 0; color: #7f1d1d; font-size: 14px;">
+                The <strong>${this.moduleId}</strong> section encountered an issue.
+              </p>
+              <p style="margin: 0 0 12px 0; color: #7f1d1d; font-size: 13px; font-family: monospace;">
+                ${error?.message || 'Unknown error'}
+              </p>
+              <button onclick="location.reload()" style="
+                padding: 8px 16px;
+                background-color: #dc2626;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+              ">
+                Reload Page
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      this.container.innerHTML = errorHtml;
+    }
+
+    async fetchModuleContent() {
+      // Attempt to reload module content via API
+      try {
+        const response = await fetch(`/api/${this.moduleId}`, {
+          method: 'GET'
+        });
+        if (response.ok) {
+          return await response.json();
+        }
+      } catch (err) {
+        console.error(`[ModuleErrorBoundary] Failed to fetch ${this.moduleId}:`, err);
+      }
+      return null;
+    }
+  }
+
+  // Export for use in other scripts
+  window.ModuleErrorBoundary = ModuleErrorBoundary;
+</script>
+
+<style>
+  .module-error-card {
+    padding: 24px;
+    border: 1px solid #fee;
+    border-radius: 8px;
+    background-color: #fef2f2;
+    margin: 16px 0;
+  }
+
+  .module-error-card h3 {
+    margin: 0 0 8px 0;
+    color: #991b1b;
+    font-size: 18px;
+  }
+
+  .module-error-card p {
+    color: #7f1d1d;
+    font-size: 14px;
+    margin: 0 0 8px 0;
+  }
+
+  .module-error-card button {
+    padding: 8px 16px;
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .module-error-card button:hover {
+    background-color: #b91c1c;
+  }
+</style>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FACTS — You're Offline</title>
+  <meta name="theme-color" content="#0a0f1a">
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-deep: #0a0f1a;
+      --bg-card: #111827;
+      --accent-green: #10b981;
+      --accent-gold: #f59e0b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: -apple-system, 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 24px;
+      text-align: center;
+    }
+
+    /* Android Chrome / Samsung Internet / DuckDuckGo: 100vh includes address bar.
+       Switch to top-aligned scrollable layout on mobile. */
+    @media (max-width: 768px) {
+      body {
+        align-items: flex-start;
+        padding-top: 32px;
+        padding-bottom: 40px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+
+    .container {
+      max-width: 380px;
+      width: 100%;
+    }
+
+    .logo-wrap {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 24px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(245,158,11,0.2);
+    }
+
+    .logo-wrap img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+    }
+
+    .logo-fallback {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent-green);
+      letter-spacing: -1px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      letter-spacing: -0.3px;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .wifi-icon {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      opacity: 0.6;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      margin-right: 6px;
+      animation: pulse-red 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .status-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent-green);
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #0ea271;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-secondary);
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-top: 12px;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tip {
+      margin-top: 32px;
+      padding: 16px;
+      background: rgba(245,158,11,0.06);
+      border: 1px solid rgba(245,158,11,0.14);
+      border-radius: 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .tip strong {
+      color: var(--accent-gold);
+      display: block;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="wifi-icon">📡</div>
+
+    <div class="logo-wrap">
+      <img src="/icons/icon-192.png" alt="FACTS" onerror="this.parentElement.innerHTML='<span class=logo-fallback>F</span>'">
+    </div>
+
+    <h1>You're Offline</h1>
+    <p>FACTS can't connect to the internet right now.</p>
+    <p>Check your connection and try again.</p>
+
+    <div class="status-text">
+      <span class="status-dot"></span>
+      No internet connection
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="tryReload()">
+        ↻ Try Again
+      </button>
+      <a href="/app" class="btn btn-secondary">
+        ← Back to Dashboard
+      </a>
+    </div>
+
+    <div class="tip">
+      <strong>💡 Pro tip</strong>
+      Install FACTS as an app on your home screen for the best offline experience — your recent data stays accessible even without internet.
+    </div>
+  </div>
+
+  <script>
+    var statusDot = document.querySelector('.status-dot');
+    var statusLabel = document.querySelector('.status-text');
+    var retryTimer = null;
+
+    // Actual server ping — navigator.onLine is unreliable across browsers.
+    // A real HEAD request to the origin proves connectivity end-to-end.
+    function checkServer() {
+      return fetch(window.location.origin + '/?_sw_check=' + Date.now(), {
+        method: 'HEAD', cache: 'no-store', mode: 'no-cors'
+      }).then(function () { return true; })
+        .catch(function () { return false; });
+    }
+
+    function tryReload() {
+      var btn = document.querySelector('.btn-primary');
+      btn.textContent = 'Checking…';
+      checkServer().then(function (ok) {
+        if (ok) {
+          // Server reachable — force bypass SW cache with a hard navigation
+          window.location.href = window.location.origin + '/app?_t=' + Date.now();
+        } else {
+          btn.textContent = '↻ Try Again';
+          statusDot.style.background = '#ef4444';
+        }
+      });
+    }
+
+    // Auto-retry every 5s in case the offline page was served by a stale SW
+    function startAutoRetry() {
+      if (retryTimer) return;
+      retryTimer = setInterval(function () {
+        checkServer().then(function (ok) {
+          if (ok) {
+            clearInterval(retryTimer);
+            window.location.href = window.location.origin + '/app?_t=' + Date.now();
+          }
+        });
+      }, 5000);
+    }
+    startAutoRetry();
+
+    // Also respond to the browser's online event, but verify with a real ping
+    window.addEventListener('online', function () {
+      setTimeout(function () {
+        checkServer().then(function (ok) {
+          if (ok) window.location.href = window.location.origin + '/app?_t=' + Date.now();
+        });
+      }, 500);
+    });
+
+    window.addEventListener('offline', function () {
+      statusDot.style.background = '#ef4444';
+    });
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resource Center — FACTS</title>
+  <meta name="description" content="Access guides, diagrams, templates, compliance checklists, and reference materials for the FACTS system.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#070c14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1e293b' },
+            gold: { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a07c18' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    body { background: #0d1117; color: #e5e7eb; min-height: 100vh; min-height: 100dvh; }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #13192a, #1a2235);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .card:hover { border-color: rgba(201,162,39,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.3); transform: translateY(-2px); }
+
+    .card-locked { opacity: 0.7; }
+    .card-locked:hover { transform: none; }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      color: #0d1117; font-weight: 700; border-radius: 0.6rem;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-gold:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #d1d5db; border-radius: 0.6rem;
+      transition: background 0.2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.09); }
+
+    /* Category filter pills */
+    .cat-pill {
+      padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 500;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: #9ca3af; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .cat-pill:hover { background: rgba(201,162,39,0.1); border-color: rgba(201,162,39,0.3); color: #e8c96a; }
+    .cat-pill.active {
+      background: rgba(201,162,39,0.15); border-color: rgba(201,162,39,0.5);
+      color: #e8c96a; font-weight: 600;
+    }
+
+    /* Type badges */
+    .type-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .type-pdf { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+    .type-image { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.2); }
+    .type-diagram { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.2); }
+    .type-spreadsheet { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+    .type-link { background: rgba(14,165,233,0.15); color: #7dd3fc; border: 1px solid rgba(14,165,233,0.2); }
+    .type-chart { background: rgba(251,146,60,0.15); color: #fdba74; border: 1px solid rgba(251,146,60,0.2); }
+    .type-video { background: rgba(236,72,153,0.15); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.2); }
+    .type-doc { background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.2); }
+
+    /* Pro badge */
+    .pro-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 700;
+      background: rgba(201,162,39,0.2); color: #e8c96a; border: 1px solid rgba(201,162,39,0.35);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    /* Lock overlay */
+    .lock-overlay {
+      position: absolute; inset: 0; border-radius: 1rem;
+      background: rgba(7,12,20,0.7); backdrop-filter: blur(2px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .card-locked:hover .lock-overlay { opacity: 1; }
+
+    /* Search input */
+    .search-input {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: #e5e7eb; border-radius: 0.75rem; padding: 10px 16px 10px 44px;
+      font-size: 14px; width: 100%; outline: none; transition: border-color 0.2s;
+    }
+    .search-input::placeholder { color: #6b7280; }
+    .search-input:focus { border-color: rgba(201,162,39,0.4); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 60px 20px;
+      color: #4b5563;
+    }
+
+    /* Loading skeleton */
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #1a2235 25%, #1e293b 50%, #1a2235 75%);
+      background-size: 1000px 100%;
+      animation: shimmer 2s infinite;
+      border-radius: 0.5rem;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: #13192a; border: 1px solid rgba(255,255,255,0.1);
+      color: #e5e7eb; padding: 12px 20px; border-radius: 10px;
+      font-size: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transform: translateY(80px); opacity: 0; transition: all 0.3s;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* PDF viewer modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #13192a; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1.25rem; width: 100%; max-width: 900px; max-height: 90vh;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .modal-body { flex: 1; overflow: hidden; }
+    .modal-body iframe { width: 100%; height: 100%; border: none; min-height: 60vh; }
+
+    /* Coming soon badge */
+    .coming-soon-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+      background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.2);
+    }
+
+    /* Page top offset for nav */
+    .page-body { padding-top: 44px; }
+  </style>
+</head>
+<body>
+  <!-- Global nav bar -->
+  <script src="/nav-bar.js"></script>
+
+  <div class="page-body">
+
+    <!-- Hero Header -->
+    <div style="background: linear-gradient(180deg, #0a0f1a 0%, #0d1117 100%); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 40px 24px 32px;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 8px;">
+          <span style="font-size: 36px;">📚</span>
+          <h1 style="font-size: clamp(24px, 4vw, 36px); font-weight: 800; margin: 0;" class="gold-text">Resource Center</h1>
+        </div>
+        <p style="color: #9ca3af; font-size: 16px; margin: 0 0 24px 0; max-width: 600px;">
+          Guides, diagrams, templates, and reference materials — everything you need to master the FACTS system.
+        </p>
+
+        <!-- Search Bar -->
+        <div style="max-width: 480px; position: relative;">
+          <svg style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" class="search-input" id="searchInput" placeholder="Search resources..." oninput="handleSearch()">
+        </div>
+      </div>
+    </div>
+
+    <div style="max-width: 1200px; margin: 0 auto; padding: 24px 24px 60px;">
+
+      <!-- Category Filter -->
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; align-items: center;" id="categoryFilters">
+        <div class="cat-pill active" data-cat="all" onclick="setCat('all')">All Resources</div>
+        <!-- Dynamic categories injected here -->
+      </div>
+
+      <!-- Stats Bar -->
+      <div id="statsBar" style="display: flex; gap: 24px; margin-bottom: 28px; flex-wrap: wrap;">
+        <div style="font-size: 13px; color: #6b7280;" id="countLabel">Loading...</div>
+      </div>
+
+      <!-- Pro Upgrade Banner (for free users) -->
+      <div id="proBanner" style="display:none; margin-bottom: 28px; padding: 16px 20px; background: linear-gradient(135deg, rgba(201,162,39,0.1), rgba(201,162,39,0.05)); border: 1px solid rgba(201,162,39,0.3); border-radius: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 24px;">🔒</span>
+          <div>
+            <div style="font-weight: 700; color: #e8c96a; font-size: 15px;">Some resources require a paid plan</div>
+            <div style="font-size: 13px; color: #9ca3af; margin-top: 2px;">Upgrade to access all guides, templates, and advanced materials.</div>
+          </div>
+        </div>
+        <a href="/pricing.html" class="btn-gold" style="padding: 10px 20px; font-size: 14px; text-decoration: none; white-space: nowrap;">Upgrade Now →</a>
+      </div>
+
+      <!-- Resource Grid -->
+      <div id="resourceGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        <!-- Skeleton loaders -->
+        <div class="card" style="padding: 24px;">
+          <div class="skeleton" style="height: 20px; width: 60%; margin-bottom: 12px;"></div>
+          <div class="skeleton" style="height: 14px; width: 100%; margin-bottom: 8px;"></div>
+          <div class="skeleton" style="height: 14px; width: 80%; margin-bottom: 20px;"></div>
+          <div class="skeleton" style="height: 36px; width: 120px;"></div>
+        </div>
+        <div class="card" style="padding: 24px;">
+          <div class="skeleton" style="height: 20px; width: 70%; margin-bottom: 12px;"></div>
+          <div class="skeleton" style="height: 14px; width: 100%; margin-bottom: 8px;"></div>
+          <div class="skeleton" style="height: 14px; width: 65%; margin-bottom: 20px;"></div>
+          <div class="skeleton" style="height: 36px; width: 120px;"></div>
+        </div>
+        <div class="card" style="padding: 24px;">
+          <div class="skeleton" style="height: 20px; width: 55%; margin-bottom: 12px;"></div>
+          <div class="skeleton" style="height: 14px; width: 100%; margin-bottom: 8px;"></div>
+          <div class="skeleton" style="height: 14px; width: 75%; margin-bottom: 20px;"></div>
+          <div class="skeleton" style="height: 36px; width: 120px;"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PDF/File Viewer Modal -->
+  <div class="modal-overlay" id="viewerModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <div style="font-weight: 700; font-size: 16px; color: #e5e7eb;" id="viewerTitle">Resource</div>
+          <div style="font-size: 12px; color: #6b7280; margin-top: 2px;" id="viewerMeta"></div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <a id="viewerDownloadBtn" href="#" download style="padding: 8px 16px; font-size: 13px; text-decoration: none;" class="btn-gold">⬇ Download</a>
+          <button onclick="closeViewer()" style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: #9ca3af; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 18px; line-height: 1;">×</button>
+        </div>
+      </div>
+      <div class="modal-body" id="viewerBody">
+        <div style="display: flex; align-items: center; justify-content: center; height: 300px; color: #6b7280;">
+          <div class="loader"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <script>
+    let allResources = [];
+    let filteredResources = [];
+    let currentCat = 'all';
+    let hasPro = false;
+    let searchTimeout = null;
+
+    // ── Type config ──────────────────────────────────────────
+    const TYPE_CONFIG = {
+      pdf:        { label: 'PDF',         class: 'type-pdf',         icon: '📄' },
+      image:      { label: 'Image',       class: 'type-image',       icon: '🖼' },
+      diagram:    { label: 'Diagram',     class: 'type-diagram',     icon: '📐' },
+      spreadsheet:{ label: 'Sheet',       class: 'type-spreadsheet', icon: '📊' },
+      link:       { label: 'Link',        class: 'type-link',        icon: '🔗' },
+      chart:      { label: 'Chart',       class: 'type-chart',       icon: '📈' },
+      video:      { label: 'Video',       class: 'type-video',       icon: '🎬' },
+      doc:        { label: 'Document',    class: 'type-doc',         icon: '📝' },
+    };
+
+    // ── Init ─────────────────────────────────────────────────
+    async function init() {
+      try {
+        const params = new URLSearchParams();
+        if (currentCat !== 'all') params.set('category', currentCat);
+        const searchVal = document.getElementById('searchInput').value.trim();
+        if (searchVal) params.set('search', searchVal);
+
+        const res = await fetch(`/api/resources?${params}`);
+        if (res.status === 401 || res.status === 302) {
+          window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+          return;
+        }
+        if (!res.ok) throw new Error('Failed to load');
+
+        const data = await res.json();
+        allResources = data.resources || [];
+        hasPro = data.has_pro || false;
+
+        // Build category filters
+        buildCategoryFilters(data.categories || []);
+
+        // Show pro banner for free users if there are locked items
+        const hasLockedItems = allResources.some(r => r.locked);
+        if (hasLockedItems && !hasPro) {
+          document.getElementById('proBanner').style.display = 'flex';
+        }
+
+        renderResources(allResources);
+      } catch (err) {
+        document.getElementById('resourceGrid').innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #6b7280;">
+            <div style="font-size: 40px; margin-bottom: 12px;">⚠️</div>
+            <div style="font-size: 15px;">Failed to load resources. Please refresh.</div>
+          </div>
+        `;
+        console.error(err);
+      }
+    }
+
+    // ── Build category filter pills ──────────────────────────
+    function buildCategoryFilters(categories) {
+      const container = document.getElementById('categoryFilters');
+      // Keep "All Resources" pill (first child), rebuild the rest
+      const allPill = container.querySelector('[data-cat="all"]');
+      container.innerHTML = '';
+      container.appendChild(allPill);
+
+      categories.forEach(cat => {
+        const pill = document.createElement('div');
+        pill.className = 'cat-pill';
+        pill.dataset.cat = cat;
+        pill.textContent = cat;
+        pill.onclick = () => setCat(cat);
+        container.appendChild(pill);
+      });
+    }
+
+    // ── Set active category ──────────────────────────────────
+    function setCat(cat) {
+      currentCat = cat;
+      document.querySelectorAll('.cat-pill').forEach(p => {
+        p.classList.toggle('active', p.dataset.cat === cat);
+      });
+      applyFilters();
+    }
+
+    // ── Search handler (debounced) ───────────────────────────
+    function handleSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => applyFilters(), 300);
+    }
+
+    // ── Apply cat + search filters client-side ────────────────
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      filteredResources = allResources.filter(r => {
+        const matchCat = currentCat === 'all' || r.category === currentCat;
+        const matchSearch = !search ||
+          r.title.toLowerCase().includes(search) ||
+          (r.description || '').toLowerCase().includes(search) ||
+          r.category.toLowerCase().includes(search);
+        return matchCat && matchSearch;
+      });
+      renderResources(filteredResources);
+    }
+
+    // ── Render resource grid ─────────────────────────────────
+    function renderResources(resources) {
+      const grid = document.getElementById('resourceGrid');
+      const countLabel = document.getElementById('countLabel');
+
+      // Update count
+      const total = resources.length;
+      const locked = resources.filter(r => r.locked).length;
+      countLabel.textContent = `${total} resource${total !== 1 ? 's' : ''}${locked ? ` · ${locked} paid-only` : ''}`;
+
+      if (total === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1;" class="empty-state">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+            <div style="font-size: 18px; font-weight: 600; color: #6b7280; margin-bottom: 8px;">No resources found</div>
+            <div style="font-size: 14px; color: #4b5563;">Try a different category or search term.</div>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = resources.map(r => renderCard(r)).join('');
+    }
+
+    // ── Render single resource card ──────────────────────────
+    function renderCard(r) {
+      const typeConf = TYPE_CONFIG[r.resource_type] || TYPE_CONFIG.pdf;
+      const hasFile = r.file_url || r.has_file_data;
+      const isComingSoon = !hasFile;
+
+      const typeBadge = `<span class="type-badge ${typeConf.class}">${typeConf.icon} ${typeConf.label}</span>`;
+      const proBadge = r.is_pro_only ? `<span class="pro-badge">⭐ Pro</span>` : '';
+
+      const fileSize = r.file_size_bytes > 0
+        ? `<span style="color:#6b7280;font-size:12px;">${formatFileSize(r.file_size_bytes)}</span>`
+        : '';
+
+      let actionBtn = '';
+      if (r.locked) {
+        actionBtn = `
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn-outline" style="padding:9px 16px;font-size:13px;cursor:not-allowed;opacity:0.6;" disabled>🔒 Paid Plans Only</button>
+            <a href="/pricing.html" class="btn-gold" style="padding:9px 14px;font-size:13px;text-decoration:none;">Upgrade</a>
+          </div>
+        `;
+      } else if (isComingSoon) {
+        const safeTitle = escHtml(r.title).replace(/'/g, '&#39;');
+        actionBtn = `
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span class="coming-soon-badge">🕐 Coming Soon</span>
+            <button class="btn-outline" style="padding:7px 14px;font-size:12px;cursor:pointer;border-color:rgba(201,162,39,0.3);color:#c9a227;" onclick="openRcNotifyModal(${r.id}, '${safeTitle}')">🔔 Notify Me</button>
+          </div>
+        `;
+      } else {
+        const viewable = ['pdf', 'image', 'diagram', 'chart'].includes(r.resource_type);
+        const viewBtn = viewable
+          ? `<button class="btn-outline" style="padding:9px 16px;font-size:13px;cursor:pointer;" onclick="viewResource(${r.id}, '${escHtml(r.title)}', '${r.resource_type}')">👁 View</button>`
+          : '';
+        actionBtn = `
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            ${viewBtn}
+            <button class="btn-gold" style="padding:9px 16px;font-size:13px;cursor:pointer;border:none;" onclick="downloadResource(${r.id}, '${escHtml(r.file_name || r.title)}')">⬇ Download</button>
+          </div>
+        `;
+      }
+
+      const downloadsLabel = r.download_count > 0
+        ? `<span style="color:#4b5563;font-size:12px;">${r.download_count} download${r.download_count !== 1 ? 's' : ''}</span>`
+        : '';
+
+      return `
+        <div class="card${r.locked ? ' card-locked' : ''}" style="padding: 24px; position: relative;">
+          ${r.locked ? `
+            <div class="lock-overlay">
+              <div style="font-size:36px;margin-bottom:8px;">🔒</div>
+              <div style="font-size:14px;font-weight:700;color:#e8c96a;margin-bottom:4px;">Paid Plan Required</div>
+              <a href="/pricing.html" style="color:#9ca3af;font-size:12px;text-decoration:underline;">Upgrade to access</a>
+            </div>
+          ` : ''}
+
+          <!-- Top: emoji + badges -->
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+            <span style="font-size:32px; line-height:1;">${r.thumbnail_emoji || '📄'}</span>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+              ${typeBadge}
+              ${proBadge}
+            </div>
+          </div>
+
+          <!-- Title -->
+          <h3 style="font-size:16px; font-weight:700; color:#f3f4f6; margin:0 0 8px 0; line-height:1.4;">${escHtml(r.title)}</h3>
+
+          <!-- Description -->
+          <p style="font-size:13px; color:#9ca3af; line-height:1.6; margin:0 0 16px 0; flex-grow:1;">
+            ${r.description ? escHtml(r.description).substring(0, 140) + (r.description.length > 140 ? '…' : '') : 'No description provided.'}
+          </p>
+
+          <!-- Category tag -->
+          <div style="margin-bottom:16px;">
+            <span style="font-size:11px; color:#6b7280; background:rgba(255,255,255,0.05); padding:3px 10px; border-radius:100px; border:1px solid rgba(255,255,255,0.07);">
+              ${escHtml(r.category)}
+            </span>
+          </div>
+
+          <!-- Meta (file size + downloads) -->
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;min-height:18px;">
+            ${fileSize}
+            ${downloadsLabel}
+          </div>
+
+          <!-- Action -->
+          ${actionBtn}
+        </div>
+      `;
+    }
+
+    // ── View resource (inline PDF/image viewer) ──────────────
+    async function viewResource(id, title, type) {
+      const modal = document.getElementById('viewerModal');
+      const body = document.getElementById('viewerBody');
+      document.getElementById('viewerTitle').textContent = title;
+      document.getElementById('viewerMeta').textContent = (TYPE_CONFIG[type] || {}).label || type;
+      document.getElementById('viewerDownloadBtn').href = `/api/resources/${id}/download`;
+
+      body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:300px;color:#6b7280;"><div style="font-size:32px;">⏳</div></div>`;
+      modal.classList.add('open');
+
+      // Use iframe to display via download URL
+      const url = `/api/resources/${id}/download`;
+      if (type === 'image') {
+        body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;padding:20px;min-height:60vh;"><img src="${url}" style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:8px;" onerror="this.parentElement.innerHTML='<div style=color:#6b7280;font-size:14px;>Failed to load image.</div>'"></div>`;
+      } else {
+        body.innerHTML = `<iframe src="${url}" style="width:100%;min-height:70vh;border:none;" title="${escHtml(title)}"></iframe>`;
+      }
+    }
+
+    function closeViewer() {
+      document.getElementById('viewerModal').classList.remove('open');
+      document.getElementById('viewerBody').innerHTML = '';
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('viewerModal').addEventListener('click', function(e) {
+      if (e.target === this) closeViewer();
+    });
+
+    // ── Download resource ────────────────────────────────────
+    async function downloadResource(id, filename) {
+      try {
+        const link = document.createElement('a');
+        link.href = `/api/resources/${id}/download`;
+        link.download = filename || 'resource';
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast('Download started ✓');
+      } catch (err) {
+        toast('Download failed: ' + err.message, true);
+      }
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function escHtml(s) {
+      if (!s) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function toast(msg, isErr = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.borderColor = isErr ? 'rgba(239,68,68,0.4)' : 'rgba(52,211,153,0.3)';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    // ── Keyboard close modal ─────────────────────────────────
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeViewer(); closeRcNotifyModal(); }
+    });
+
+    // ── Resource Center Notify Modal ──────────────────────────
+    function openRcNotifyModal(resourceId, resourceTitle) {
+      var modal = document.getElementById('rc-notify-modal');
+      var titleEl = document.getElementById('rc-notify-title');
+      var hiddenId = document.getElementById('rc-notify-resource-id');
+      var form = document.getElementById('rc-notify-form');
+      var confirm = document.getElementById('rc-notify-confirm');
+      var emailEl = document.getElementById('rc-notify-email');
+      if (titleEl) titleEl.textContent = resourceTitle;
+      if (hiddenId) hiddenId.value = resourceId;
+      if (form) form.style.display = '';
+      if (confirm) confirm.style.display = 'none';
+      if (emailEl) { emailEl.value = ''; emailEl.style.borderColor = ''; }
+      if (modal) modal.style.display = 'flex';
+    }
+    function closeRcNotifyModal() {
+      var modal = document.getElementById('rc-notify-modal');
+      if (modal) modal.style.display = 'none';
+    }
+    function submitRcWaitlist() {
+      var titleEl = document.getElementById('rc-notify-title');
+      var emailEl = document.getElementById('rc-notify-email');
+      var form = document.getElementById('rc-notify-form');
+      var confirm = document.getElementById('rc-notify-confirm');
+      var btn = document.getElementById('rc-notify-btn');
+      var email = emailEl ? emailEl.value.trim() : '';
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (emailEl) { emailEl.style.borderColor = '#ef4444'; setTimeout(function(){ emailEl.style.borderColor = ''; }, 2000); }
+        return;
+      }
+      var title = titleEl ? titleEl.textContent : 'resource';
+      var featureName = 'resource_' + title.toLowerCase().replace(/[^a-z0-9]+/g, '_').substring(0, 50);
+      if (btn) { btn.textContent = '…'; btn.disabled = true; }
+      fetch('/api/waitlist/feature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') },
+        body: JSON.stringify({ feature_name: featureName, email: email })
+      })
+      .then(r => r.json())
+      .then(() => {
+        if (form) form.style.display = 'none';
+        if (confirm) confirm.style.display = 'block';
+      })
+      .catch(() => {
+        if (btn) { btn.textContent = '🔔 Notify Me'; btn.disabled = false; }
+      });
+    }
+
+    // ── Start ────────────────────────────────────────────────
+    init();
+  </script>
+
+<!-- ── Resource Notify Modal ──────────────────────────────── -->
+<div id="rc-notify-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeRcNotifyModal();">
+  <div style="background:#141b2d;border:1px solid rgba(201,162,39,0.2);border-radius:16px;padding:32px 28px;max-width:400px;width:100%;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+    <button onclick="closeRcNotifyModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#64748b;font-size:1.2rem;cursor:pointer;">✕</button>
+    <div style="font-size:2rem;text-align:center;margin-bottom:12px;">🔔</div>
+    <h3 style="font-size:1.1rem;font-weight:800;text-align:center;margin-bottom:6px;color:#f1f5f9;">Get notified when it's live</h3>
+    <p style="color:#94a3b8;font-size:0.85rem;text-align:center;margin-bottom:4px;line-height:1.5;" id="rc-notify-title"></p>
+    <p style="color:#64748b;font-size:0.8rem;text-align:center;margin-bottom:20px;">We'll email you the moment this resource is available.</p>
+    <input type="hidden" id="rc-notify-resource-id">
+    <div id="rc-notify-form">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <input id="rc-notify-email" type="email" placeholder="your@email.com"
+               style="width:100%;padding:10px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(255,255,255,0.05);color:#f1f5f9;font-size:0.875rem;outline:none;box-sizing:border-box;">
+        <button id="rc-notify-btn" onclick="submitRcWaitlist()"
+                style="width:100%;padding:10px 18px;background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;border:none;border-radius:8px;font-size:0.875rem;font-weight:700;cursor:pointer;">🔔 Notify Me</button>
+      </div>
+    </div>
+    <div id="rc-notify-confirm" style="display:none;padding:12px 16px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);border-radius:8px;color:#10b981;font-size:0.875rem;font-weight:600;text-align:center;">✓ You're on the list!</div>
+  </div>
+</div>
+
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

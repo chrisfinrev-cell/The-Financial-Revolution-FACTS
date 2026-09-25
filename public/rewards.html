@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<!-- Proprietary – Financial Revolution – All Rights Reserved -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FACTS Rewards — FACTS</title>
+  <meta name="description" content="Earn FACTS Points through daily engagement and redeem them for store credit at Aura Restored.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050810'/%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%23f59e0b' stroke-width='1.5'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-size='14' fill='%23f59e0b' font-family='serif'%3E🏅%3C/text%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="/nav-bar.js" defer></script>
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+    body { background: #0d1117; color: #e8e8e8; min-height: 100vh; min-height: 100dvh; margin: 0; padding-top: 44px; }
+    .card { background: linear-gradient(145deg, #13192a, #1a2235); border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; }
+    .card-gold { background: linear-gradient(145deg, rgba(245,158,11,0.08), rgba(251,191,36,0.04)); border: 1px solid rgba(245,158,11,0.25); border-radius: 1rem; }
+    .card-green { background: linear-gradient(145deg, rgba(16,185,129,0.08), rgba(5,150,105,0.04)); border: 1px solid rgba(16,185,129,0.2); border-radius: 1rem; }
+
+    /* Points balance hero */
+    .balance-hero {
+      background: radial-gradient(ellipse at 50% -20%, rgba(245,158,11,0.18) 0%, transparent 60%),
+                  linear-gradient(145deg, #13192a, #1a2235);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 1.25rem;
+    }
+    .balance-number {
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    /* Monthly cap bar */
+    .cap-bar-track { background: rgba(255,255,255,0.06); border-radius: 999px; height: 10px; overflow: hidden; }
+    .cap-bar-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      transition: width 1s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 0 6px rgba(245,158,11,0.5);
+    }
+    .cap-bar-fill.near-cap {
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+    }
+
+    /* Streak flame */
+    .streak-badge {
+      background: radial-gradient(ellipse at 50% 0%, rgba(239,68,68,0.25) 0%, transparent 70%);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 1rem;
+    }
+    .streak-count {
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 900;
+      color: #f87171;
+      line-height: 1;
+    }
+
+    /* Challenge card */
+    .challenge-card {
+      background: #13192a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.875rem;
+      transition: border-color 0.2s;
+    }
+    .challenge-card.completed {
+      border-color: rgba(16,185,129,0.3);
+      background: rgba(16,185,129,0.04);
+    }
+    .challenge-progress-track { background: rgba(255,255,255,0.05); border-radius: 999px; height: 6px; overflow: hidden; }
+    .challenge-progress-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      transition: width 0.8s ease;
+    }
+
+    /* Achievement badge */
+    .ach-badge {
+      aspect-ratio: 1;
+      border-radius: 0.75rem;
+      background: #13192a;
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px;
+      transition: all 0.2s;
+      cursor: default;
+    }
+    .ach-badge.earned {
+      border-color: rgba(245,158,11,0.4);
+      background: linear-gradient(145deg, rgba(245,158,11,0.1), rgba(251,191,36,0.05));
+    }
+    .ach-badge.locked { opacity: 0.35; filter: grayscale(1); }
+
+    /* Redemption CTA */
+    .redeem-btn {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      font-weight: 800;
+      border-radius: 0.875rem;
+      padding: 1rem 2rem;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+      transition: opacity 0.2s, transform 0.15s;
+      box-shadow: 0 4px 20px rgba(245,158,11,0.3);
+    }
+    .redeem-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .redeem-btn:active { transform: translateY(0); }
+    .redeem-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* Code display */
+    .code-box {
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 0.75rem;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fbbf24;
+      letter-spacing: 2px;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    /* History row */
+    .history-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.625rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .history-row:last-child { border-bottom: none; }
+
+    /* Skeleton loader */
+    .skeleton { background: rgba(255,255,255,0.05); border-radius: 0.5rem; animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.7} }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.85); align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #13192a; border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 1.25rem; padding: 2rem; max-width: 440px; width: 100%;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .balance-number { font-size: 3rem; }
+      .grid-achievements { grid-template-columns: repeat(3, 1fr) !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── MAIN CONTENT ── -->
+<div id="rewards-root" style="max-width:900px;margin:0 auto;padding:1rem 1rem 5rem;">
+
+  <!-- Header -->
+  <div style="margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.25rem;">
+      <span style="font-size:1.75rem;">🏅</span>
+      <h1 style="font-size:1.5rem;font-weight:900;color:#f9fafb;letter-spacing:-0.5px;">FACTS Rewards</h1>
+      <span style="background:rgba(245,158,11,0.15);color:#fbbf24;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid rgba(245,158,11,0.25);letter-spacing:1px;">POINTS PROGRAM</span>
+    </div>
+    <p style="color:#6b7280;font-size:0.875rem;">Earn FACTS Points through daily engagement. Redeem for store credit at Aura Restored.</p>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div id="loading-state">
+    <div class="card" style="padding:1.5rem;margin-bottom:1rem;">
+      <div class="skeleton" style="height:3rem;width:40%;margin-bottom:0.75rem;"></div>
+      <div class="skeleton" style="height:0.75rem;width:70%;"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+      <div class="card skeleton" style="height:120px;"></div>
+      <div class="card skeleton" style="height:120px;"></div>
+    </div>
+  </div>
+
+  <!-- Main content (hidden until loaded) -->
+  <div id="main-content" style="display:none;">
+
+    <!-- ── BALANCE HERO ── -->
+    <div class="balance-hero" style="padding:1.75rem;margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div style="font-size:0.8rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.25rem;">FACTS Points Balance</div>
+          <div class="balance-number" id="bal-display">0</div>
+          <div style="font-size:0.875rem;color:#9ca3af;margin-top:0.5rem;" id="bal-sub">0 pts earned total · 0 pts redeemed</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.75rem;color:#9ca3af;margin-bottom:0.25rem;">Min. redeem 1,000 pts</div>
+          <div style="font-size:1.1rem;font-weight:700;color:#fbbf24;" id="dollar-equivalent">= $0.00</div>
+          <div style="font-size:0.7rem;color:#6b7280;margin-top:2px;">1,000 pts = $1.00</div>
+        </div>
+      </div>
+
+      <!-- Monthly cap bar -->
+      <div style="margin-top:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+          <div style="font-size:0.78rem;color:#9ca3af;">Monthly Earning Cap</div>
+          <div style="font-size:0.78rem;font-weight:600;color:#fbbf24;" id="cap-label">0 / 5,000 pts</div>
+        </div>
+        <div class="cap-bar-track">
+          <div class="cap-bar-fill" id="cap-bar" style="width:0%;"></div>
+        </div>
+        <div style="font-size:0.7rem;color:#6b7280;margin-top:0.3rem;" id="cap-sub">5,000 pts remaining this month</div>
+      </div>
+    </div>
+
+    <!-- ── TOP ROW: Streak + Quick Stats ── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+
+      <!-- Login Streak -->
+      <div class="streak-badge" style="padding:1.25rem;">
+        <div style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;">🔥 Login Streak</div>
+        <div style="display:flex;align-items:baseline;gap:0.4rem;">
+          <span class="streak-count" id="streak-count">0</span>
+          <span style="color:#6b7280;font-size:0.875rem;">days</span>
+        </div>
+        <div style="font-size:0.78rem;color:#9ca3af;margin-top:0.4rem;" id="streak-next"></div>
+        <div style="font-size:0.7rem;color:#6b7280;margin-top:0.25rem;" id="streak-longest"></div>
+      </div>
+
+      <!-- How to Earn -->
+      <div class="card" style="padding:1.25rem;">
+        <div style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.75rem;">⚡ How to Earn</div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.78rem;color:#d1d5db;">
+          <div style="display:flex;justify-content:space-between;"><span>Daily login</span><span style="color:#fbbf24;font-weight:600;">+10 pts</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Daily check-in</span><span style="color:#fbbf24;font-weight:600;">+15 pts</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Log transaction (×10/day)</span><span style="color:#fbbf24;font-weight:600;">+5 pts</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Weekly challenge</span><span style="color:#fbbf24;font-weight:600;">+100 pts</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Monthly challenge</span><span style="color:#fbbf24;font-weight:600;">+500 pts</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Referral activation</span><span style="color:#fbbf24;font-weight:600;">+500 pts</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STREAK BONUSES ── -->
+    <div class="card" style="padding:1.25rem;margin-bottom:1rem;">
+      <div style="font-size:0.8rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.875rem;">🏆 Login Streak Bonuses</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;" id="streak-milestones">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- ── CHALLENGES ── -->
+    <div style="margin-bottom:1rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+        <h2 style="font-size:1rem;font-weight:700;color:#f9fafb;">Active Challenges</h2>
+        <span style="font-size:0.72rem;color:#6b7280;">Complete for FACTS Points</span>
+      </div>
+      <div id="challenges-list" style="display:flex;flex-direction:column;gap:0.625rem;">
+        <div class="skeleton" style="height:80px;border-radius:0.875rem;"></div>
+        <div class="skeleton" style="height:80px;border-radius:0.875rem;"></div>
+      </div>
+    </div>
+
+    <!-- ── REDEEM SECTION ── -->
+    <div class="card-gold" style="padding:1.5rem;margin-bottom:1rem;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <span style="font-size:1.5rem;">🛍️</span>
+        <div>
+          <div style="font-size:1rem;font-weight:700;color:#fbbf24;">Redeem at Aura Restored</div>
+          <div style="font-size:0.78rem;color:#9ca3af;">1,000 pts = $1.00 store credit · Minimum 1,000 pts · Expires in 90 days</div>
+        </div>
+      </div>
+
+      <!-- Redemption form -->
+      <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1rem;">
+        <div style="flex:1;min-width:160px;">
+          <label style="font-size:0.75rem;color:#9ca3af;display:block;margin-bottom:0.3rem;">Points to Redeem (×1,000)</label>
+          <input type="number" id="redeem-input" min="1" max="100" value="1" step="1"
+            style="width:100%;background:#0d1117;border:1px solid rgba(245,158,11,0.25);border-radius:0.625rem;padding:0.625rem 0.875rem;color:#fbbf24;font-size:1.1rem;font-weight:700;outline:none;">
+          <div style="font-size:0.72rem;color:#9ca3af;margin-top:0.25rem;" id="redeem-calc">= $1.00 store credit</div>
+        </div>
+        <button class="redeem-btn" id="redeem-btn" style="flex:0 0 auto;width:auto;min-width:160px;" onclick="triggerRedeem()">
+          Redeem Points
+        </button>
+      </div>
+
+      <!-- Active codes -->
+      <div id="active-codes-section" style="display:none;">
+        <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:1px;">Your Discount Codes</div>
+        <div id="active-codes-list"></div>
+      </div>
+    </div>
+
+    <!-- ── ACHIEVEMENTS ── -->
+    <div style="margin-bottom:1rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+        <h2 style="font-size:1rem;font-weight:700;color:#f9fafb;">Achievements</h2>
+        <span style="font-size:0.72rem;color:#6b7280;" id="ach-count"></span>
+      </div>
+      <div class="grid-achievements" id="achievements-grid"
+        style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.625rem;">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- ── RECENT ACTIVITY ── -->
+    <div class="card" style="padding:1.25rem;margin-bottom:1rem;">
+      <div style="font-size:0.8rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.875rem;">📋 Recent Activity</div>
+      <div id="history-list">
+        <div class="skeleton" style="height:14px;margin-bottom:8px;border-radius:4px;"></div>
+        <div class="skeleton" style="height:14px;margin-bottom:8px;border-radius:4px;width:80%;"></div>
+        <div class="skeleton" style="height:14px;width:65%;border-radius:4px;"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div>
+
+<!-- ── REDEEM SUCCESS MODAL ── -->
+<div class="modal-overlay" id="redeem-modal">
+  <div class="modal-box">
+    <div style="font-size:3rem;margin-bottom:0.75rem;">🎉</div>
+    <h3 style="font-size:1.25rem;font-weight:800;color:#f9fafb;margin-bottom:0.5rem;">Points Redeemed!</h3>
+    <p style="color:#9ca3af;font-size:0.875rem;margin-bottom:1.25rem;">Your Aura Restored discount code:</p>
+    <div class="code-box" id="modal-code">FACTS-XXX-XXXXXX</div>
+    <p style="color:#9ca3af;font-size:0.78rem;margin-top:0.75rem;margin-bottom:1.25rem;" id="modal-meta">Valid for 90 days · Single use only</p>
+    <div style="display:flex;gap:0.75rem;flex-direction:column;">
+      <button onclick="copyCode()" style="background:#1a2235;border:1px solid rgba(245,158,11,0.25);color:#fbbf24;padding:0.75rem;border-radius:0.75rem;font-weight:600;cursor:pointer;font-size:0.875rem;">
+        📋 Copy Code
+      </button>
+      <button onclick="closeModal()" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#fbbf24;padding:0.75rem;border-radius:0.75rem;font-weight:700;cursor:pointer;">
+        Done
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let dashData = null;
+let currentCode = null;
+
+// ── Init ──
+async function loadDashboard() {
+  try {
+    const res = await fetch('/api/rewards/dashboard', { credentials: 'same-origin' });
+    if (res.status === 401) { window.location.href = '/login'; return; }
+    if (!res.ok) throw new Error('Failed to load');
+    dashData = await res.json();
+    renderDashboard(dashData);
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+
+    // Record daily interaction (in background — fire & forget)
+    fetch('/api/rewards/daily-interaction', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'rewards_dashboard' })
+    }).catch(() => {});
+  } catch (err) {
+    document.getElementById('loading-state').innerHTML =
+      '<div style="text-align:center;padding:2rem;color:#ef4444;">Failed to load rewards data. Please refresh.</div>';
+  }
+}
+
+function renderDashboard(d) {
+  const pts = d.points;
+
+  // Balance hero
+  document.getElementById('bal-display').textContent = pts.balance.toLocaleString();
+  document.getElementById('bal-sub').textContent =
+    `${pts.total_earned.toLocaleString()} pts earned total · ${pts.total_redeemed.toLocaleString()} pts redeemed`;
+  document.getElementById('dollar-equivalent').textContent =
+    '= $' + (pts.balance / 1000).toFixed(2);
+
+  // Monthly cap
+  document.getElementById('cap-label').textContent = `${pts.monthly_earned.toLocaleString()} / 5,000 pts`;
+  document.getElementById('cap-sub').textContent =
+    pts.monthly_remaining > 0
+      ? `${pts.monthly_remaining.toLocaleString()} pts remaining this month`
+      : '⚠️ Monthly cap reached — resets on the 1st';
+  const capBar = document.getElementById('cap-bar');
+  capBar.style.width = pts.monthly_cap_pct + '%';
+  if (pts.monthly_cap_pct >= 80) capBar.classList.add('near-cap');
+
+  // Streak
+  const str = d.login_streak;
+  document.getElementById('streak-count').textContent = str.current;
+  document.getElementById('streak-next').textContent = str.next_milestone
+    ? `Next bonus: ${str.next_milestone}-day → +${str.next_milestone_bonus} pts`
+    : str.current >= 30 ? '🔥 Max streak bonus reached!' : '';
+  document.getElementById('streak-longest').textContent =
+    str.longest > 0 ? `Best: ${str.longest} days` : '';
+
+  // Streak milestones
+  const milestones = [
+    { days: 7,  bonus: 50,  label: '7-Day Streak' },
+    { days: 14, bonus: 100, label: '14-Day Streak' },
+    { days: 30, bonus: 250, label: '30-Day Streak' },
+  ];
+  const msContainer = document.getElementById('streak-milestones');
+  msContainer.innerHTML = milestones.map(m => {
+    const earned = str.current >= m.days || str.longest >= m.days;
+    const achEarned = (d.achievements || []).find(a => a.key === `login_streak_${m.days}` && a.earned);
+    const active = earned || achEarned;
+    return `<div style="text-align:center;padding:0.875rem;border-radius:0.75rem;background:${active ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.03)'};border:1px solid ${active ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.06)'}">
+      <div style="font-size:1.25rem;margin-bottom:0.25rem;">${active ? '🔥' : '🔒'}</div>
+      <div style="font-size:0.72rem;font-weight:600;color:${active ? '#fbbf24' : '#6b7280'};">${m.label}</div>
+      <div style="font-size:0.85rem;font-weight:800;color:${active ? '#f59e0b' : '#4b5563'};margin-top:2px;">+${m.bonus} pts</div>
+    </div>`;
+  }).join('');
+
+  // Challenges
+  const challenges = d.active_challenges || [];
+  const chalList = document.getElementById('challenges-list');
+  if (challenges.length === 0) {
+    chalList.innerHTML = '<div style="text-align:center;color:#6b7280;padding:1.5rem;font-size:0.875rem;">No active challenges with rewards right now.</div>';
+  } else {
+    chalList.innerHTML = challenges.map(c => {
+      const done = c.user_status === 'completed';
+      const typeLabel = c.type === 'weekly' ? '🗓️ Weekly' : '📅 Monthly';
+      const typeColor = c.type === 'weekly' ? '#8b5cf6' : '#ec4899';
+      return `<div class="challenge-card ${done ? 'completed' : ''}">
+        <div style="padding:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.5rem;">
+            <div>
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem;">
+                <span style="font-size:0.68rem;font-weight:700;color:${typeColor};background:${typeColor}20;padding:1px 6px;border-radius:999px;">${typeLabel}</span>
+                ${done ? '<span style="font-size:0.68rem;font-weight:700;color:#10b981;background:rgba(16,185,129,0.15);padding:1px 6px;border-radius:999px;">✓ COMPLETED</span>' : ''}
+              </div>
+              <div style="font-size:0.9rem;font-weight:600;color:${done ? '#6b7280' : '#f9fafb'};">${c.title}</div>
+              <div style="font-size:0.75rem;color:#6b7280;margin-top:2px;">${c.description}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:1rem;font-weight:800;color:${done ? '#6b7280' : '#fbbf24'};">+${(c.points_reward || 0).toLocaleString()}</div>
+              <div style="font-size:0.65rem;color:#6b7280;">pts</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Achievements
+  const achs = d.achievements || [];
+  const achGrid = document.getElementById('achievements-grid');
+  achGrid.innerHTML = achs.map(a => {
+    return `<div class="ach-badge ${a.earned ? 'earned' : 'locked'}" title="${a.description}\n${a.points > 0 ? '+' + a.points + ' pts' : 'No points'}">
+      <div style="font-size:1.5rem;">${a.icon}</div>
+      <div style="font-size:0.6rem;font-weight:600;color:${a.earned ? '#fbbf24' : '#4b5563'};text-align:center;line-height:1.2;max-width:100%;overflow:hidden;padding:0 2px;">${a.label.split(' ').slice(0,2).join(' ')}</div>
+      ${a.points > 0 ? `<div style="font-size:0.65rem;color:${a.earned ? '#f59e0b' : '#374151'};font-weight:700;">+${a.points}</div>` : ''}
+    </div>`;
+  }).join('');
+  const earnedCount = achs.filter(a => a.earned).length;
+  document.getElementById('ach-count').textContent = `${earnedCount} / ${achs.length} earned`;
+
+  // History
+  const history = d.history || [];
+  const historyList = document.getElementById('history-list');
+  if (history.length === 0) {
+    historyList.innerHTML = '<div style="color:#6b7280;font-size:0.875rem;text-align:center;padding:1rem;">No activity yet. Start logging transactions to earn points!</div>';
+  } else {
+    historyList.innerHTML = history.slice(0, 20).map(h => {
+      const date = new Date(h.created_at);
+      const dateStr = date.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+      return `<div class="history-row">
+        <div>
+          <div style="font-size:0.82rem;color:#d1d5db;">${h.description}</div>
+          <div style="font-size:0.7rem;color:#6b7280;">${dateStr}</div>
+        </div>
+        <div style="font-size:0.9rem;font-weight:700;color:#fbbf24;">+${h.points}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Active codes
+  const codes = d.discount_codes || [];
+  const activeCodes = codes.filter(c => c.status === 'active');
+  if (activeCodes.length > 0) {
+    document.getElementById('active-codes-section').style.display = 'block';
+    document.getElementById('active-codes-list').innerHTML = activeCodes.map(c => {
+      const exp = new Date(c.expires_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+      const dollars = (c.dollar_value_cents / 100).toFixed(2);
+      return `<div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:0.75rem;padding:0.875rem;margin-bottom:0.5rem;">
+        <div style="font-family:monospace;font-size:1.05rem;font-weight:700;color:#fbbf24;letter-spacing:1.5px;margin-bottom:0.25rem;">${c.code}</div>
+        <div style="font-size:0.75rem;color:#9ca3af;">$${dollars} store credit · Expires ${exp}</div>
+        <button onclick="navigator.clipboard.writeText('${c.code}').then(()=>alert('Copied!'))" style="margin-top:0.4rem;background:transparent;border:1px solid rgba(245,158,11,0.2);color:#fbbf24;padding:3px 10px;border-radius:6px;font-size:0.7rem;cursor:pointer;">Copy</button>
+      </div>`;
+    }).join('');
+  }
+
+  // Redeem button state
+  updateRedeemButton();
+}
+
+// ── Redeem input handler ──
+document.addEventListener('DOMContentLoaded', () => {
+  loadDashboard();
+  const inp = document.getElementById('redeem-input');
+  inp.addEventListener('input', () => {
+    const mult = Math.max(1, parseInt(inp.value) || 1);
+    const pts = mult * 1000;
+    const dollars = (pts / 1000).toFixed(2);
+    document.getElementById('redeem-calc').textContent = `= $${dollars} store credit (${pts.toLocaleString()} pts)`;
+    updateRedeemButton();
+  });
+});
+
+function updateRedeemButton() {
+  if (!dashData) return;
+  const inp = document.getElementById('redeem-input');
+  const mult = Math.max(1, parseInt(inp.value) || 1);
+  const pts = mult * 1000;
+  const balance = dashData.points.balance;
+  const btn = document.getElementById('redeem-btn');
+  if (balance < pts) {
+    btn.disabled = true;
+    btn.textContent = `Need ${pts.toLocaleString()} pts (have ${balance.toLocaleString()})`;
+  } else if (balance < 1000) {
+    btn.disabled = true;
+    btn.textContent = 'Need 1,000 pts to redeem';
+  } else {
+    btn.disabled = false;
+    btn.textContent = `Redeem ${pts.toLocaleString()} pts → $${(pts/1000).toFixed(2)}`;
+  }
+}
+
+async function triggerRedeem() {
+  const inp = document.getElementById('redeem-input');
+  const mult = Math.max(1, parseInt(inp.value) || 1);
+  const pts = mult * 1000;
+  const btn = document.getElementById('redeem-btn');
+
+  btn.disabled = true;
+  btn.textContent = 'Processing…';
+
+  try {
+    const res = await fetch('/api/rewards/redeem', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ points: pts })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || 'Redemption failed. Please try again.');
+      btn.disabled = false;
+      updateRedeemButton();
+      return;
+    }
+    currentCode = data.code;
+    document.getElementById('modal-code').textContent = data.code;
+    const exp = new Date(data.expires_at).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+    document.getElementById('modal-meta').textContent =
+      `$${parseFloat(data.dollar_value).toFixed(2)} store credit · Expires ${exp} · Single use`;
+    document.getElementById('redeem-modal').classList.add('open');
+    // Reload dashboard data
+    await loadDashboard();
+  } catch (err) {
+    alert('Redemption failed. Check your connection and try again.');
+    btn.disabled = false;
+    updateRedeemButton();
+  }
+}
+
+function copyCode() {
+  if (currentCode) {
+    navigator.clipboard.writeText(currentCode).then(() => {
+      const btn = document.querySelector('#redeem-modal button');
+      if (btn) { btn.textContent = '✓ Copied!'; setTimeout(() => btn.textContent = '📋 Copy Code', 2000); }
+    });
+  }
+}
+
+function closeModal() {
+  document.getElementById('redeem-modal').classList.remove('open');
+}
+</script>
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

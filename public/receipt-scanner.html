@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Receipt Scanner | FACTS Finance</title>
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1629;
+    --card: #141c2e;
+    --card2: #1a2340;
+    --border: rgba(255,255,255,0.08);
+    --gold: #f5c542;
+    --gold2: #e0a800;
+    --green: #10b981;
+    --cyan: #06b6d4;
+    --rose: #f87171;
+    --violet: #8b5cf6;
+    --amber: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --dim: #475569;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; min-height: 100dvh; }
+
+  /* ── Nav ── */
+  .nav { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { font-size: 1.1rem; font-weight: 700; color: var(--gold); letter-spacing: 0.02em; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+  .nav-links { display: flex; gap: 16px; align-items: center; }
+  .nav-link { color: var(--muted); font-size: 0.85rem; text-decoration: none; padding: 6px 10px; border-radius: 6px; transition: color .15s; }
+  .nav-link:hover, .nav-link.active { color: var(--text); background: rgba(255,255,255,0.05); }
+
+  /* ── Layout ── */
+  .container { max-width: 680px; margin: 0 auto; padding: 32px 20px 60px; }
+  .page-header { margin-bottom: 32px; }
+  .page-title { font-size: 1.55rem; font-weight: 800; color: var(--gold); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .page-sub { font-size: 0.88rem; color: var(--muted); }
+
+  /* ── Tier badge ── */
+  .tier-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .tier-badge.pro { background: rgba(6,182,212,0.15); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .tier-badge.business { background: rgba(245,197,66,0.15); color: var(--gold); border: 1px solid rgba(245,197,66,0.3); }
+  .tier-badge.free { background: rgba(148,163,184,0.1); color: var(--muted); border: 1px solid rgba(148,163,184,0.2); }
+
+  /* ── Step indicator ── */
+  .steps { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
+  .step { display: flex; align-items: center; gap: 8px; }
+  .step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+  .step-dot.active { background: var(--gold); color: #000; }
+  .step-dot.done { background: var(--green); color: #fff; }
+  .step-dot.pending { background: var(--card2); color: var(--dim); border: 1px solid var(--border); }
+  .step-label { font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+  .step-label.active { color: var(--gold); }
+  .step-label.done { color: var(--green); }
+  .step-label.pending { color: var(--dim); }
+  .step-line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; min-width: 20px; }
+
+  /* ── Cards ── */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
+  .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .card-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; }
+
+  /* ── Upload zone ── */
+  .upload-zone { border: 2px dashed rgba(245,197,66,0.3); border-radius: 14px; padding: 48px 24px; text-align: center; cursor: pointer; transition: all .2s; position: relative; overflow: hidden; }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--gold); background: rgba(245,197,66,0.04); }
+  .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-icon { font-size: 3rem; margin-bottom: 14px; display: block; }
+  .upload-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .upload-hint { font-size: 0.8rem; color: var(--muted); }
+  .upload-formats { font-size: 0.72rem; color: var(--dim); margin-top: 8px; }
+
+  /* Camera button */
+  .btn-camera { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; padding: 9px 18px; background: var(--card2); border: 1px solid var(--border); border-radius: 10px; color: var(--cyan); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background .15s; }
+  .btn-camera:hover { background: rgba(6,182,212,0.08); }
+  .camera-input { display: none; }
+
+  /* ── Preview image ── */
+  .preview-wrap { display: none; }
+  .preview-img { width: 100%; max-height: 300px; object-fit: contain; border-radius: 10px; border: 1px solid var(--border); }
+  .preview-name { font-size: 0.78rem; color: var(--muted); margin-top: 8px; text-align: center; }
+  .btn-change { font-size: 0.78rem; color: var(--cyan); background: none; border: none; cursor: pointer; text-decoration: underline; margin-top: 4px; display: block; text-align: center; }
+
+  /* ── Scan button ── */
+  .btn-scan { width: 100%; padding: 14px; background: var(--gold); color: #000; font-weight: 800; font-size: 1rem; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; transition: background .15s; }
+  .btn-scan:hover { background: var(--gold2); }
+  .btn-scan:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── Scanning animation ── */
+  .scan-overlay { display: none; position: absolute; inset: 0; background: rgba(10,14,26,0.92); border-radius: 14px; align-items: center; justify-content: center; flex-direction: column; gap: 16px; z-index: 10; }
+  .scan-bar { width: 60%; height: 3px; background: var(--card2); border-radius: 2px; overflow: hidden; }
+  .scan-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--cyan)); animation: scanPulse 1.2s ease-in-out infinite; }
+  @keyframes scanPulse { 0%, 100% { transform: translateX(-100%); } 50% { transform: translateX(100%); } }
+  .scan-text { font-size: 0.88rem; color: var(--muted); font-weight: 600; }
+
+  /* ── Review form ── */
+  .review-section { display: none; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; margin-bottom: 6px; }
+  .form-input { width: 100%; padding: 11px 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.95rem; outline: none; transition: border-color .15s; }
+  .form-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,197,66,0.08); }
+  select.form-input option { background: #1a2340; color: var(--text); }
+  .input-prefix { position: relative; }
+  .input-prefix::before { content: '$'; position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .input-prefix .form-input { padding-left: 28px; }
+  .confidence-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; margin-left: 8px; }
+  .confidence-badge.high { background: rgba(16,185,129,0.15); color: var(--green); }
+  .ai-note { font-size: 0.75rem; color: var(--dim); margin-top: 4px; }
+
+  /* ── Pillar tagging (Business Bundle) ── */
+  .pillar-section { display: none; background: rgba(245,197,66,0.04); border: 1px solid rgba(245,197,66,0.15); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .pillar-section-title { font-size: 0.78rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .pillar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+  .pillar-btn { padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); color: var(--muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all .15s; text-align: center; line-height: 1.3; }
+  .pillar-btn:hover { border-color: rgba(245,197,66,0.4); color: var(--text); }
+  .pillar-btn.selected { background: rgba(245,197,66,0.12); border-color: var(--gold); color: var(--gold); }
+  .pillar-hint { font-size: 0.73rem; color: var(--dim); margin-top: 10px; }
+
+  /* ── Buttons ── */
+  .btn-primary { width: 100%; padding: 13px; background: var(--gold); color: #000; font-weight: 800; font-size: 0.95rem; border: none; border-radius: 12px; cursor: pointer; transition: background .15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-primary:hover { background: var(--gold2); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost { width: 100%; padding: 11px; background: transparent; color: var(--muted); font-size: 0.88rem; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; margin-top: 10px; transition: background .15s; }
+  .btn-ghost:hover { background: rgba(255,255,255,0.04); }
+
+  /* ── Success state ── */
+  .success-section { display: none; text-align: center; padding: 40px 20px; }
+  .success-icon { font-size: 4rem; margin-bottom: 16px; animation: popIn .4s ease; }
+  @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .success-title { font-size: 1.3rem; font-weight: 800; color: var(--green); margin-bottom: 8px; }
+  .success-sub { font-size: 0.88rem; color: var(--muted); margin-bottom: 24px; }
+  .success-detail { background: var(--card2); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; text-align: left; }
+  .success-detail-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .success-detail-row:last-child { border-bottom: none; }
+  .success-detail-label { color: var(--muted); }
+  .success-detail-value { font-weight: 700; color: var(--text); }
+  .pillar-pill { padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; background: rgba(245,197,66,0.15); color: var(--gold); border: 1px solid rgba(245,197,66,0.25); }
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn-action { padding: 11px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .15s; }
+  .btn-action.primary { background: var(--gold); color: #000; border: none; font-weight: 800; }
+  .btn-action.primary:hover { background: var(--gold2); }
+  .btn-action.secondary { background: transparent; color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .btn-action.secondary:hover { background: rgba(6,182,212,0.08); }
+
+  /* ── Upgrade gate (free users) ── */
+  .upgrade-gate { text-align: center; padding: 48px 24px; }
+  .upgrade-icon { font-size: 3.5rem; margin-bottom: 16px; }
+  .upgrade-title { font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+  .upgrade-desc { font-size: 0.88rem; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+  .feature-list { list-style: none; text-align: left; margin-bottom: 28px; background: var(--card2); border-radius: 12px; padding: 18px 22px; display: inline-block; }
+  .feature-list li { font-size: 0.85rem; color: var(--text); padding: 5px 0; display: flex; align-items: center; gap: 10px; }
+  .feature-list .check { color: var(--green); font-size: 1rem; }
+  .feature-list .gold { color: var(--gold); font-size: 1rem; }
+  .btn-upgrade { display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; background: var(--gold); color: #000; font-weight: 800; font-size: 1rem; border-radius: 12px; text-decoration: none; transition: background .15s; }
+  .btn-upgrade:hover { background: var(--gold2); }
+  .upgrade-sub { font-size: 0.78rem; color: var(--dim); margin-top: 14px; }
+
+  /* ── Error ── */
+  .error-box { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: 10px; padding: 12px 16px; font-size: 0.85rem; color: var(--rose); margin-top: 12px; display: none; }
+
+  /* ── Toast ── */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 18px; font-size: 0.85rem; color: var(--text); z-index: 999; box-shadow: 0 8px 32px rgba(0,0,0,0.4); transform: translateY(80px); opacity: 0; transition: all .3s; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  @media (max-width: 520px) {
+    .container { padding: 20px 14px 60px; }
+    .card { padding: 20px; }
+    .steps { gap: 0; }
+    .step-label { display: none; }
+    .btn-row { grid-template-columns: 1fr; }
+    .pillar-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="/app" class="nav-brand">⚡ FACTS Finance</a>
+  <div class="nav-links">
+    <a href="/app" class="nav-link">Dashboard</a>
+    <a href="/document-vault" class="nav-link">Vault</a>
+    <a href="/receipt-scanner" class="nav-link active">Receipts</a>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-title">
+      🧾 AI Receipt Scanner
+      <span id="tier-badge" class="tier-badge" style="display:none"></span>
+    </div>
+    <div class="page-sub">Snap a receipt → AI extracts the data → auto-fills your FACTS ledger</div>
+  </div>
+
+  <!-- Free user gate (hidden by default, shown if not Pro) -->
+  <div id="upgrade-gate" class="card" style="display:none">
+    <div class="upgrade-gate">
+      <div class="upgrade-icon">📷</div>
+      <div class="upgrade-title">AI Receipt Scanner</div>
+      <div class="upgrade-desc">Take a photo of any receipt and our AI instantly extracts the vendor, amount, date, and category — then adds it directly to your FACTS ledger.</div>
+      <ul class="feature-list">
+        <li><span class="check">✓</span> OCR extraction from photos or images</li>
+        <li><span class="check">✓</span> Auto-category detection from FACTS buckets</li>
+        <li><span class="check">✓</span> One-tap ledger entry creation</li>
+        <li><span class="check">✓</span> Receipt archived in Document Vault</li>
+        <li><span class="gold">★</span> <strong>Full Business Bundle:</strong> 5-Bucket Pillar tagging</li>
+      </ul>
+      <a href="/pricing.html" class="btn-upgrade">Upgrade Now →</a>
+      <div class="upgrade-sub">Starting at $25/mo · Cancel anytime</div>
+    </div>
+  </div>
+
+  <!-- Step indicator -->
+  <div id="steps-bar" class="steps" style="display:none">
+    <div class="step">
+      <div id="s1-dot" class="step-dot active">1</div>
+      <span id="s1-label" class="step-label active">Upload</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div id="s2-dot" class="step-dot pending">2</div>
+      <span id="s2-label" class="step-label pending">Review</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div id="s3-dot" class="step-dot pending">3</div>
+      <span id="s3-label" class="step-label pending">Saved</span>
+    </div>
+  </div>
+
+  <!-- Step 1: Upload -->
+  <div id="upload-section" class="card" style="display:none; position:relative">
+    <div class="card-title">📤 Upload Receipt</div>
+    <div class="card-sub">Drag and drop or tap to select a receipt image from your device.</div>
+
+    <!-- Drop zone -->
+    <div id="drop-zone" class="upload-zone">
+      <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" />
+      <span class="upload-icon">🖼️</span>
+      <div class="upload-title">Drop receipt image here</div>
+      <div class="upload-hint">or tap to browse your gallery</div>
+      <div class="upload-formats">Supports JPG, PNG, HEIC — up to 20 MB</div>
+    </div>
+
+    <!-- Camera capture (mobile) -->
+    <input class="camera-input" type="file" id="camera-input" accept="image/*" capture="environment" />
+    <button class="btn-camera" onclick="document.getElementById('camera-input').click()">
+      📸 Use Camera
+    </button>
+
+    <!-- Preview after selection -->
+    <div id="preview-wrap" class="preview-wrap" style="margin-top:16px;">
+      <img id="preview-img" class="preview-img" alt="Receipt preview" />
+      <div id="preview-name" class="preview-name"></div>
+      <button class="btn-change" onclick="clearFile()">Change image</button>
+    </div>
+
+    <div id="scan-error" class="error-box"></div>
+
+    <!-- Scan button -->
+    <button id="btn-scan" class="btn-scan" onclick="startScan()" disabled>
+      🔍 Scan Receipt
+    </button>
+
+    <!-- Scanning overlay -->
+    <div id="scan-overlay" class="scan-overlay">
+      <div>🔍</div>
+      <div class="scan-bar"><div class="scan-bar-fill"></div></div>
+      <div class="scan-text">AI is reading your receipt…</div>
+    </div>
+  </div>
+
+  <!-- Step 2: Review extracted data -->
+  <div id="review-section" class="review-section">
+    <div class="card">
+      <div class="card-title">✏️ Review & Edit</div>
+      <div class="card-sub">AI extracted the data below — review and correct anything before saving.</div>
+
+      <div class="form-group">
+        <label class="form-label">Vendor / Description <span class="ai-note" style="text-transform:none; letter-spacing:0">(AI-extracted)</span></label>
+        <input type="text" id="r-description" class="form-input" placeholder="e.g. Whole Foods Market" maxlength="200" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Amount</label>
+        <div class="input-prefix">
+          <input type="number" id="r-amount" class="form-input" placeholder="0.00" min="0.01" step="0.01" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" id="r-date" class="form-input" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">FACTS Category</label>
+        <select id="r-category" class="form-input">
+          <option value="">Select a category…</option>
+        </select>
+      </div>
+
+      <!-- Full Business Bundle: Pillar tagging -->
+      <div id="pillar-section" class="pillar-section">
+        <div class="pillar-section-title">⭐ 5-Bucket Pillar Tag <span style="font-size:0.65rem;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:600">Full Business Bundle</span></div>
+        <div class="pillar-grid" id="pillar-grid">
+          <!-- Pillar buttons inserted by JS -->
+        </div>
+        <div class="pillar-hint">Auto-suggested based on category. Tap to change.</div>
+      </div>
+
+      <div id="review-error" class="error-box"></div>
+
+      <button id="btn-save" class="btn-primary" onclick="saveReceipt()">
+        ✅ Save to FACTS Ledger
+      </button>
+      <button class="btn-ghost" onclick="resetScanner()">← Start Over</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Success -->
+  <div id="success-section" class="success-section">
+    <div class="card">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">Receipt Saved!</div>
+      <div class="success-sub">Your expense is now in the FACTS ledger and the receipt is stored in your Document Vault.</div>
+
+      <div id="success-detail" class="success-detail">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="btn-row">
+        <a href="/app" class="btn-action primary">View Ledger</a>
+        <button class="btn-action secondary" onclick="resetScanner()">Scan Another</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+
+<script>
+  const TOKEN_KEY = 'token';
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (!token) { window.location.href = '/app?redirect=/receipt-scanner'; }
+
+  let selectedFile = null;
+  let scanId = null;
+  let isBusinessPro = false;
+  let selectedPillar = null;
+  let categories = [];
+
+  const PILLAR_DEFS = {
+    clearing:          { label: 'Clearing',           emoji: '🔄', desc: 'Revenue before allocation' },
+    tax_shield:        { label: 'Tax Shield',          emoji: '🛡️', desc: 'Tax-deductible expenses' },
+    operating_reserve: { label: 'Operating Reserve',  emoji: '⚙️', desc: 'Core business costs' },
+    growth_innovation: { label: 'Growth & Innovation', emoji: '🚀', desc: 'Growth investments' },
+    wealth_bridge:     { label: 'Wealth Bridge',       emoji: '🌉', desc: 'Long-term wealth' },
+  };
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  async function init() {
+    try {
+      // Load user tier & categories in parallel
+      const [profileRes, catsRes] = await Promise.all([
+        fetch('/api/user/profile', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/receipts/categories', { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+
+      const profile = await profileRes.json();
+      const hasPro = profile.has_pro || false;
+
+      if (!hasPro) {
+        document.getElementById('upgrade-gate').style.display = 'block';
+        const badge = document.getElementById('tier-badge');
+        badge.textContent = 'Free';
+        badge.className = 'tier-badge free';
+        badge.style.display = '';
+        return;
+      }
+
+      // Pro or Business Bundle
+      const catsData = await catsRes.json();
+      categories = catsData.categories || [];
+      isBusinessPro = catsData.is_business_pro || false;
+
+      // Show tier badge
+      const badge = document.getElementById('tier-badge');
+      if (isBusinessPro) {
+        badge.textContent = '★ Business Bundle';
+        badge.className = 'tier-badge business';
+      } else {
+        badge.textContent = 'Individual';
+        badge.className = 'tier-badge pro';
+      }
+      badge.style.display = '';
+
+      // Populate category select
+      const sel = document.getElementById('r-category');
+      categories.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        sel.appendChild(opt);
+      });
+
+      // Build pillar buttons
+      if (isBusinessPro) {
+        const grid = document.getElementById('pillar-grid');
+        Object.entries(PILLAR_DEFS).forEach(([key, def]) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'pillar-btn';
+          btn.dataset.pillar = key;
+          btn.innerHTML = `${def.emoji} ${def.label}`;
+          btn.onclick = () => selectPillar(key);
+          grid.appendChild(btn);
+        });
+      }
+
+      // Show UI
+      document.getElementById('steps-bar').style.display = 'flex';
+      document.getElementById('upload-section').style.display = 'block';
+      setupDragDrop();
+
+    } catch (e) {
+      console.error('Init error:', e);
+      showToast('Failed to load scanner. Please refresh.', 'error');
+    }
+  }
+
+  // ── Drag & drop ──────────────────────────────────────────────────────────
+  function setupDragDrop() {
+    const zone = document.getElementById('drop-zone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+    document.getElementById('file-input').addEventListener('change', e => {
+      if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+    document.getElementById('camera-input').addEventListener('change', e => {
+      if (e.target.files[0]) handleFile(e.target.files[0]);
+    });
+  }
+
+  function handleFile(file) {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+    if (!allowed.includes(file.type.toLowerCase())) {
+      showError('scan-error', 'Only JPG, PNG, HEIC, or WebP images are supported.');
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      showError('scan-error', 'File too large. Max 20 MB.');
+      return;
+    }
+    selectedFile = file;
+    hideError('scan-error');
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('preview-img').src = e.target.result;
+      document.getElementById('preview-name').textContent = file.name;
+      document.getElementById('preview-wrap').style.display = 'block';
+      document.getElementById('drop-zone').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+
+    document.getElementById('btn-scan').disabled = false;
+  }
+
+  function clearFile() {
+    selectedFile = null;
+    document.getElementById('preview-wrap').style.display = 'none';
+    document.getElementById('drop-zone').style.display = 'block';
+    document.getElementById('file-input').value = '';
+    document.getElementById('camera-input').value = '';
+    document.getElementById('btn-scan').disabled = true;
+    hideError('scan-error');
+  }
+
+  // ── Scan ─────────────────────────────────────────────────────────────────
+  async function startScan() {
+    if (!selectedFile) return;
+
+    hideError('scan-error');
+    const overlay = document.getElementById('scan-overlay');
+    overlay.style.display = 'flex';
+    document.getElementById('btn-scan').disabled = true;
+
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const res = await fetch('/api/receipts/scan', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Scan failed');
+      }
+
+      scanId = data.scan_id;
+      populateReviewForm(data);
+
+    } catch (err) {
+      overlay.style.display = 'none';
+      document.getElementById('btn-scan').disabled = false;
+      showError('scan-error', err.message || 'Scan failed. Try a clearer photo.');
+      return;
+    }
+
+    // Transition to step 2
+    overlay.style.display = 'none';
+    setStep(2);
+    document.getElementById('upload-section').style.display = 'none';
+    document.getElementById('review-section').style.display = 'block';
+    document.getElementById('review-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function populateReviewForm(data) {
+    const ex = data.extracted;
+    document.getElementById('r-description').value = ex.vendor || ex.description || '';
+    document.getElementById('r-amount').value = ex.amount ? ex.amount.toFixed(2) : '';
+    document.getElementById('r-date').value = ex.date || new Date().toISOString().split('T')[0];
+    if (ex.suggested_category_id) {
+      document.getElementById('r-category').value = ex.suggested_category_id;
+    }
+
+    // Pillar tagging for Business Bundle
+    if (isBusinessPro && data.pillar_suggestion) {
+      document.getElementById('pillar-section').style.display = 'block';
+      selectPillar(data.pillar_suggestion);
+    }
+  }
+
+  // ── Pillar selection ──────────────────────────────────────────────────────
+  function selectPillar(key) {
+    selectedPillar = key;
+    document.querySelectorAll('.pillar-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.pillar === key);
+    });
+  }
+
+  // Auto-suggest pillar when category changes
+  const CATEGORY_PILLAR_MAP = {
+    'necessities':        'operating_reserve',
+    'education':         'tax_shield',
+    'give':              'tax_shield',
+    'save':              'wealth_bridge',
+    'fun':               'clearing',
+    'financial-freedom': 'growth_innovation',
+  };
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('r-category')?.addEventListener('change', function() {
+      if (!isBusinessPro) return;
+      const catId = parseInt(this.value);
+      const cat = categories.find(c => c.id === catId);
+      if (cat && CATEGORY_PILLAR_MAP[cat.slug]) {
+        selectPillar(CATEGORY_PILLAR_MAP[cat.slug]);
+      }
+    });
+  });
+
+  // ── Save ─────────────────────────────────────────────────────────────────
+  async function saveReceipt() {
+    hideError('review-error');
+    const description = document.getElementById('r-description').value.trim();
+    const amount      = parseFloat(document.getElementById('r-amount').value);
+    const date        = document.getElementById('r-date').value;
+    const categoryId  = document.getElementById('r-category').value;
+
+    if (!amount || amount <= 0)  { showError('review-error', 'Enter a valid amount.'); return; }
+    if (!categoryId)             { showError('review-error', 'Select a FACTS category.'); return; }
+    if (!scanId)                 { showError('review-error', 'Scan session expired. Please scan again.'); return; }
+
+    const btn = document.getElementById('btn-save');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    try {
+      const body = {
+        scan_id:          scanId,
+        amount:           amount,
+        description:      description,
+        category_id:      categoryId,
+        transaction_date: date,
+        pillar_tag:       isBusinessPro ? selectedPillar : undefined,
+      };
+
+      const res = await fetch('/api/receipts/save', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) throw new Error(data.error || 'Save failed');
+
+      // Show success
+      showSuccess(data, description, amount, date, categoryId);
+
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '✅ Save to FACTS Ledger';
+      showError('review-error', err.message || 'Failed to save. Please try again.');
+    }
+  }
+
+  function showSuccess(data, description, amount, date, categoryId) {
+    const catName = categories.find(c => c.id === parseInt(categoryId))?.name || 'Unknown';
+    const detail = document.getElementById('success-detail');
+
+    let rows = `
+      <div class="success-detail-row"><span class="success-detail-label">Vendor</span><span class="success-detail-value">${esc(description || 'Receipt')}</span></div>
+      <div class="success-detail-row"><span class="success-detail-label">Amount</span><span class="success-detail-value">$${parseFloat(amount).toFixed(2)}</span></div>
+      <div class="success-detail-row"><span class="success-detail-label">Date</span><span class="success-detail-value">${date || '—'}</span></div>
+      <div class="success-detail-row"><span class="success-detail-label">Category</span><span class="success-detail-value">${esc(catName)}</span></div>
+    `;
+    if (data.pillar_label) {
+      rows += `<div class="success-detail-row"><span class="success-detail-label">Pillar Tag</span><span class="success-detail-value"><span class="pillar-pill">${esc(data.pillar_label)}</span></span></div>`;
+    }
+    rows += `<div class="success-detail-row"><span class="success-detail-label">Vault Doc</span><span class="success-detail-value">#${data.document_id}</span></div>`;
+    detail.innerHTML = rows;
+
+    setStep(3);
+    document.getElementById('review-section').style.display = 'none';
+    document.getElementById('success-section').style.display = 'block';
+    document.getElementById('success-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function setStep(n) {
+    [1, 2, 3].forEach(i => {
+      const dot   = document.getElementById(`s${i}-dot`);
+      const label = document.getElementById(`s${i}-label`);
+      if (i < n)  { dot.className = 'step-dot done'; dot.textContent = '✓'; label.className = 'step-label done'; }
+      else if (i === n) { dot.className = 'step-dot active'; dot.textContent = i; label.className = 'step-label active'; }
+      else        { dot.className = 'step-dot pending'; dot.textContent = i; label.className = 'step-label pending'; }
+    });
+  }
+
+  function resetScanner() {
+    scanId = null;
+    selectedFile = null;
+    selectedPillar = null;
+    clearFile();
+    document.getElementById('review-section').style.display = 'none';
+    document.getElementById('success-section').style.display = 'none';
+    document.getElementById('upload-section').style.display = 'block';
+    document.getElementById('r-description').value = '';
+    document.getElementById('r-amount').value = '';
+    document.getElementById('r-date').value = '';
+    document.getElementById('r-category').value = '';
+    document.getElementById('btn-save').disabled = false;
+    document.getElementById('btn-save').textContent = '✅ Save to FACTS Ledger';
+    document.querySelectorAll('.pillar-btn').forEach(b => b.classList.remove('selected'));
+    if (isBusinessPro) document.getElementById('pillar-section').style.display = 'none';
+    setStep(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+  }
+  function hideError(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function esc(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  init();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

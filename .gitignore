@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+.DS_Store
+.claude/
+projects/
+*.jsonl
+test-fixtures/
+debug/
+shell-snapshots/
+todos/
+.tmp/
+.buildstamp
+archive/
+desktop.ini

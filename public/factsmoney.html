@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>FACTS — Discover Your Back Door Leak</title>
+  <meta name="description" content="Calculate your bank interest bleed and unlock your private Forensic Report in under 3 minutes.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0a0f1a', 800: '#111827', 700: '#1a2235', 600: '#212d42', 500: '#2a3650' },
+            gold: { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a88620' },
+            blood: { 500: '#dc2626', 600: '#b91c1c' },
+            mint: { 500: '#10b981' }
+          },
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            body:    ['Satoshi', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Instrument Sans', system-ui, sans-serif;
+      background: #0a0f1a;
+      color: #e2e8f0;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .font-display { font-family: 'Syne', sans-serif; }
+
+    /* ── Bleed Counter (pinned) ───────────────────────────── */
+    #bleed-counter {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: linear-gradient(180deg, rgba(10,15,26,0.98) 0%, rgba(10,15,26,0.92) 100%);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,162,39,0.15);
+      padding: 0.6rem 1rem;
+      transition: all 0.3s ease;
+    }
+    #bleed-counter .counter-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      transition: all 0.2s;
+    }
+    #bleed-counter .lifetime-val {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* ── Bucket visualization (6 pillars, faint outlines) ─── */
+    #bucket-viz {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(0.5rem, 1.5vw, 1.5rem);
+      padding: 5rem 1rem;
+      pointer-events: none;
+    }
+    .pillar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      opacity: 0.12;
+      transition: opacity 0.4s, filter 0.4s;
+    }
+    .pillar.bar {
+      width: clamp(2.5rem, 5vw, 4rem);
+      height: clamp(6rem, 25vh, 14rem);
+      background: linear-gradient(180deg, #c9a227, #d4a929);
+      border-radius: 6px 6px 3px 3px;
+      transition: background 0.4s, box-shadow 0.4s;
+    }
+    .pillar-label {
+      font-size: 0.55rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.35);
+      text-align: center;
+    }
+    .pillar.active    { opacity: 1; }
+    .pillar.active .bar {
+      background: linear-gradient(180deg, #10b981, #059669);
+      box-shadow: 0 0 16px rgba(16,185,129,0.4);
+    }
+    .pillar.breached .bar {
+      background: linear-gradient(180deg, #dc2626, #b91c1c);
+      box-shadow: 0 0 16px rgba(220,38,38,0.4);
+    }
+
+    /* ── Progress dots ───────────────────────────────────── */
+    #progress-dots {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%; transform: translateX(-50%);
+      display: flex; gap: 0.5rem;
+      z-index: 90;
+    }
+    .prog-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      transition: all 0.3s;
+    }
+    .prog-dot.done { background: #c9a227; }
+    .prog-dot.active { background: #e8c96a; width: 20px; border-radius: 4px; }
+
+    /* ── Screen container ────────────────────────────────── */
+    #screens {
+      position: relative; z-index: 1;
+      min-height: 100dvh;
+      padding: 5.5rem 1rem 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Card ─────────────────────────────────────────────── */
+    .card {
+      width: 100%; max-width: 540px;
+      background: rgba(17,24,39,0.85);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      backdrop-filter: blur(16px);
+      animation: slideUp 0.45s cubic-bezier(0.4,0,0.2,1) both;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── Headline / Hook ─────────────────────────────────── */
+    .headline {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      color: #f1f5f9;
+      margin-bottom: 0.5rem;
+    }
+    .headline span.gold { color: #c9a227; }
+    .subhead {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 2rem;
+    }
+
+    /* ── Inputs ──────────────────────────────────────────── */
+    .input-group { margin-bottom: 1.25rem; }
+    .input-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 0.5rem;
+    }
+    .input-value-display {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: #c9a227;
+    }
+
+    input[type=text] {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: #f1f5f9;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 0.8rem 1rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      font-family: 'Syne', sans-serif;
+    }
+    input[type=text]:focus {
+      border-color: #c9a227;
+      background: rgba(201,162,39,0.05);
+    }
+    input[type=text]::placeholder { color: rgba(255,255,255,0.18); font-weight: 400; }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%; height: 5px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      outline: none; cursor: pointer;
+      margin: 0.4rem 0;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      box-shadow: 0 0 0 4px rgba(201,162,39,0.18);
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover { box-shadow: 0 0 0 7px rgba(201,162,39,0.25); }
+    input[type=range]::-moz-range-thumb {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      border: none; cursor: pointer;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────── */
+    .btn-gold {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      background: linear-gradient(135deg, #c9a227, #d4a929);
+      color: #0a0f1a; font-weight: 800; font-size: 1rem;
+      padding: 0.9rem 2rem;
+      border-radius: 12px; border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(201,162,39,0.3);
+      font-family: 'Syne', sans-serif;
+      width: 100%;
+    }
+    .btn-gold:hover:not(:disabled) { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,162,39,0.4); }
+    .btn-gold:active { transform: translateY(0); }
+    .btn-gold:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      color: #9ca3af; font-weight: 600; font-size: 0.85rem;
+      padding: 0.6rem 1.25rem; border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      font-family: 'Instrument Sans', sans-serif;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+
+    /* ── Forensic question cards ─────────────────────────── */
+    .forensic-card {
+      display: flex; align-items: flex-start; gap: 1rem;
+      background: rgba(255,255,255,0.03);
+      border: 1.5px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 0.9rem;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .forensic-card.answered-yes {
+      border-color: rgba(16,185,129,0.4);
+      background: rgba(16,185,129,0.05);
+    }
+    .forensic-card.answered-no {
+      border-color: rgba(220,38,38,0.4);
+      background: rgba(220,38,38,0.05);
+    }
+    .forensic-number {
+      flex-shrink: 0;
+      width: 2rem; height: 2rem;
+      border-radius: 50%;
+      background: rgba(201,162,39,0.15);
+      border: 1px solid rgba(201,162,39,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 0.8rem;
+      color: #c9a227;
+    }
+    .forensic-text { font-size: 0.88rem; line-height: 1.5; color: #cbd5e1; flex: 1; }
+    .forensic-bucket-tag {
+      font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em;
+      font-weight: 600; padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.4);
+      margin-top: 0.4rem;
+      display: inline-block;
+    }
+
+    /* ── Toggle yes/no ────────────────────────────────────── */
+    .toggle-group {
+      display: flex; gap: 0.5rem; margin-top: 1rem;
+      flex-shrink: 0;
+    }
+    .toggle-btn {
+      padding: 0.4rem 1.1rem;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.78rem; font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Instrument Sans', sans-serif;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .toggle-btn.yes-btn.selected {
+      background: rgba(16,185,129,0.2);
+      border-color: #10b981;
+      color: #10b981;
+    }
+    .toggle-btn.no-btn.selected {
+      background: rgba(220,38,38,0.2);
+      border-color: #dc2626;
+      color: #dc2626;
+    }
+
+    /* ── Account creation modal ──────────────────────────── */
+    #auth-modal {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(10,15,26,0.92);
+      backdrop-filter: blur(12px);
+      align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    #auth-modal.open { display: flex; }
+    .modal-card {
+      width: 100%; max-width: 440px;
+      background: #111827;
+      border: 1px solid rgba(201,162,39,0.2);
+      border-radius: 20px;
+      padding: 2rem 1.75rem;
+      animation: modalIn 0.35s cubic-bezier(0.4,0,0.2,1) both;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem; font-weight: 800;
+      color: #f1f5f9;
+      margin-bottom: 0.5rem;
+    }
+    .modal-sub {
+      font-size: 0.85rem; color: rgba(255,255,255,0.45);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .modal-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #f1f5f9;
+      font-size: 0.95rem;
+      padding: 0.75rem 1rem;
+      outline: none;
+      margin-bottom: 0.75rem;
+      font-family: 'Instrument Sans', sans-serif;
+      transition: border-color 0.2s;
+    }
+    .modal-input:focus { border-color: #c9a227; }
+    .modal-input::placeholder { color: rgba(255,255,255,0.2); }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+      border-radius: 8px; padding: 0.3rem 0.6rem;
+      cursor: pointer; font-size: 1.1rem; line-height: 1;
+    }
+    .modal-error {
+      font-size: 0.8rem; color: #f87171;
+      margin-bottom: 0.75rem;
+      display: none;
+    }
+
+    /* ── Vault screen ────────────────────────────────────── */
+    .vault-zone {
+      border: 2px dashed rgba(201,162,39,0.25);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .vault-zone.drag-over {
+      border-color: #c9a227;
+      background: rgba(201,162,39,0.08);
+    }
+    .vault-zone-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .vault-zone h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .vault-zone p  { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
+    #pdf-file-name { font-size: 0.8rem; color: #10b981; margin-top: 0.5rem; display: none; }
+
+    /* ── Phase Zero Dashboard ────────────────────────────── */
+    .bucket-card {
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s;
+    }
+    .bucket-card.structured {
+      border-color: rgba(16,185,129,0.3);
+      background: rgba(16,185,129,0.04);
+    }
+    .bucket-card.breached {
+      border-color: rgba(220,38,38,0.3);
+      background: rgba(220,38,38,0.04);
+    }
+    .bucket-status-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .badge-structured { background: rgba(16,185,129,0.15); color: #10b981; }
+    .badge-breached  { background: rgba(220,38,38,0.15);  color: #dc2626; }
+
+    /* ── Exit overlay ─────────────────────────────────────── */
+    #exit-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(10,15,26,0.94);
+      backdrop-filter: blur(16px);
+      align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    #exit-overlay.open { display: flex; }
+    .exit-card {
+      max-width: 420px; width: 100%;
+      background: #111827;
+      border: 1px solid rgba(201,162,39,0.3);
+      border-radius: 20px; padding: 2rem;
+      text-align: center;
+      animation: modalIn 0.3s ease both;
+    }
+    .exit-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem; font-weight: 800;
+      color: #dc2626;
+      margin: 0.5rem 0;
+    }
+
+    /* ── Misc ────────────────────────────────────────────── */
+    .info-text { font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 0.3rem; }
+    .step-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: #c9a227; font-weight: 700; margin-bottom: 0.75rem; }
+    .fade-up { animation: slideUp 0.45s ease both; }
+
+    @media (min-width: 640px) {
+      .card { padding: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Back Door Bleed Counter (pinned) ──────────────────────────────────── -->
+<div id="bleed-counter">
+  <div class="flex items-center justify-between max-w-xl mx-auto">
+    <div>
+      <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.35);font-weight:600;margin-bottom:0.1rem;">Back Door Interest Bleed</div>
+      <div class="counter-value" id="monthly-bleed">$0<span style="font-size:0.9rem;font-weight:400;opacity:0.6;"> /mo</span></div>
+    </div>
+    <div style="text-align:right">
+      <div class="lifetime-val">Est. lifetime (30yr)</div>
+      <div id="lifetime-bleed" style="font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;color:rgba(255,255,255,0.35);">$0</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 6 Bucket Pillars (background viz) ──────────────────────────────────── -->
+<div id="bucket-viz">
+  <div class="pillar" data-bucket="necessities" id="p-nec">
+    <div class="pillar bar"></div>
+    <div class="pillar-label">Necessities</div>
+  </div>
+  <div class="pillar" data-bucket="velocity" id="p-vel">
+    <div class="pillar bar"></div>
+    <div class="pillar-label">Velocity</div>
+  </div>
+  <div class="pillar" data-bucket="reserve" id="p-res">
+    <div class="pillar bar"></div>
+    <div class="pillar-label">Reserve</div>
+  </div>
+  <div class="pillar" data-bucket="lifestyle" id="p-lif">
+    <div class="pillar bar"></div>
+    <div class="pillar-label">Lifestyle</div>
+  </div>
+  <div class="pillar" data-bucket="growth" id="p-grw">
+    <div class="pillar bar"></div>
+    <div class="pillar-label">Growth</div>
+  </div>
+  <div class="pillar" data-bucket="legacy" id="p-legacy">
+    <div class="pillar bar"></div>
+    <div class="pillar-label">Legacy</div>
+  </div>
+</div>
+
+<!-- ── Screens ──────────────────────────────────────────────────────────── -->
+<div id="screens">
+
+  <!-- STEP 1: Calculator Landing ────────────────────────────────────────── -->
+  <div class="screen active" id="screen-calc">
+    <div class="card">
+      <p class="step-label">Step 1 of 4</p>
+      <h1 class="headline" id="hook-headline">Find out where your money is <span class="gold">going</span></h1>
+      <p class="subhead">Most people have no idea they're hemorrhaging wealth through back door interest. Let's prove it.</p>
+
+      <!-- Input 1: Household Income -->
+      <div class="input-group">
+        <div class="input-label">
+          <span>Annual Household Income</span>
+          <span class="input-value-display" id="display-income">$0</span>
+        </div>
+        <input type="range" id="slider-income" min="0" max="1000000" step="5000" value="0">
+        <input type="text" id="input-income" placeholder="$0" inputmode="numeric">
+      </div>
+
+      <!-- Input 2: Non-Mortgage Debt -->
+      <div class="input-group">
+        <div class="input-label">
+          <span>Total Non-Mortgage Debt</span>
+          <span class="input-value-display" id="display-nm">$0</span>
+        </div>
+        <input type="range" id="slider-nm" min="0" max="300000" step="1000" value="0">
+        <input type="text" id="input-nm" placeholder="$0" inputmode="numeric">
+      </div>
+
+      <!-- Input 3: Mortgage Debt -->
+      <div class="input-group">
+        <div class="input-label">
+          <span>Total Mortgage Debt</span>
+          <span class="input-value-display" id="display-mort">$0</span>
+        </div>
+        <input type="range" id="slider-mort" min="0" max="2000000" step="5000" value="0">
+        <input type="text" id="input-mort" placeholder="$0" inputmode="numeric">
+      </div>
+
+      <!-- Input 4: Blended Interest Rate -->
+      <div class="input-group">
+        <div class="input-label">
+          <span>Average Blended Interest Rate</span>
+          <span class="input-value-display" id="display-rate">0.00%</span>
+        </div>
+        <input type="range" id="slider-rate" min="0" max="30" step="0.1" value="0">
+        <input type="text" id="input-rate" placeholder="0.00%" inputmode="decimal">
+      </div>
+
+      <!-- CTA -->
+      <button class="btn-gold mt-4" id="cta-proceed" disabled>
+        Calculate My Bleed
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Forensic Questions ─────────────────────────────────────────── -->
+  <div class="screen" id="screen-forensic">
+    <div class="card">
+      <p class="step-label">Step 2 of 4 — Forensic Scan</p>
+      <h1 class="headline">Map your <span class="gold">architecture</span></h1>
+      <p class="subhead">5 questions. Your buckets light up as you answer.</p>
+
+      <div id="forensic-questions"></div>
+
+      <button class="btn-gold mt-4" id="cta-unlock" disabled>
+        <span id="cta-text">Unlock Full Forensic Scan</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Secure Vault ─────────────────────────────────────────────── -->
+  <div class="screen" id="screen-vault">
+    <div class="card">
+      <p class="step-label">Step 3 of 4 — Your Secure Vault</p>
+      <h1 class="headline">Your Vault is <span class="gold">Active</span></h1>
+      <p class="subhead">Enter your exact income. Drop your credit report for penny-accurate analysis.</p>
+
+      <div class="input-group">
+        <div class="input-label"><span>Annual Salary (Gross)</span></div>
+        <input type="text" id="vault-salary" placeholder="$0" inputmode="numeric">
+        <p class="info-text">Gross = before taxes. Use last year's total.</p>
+      </div>
+
+      <!-- PDF Drop Zone -->
+      <div class="vault-zone mt-3" id="pdf-zone">
+        <div class="vault-zone-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin:0 auto">
+            <rect width="40" height="40" rx="10" fill="rgba(201,162,39,0.1)"/>
+            <path d="M20 12v16M12 20h16" stroke="#c9a227" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Drop your credit report PDF</h3>
+        <p>to unlock penny-accurate analysis</p>
+        <div id="pdf-file-name"></div>
+      </div>
+      <input type="file" id="pdf-input" accept=".pdf" style="display:none">
+
+      <button class="btn-gold mt-3" id="cta-enter-dashboard">
+        Enter Phase Zero
+      </button>
+
+      <button class="btn-outline mt-2 w-full" id="skip-upload" style="border:none;background:none;color:rgba(255,255,255,0.3);font-size:0.8rem;cursor:pointer;">
+        Skip and add later from your dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Phase Zero Dashboard ─────────────────────────────────────── -->
+  <div class="screen" id="screen-dashboard">
+    <div class="card">
+      <p class="step-label">Phase Zero Active</p>
+      <h1 class="headline">Your Financial <span class="gold">Architecture</span></h1>
+      <p class="subhead">Mapped but not yet structured. Here's where you stand.</p>
+
+      <!-- Bleed Summary -->
+      <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:14px;padding:1rem;margin-bottom:1.5rem;text-align:center">
+        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(220,38,38,0.7);font-weight:600;">Current Monthly Bleed</div>
+        <div id="dash-bleed" style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:#dc2626;">$0/mo</div>
+        <div id="dash-lifetime" style="font-size:0.8rem;color:rgba(255,255,255,0.35);">Est. lifetime: $0</div>
+      </div>
+
+      <!-- Bucket Cards -->
+      <div id="bucket-cards"></div>
+
+      <!-- CTA -->
+      <div style="margin-top:1.5rem;background:linear-gradient(135deg,rgba(201,162,39,0.1),rgba(201,162,39,0.05));border:1px solid rgba(201,162,39,0.25);border-radius:14px;padding:1.25rem;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:0.4rem">Initialize the Reserve Protocol</div>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.45);margin-bottom:1rem;line-height:1.5">
+          Your architecture is mapped. To activate automated allocation systems and patch these leaks, schedule your Sovereignty Alignment Briefing.
+        </p>
+        <a href="/business-pro-onboarding.html" class="btn-gold" style="text-decoration:none;display:inline-flex">
+          Schedule Your Briefing
+        </a>
+      </div>
+
+      <button class="btn-outline mt-3 w-full" style="border:none;background:none" onclick="window.location.href='/app.html'">
+        Go to My Dashboard →
+      </button>
+    </div>
+  </div>
+
+</div><!-- /screens -->
+
+<!-- ── Progress Dots ────────────────────────────────────────────────────── -->
+<div id="progress-dots">
+  <div class="prog-dot active" data-step="1"></div>
+  <div class="prog-dot" data-step="2"></div>
+  <div class="prog-dot" data-step="3"></div>
+  <div class="prog-dot" data-step="4"></div>
+</div>
+
+<!-- ── Account Creation Modal ────────────────────────────────────────────── -->
+<div id="auth-modal">
+  <div class="modal-card" style="position:relative">
+    <button class="modal-close" id="modal-close">×</button>
+    <div class="modal-title">Secure Your Vault</div>
+    <div class="modal-sub">To generate your private Forensic Report, create your secure vault profile. Takes 10 seconds.</div>
+
+    <input type="text" class="modal-input" id="auth-name" placeholder="Your full name" autocomplete="name">
+    <input type="email" class="modal-input" id="auth-email" placeholder="Email address" autocomplete="email">
+    <input type="password" class="modal-input" id="auth-pw" placeholder="Create a password" autocomplete="new-password">
+    <div class="modal-error" id="modal-error"></div>
+    <button class="btn-gold" id="modal-submit">Create My Vault →</button>
+    <p style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:0.75rem;text-align:center">Already have an account? <a href="/login.html" style="color:#c9a227">Log in</a></p>
+  </div>
+</div>
+
+<!-- ── Exit Capture Overlay ──────────────────────────────────────────────── -->
+<div id="exit-overlay">
+  <div class="exit-card">
+    <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:#c9a227;font-weight:700">Wait — don't lose your numbers</div>
+    <div class="exit-number" id="exit-bleed-number">$0</div>
+    <p style="font-size:0.88rem;color:rgba(255,255,255,0.5);margin-bottom:1.25rem">That's your estimated lifetime leak. Enter your email to save this calculation before it resets.</p>
+    <input type="email" class="modal-input" id="exit-email" placeholder="your@email.com">
+    <button class="btn-gold" id="exit-save">Save My Calculation</button>
+    <button class="btn-outline mt-2" id="exit-dismiss" style="border:none;background:none;font-size:0.75rem;color:rgba(255,255,255,0.25);cursor:pointer">No thanks, I'll find it later</button>
+  </div>
+</div>
+
+<!-- ── Analytics + App Logic ──────────────────────────────────────────────── -->
+<script>
+// ─── Config ──────────────────────────────────────────────────────────────────
+const API = '/api/mod_onboarding';
+const SESSION_KEY = 'facts_funnel_session';
+
+// Forensic questions config
+const QUESTIONS = [
+  {
+    id: 0,
+    text: 'Are you currently tracking your "Back Door Interest Bleed" down to the exact penny every month?',
+    buckets: ['Necessities', 'Lifestyle']
+  },
+  {
+    id: 1,
+    text: 'Do you have a dedicated, fully liquid "Reserve Bucket" completely isolated from your daily operating expenses?',
+    buckets: ['Reserve']
+  },
+  {
+    id: 2,
+    text: 'Is your surplus cash flow optimized to move with maximum speed into wealth assets, or is it sitting stagnant?',
+    buckets: ['Velocity', 'Growth']
+  },
+  {
+    id: 3,
+    text: 'Do you have an automated sweep protocol that locks in profits before daily variable expenses can touch them?',
+    buckets: ['Lifestyle']
+  },
+  {
+    id: 4,
+    text: 'Are you legally utilizing a structured shield to protect your primary income and secure your multi-generational wealth from erosion?',
+    buckets: ['Legacy']
+  }
+];
+
+// Bucket → pillar map
+const BUCKET_MAP = {
+  0: ['nec', 'lif'],
+  1: ['res'],
+  2: ['vel', 'grw'],
+  3: ['lif'],
+  4: ['legacy']
+};
+
+// ─── State ───────────────────────────────────────────────────────────────────
+let state = {
+  sessionId: null,
+  userId: null,
+  income: 0,
+  nmDebt: 0,
+  mortDebt: 0,
+  blendedRate: 0,
+  monthlyBleed: 0,
+  lifetimeBleed: 0,
+  forensicAnswers: {},
+  abVariants: { hookHeadline: 'A', coreCTA: 'A' },
+  analyticsEnabled: true,
+  currentStep: 1,
+  uploadReady: false,
+};
+
+// ─── A/B Variants ────────────────────────────────────────────────────────────
+async function loadABVariants() {
+  try {
+    const resp = await fetch(`${API}/ab/variant?sessionId=${state.sessionId || Date.now()}`);
+    if (resp.ok) {
+      const data = await resp.json();
+      state.abVariants = data;
+      applyABVariants();
+    }
+  } catch (e) { /* silently fall back to A */ }
+}
+
+function applyABVariants() {
+  // Hook headline
+  const hl = document.getElementById('hook-headline');
+  if (hl) {
+    hl.innerHTML = state.abVariants.hookHeadline === 'B'
+      ? 'Calculate your Bank <span class="gold">Interest Leak</span>'
+      : 'Find out where your money is <span class="gold">going</span>';
+  }
+  // Core CTA
+  const ctaText = document.getElementById('cta-text');
+  if (ctaText) {
+    ctaText.textContent = state.abVariants.coreCTA === 'B'
+      ? 'Deploy the Correction Protocol'
+      : 'Unlock Full Forensic Scan';
+  }
+}
+
+// ─── Analytics Events ─────────────────────────────────────────────────────────
+function track(event, data = {}) {
+  if (!state.analyticsEnabled) return;
+  data.sessionId = state.sessionId;
+  // Fire-and-forget via beacon for reliability
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(`${API}/track?event=${event}&data=${encodeURIComponent(JSON.stringify(data))}`);
+  }
+}
+
+function fireAnalyticsEvent(eventName, data = {}) {
+  track(eventName, data);
+}
+
+// ─── Bleed Calculation ────────────────────────────────────────────────────────
+function computeBleed() {
+  const nm   = parseFloat(state.nmDebt)   || 0;
+  const mort  = parseFloat(state.mortDebt)  || 0;
+  const rate  = (parseFloat(state.blendedRate) || 0) / 100;
+  state.monthlyBleed  = Math.round((nm * rate / 12 + mort * rate / 12) * 100) / 100;
+  state.lifetimeBleed = Math.round(state.monthlyBleed * 12 * 30 * 100) / 100;
+  updateBleedCounter();
+}
+
+function updateBleedCounter() {
+  document.getElementById('monthly-bleed').innerHTML =
+    `$${state.monthlyBleed.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}<span style="font-size:0.9rem;font-weight:400;opacity:0.6;"> /mo</span>`;
+  document.getElementById('lifetime-bleed').textContent =
+    `$${state.lifetimeBleed.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}`;
+}
+
+// ─── Formatter utilities ──────────────────────────────────────────────────────
+function fmt(n) {
+  return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function parseNum(str) {
+  return parseFloat((str || '').replace(/[^0-9.-]/g, '')) || 0;
+}
+function syncSliderAndText(sliderId, textId, displayId, suffix, storeKey, formatter) {
+  const slider = document.getElementById(sliderId);
+  const text   = document.getElementById(textId);
+  const disp   = document.getElementById(displayId);
+
+  function update(val) {
+    const n = parseFloat(val) || 0;
+    state[storeKey] = n;
+    disp.textContent = formatter ? formatter(n) : `$${fmt(n)}`;
+    computeBleed();
+    updateProceedButton();
+  }
+
+  slider.addEventListener('input', () => {
+    text.value = slider.value === '0' ? '' : slider.value;
+    update(slider.value);
+  });
+  text.addEventListener('input', () => {
+    const n = parseNum(text.value);
+    slider.value = Math.min(n, parseFloat(slider.max));
+    update(text.value);
+  });
+  text.addEventListener('blur', () => {
+    if (text.value) text.value = fmt(parseNum(text.value));
+  });
+}
+
+// ─── Button state ─────────────────────────────────────────────────────────────
+function updateProceedButton() {
+  const ready = state.income > 0 && state.nmDebt >= 0 && state.mortDebt >= 0 && state.blendedRate > 0;
+  document.getElementById('cta-proceed').disabled = !ready;
+}
+
+// ─── Forensic questions render ────────────────────────────────────────────────
+function renderForensicQuestions() {
+  const container = document.getElementById('forensic-questions');
+  container.innerHTML = QUESTIONS.map(q => `
+    <div class="forensic-card" id="fc-${q.id}">
+      <div class="forensic-number">${q.id + 1}</div>
+      <div>
+        <div class="forensic-text">${q.text}</div>
+        <div class="forensic-bucket-tag">${q.buckets.join(' · ')}</div>
+        <div class="toggle-group">
+          <button class="toggle-btn yes-btn" data-q="${q.id}" data-val="yes">Yes</button>
+          <button class="toggle-btn no-btn"  data-q="${q.id}" data-val="no">No</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qId = parseInt(btn.dataset.q);
+      const val = btn.dataset.val === 'yes';
+      state.forensicAnswers[qId] = val;
+
+      // Update card visual
+      const card = document.getElementById(`fc-${qId}`);
+      card.classList.remove('answered-yes', 'answered-no');
+      card.classList.add(val ? 'answered-yes' : 'answered-no');
+
+      // Update pillar state
+      const pillars = BUCKET_MAP[qId] || [];
+      pillars.forEach(p => {
+        const el = document.getElementById(`p-${p}`);
+        if (el) {
+          el.classList.remove('active', 'breached');
+          el.classList.add(val ? 'active' : 'breached');
+        }
+      });
+
+      // Highlight answered
+      container.querySelectorAll(`.toggle-btn[data-q="${qId}"]`).forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+
+      updateUnlockButton();
+    });
+  });
+}
+
+function updateUnlockButton() {
+  const answered = Object.keys(state.forensicAnswers).length === 5;
+  document.getElementById('cta-unlock').disabled = !answered;
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function goToStep(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const screenMap = { 1: 'screen-calc', 2: 'screen-forensic', 3: 'screen-vault', 4: 'screen-dashboard' };
+  const el = document.getElementById(screenMap[n]);
+  if (el) el.classList.add('active');
+  state.currentStep = n;
+  updateProgressDots(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgressDots(step) {
+  document.querySelectorAll('.prog-dot').forEach(d => {
+    const s = parseInt(d.dataset.step);
+    d.classList.remove('active', 'done');
+    if (s === step) d.classList.add('active');
+    else if (s < step) d.classList.add('done');
+  });
+}
+
+// ─── Step 1 → Submit + Save to localStorage ──────────────────────────────────
+async function submitCalculator() {
+  const resp = await fetch(`${API}/calculator-submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      income: state.income,
+      nonMortgageDebt: state.nmDebt,
+      mortgageDebt: state.mortDebt,
+      blendedRate: state.blendedRate,
+    })
+  });
+  if (!resp.ok) { alert('Something went wrong. Please try again.'); return; }
+  const data = await resp.json();
+  state.sessionId = data.sessionId;
+
+  // Micro-cache in localStorage
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    income: state.income, nmDebt: state.nmDebt, mortDebt: state.mortDebt,
+    blendedRate: state.blendedRate, monthlyBleed: state.monthlyBleed,
+    lifetimeBleed: state.lifetimeBleed, sessionId: state.sessionId,
+    savedAt: Date.now(),
+  }));
+
+  fireAnalyticsEvent('calculator_inputs_submitted', {
+    incomeRange: getIncomeRange(state.income),
+    totalDebtTier: getDebtTier(state.nmDebt + state.mortDebt),
+  });
+
+  goToStep(2);
+}
+
+function getIncomeRange(income) {
+  if (income < 50000) return 'under_50k';
+  if (income < 100000) return '50k_100k';
+  if (income < 200000) return '100k_200k';
+  return '200k_plus';
+}
+function getDebtTier(total) {
+  if (total < 10000)  return 'minimal';
+  if (total < 50000)  return 'moderate';
+  if (total < 150000) return 'significant';
+  return 'major';
+}
+
+// ─── Forensic → Submit answers ───────────────────────────────────────────────
+async function submitForensicAnswers() {
+  for (const [qId, answer] of Object.entries(state.forensicAnswers)) {
+    fireAnalyticsEvent('forensic_question_answered', { questionId: parseInt(qId), answer });
+    try {
+      await fetch(`${API}/forensic-answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: state.sessionId, questionId: parseInt(qId), answer })
+      });
+    } catch (e) { /* best effort */ }
+  }
+}
+
+// ─── Auth Modal ────────────────────────────────────────────────────────────────
+function openAuthModal() {
+  fireAnalyticsEvent('unlock_scan_clicked', { calculatedBleedTotal: state.lifetimeBleed });
+  document.getElementById('auth-modal').classList.add('open');
+}
+function closeAuthModal() {
+  document.getElementById('auth-modal').classList.remove('open');
+}
+
+async function submitAuth() {
+  const name  = document.getElementById('auth-name').value.trim();
+  const email = document.getElementById('auth-email').value.trim();
+  const pw    = document.getElementById('auth-pw').value;
+  const errEl = document.getElementById('modal-error');
+
+  if (!name || !email || !pw) {
+    errEl.textContent = 'Please fill in all fields.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (pw.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('modal-submit');
+  btn.disabled = true;
+  btn.textContent = 'Creating...';
+
+  try {
+    const resp = await fetch(`${API}/vault/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password: pw, sessionId: state.sessionId }),
+    });
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      errEl.textContent = data.error || 'Something went wrong.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Create My Vault →';
+      return;
+    }
+
+    state.userId = data.userId;
+    fireAnalyticsEvent('vault_account_created', { userId: data.userId, emailDomain: email.split('@')[1] });
+
+    closeAuthModal();
+    goToStep(3);
+  } catch (e) {
+    errEl.textContent = 'Connection error. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Create My Vault →';
+  }
+}
+
+// ─── Vault: PDF Upload ─────────────────────────────────────────────────────────
+function setupPDFUpload() {
+  const zone  = document.getElementById('pdf-zone');
+  const input = document.getElementById('pdf-input');
+
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handlePDFFile(e.dataTransfer.files[0]);
+  });
+  input.addEventListener('change', () => {
+    if (input.files[0]) handlePDFFile(input.files[0]);
+  });
+}
+
+async function handlePDFFile(file) {
+  if (file.type !== 'application/pdf') {
+    alert('Only PDF files are accepted. Please export your credit report as PDF.');
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append('credit_report', file);
+  fd.append('sessionId', state.sessionId);
+
+  try {
+    const resp = await fetch(`${API}/vault/upload`, {
+      method: 'POST',
+      body: fd,
+    });
+    const data = await resp.json();
+    state.uploadReady = true;
+
+    document.getElementById('pdf-file-name').textContent = `✓ ${file.name}`;
+    document.getElementById('pdf-file-name').style.display = 'block';
+
+    fireAnalyticsEvent('credit_report_uploaded', {
+      sessionId: state.sessionId,
+      fileTypeValidated: data.fileTypeValidated,
+    });
+  } catch (e) {
+    // still allow proceeding
+  }
+}
+
+// ─── Vault: Salary Submit → Phase Zero Dashboard ──────────────────────────────
+async function submitVaultSalary() {
+  const salary = parseNum(document.getElementById('vault-salary').value);
+  if (!salary || salary <= 0) {
+    alert('Please enter your salary to continue.');
+    return;
+  }
+
+  const resp = await fetch(`${API}/vault/salary-submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ salary, sessionId: state.sessionId }),
+  });
+  if (!resp.ok) { alert('Something went wrong. Please try again.'); return; }
+
+  fireAnalyticsEvent('phase_zero_dashboard_viewed', { sessionId: state.sessionId, userId: state.userId });
+
+  // Load dashboard data
+  await loadDashboard();
+  goToStep(4);
+}
+
+async function loadDashboard() {
+  try {
+    const resp = await fetch(`${API}/dashboard/${state.userId}`);
+    if (resp.ok) {
+      const data = await resp.json();
+      state.monthlyBleed  = data.monthlyBleed  || state.monthlyBleed;
+      state.lifetimeBleed = data.lifetimeBleed || state.lifetimeBleed;
+      renderDashboard(data);
+    }
+  } catch (e) { /* use defaults */ }
+}
+
+function renderDashboard(data) {
+  document.getElementById('dash-bleed').textContent = `$${fmt(state.monthlyBleed)}/mo`;
+  document.getElementById('dash-lifetime').textContent = `Est. lifetime: $${fmt(state.lifetimeBleed)}`;
+
+  const buckets = data.buckets || {};
+  const bucketCards = document.getElementById('bucket-cards');
+  const BUCKET_ORDER = [
+    { key: 'necessities', label: 'Necessities', icon: '🏠' },
+    { key: 'velocity',    label: 'Velocity',    icon: '⚡' },
+    { key: 'reserve',     label: 'Reserve',     icon: '🪣' },
+    { key: 'lifestyle',   label: 'Lifestyle',   icon: '🌿' },
+    { key: 'growth',      label: 'Growth',      icon: '📈' },
+    { key: 'legacy',      label: 'Legacy',      icon: '🏛️' },
+  ];
+
+  bucketCards.innerHTML = BUCKET_ORDER.map(b => {
+    const bData = buckets[b.key] || { state: 'unanswered' };
+    const isStructured = bData.state === 'structured';
+    const isBreached   = bData.state === 'breached';
+    return `
+      <div class="bucket-card ${isStructured ? 'structured' : isBreached ? 'breached' : ''}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+          <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem">${b.icon} ${b.label}</span>
+          <span class="bucket-status-badge ${isStructured ? 'badge-structured' : 'badge-breached'}">
+            ${isStructured ? '✓ Structured' : isBreached ? '✗ Breached' : '? Unknown'}
+          </span>
+        </div>
+        <div style="font-size:0.75rem;color:${isStructured ? 'rgba(16,185,129,0.7)' : isBreached ? 'rgba(220,38,38,0.7)' : 'rgba(255,255,255,0.3)'}">
+          ${isStructured ? 'This bucket is active and protecting your wealth.' :
+            isBreached  ? 'This bucket has a structural gap. Schedule your briefing to resolve it.' :
+            'Complete your forensic scan to assess this bucket.'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── Skip PDF Upload ──────────────────────────────────────────────────────────
+function skipUpload() {
+  fireAnalyticsEvent('skip_later_clicked', { reason: 'Clicked later', sessionId: state.sessionId });
+  submitVaultSalary();
+}
+
+// ─── Exit Capture ──────────────────────────────────────────────────────────────
+function setupExitCapture() {
+  // Desktop: mouse leaving viewport
+  document.addEventListener('mouseout', e => {
+    if (e.clientY <= 5 && state.currentStep < 4 && state.monthlyBleed > 0) {
+      showExitOverlay();
+    }
+  });
+
+  // Mobile: back swipe detection via popstate (hardware back button)
+  window.addEventListener('popstate', () => {
+    if (state.currentStep < 4 && state.monthlyBleed > 0) showExitOverlay();
+  });
+
+  // Inactivity (30s with no interaction after reaching Step 2+)
+  let inactivityTimer;
+  function resetInactivity() {
+    clearTimeout(inactivityTimer);
+    if (state.currentStep >= 2 && state.monthlyBleed > 0) {
+      inactivityTimer = setTimeout(() => showExitOverlay(), 30000);
+    }
+  }
+  ['mousemove', 'touchstart', 'scroll', 'keypress'].forEach(ev =>
+    document.addEventListener(ev, resetInactivity, { passive: true })
+  );
+
+  document.getElementById('exit-dismiss').addEventListener('click', () => {
+    document.getElementById('exit-overlay').classList.remove('open');
+  });
+
+  document.getElementById('exit-save').addEventListener('click', async () => {
+    const email = document.getElementById('exit-email').value.trim();
+    if (!email) { alert('Please enter your email.'); return; }
+    // Store email with session
+    localStorage.setItem('facts_exit_email', email);
+    fireAnalyticsEvent('exit_overlay_email_submitted', {
+      sessionId: state.sessionId,
+      hashedEmail: btoa(email).slice(0, 20),
+    });
+    document.getElementById('exit-overlay').classList.remove('open');
+  });
+}
+
+function showExitOverlay() {
+  if (document.getElementById('exit-overlay').classList.contains('open')) return;
+  document.getElementById('exit-bleed-number').textContent = `$${fmt(state.lifetimeBleed)}`;
+  document.getElementById('exit-overlay').classList.add('open');
+  fireAnalyticsEvent('exit_overlay_viewed', {});
+}
+
+// ─── Restore from localStorage ───────────────────────────────────────────────
+function tryRestoreSession() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!saved || !saved.sessionId) return;
+    // Only restore if < 7 days old
+    if (Date.now() - saved.savedAt > 7 * 24 * 3600 * 1000) return;
+
+    state.sessionId   = saved.sessionId;
+    state.income      = saved.income;
+    state.nmDebt      = saved.nmDebt;
+    state.mortDebt    = saved.mortDebt;
+    state.blendedRate = saved.blendedRate;
+    state.monthlyBleed  = saved.monthlyBleed;
+    state.lifetimeBleed = saved.lifetimeBleed;
+
+    // Restore slider/text values
+    ['income', 'nmDebt', 'mortDebt', 'blendedRate'].forEach(key => {
+      const sliderMap = { income: 'slider-income', nmDebt: 'slider-nm', mortDebt: 'slider-mort', blendedRate: 'slider-rate' };
+      const textMap   = { income: 'input-income', nmDebt: 'input-nm', mortDebt: 'input-mort', blendedRate: 'input-rate' };
+      const dispMap   = { income: 'display-income', nmDebt: 'display-nm', mortDebt: 'display-mort', blendedRate: 'display-rate' };
+      const suffixMap = { blendedRate: '%' };
+      const slider = document.getElementById(sliderMap[key]);
+      const text   = document.getElementById(textMap[key]);
+      const disp   = document.getElementById(dispMap[key]);
+      if (slider && text && disp) {
+        slider.value = state[key];
+        text.value   = state[key] || '';
+        disp.textContent = state[key] + (suffixMap[key] || '');
+      }
+    });
+
+    updateBleedCounter();
+    updateProceedButton();
+  } catch (e) { /* ignore */ }
+}
+
+// ─── Share ────────────────────────────────────────────────────────────────────
+function setupShare() {
+  // Allow sharing the bleed number
+  document.getElementById('cta-proceed').addEventListener('dblclick', () => {
+    if (state.monthlyBleed > 0) {
+      if (navigator.share) {
+        navigator.share({ title: 'FACTS Bleed Calculator', text: `My back door interest bleed is $${fmt(state.monthlyBleed)}/month. Calculate yours: ${window.location.href}` });
+      }
+      fireAnalyticsEvent('bleed_counter_shared', { platform: 'native_share' });
+    }
+  });
+}
+
+// ─── Session timeout ──────────────────────────────────────────────────────────
+function setupSessionTracking() {
+  window.addEventListener('beforeunload', () => {
+    fireAnalyticsEvent('onboarding_abandoned', {
+      sessionId: state.sessionId,
+      lastCompletedStep: state.currentStep,
+    });
+  });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  // Restore saved session
+  tryRestoreSession();
+
+  // Load A/B variants
+  await loadABVariants();
+
+  // Wire up calculators
+  syncSliderAndText('slider-income', 'input-income', 'display-income', '', 'income', n => `$${fmt(n)}`);
+  syncSliderAndText('slider-nm',     'input-nm',     'display-nm',     '', 'nmDebt', n => `$${fmt(n)}`);
+  syncSliderAndText('slider-mort',   'input-mort',   'display-mort',   '', 'mortDebt', n => `$${fmt(n)}`);
+  syncSliderAndText('slider-rate',   'input-rate',   'display-rate',   '', 'blendedRate', n => `${n.toFixed(2)}%`);
+
+  // Render forensic questions
+  renderForensicQuestions();
+
+  // PDF upload
+  setupPDFUpload();
+
+  // Exit capture
+  setupExitCapture();
+
+  // Share
+  setupShare();
+
+  // Session tracking
+  setupSessionTracking();
+
+  // Event: landing viewed
+  fireAnalyticsEvent('referral_landing_viewed', { referrerId: document.referrer });
+
+  // Event: Step 2 viewed (on first scroll into it)
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && e.target.id === 'screen-forensic') {
+        fireAnalyticsEvent('step_2_viewed', {});
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.1 });
+  observer.observe(document.getElementById('screen-forensic'));
+
+  // CTA: Step 1 → Submit calculator
+  document.getElementById('cta-proceed').addEventListener('click', submitCalculator);
+
+  // CTA: Unlock (after forensic answers)
+  document.getElementById('cta-unlock').addEventListener('click', async () => {
+    await submitForensicAnswers();
+    openAuthModal();
+  });
+
+  // Auth modal
+  document.getElementById('modal-close').addEventListener('click', closeAuthModal);
+  document.getElementById('modal-submit').addEventListener('click', submitAuth);
+
+  // Vault: salary submit
+  document.getElementById('cta-enter-dashboard').addEventListener('click', submitVaultSalary);
+
+  // Vault: skip upload
+  document.getElementById('skip-upload').addEventListener('click', skipUpload);
+
+  // Close modals on backdrop click
+  document.getElementById('auth-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('auth-modal')) closeAuthModal();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+
+</body>
+</html>

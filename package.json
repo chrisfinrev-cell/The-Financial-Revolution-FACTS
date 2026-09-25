@@ -1,0 +1,34 @@
+{
+  "name": "facts-program",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node scripts/refresh-credentials.js && node server.js",
+    "dev": "node scripts/refresh-credentials.js && node server.js",
+    "build": "npm run migrate && node scripts/seed-sandbox.js && node scripts/ensure-pwa-icons.js",
+    "migrate": "node migrate.js",
+    "schema:export": "node db/export-schema.js",
+    "test:engine": "node scripts/test-engine.js",
+    "affiliate-jobs": "node jobs/affiliate-jobs.js",
+    "refresh-creds": "node scripts/refresh-credentials.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "pdf-parse": "^1.1.1",
+    "connect-pg-simple": "^10.0.0",
+    "crypto": "^1.0.1",
+    "csv-parse": "^6.1.0",
+    "express": "^4.18.2",
+    "express-session": "^1.19.0",
+    "form-data": "^4.0.0",
+    "multer": "^2.1.0",
+    "node-cron": "^4.2.1",
+    "node-fetch": "^2.7.0",
+    "openai": "^4.77.0",
+    "pg": "^8.11.3",
+    "plaid": "^41.3.0",
+    "stripe": "^17.7.0",
+    "twilio": "^5.0.0",
+    "web-push": "^3.6.7"
+  }
+}

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Restored Points — FACTS</title>
+  <meta name="description" content="Your Aura Restored loyalty points. Track your points balance, earning history, and redemptions.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0d1117', 800: '#13192a', 700: '#1a2235' },
+            gold:  { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .card { background: linear-gradient(145deg, #13192a, #1a2235); border: 1px solid rgba(255,255,255,0.07); }
+    .card-gold {
+      background: linear-gradient(145deg, rgba(201,162,39,0.08), rgba(201,162,39,0.04));
+      border: 1px solid rgba(201,162,39,0.2);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      color: #0d1117; font-weight: 700;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      color: #d1d5db; transition: background 0.2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.09); }
+
+    .table-row {
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: background 0.15s;
+    }
+    .table-row:last-child { border-bottom: none; }
+    .table-row:hover { background: rgba(255,255,255,0.03); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: fadeUp 0.4s ease 0.05s both; }
+    .anim-2 { animation: fadeUp 0.4s ease 0.12s both; }
+    .anim-3 { animation: fadeUp 0.4s ease 0.2s both; }
+
+    .loading-row {
+      height: 2.5rem; border-radius: 0.5rem; margin: 0.35rem 0;
+      background: rgba(255,255,255,0.04); animation: pulse 1.5s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+    .badge-earn {
+      background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.2);
+      color: #34d399; font-size: 0.65rem; font-weight: 700;
+      padding: 0.15rem 0.5rem; border-radius: 999px;
+    }
+    .badge-redeem {
+      background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.2);
+      color: #f87171; font-size: 0.65rem; font-weight: 700;
+      padding: 0.15rem 0.5rem; border-radius: 999px;
+    }
+    .badge-pro {
+      background: rgba(201,162,39,0.12); border: 1px solid rgba(201,162,39,0.3);
+      color: #e8c96a; font-size: 0.7rem; font-weight: 700;
+      padding: 0.2rem 0.55rem; border-radius: 999px;
+    }
+
+    /* Pro gate overlay */
+    #pro-gate {
+      display: none;
+      position: fixed; inset: 0; z-index: 60;
+      background: rgba(13,17,23,0.92); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+
+    /* Tab styling */
+    .tab-btn {
+      padding: 0.5rem 1.25rem; border-radius: 0.6rem; font-size: 0.875rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; color: #6b7280;
+      background: transparent; border: none;
+    }
+    .tab-btn.active {
+      background: rgba(201,162,39,0.12); color: #e8c96a;
+      border: 1px solid rgba(201,162,39,0.2);
+    }
+    .tab-btn:hover:not(.active) { color: #d1d5db; }
+  </style>
+  <script defer src="/nav-bar.js"></script>
+</head>
+<body class="min-h-screen" style="background:#0d1117; color:#f1f5f9;">
+
+  <!-- Pro Gate Overlay -->
+  <div id="pro-gate" style="display:none;">
+    <div class="card rounded-2xl p-8 max-w-md w-full text-center" style="border-color:rgba(201,162,39,0.2);">
+      <div class="text-5xl mb-4">🏅</div>
+      <h2 class="text-2xl font-bold mb-2">Aura Restored Points is a <span class="gold-text">Paid Feature</span></h2>
+      <p class="text-gray-400 text-sm leading-relaxed mb-6">
+        Aura Restored loyalty points are earned through Sovereignty Score progression and redeemable at the Aura Restored store. Upgrade now to start earning.
+      </p>
+      <div class="flex flex-col gap-3">
+        <a href="/pricing.html" class="btn-gold block py-3 rounded-xl text-sm">Upgrade Now →</a>
+        <a href="/" class="text-xs text-gray-500 hover:text-gray-300 transition-colors mt-1">← Back to FACTS Hub</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Not-logged-in gate -->
+  <div id="auth-gate" style="display:none; position:fixed; inset:0; z-index:60; background:rgba(13,17,23,0.95); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:1rem;">
+    <div class="card rounded-2xl p-8 max-w-md w-full text-center" style="border-color:rgba(201,162,39,0.15);">
+      <div class="text-5xl mb-4">🔒</div>
+      <h2 class="text-xl font-bold mb-2">Sign In to Access Your Points</h2>
+      <p class="text-gray-400 text-sm mb-6">Your Aura Restored points dashboard requires a paid account.</p>
+      <div class="flex flex-col gap-3">
+        <a href="/login.html" class="btn-gold block py-3 rounded-xl text-sm">Sign In</a>
+        <a href="/signup.html" class="btn-outline block py-2.5 rounded-xl text-sm">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content (hidden until auth verified) -->
+  <div id="main-content" style="display:none;">
+
+    <!-- Nav -->
+    <nav class="border-b sticky z-40" style="top:44px;border-color:rgba(255,255,255,0.06); background:rgba(13,17,23,0.95); backdrop-filter:blur(10px);">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <a href="/" class="flex items-center gap-2 text-white no-underline">
+            <div class="w-7 h-7 rounded-md flex items-center justify-center text-sm font-bold" style="background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;">₣</div>
+          </a>
+          <span class="text-gray-600 text-xs">/</span>
+          <span class="text-xs text-white font-medium">Aura Restored Points</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="/rewards.html" class="text-xs text-gray-400 hover:text-white transition-colors px-2 py-1.5">
+            Rewards Info →
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+
+      <!-- Header -->
+      <div class="mb-8 anim-1">
+        <div class="flex items-start justify-between flex-wrap gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-2xl">🏅</span>
+              <h1 class="text-2xl font-extrabold">Aura Restored Points</h1>
+              <span class="badge-pro">PRO</span>
+            </div>
+            <p class="text-gray-400 text-sm">Your loyalty points earned through Sovereignty Score progression. Redeemable at the Aura Restored store.</p>
+            <p class="text-xs mt-2" style="color:#f59e0b;"><strong>Note:</strong> These are shopping points — NOT affiliate commissions. For your affiliate commissions, visit your <a href="/affiliate-dashboard.html" style="color:#e8c96a;text-decoration:underline;">Future Generations Affiliate Dashboard</a>.</p>
+          </div>
+          <a href="/affiliate-dashboard.html" class="btn-outline inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm">
+            Affiliate Dashboard →
+          </a>
+        </div>
+      </div>
+
+      <!-- Balance cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 anim-2">
+        <div class="card-gold rounded-2xl p-5">
+          <div class="text-xs text-gray-400 font-medium mb-1 uppercase tracking-wide">Points Balance</div>
+          <div id="stat-balance" class="text-3xl font-extrabold gold-text loading-placeholder">—</div>
+          <div class="text-xs text-gray-500 mt-1">spendable at Aura Restored</div>
+        </div>
+        <div class="card rounded-2xl p-5">
+          <div class="text-xs text-gray-400 font-medium mb-1 uppercase tracking-wide">Total Points Earned</div>
+          <div id="stat-earned" class="text-3xl font-extrabold text-green-400 loading-placeholder">—</div>
+          <div class="text-xs text-gray-500 mt-1">all time</div>
+        </div>
+        <div class="card rounded-2xl p-5">
+          <div class="text-xs text-gray-400 font-medium mb-1 uppercase tracking-wide">Total Points Redeemed</div>
+          <div id="stat-redeemed" class="text-3xl font-extrabold text-red-400 loading-placeholder">—</div>
+          <div class="text-xs text-gray-500 mt-1">min 500 per redemption</div>
+        </div>
+      </div>
+
+      <!-- Tabs + History -->
+      <div class="anim-3">
+        <!-- Tab controls -->
+        <div class="flex gap-1 mb-5 p-1 rounded-xl inline-flex" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);">
+          <button class="tab-btn active" id="tab-earnings" onclick="switchTab('earnings')">
+            📈 Earning History
+          </button>
+          <button class="tab-btn" id="tab-redemptions" onclick="switchTab('redemptions')">
+            🎁 Redemption History
+          </button>
+        </div>
+
+        <!-- Earnings panel -->
+        <div id="panel-earnings">
+          <div class="card rounded-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b" style="border-color:rgba(255,255,255,0.06);">
+              <div class="flex items-center justify-between">
+                <h2 class="font-semibold text-sm">Earning History</h2>
+                <span id="earn-count" class="text-xs text-gray-500">—</span>
+              </div>
+            </div>
+            <div id="earnings-list" class="px-5 py-4">
+              <!-- Populated by JS -->
+              <div class="space-y-2">
+                <div class="loading-row"></div>
+                <div class="loading-row" style="width:85%;"></div>
+                <div class="loading-row" style="width:92%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Redemptions panel -->
+        <div id="panel-redemptions" style="display:none;">
+          <div class="card rounded-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b" style="border-color:rgba(255,255,255,0.06);">
+              <div class="flex items-center justify-between">
+                <h2 class="font-semibold text-sm">Redemption History</h2>
+                <span id="redeem-count" class="text-xs text-gray-500">—</span>
+              </div>
+            </div>
+            <div id="redemptions-list" class="px-5 py-4">
+              <!-- Populated by JS -->
+              <div class="space-y-2">
+                <div class="loading-row"></div>
+                <div class="loading-row" style="width:80%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aura Restored info + affiliate link -->
+      <div class="mt-8 card-gold rounded-2xl p-6 text-center">
+        <div class="text-2xl mb-2">🏅</div>
+        <h3 class="font-bold mb-1">Aura Restored Points</h3>
+        <p class="text-gray-400 text-sm mb-2">Points cover up to 50% of purchase price. Min 500 points per redemption. Earn points through Sovereignty Score progression in your XP Vault.</p>
+        <p class="text-xs text-gray-500 mb-4">Looking for your affiliate commissions? They're completely separate.</p>
+        <a href="/affiliate-dashboard.html"
+           class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all btn-gold">
+          Open Affiliate Dashboard →
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Loading spinner (shown while checking auth) -->
+  <div id="loading-screen" class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+      <div class="text-4xl mb-4 animate-bounce">🏅</div>
+      <div class="text-sm text-gray-500">Loading your points…</div>
+    </div>
+  </div>
+
+  <script>
+    let currentTab = 'earnings';
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('panel-earnings').style.display = tab === 'earnings' ? 'block' : 'none';
+      document.getElementById('panel-redemptions').style.display = tab === 'redemptions' ? 'block' : 'none';
+      document.getElementById('tab-earnings').className = 'tab-btn' + (tab === 'earnings' ? ' active' : '');
+      document.getElementById('tab-redemptions').className = 'tab-btn' + (tab === 'redemptions' ? ' active' : '');
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function formatPoints(n, sign = '') {
+      return sign + Number(n).toLocaleString();
+    }
+
+    function renderEmptyState(message) {
+      return `<div class="text-center py-10">
+        <div class="text-3xl mb-3 opacity-40">📭</div>
+        <p class="text-gray-500 text-sm">${message}</p>
+      </div>`;
+    }
+
+    function renderEarnings(events) {
+      const el = document.getElementById('earnings-list');
+      const countEl = document.getElementById('earn-count');
+      if (!events || events.length === 0) {
+        countEl.textContent = '0 events';
+        el.innerHTML = renderEmptyState('No earning events yet. Stay active on your paid subscription to start earning!');
+        return;
+      }
+      countEl.textContent = `${events.length} event${events.length !== 1 ? 's' : ''}`;
+      el.innerHTML = `
+        <div class="overflow-x-auto -mx-5">
+          <table class="w-full min-w-[480px]" style="border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium uppercase tracking-wide">Date</th>
+                <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium uppercase tracking-wide">Activity</th>
+                <th class="text-right px-5 py-2.5 text-xs text-gray-500 font-medium uppercase tracking-wide">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${events.map(e => `
+                <tr class="table-row">
+                  <td class="px-5 py-3 text-xs text-gray-400">${formatDate(e.created_at)}</td>
+                  <td class="px-5 py-3">
+                    <div class="text-sm text-white font-medium">${escHtml(e.description)}</div>
+                    <div class="text-xs text-gray-500 mt-0.5">${escHtml(e.activity_type)}</div>
+                  </td>
+                  <td class="px-5 py-3 text-right">
+                    <span class="badge-earn">+${formatPoints(e.points)}</span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function renderRedemptions(events) {
+      const el = document.getElementById('redemptions-list');
+      const countEl = document.getElementById('redeem-count');
+      if (!events || events.length === 0) {
+        countEl.textContent = '0 redemptions';
+        el.innerHTML = renderEmptyState('No redemption history yet.');
+        return;
+      }
+      countEl.textContent = `${events.length} redemption${events.length !== 1 ? 's' : ''}`;
+      el.innerHTML = `
+        <div class="overflow-x-auto -mx-5">
+          <table class="w-full min-w-[480px]" style="border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium uppercase tracking-wide">Date</th>
+                <th class="text-left px-5 py-2.5 text-xs text-gray-500 font-medium uppercase tracking-wide">Item / Gift Card</th>
+                <th class="text-right px-5 py-2.5 text-xs text-gray-500 font-medium uppercase tracking-wide">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${events.map(e => `
+                <tr class="table-row">
+                  <td class="px-5 py-3 text-xs text-gray-400">${formatDate(e.created_at)}</td>
+                  <td class="px-5 py-3">
+                    <div class="text-sm text-white font-medium">${escHtml(e.item_name)}</div>
+                    ${e.external_ref ? `<div class="text-xs text-gray-500 mt-0.5">Ref: ${escHtml(e.external_ref)}</div>` : ''}
+                  </td>
+                  <td class="px-5 py-3 text-right">
+                    <span class="badge-redeem">-${formatPoints(e.points_spent)}</span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function init() {
+      // 1. Check auth + Pro status
+      const statusRes = await fetch('/api/future-generations/status').catch(() => null);
+      const status = statusRes ? await statusRes.json().catch(() => null) : null;
+
+      document.getElementById('loading-screen').style.display = 'none';
+
+      if (!status || !status.authenticated) {
+        document.getElementById('auth-gate').style.display = 'flex';
+        return;
+      }
+
+      if (!status.has_access) {
+        document.getElementById('pro-gate').style.display = 'flex';
+        return;
+      }
+
+      // 1b. Check if Discovery Scan is complete (gate to this dashboard)
+      try {
+        const scanRes = await fetch('/api/discovery-scan/status', { credentials: 'include' });
+        if (scanRes.ok) {
+          const scanData = await scanRes.json();
+          if (!scanData.completed) {
+            // Redirect to Discovery Scan — required before dashboard access
+            window.location.href = '/discovery-scan.html';
+            return;
+          }
+        }
+      } catch (e) {
+        // Non-fatal: if scan check fails, proceed to dashboard
+      }
+
+      // User is authenticated + Pro + scan complete — show dashboard
+      document.getElementById('main-content').style.display = 'block';
+
+      // 2. Load points, earnings, redemptions in parallel
+      const [pointsRes, earningsRes, redemptionsRes] = await Promise.all([
+        fetch('/api/future-generations/points'),
+        fetch('/api/future-generations/earnings'),
+        fetch('/api/future-generations/redemptions')
+      ]);
+
+      const [points, earnings, redemptions] = await Promise.all([
+        pointsRes.json().catch(() => null),
+        earningsRes.json().catch(() => null),
+        redemptionsRes.json().catch(() => null)
+      ]);
+
+      // 3. Render stats
+      if (points && points.success) {
+        document.getElementById('stat-balance').textContent = formatPoints(points.balance);
+        document.getElementById('stat-earned').textContent = formatPoints(points.total_earned);
+        document.getElementById('stat-redeemed').textContent = formatPoints(points.total_redeemed);
+      } else {
+        document.getElementById('stat-balance').textContent = '0';
+        document.getElementById('stat-earned').textContent = '0';
+        document.getElementById('stat-redeemed').textContent = '0';
+      }
+
+      // 4. Render history
+      renderEarnings(earnings?.events || []);
+      renderRedemptions(redemptions?.events || []);
+    }
+
+    init();
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

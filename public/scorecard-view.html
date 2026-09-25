@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0f1a">
+  <title>Financial Responsibility Scorecard — FACTS</title>
+  <meta name="description" content="View this member's Financial Responsibility Scorecard — real data proving financial discipline.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#060b14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1f2940' },
+            gold: { 400: '#d4a929', 500: '#c9a227' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0d1117; color: #e2e8f0; font-family: 'Inter', system-ui, sans-serif; margin: 0; min-height: 100vh; min-height: 100dvh; }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+    .card { background: #13192a; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; }
+
+    /* Score ring */
+    .score-ring-container { position: relative; width: 180px; height: 180px; }
+    .score-ring-container svg { transform: rotate(-90deg); }
+    .score-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+
+    /* Metric bars */
+    .metric-bar-bg { background: rgba(255,255,255,0.06); border-radius: 999px; height: 8px; overflow: hidden; }
+    .metric-bar-fill { height: 100%; border-radius: 999px; transition: width 1s ease; }
+
+    /* Tier badge */
+    .tier-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 16px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; }
+
+    /* Radar chart */
+    .radar-ring { fill: none; stroke: rgba(255,255,255,0.05); }
+    .radar-fill { fill: rgba(201,162,39,0.18); stroke: #c9a227; stroke-width: 1.5; }
+    .radar-dot { fill: #c9a227; }
+    .radar-axis { stroke: rgba(255,255,255,0.08); }
+    .radar-label { font-size: 10px; fill: #94a3b8; font-family: 'Inter', sans-serif; }
+
+    /* Skeleton */
+    .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+    /* FACTS branding bar */
+    .facts-bar { background: linear-gradient(135deg, rgba(201,162,39,0.12), rgba(201,162,39,0.05)); border-bottom: 1px solid rgba(201,162,39,0.2); }
+
+    /* CTA button */
+    .btn-primary { background: linear-gradient(135deg, #c9a227, #a8831e); color: #0d1117; font-weight: 700;
+      border: none; border-radius: 10px; cursor: pointer; transition: opacity 0.2s, transform 0.15s; font-family: inherit; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .verified-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px;
+      background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #34d399; font-size: 0.75rem; font-weight: 600; }
+
+    .metric-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; }
+  </style>
+</head>
+<body>
+
+<!-- FACTS Branding Header -->
+<div class="facts-bar py-3 px-4 flex items-center justify-between">
+  <div class="flex items-center gap-2">
+    <span class="text-xl font-bold" style="color:#c9a227; font-family:'Space Grotesk',sans-serif;">₣</span>
+    <div>
+      <div class="text-sm font-bold" style="color:#e2e8f0; font-family:'Space Grotesk',sans-serif;">FACTS</div>
+      <div class="text-xs" style="color:#64748b;">Verified by FACTS Finance</div>
+    </div>
+  </div>
+  <a href="/" class="text-xs px-3 py-1.5 rounded-lg border" style="color:#c9a227; border-color:rgba(201,162,39,0.3); text-decoration:none;">Join FACTS</a>
+</div>
+
+<!-- Main Content -->
+<div class="max-w-3xl mx-auto px-4 pb-16" style="padding-top: 24px;">
+
+  <!-- Loading -->
+  <div id="loading-state" class="space-y-4">
+    <div class="card p-6 skeleton" style="height: 220px;"></div>
+    <div class="skeleton" style="height: 24px; width: 200px; border-radius: 999px;"></div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="card p-4 skeleton" style="height: 110px;"></div>
+      <div class="card p-4 skeleton" style="height: 110px;"></div>
+      <div class="card p-4 skeleton" style="height: 110px;"></div>
+      <div class="card p-4 skeleton" style="height: 110px;"></div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div id="error-state" style="display:none;" class="text-center py-20">
+    <div class="text-5xl mb-4">🔗</div>
+    <h2 class="text-xl font-bold mb-2" style="color:#e2e8f0;">Link Not Found or Expired</h2>
+    <p class="text-sm mb-6" style="color:#64748b;">This scorecard link may have been revoked or has expired (links last 30 days).</p>
+    <a href="/" class="btn-primary px-6 py-2.5 inline-block text-sm rounded-xl" style="text-decoration:none;">Join FACTS</a>
+  </div>
+
+  <!-- Scorecard Content -->
+  <div id="scorecard-content" style="display:none;">
+
+    <!-- Owner Header -->
+    <div class="mb-6 flex items-center gap-3">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0"
+        style="background: linear-gradient(135deg, rgba(201,162,39,0.2), rgba(201,162,39,0.1)); color:#c9a227; font-family:'Space Grotesk',sans-serif;"
+        id="owner-avatar">?</div>
+      <div>
+        <h1 class="text-xl font-bold" id="owner-name" style="color:#e2e8f0;">Loading...</h1>
+        <div class="flex items-center gap-2 flex-wrap mt-0.5">
+          <span class="verified-badge">✓ Verified FACTS Member</span>
+          <span class="text-xs" id="member-since" style="color:#475569;"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Score -->
+    <div class="card p-6 mb-6" style="background: linear-gradient(135deg, rgba(201,162,39,0.06) 0%, #13192a 60%);">
+      <div class="text-center mb-2">
+        <p class="text-xs font-semibold uppercase tracking-wider mb-4" style="color:#64748b; letter-spacing: 0.1em;">Financial Responsibility Score</p>
+      </div>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-8">
+        <!-- Score Ring -->
+        <div class="score-ring-container flex-shrink-0">
+          <svg width="180" height="180" viewBox="0 0 180 180">
+            <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="14"/>
+            <circle id="score-ring" cx="90" cy="90" r="78" fill="none" stroke="#c9a227" stroke-width="14"
+              stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="490" style="transition: stroke-dashoffset 1.4s ease;"/>
+          </svg>
+          <div class="score-center">
+            <div id="score-num" class="text-5xl font-bold" style="color:#c9a227; font-family:'Space Grotesk',sans-serif;">—</div>
+            <div class="text-sm" style="color:#64748b;">/100</div>
+          </div>
+        </div>
+
+        <!-- Tier + Description -->
+        <div class="text-center sm:text-left">
+          <div id="tier-badge" class="tier-badge mb-3 mx-auto sm:mx-0" style="width:fit-content;">
+            <span id="tier-emoji">🌱</span>
+            <span id="tier-name">—</span>
+          </div>
+          <p id="tier-desc" class="text-sm mb-4 max-w-xs" style="color:#94a3b8;"></p>
+
+          <!-- Radar -->
+          <div>
+            <svg id="radar" width="140" height="140" viewBox="-10 -10 220 220"><!-- drawn by JS --></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transparency note -->
+      <div class="mt-5 pt-4 flex items-center gap-2" style="border-top: 1px solid rgba(255,255,255,0.05);">
+        <span class="text-xs" style="color:#475569;">🔒</span>
+        <span class="text-xs" style="color:#475569;">All-or-nothing transparency — this is their complete scorecard. No cherry-picking.</span>
+        <span class="text-xs ml-auto" id="updated-at" style="color:#334155;"></span>
+      </div>
+    </div>
+
+    <!-- Tier Scale -->
+    <div class="card p-4 mb-6">
+      <p class="text-xs font-semibold mb-3" style="color:#64748b; text-transform: uppercase; letter-spacing: 0.08em;">Responsibility Tier Scale</p>
+      <div class="flex gap-1 items-center">
+        <div class="flex-1 text-center">
+          <div class="h-2 rounded-l-full" style="background:#DC2626;"></div>
+          <div class="text-xs mt-1" style="color:#f87171;">Emerging</div>
+          <div class="text-xs" style="color:#475569;">0–20</div>
+        </div>
+        <div class="flex-1 text-center">
+          <div class="h-2" style="background:#D97706;"></div>
+          <div class="text-xs mt-1" style="color:#fcd34d;">Building</div>
+          <div class="text-xs" style="color:#475569;">21–40</div>
+        </div>
+        <div class="flex-1 text-center">
+          <div class="h-2" style="background:#0891B2;"></div>
+          <div class="text-xs mt-1" style="color:#67e8f9;">Strong</div>
+          <div class="text-xs" style="color:#475569;">41–60</div>
+        </div>
+        <div class="flex-1 text-center">
+          <div class="h-2" style="background:#059669;"></div>
+          <div class="text-xs mt-1" style="color:#34d399;">Exceptional</div>
+          <div class="text-xs" style="color:#475569;">61–80</div>
+        </div>
+        <div class="flex-1 text-center">
+          <div class="h-2 rounded-r-full" style="background:#7C3AED;"></div>
+          <div class="text-xs mt-1" style="color:#a78bfa;">Legacy-Ready</div>
+          <div class="text-xs" style="color:#475569;">81–100</div>
+        </div>
+      </div>
+      <div id="tier-indicator-row" class="flex gap-1 items-center mt-1">
+        <!-- Arrow indicator drawn by JS -->
+      </div>
+    </div>
+
+    <!-- Six Metric Cards -->
+    <div class="mb-2">
+      <h2 class="text-base font-semibold mb-3" style="color:#e2e8f0;">Score Breakdown</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="metrics-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Dollar amounts note (if applicable) -->
+    <div id="dollar-note" style="display:none;" class="mt-4 p-3 rounded-lg" style="background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.1);">
+      <p class="text-xs" style="color:#6ee7b7;">💵 This member has chosen to show actual dollar amounts for full transparency.</p>
+    </div>
+
+    <!-- Expiry note -->
+    <div class="mt-4 p-3 rounded-lg flex gap-2" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+      <span class="text-xs" style="color:#334155;" id="link-expiry-note"></span>
+    </div>
+
+    <!-- Join CTA -->
+    <div class="mt-8 card p-6 text-center" style="background: linear-gradient(135deg, rgba(201,162,39,0.08), rgba(201,162,39,0.03));">
+      <div class="text-2xl mb-2">₣</div>
+      <h3 class="text-lg font-bold mb-2" style="color:#e2e8f0;">Build Your Own Scorecard</h3>
+      <p class="text-sm mb-4 mx-auto max-w-sm" style="color:#94a3b8;">Join FACTS and start proving your financial discipline with real data.</p>
+      <a href="/" class="btn-primary px-8 py-3 inline-block text-sm rounded-xl" style="text-decoration:none;">Start Free Trial</a>
+      <p class="text-xs mt-3" style="color:#475569;">21-day free trial · No credit card required</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const METRIC_COLORS = {
+    allocation_adherence: '#c9a227',
+    savings_consistency: '#10b981',
+    debt_reduction: '#3b82f6',
+    income_expense_ratio: '#8b5cf6',
+    financial_freedom: '#f59e0b',
+    app_engagement: '#06b6d4'
+  };
+
+  function getMetricIcon(key) {
+    return { allocation_adherence: '🎯', savings_consistency: '💰', debt_reduction: '📉', income_expense_ratio: '⚖️', financial_freedom: '🗽', app_engagement: '🔥' }[key] || '📊';
+  }
+
+  async function loadScorecard() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const userId = params.get('userId');
+
+    try {
+      let res, data;
+
+      if (token) {
+        res = await fetch(`/api/scorecard/view/${token}`);
+      } else if (userId) {
+        res = await fetch(`/api/scorecard/user/${userId}`);
+        if (res.status === 401) { window.location.href = `/login.html?redirect=${encodeURIComponent(window.location.href)}`; return; }
+      } else {
+        showError();
+        return;
+      }
+
+      if (res.status === 404 || res.status === 403) { showError(); return; }
+      if (!res.ok) { showError(); return; }
+
+      data = await res.json();
+      if (!data.success) { showError(); return; }
+
+      render(data);
+    } catch (e) {
+      console.error(e);
+      showError();
+    }
+  }
+
+  function showError() {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display = 'block';
+  }
+
+  function render(data) {
+    const { scorecard, owner_name, member_since, link_expires_at } = data;
+
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('scorecard-content').style.display = 'block';
+
+    // Owner info
+    const name = owner_name || 'FACTS Member';
+    document.getElementById('owner-name').textContent = name;
+    document.getElementById('owner-avatar').textContent = name.charAt(0).toUpperCase();
+    if (member_since) {
+      document.getElementById('member-since').textContent = `Member since ${new Date(member_since).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+    }
+
+    // Score ring (circumference = 2π * 78 ≈ 490)
+    const score = scorecard.composite_score;
+    document.getElementById('score-num').textContent = score;
+    const circumference = 490;
+    const offset = circumference - (score / 100) * circumference;
+    const tierColors = { 'Legacy-Ready': '#7C3AED', 'Exceptional': '#059669', 'Strong': '#0891B2', 'Building': '#D97706', 'Emerging': '#DC2626' };
+    const ringColor = tierColors[scorecard.tier] || '#c9a227';
+    setTimeout(() => {
+      const ring = document.getElementById('score-ring');
+      ring.style.strokeDashoffset = offset;
+      ring.style.stroke = ringColor;
+    }, 150);
+
+    // Tier badge
+    const tierBadgeColors = { 'Legacy-Ready': { bg: 'rgba(124,58,237,0.15)', border: 'rgba(124,58,237,0.3)', text: '#a78bfa' }, 'Exceptional': { bg: 'rgba(5,150,105,0.12)', border: 'rgba(5,150,105,0.25)', text: '#34d399' }, 'Strong': { bg: 'rgba(8,145,178,0.12)', border: 'rgba(8,145,178,0.25)', text: '#67e8f9' }, 'Building': { bg: 'rgba(217,119,6,0.12)', border: 'rgba(217,119,6,0.25)', text: '#fcd34d' }, 'Emerging': { bg: 'rgba(220,38,38,0.1)', border: 'rgba(220,38,38,0.2)', text: '#f87171' } };
+    const tc = tierBadgeColors[scorecard.tier] || { bg: 'rgba(201,162,39,0.12)', border: 'rgba(201,162,39,0.3)', text: '#c9a227' };
+    const badge = document.getElementById('tier-badge');
+    badge.style.background = tc.bg;
+    badge.style.border = `1px solid ${tc.border}`;
+    badge.style.color = tc.text;
+    document.getElementById('tier-emoji').textContent = scorecard.tier_emoji;
+    document.getElementById('tier-name').textContent = scorecard.tier;
+    document.getElementById('tier-desc').textContent = scorecard.tier_description;
+    document.getElementById('updated-at').textContent = new Date(scorecard.calculated_at).toLocaleString();
+
+    // Dollar amounts note
+    if (scorecard.show_dollar_amounts) document.getElementById('dollar-note').style.display = 'block';
+
+    // Link expiry
+    if (link_expires_at) {
+      const daysLeft = Math.ceil((new Date(link_expires_at) - new Date()) / (1000 * 60 * 60 * 24));
+      document.getElementById('link-expiry-note').textContent = `🔗 This link expires in ${daysLeft} days`;
+    }
+
+    // Radar chart
+    renderRadar(scorecard.metrics);
+
+    // Metrics grid
+    renderMetrics(scorecard.metrics);
+
+    // Set page title
+    document.title = `${name}'s Financial Scorecard — FACTS`;
+  }
+
+  function renderRadar(metrics) {
+    const svg = document.getElementById('radar');
+    const cx = 100, cy = 100, maxR = 90;
+    const keys = ['allocation_adherence', 'savings_consistency', 'debt_reduction', 'income_expense_ratio', 'financial_freedom', 'app_engagement'];
+    const labels = ['Allocation', 'Savings', 'Debt', 'Income', 'FF', 'Streak'];
+    const n = keys.length;
+
+    let html = '';
+    for (const r of [0.25, 0.5, 0.75, 1.0]) {
+      const pts = keys.map((_, i) => { const a = (Math.PI * 2 * i / n) - Math.PI / 2; return `${cx + Math.cos(a) * maxR * r},${cy + Math.sin(a) * maxR * r}`; }).join(' ');
+      html += `<polygon points="${pts}" class="radar-ring"/>`;
+    }
+    for (let i = 0; i < n; i++) {
+      const a = (Math.PI * 2 * i / n) - Math.PI / 2;
+      html += `<line x1="${cx}" y1="${cy}" x2="${cx + Math.cos(a) * maxR}" y2="${cy + Math.sin(a) * maxR}" class="radar-axis"/>`;
+    }
+    const pts = keys.map((k, i) => { const s = (metrics[k]?.score || 0) / 100 * maxR; const a = (Math.PI * 2 * i / n) - Math.PI / 2; return `${cx + Math.cos(a) * s},${cy + Math.sin(a) * s}`; });
+    html += `<polygon points="${pts.join(' ')}" class="radar-fill"/>`;
+    pts.forEach(pt => { const [x, y] = pt.split(','); html += `<circle cx="${x}" cy="${y}" r="3" class="radar-dot"/>`; });
+    for (let i = 0; i < n; i++) {
+      const a = (Math.PI * 2 * i / n) - Math.PI / 2;
+      html += `<text x="${cx + Math.cos(a) * (maxR + 16)}" y="${cy + Math.sin(a) * (maxR + 16)}" class="radar-label" text-anchor="middle" dominant-baseline="middle">${labels[i]}</text>`;
+    }
+    svg.innerHTML = html;
+  }
+
+  function renderMetrics(metrics) {
+    const grid = document.getElementById('metrics-grid');
+    const keys = ['allocation_adherence', 'savings_consistency', 'debt_reduction', 'income_expense_ratio', 'financial_freedom', 'app_engagement'];
+
+    grid.innerHTML = keys.map(key => {
+      const m = metrics[key];
+      if (!m) return '';
+      const color = METRIC_COLORS[key];
+      const score = m.score;
+      const data = m.data;
+
+      let detail = '';
+      if (key === 'allocation_adherence' && data.deviation !== undefined) {
+        detail = `Avg deviation from targets: ${data.deviation}%`;
+        if (data.total_tracked_90d) detail += ` · $${data.total_tracked_90d.toLocaleString()} tracked (90d)`;
+      } else if (key === 'savings_consistency') {
+        detail = `${data.months_with_savings} of 12 months with savings · Trend: ${data.trend}`;
+      } else if (key === 'debt_reduction') {
+        if (!data.has_debt) detail = `✓ Debt-free`;
+        else {
+          detail = `${data.debt_count} debt(s) · ${(data.strategy||'').replace(/_/g,' ')} · ${(data.trajectory||'').replace(/_/g,' ')}`;
+          if (data.total_balance) detail += ` · $${data.total_balance.toLocaleString()} balance`;
+        }
+      } else if (key === 'income_expense_ratio') {
+        detail = data.avg_expense_to_income_pct !== undefined ? `Avg ${data.avg_expense_to_income_pct}% of income spent · ${data.months_living_within_means}/${data.total_months_tracked} months within means` : 'Start tracking income & expenses to score';
+      } else if (key === 'financial_freedom') {
+        detail = data.has_ff_activity ? `${data.months_active} months active · ${data.trend}` : 'No FF activity tracked yet';
+        if (data.total_12m) detail += ` · $${data.total_12m.toLocaleString()} invested (12m)`;
+      } else if (key === 'app_engagement') {
+        detail = `${data.streak_days}-day streak · Level ${data.level} · ${data.total_transactions} transactions logged`;
+      }
+
+      // Score color
+      let scoreColor = color;
+      if (score < 30) scoreColor = '#DC2626';
+      else if (score < 60) scoreColor = '#D97706';
+
+      return `
+        <div class="metric-card">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex-1 pr-2">
+              <div class="flex items-center gap-1.5 mb-0.5">
+                <span class="text-base">${getMetricIcon(key)}</span>
+                <div class="text-xs font-semibold" style="color:#94a3b8;">${m.label}</div>
+              </div>
+              <div class="text-2xl font-bold" style="color:${scoreColor}; font-family:'Space Grotesk',sans-serif;">${score}<span class="text-sm font-normal" style="color:#475569;">/100</span></div>
+            </div>
+          </div>
+          <div class="metric-bar-bg mb-2">
+            <div class="metric-bar-fill" style="width:${score}%; background:${color};"></div>
+          </div>
+          <div class="text-xs leading-relaxed" style="color:#64748b;">${detail}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Load on init
+  loadScorecard();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="#050810"/>
+
+  <!-- Outer ring — double border -->
+  <circle cx="256" cy="256" r="238" fill="none" stroke="#c9a227" stroke-width="6"/>
+  <circle cx="256" cy="256" r="228" fill="none" stroke="#c9a227" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- 8-pointed star burst (background layer) -->
+  <polygon
+    points="256,28 282,165 372,92 303,210 444,176 330,256 444,336 303,302 372,420 282,347 256,484 230,347 140,420 209,302 68,336 182,256 68,176 209,210 140,92 230,165"
+    fill="#c9a227" opacity="0.08"/>
+
+  <!-- Inner protective ring -->
+  <circle cx="256" cy="256" r="150" fill="#0a0f1a" stroke="#c9a227" stroke-width="3"/>
+  <circle cx="256" cy="256" r="140" fill="none" stroke="#c9a227" stroke-width="1" opacity="0.3"/>
+
+  <!-- Decorative tick marks on inner ring (12 positions like a clock) -->
+  <g stroke="#c9a227" stroke-width="2" opacity="0.5">
+    <line x1="256" y1="106" x2="256" y2="118"/>
+    <line x1="256" y1="394" x2="256" y2="406"/>
+    <line x1="106" y1="256" x2="118" y2="256"/>
+    <line x1="394" y1="256" x2="406" y2="256"/>
+    <!-- Diagonal marks -->
+    <line x1="150" y1="150" x2="158" y2="158"/>
+    <line x1="362" y1="150" x2="354" y2="158"/>
+    <line x1="150" y1="362" x2="158" y2="354"/>
+    <line x1="362" y1="362" x2="354" y2="354"/>
+  </g>
+
+  <!-- Inner 4-pointed star / diamond (obsidian fill with gold stroke) -->
+  <path d="M256 145 L275 235 L368 256 L275 277 L256 368 L237 277 L144 256 L237 235 Z"
+        fill="#0d1117" stroke="#c9a227" stroke-width="2" opacity="0.9"/>
+  <path d="M256 145 L275 235 L368 256 L275 277 L256 368 L237 277 L144 256 L237 235 Z"
+        fill="#c9a227" opacity="0.06"/>
+
+  <!-- Thin cross hairs (military precision) -->
+  <line x1="256" y1="116" x2="256" y2="152" stroke="#c9a227" stroke-width="1.5" opacity="0.4"/>
+  <line x1="256" y1="360" x2="256" y2="396" stroke="#c9a227" stroke-width="1.5" opacity="0.4"/>
+  <line x1="116" y1="256" x2="152" y2="256" stroke="#c9a227" stroke-width="1.5" opacity="0.4"/>
+  <line x1="360" y1="256" x2="396" y2="256" stroke="#c9a227" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- TFR monogram — center -->
+  <text x="256" y="238"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="64" font-weight="900"
+        fill="#c9a227"
+        text-anchor="middle" dominant-baseline="middle"
+        letter-spacing="4">FACTS</text>
+
+  <!-- Decorative line above SOVEREIGN text -->
+  <line x1="180" y1="272" x2="332" y2="272" stroke="#c9a227" stroke-width="1" opacity="0.5"/>
+
+  <!-- SOVEREIGN text -->
+  <text x="256" y="294"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="22" font-weight="700"
+        fill="#c9a227" opacity="0.85"
+        text-anchor="middle" dominant-baseline="middle"
+        letter-spacing="8">SOVEREIGN</text>
+
+  <!-- Decorative line below SOVEREIGN text -->
+  <line x1="180" y1="314" x2="332" y2="314" stroke="#c9a227" stroke-width="1" opacity="0.5"/>
+
+  <!-- Corner ornaments (subtle gold dots) -->
+  <circle cx="256" cy="64" r="3" fill="#c9a227" opacity="0.6"/>
+  <circle cx="256" cy="448" r="3" fill="#c9a227" opacity="0.6"/>
+  <circle cx="64" cy="256" r="3" fill="#c9a227" opacity="0.6"/>
+  <circle cx="448" cy="256" r="3" fill="#c9a227" opacity="0.6"/>
+</svg>

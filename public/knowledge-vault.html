@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knowledge Vault — FACTS</title>
+  <meta name="description" content="Level-gated financial intelligence. Unlock advanced strategies as you progress through the FACTS 12-Level Protocol.">
+
+  <!-- Sovereign Seal favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050810'/%3E%3Ccircle cx='16' cy='16' r='15' fill='none' stroke='%23c9a227' stroke-width='1.2'/%3E%3Cpolygon points='16,3 17.8,12 23.5,7.5 19.2,14.5 28,16 19.2,17.5 23.5,24.5 17.8,20 16,29 14.2,20 8.5,24.5 12.8,17.5 4,16 12.8,14.5 8.5,7.5 14.2,12' fill='%23c9a227' opacity='0.25'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='%230d1117' stroke='%23c9a227' stroke-width='0.8'/%3E%3Ctext x='16' y='17' dominant-baseline='middle' text-anchor='middle' font-size='7' font-weight='900' fill='%23c9a227' font-family='serif' letter-spacing='0.5'%3ETFR%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#070c14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1e293b' },
+            gold: { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a07c18' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+    body { background: #0d1117; color: #f1f5f9; min-height: 100vh; min-height: 100dvh; }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #13192a, #1a2235);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .card:hover:not(.card-locked-static) { border-color: rgba(201,162,39,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+
+    .card-accessible { cursor: pointer; }
+    .card-accessible:hover { transform: translateY(-2px); }
+
+    .card-locked-static { opacity: 0.65; }
+
+    /* Tier section headers */
+    .tier-section-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.75rem;
+      margin-bottom: 0.75rem;
+      font-weight: 800; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    /* Type badges */
+    .type-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .type-guide       { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.2); }
+    .type-strategy    { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.2); }
+    .type-masterclass { background: rgba(201,162,39,0.15); color: #e8c96a; border: 1px solid rgba(201,162,39,0.2); }
+    .type-exclusive   { background: rgba(229,228,226,0.15); color: #f0f0f0; border: 1px solid rgba(229,228,226,0.2); }
+
+    /* Tier lock overlays */
+    .tier-lock-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 0.2rem 0.75rem; border-radius: 100px;
+      background: rgba(255,255,255,0.06); color: #6b7280;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tier-lock-pill.pro      { background: rgba(168,184,200,0.12); color: #a8b8c8; border-color: rgba(168,184,200,0.2); }
+    .tier-lock-pill.business { background: rgba(201,162,39,0.12); color: #c9a227; border-color: rgba(201,162,39,0.2); }
+    .tier-lock-pill.elite    { background: rgba(229,228,226,0.12); color: #e5e4e2; border-color: rgba(229,228,226,0.2); }
+    .tier-lock-pill.sovereign{ background: rgba(201,162,39,0.2); color: #e8c96a; border-color: rgba(201,162,39,0.35); }
+
+    /* Tier band colors */
+    .band-free     { background: rgba(205,127,50,0.1); border-color: rgba(205,127,50,0.25); }
+    .band-pro      { background: rgba(168,184,200,0.1); border-color: rgba(168,184,200,0.25); }
+    .band-business { background: rgba(201,162,39,0.1); border-color: rgba(201,162,39,0.25); }
+    .band-elite    { background: rgba(229,228,226,0.1); border-color: rgba(229,228,226,0.25); }
+    .band-sovereign{ background: rgba(201,162,39,0.15); border-color: rgba(201,162,39,0.4); }
+
+    /* Filter pills */
+    .filter-pill {
+      padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 500;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: #9ca3af; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .filter-pill:hover { background: rgba(201,162,39,0.1); border-color: rgba(201,162,39,0.3); color: #e8c96a; }
+    .filter-pill.active { background: rgba(201,162,39,0.15); border-color: rgba(201,162,39,0.5); color: #e8c96a; font-weight: 600; }
+
+    /* Read time badge */
+    .read-time { font-size: 0.65rem; color: #6b7280; }
+
+    /* Loading skeleton */
+    .skeleton { background: rgba(255,255,255,0.05); border-radius: 0.75rem; animation: pulse 1.5s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.5}50%{opacity:1} }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .anim-1 { animation: fadeUp 0.4s ease 0.05s both; }
+    .anim-2 { animation: fadeUp 0.4s ease 0.12s both; }
+    .anim-3 { animation: fadeUp 0.4s ease 0.20s both; }
+
+    @keyframes seal-glow {
+      0%,100% { filter: drop-shadow(0 0 4px rgba(201,162,39,0.6)); }
+      50%      { filter: drop-shadow(0 0 10px rgba(201,162,39,0.9)); }
+    }
+    .seal-glow { animation: seal-glow 3s ease-in-out infinite; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  </style>
+  <script defer src="/nav-bar.js"></script>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="border-b sticky z-40" style="top:44px;border-color:rgba(255,255,255,0.06);background:rgba(13,17,23,0.95);backdrop-filter:blur(10px);">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/" class="flex items-center gap-2 text-white no-underline">
+        <svg class="seal-glow" width="26" height="26" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" fill="#050810"/>
+          <circle cx="16" cy="16" r="15" fill="none" stroke="#c9a227" stroke-width="1.2"/>
+          <polygon points="16,3 17.8,12 23.5,7.5 19.2,14.5 28,16 19.2,17.5 23.5,24.5 17.8,20 16,29 14.2,20 8.5,24.5 12.8,17.5 4,16 12.8,14.5 8.5,7.5 14.2,12" fill="#c9a227" opacity="0.2"/>
+          <circle cx="16" cy="16" r="8.5" fill="#0d1117" stroke="#c9a227" stroke-width="0.8"/>
+          <text x="16" y="17" dominant-baseline="middle" text-anchor="middle" font-size="7" font-weight="900" fill="#c9a227" font-family="serif" letter-spacing="0.5">FACTS</text>
+        </svg>
+      </a>
+      <span class="text-gray-600 text-xs">/</span>
+      <span class="text-xs text-white font-medium tracking-wide">KNOWLEDGE VAULT</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/sovereign" class="text-xs text-gray-400 hover:text-white transition-colors">⚔️ Sovereign</a>
+      <a href="/app" class="text-xs text-gray-400 hover:text-white transition-colors">← FACTS App</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Auth gate -->
+<div id="auth-gate" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(13,17,23,0.95);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1rem;">
+  <div class="card p-8 max-w-md w-full text-center">
+    <div class="text-5xl mb-4">📚</div>
+    <h2 class="text-xl font-bold mb-2">Sign In to Access the Vault</h2>
+    <p class="text-gray-400 text-sm mb-6">Level-gated financial intelligence, unlocked as you progress through the FACTS Protocol.</p>
+    <div class="flex flex-col gap-3">
+      <a href="/login.html" style="background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;font-weight:700;" class="block py-3 rounded-xl text-sm">Sign In</a>
+      <a href="/signup.html" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#d1d5db;" class="block py-2.5 rounded-xl text-sm">Create Account</a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+
+  <!-- Header -->
+  <div class="mb-8 anim-1">
+    <div class="flex items-start gap-4">
+      <div>
+        <h1 class="text-3xl font-black tracking-tight mb-1"><span class="gold-text">KNOWLEDGE VAULT</span></h1>
+        <p class="text-gray-400 text-sm">Financial intelligence, level-gated. Advance through the FACTS Protocol to unlock each tier.</p>
+        <div class="flex items-center gap-3 mt-3 flex-wrap">
+          <span id="vault-tier-badge" class="text-xs font-bold px-3 py-1 rounded-full" style="background:rgba(201,162,39,0.12);color:#e8c96a;border:1px solid rgba(201,162,39,0.2);">Loading…</span>
+          <span id="vault-count" class="text-xs text-gray-500"></span>
+          <a href="/sovereign" class="text-xs text-gray-500 hover:text-gold-300 transition-colors">← Back to Sovereign Protocol</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter pills -->
+  <div class="flex gap-2 flex-wrap mb-8 anim-2" id="filter-bar">
+    <button class="filter-pill active" onclick="filterContent('all', this)">All Content</button>
+    <button class="filter-pill" onclick="filterContent('free', this)">Free (L1-3)</button>
+    <button class="filter-pill" onclick="filterContent('pro', this)">Individual+ (L4-6)</button>
+    <button class="filter-pill" onclick="filterContent('business', this)">Business (L7-9)</button>
+    <button class="filter-pill" onclick="filterContent('elite', this)">Elite (L10-12)</button>
+    <button class="filter-pill" onclick="filterContent('sovereign', this)">Sovereign</button>
+    <button class="filter-pill" onclick="filterContent('accessible', this)">Unlocked Only</button>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div id="vault-loading" class="space-y-3">
+    <div class="skeleton h-20"></div>
+    <div class="skeleton h-20"></div>
+    <div class="skeleton h-20"></div>
+    <div class="skeleton h-20"></div>
+    <div class="skeleton h-20"></div>
+  </div>
+
+  <!-- Content grid -->
+  <div id="vault-content" style="display:none;" class="anim-3">
+    <!-- Populated by JS -->
+  </div>
+
+</div>
+
+<script>
+let allContent = [];
+let currentAccess = {};
+let activeFilter = 'all';
+
+const TIER_CONFIG = {
+  free:      { label: 'FREE (L1-3)',      color: '#e8a857', bgClass: 'band-free',      desc: 'Levels 1-3 — FACTS Free',          icon: '⚔️' },
+  pro:       { label: 'INDIVIDUAL+ (L4-6)',       color: '#d4e1ec', bgClass: 'band-pro',       desc: 'Levels 4-6 — Individual ($25/mo)',   icon: '💥' },
+  business:  { label: 'BUSINESS (L7-9)',  color: '#e8c96a', bgClass: 'band-business',  desc: 'Levels 7-9 — FACTS Business ($297/mo)', icon: '🏹' },
+  elite:     { label: 'ELITE (L7-11)',    color: '#f0f0f0', bgClass: 'band-elite',     desc: 'Levels 7-11 — Elite ($197/mo · $1,500/yr)', icon: '👑' },
+  sovereign: { label: 'SOVEREIGN',        color: '#e8c96a', bgClass: 'band-sovereign', desc: 'Sovereign Executive ($19,997)',    icon: '🌟' },
+};
+
+const UPGRADE_MSGS = {
+  pro:       { msg: 'Unlock with Individual — $25/mo', url: '/pricing.html' },
+  business:  { msg: 'Unlock with FACTS Business — $297/mo', url: '/pricing.html' },
+  elite:     { msg: 'Unlock with Elite — $197/mo · $1,500/yr', url: '/pricing.html' },
+  sovereign: { msg: 'Unlock with Sovereign Executive — $19,997', url: '/pricing.html' },
+};
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function init() {
+  try {
+    const res = await fetch('/api/knowledge-vault/content', { credentials: 'same-origin' });
+    if (res.status === 401) {
+      document.getElementById('auth-gate').style.display = 'flex';
+      document.getElementById('vault-loading').style.display = 'none';
+      return;
+    }
+    const data = await res.json();
+    if (!data.success) throw new Error('API error');
+    allContent = data.content;
+    currentAccess = data.access;
+
+    // Update tier badge
+    const tierBadge = document.getElementById('vault-tier-badge');
+    if (tierBadge) {
+      const tier = Object.entries(currentAccess).reverse().find(([k,v]) => v && k !== 'free' && k !== 'sovereign') || ['free', true];
+      const tierKey = currentAccess.sovereign ? 'sovereign' : currentAccess.elite ? 'elite' : currentAccess.business ? 'business' : currentAccess.pro ? 'pro' : 'free';
+      const cfg = TIER_CONFIG[tierKey];
+      tierBadge.textContent = cfg.label;
+      tierBadge.style.color = cfg.color;
+      tierBadge.style.borderColor = cfg.color.replace(')', ', 0.3)').replace('rgb', 'rgba');
+    }
+
+    const unlockedCount = allContent.filter(c => c.accessible).length;
+    const totalCount = allContent.length;
+    const countEl = document.getElementById('vault-count');
+    if (countEl) countEl.textContent = `${unlockedCount} of ${totalCount} items unlocked`;
+
+    renderContent(allContent);
+  } catch (err) {
+    console.error('Knowledge vault error:', err);
+    document.getElementById('vault-loading').innerHTML = `
+      <div class="card p-8 text-center">
+        <div class="text-3xl mb-3">⚠️</div>
+        <p class="text-gray-400 text-sm">Could not load vault. <a href="/login.html" class="text-yellow-400">Sign in</a> to access.</p>
+      </div>
+    `;
+  }
+}
+
+function filterContent(filter, btn) {
+  activeFilter = filter;
+  // Update pills
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  let filtered = allContent;
+  if (filter === 'all') {
+    filtered = allContent;
+  } else if (filter === 'accessible') {
+    filtered = allContent.filter(c => c.accessible);
+  } else {
+    filtered = allContent.filter(c => c.tier === filter);
+  }
+  renderContent(filtered);
+}
+
+function renderContent(items) {
+  document.getElementById('vault-loading').style.display = 'none';
+  const container = document.getElementById('vault-content');
+  container.style.display = 'block';
+
+  if (!items || items.length === 0) {
+    container.innerHTML = `
+      <div class="card p-10 text-center">
+        <div class="text-3xl mb-3">🔒</div>
+        <div class="font-semibold text-white mb-2">No content available in this tier yet</div>
+        <p class="text-gray-400 text-sm mb-5">Advance your subscription tier to unlock this content.</p>
+        <a href="/pricing.html" class="inline-block px-6 py-2.5 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;">View Pricing</a>
+      </div>
+    `;
+    return;
+  }
+
+  // Group by tier
+  const grouped = {};
+  items.forEach(item => {
+    if (!grouped[item.tier]) grouped[item.tier] = [];
+    grouped[item.tier].push(item);
+  });
+
+  const tierOrder = ['free', 'pro', 'business', 'elite', 'sovereign'];
+  let html = '';
+
+  for (const tier of tierOrder) {
+    if (!grouped[tier]) continue;
+    const cfg = TIER_CONFIG[tier];
+    const tierItems = grouped[tier];
+    const hasAccess = currentAccess[tier];
+
+    html += `
+      <div class="mb-8">
+        <div class="tier-section-header ${cfg.bgClass}" style="border:1px solid;">
+          <span class="text-base">${cfg.icon}</span>
+          <div class="flex-1">
+            <div style="color:${cfg.color};">${cfg.label}</div>
+            <div class="text-xs font-normal opacity-60">${cfg.desc}</div>
+          </div>
+          ${hasAccess
+            ? `<span style="font-size:0.65rem;padding:0.2rem 0.75rem;border-radius:100px;background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);font-weight:800;text-transform:uppercase;letter-spacing:0.08em;">✓ UNLOCKED</span>`
+            : `<span class="tier-lock-pill ${tier}">🔒 ${tier.toUpperCase()} REQUIRED</span>`
+          }
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          ${tierItems.map(item => renderContentCard(item, hasAccess)).join('')}
+        </div>
+        ${!hasAccess && UPGRADE_MSGS[tier] ? `
+          <div class="mt-3 flex items-center justify-between p-4 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">⚡</span>
+              <span class="text-xs text-gray-400">${esc(UPGRADE_MSGS[tier].msg)}</span>
+            </div>
+            <a href="${UPGRADE_MSGS[tier].url}" class="text-xs font-bold px-4 py-1.5 rounded-lg" style="background:rgba(201,162,39,0.15);color:#e8c96a;border:1px solid rgba(201,162,39,0.3);">
+              Upgrade →
+            </a>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+}
+
+function renderContentCard(item, hasAccess) {
+  const typeClass = `type-${item.type}`;
+  const tagPills = (item.tags || []).slice(0, 3).map(t => `<span style="font-size:0.6rem;padding:1px 8px;border-radius:100px;background:rgba(255,255,255,0.04);color:#6b7280;border:1px solid rgba(255,255,255,0.06);">${esc(t)}</span>`).join('');
+
+  if (hasAccess) {
+    return `
+      <div class="card card-accessible p-5" onclick="openContent('${esc(item.id)}')">
+        <div class="flex items-start gap-3">
+          <div class="text-2xl flex-shrink-0 mt-0.5">${esc(item.icon)}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="type-badge ${typeClass}">${esc(item.type)}</span>
+              <span class="read-time">· ${esc(item.read_time)}</span>
+            </div>
+            <div class="font-bold text-white text-sm mb-1 leading-snug">${esc(item.title)}</div>
+            <p class="text-gray-400 text-xs leading-relaxed">${esc(item.desc)}</p>
+            <div class="flex gap-1.5 mt-2 flex-wrap">${tagPills}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    return `
+      <div class="card card-locked-static p-5">
+        <div class="flex items-start gap-3">
+          <div class="text-2xl flex-shrink-0 mt-0.5" style="filter:grayscale(1) brightness(0.4);">${esc(item.icon)}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="type-badge ${typeClass}" style="opacity:0.5;">${esc(item.type)}</span>
+              <span class="read-time">· ${esc(item.read_time)}</span>
+              <span class="tier-lock-pill ${esc(item.tier)}">🔒 ${esc(item.tier.toUpperCase())}</span>
+            </div>
+            <div class="font-bold text-gray-500 text-sm mb-1 leading-snug">${esc(item.title)}</div>
+            <p class="text-gray-600 text-xs leading-relaxed">${esc(item.desc)}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Content modal (simple read modal — content is educational, no PDFs needed)
+const CONTENT_INTROS = {
+  f1: `<h2 class="text-xl font-black text-white mb-4">The FACTS Method: Your Financial Foundation</h2><p class="text-gray-300 mb-4">FACTS stands for <strong class="text-yellow-400">Financial Allocation Control &amp; Tracking System</strong>. It's zero-based budgeting — every dollar gets allocated before it gets spent.</p><h3 class="font-bold text-white mb-2">The Core Principle</h3><p class="text-gray-400 mb-4">At the start of each month, allocate 100% of expected income across your spending categories. Every dollar has a mission. Nothing floats free. This eliminates the mystery spending that drains most people's accounts.</p><h3 class="font-bold text-white mb-2">The 6 Core Allocations</h3><ol class="text-gray-400 space-y-2 list-decimal list-inside mb-4"><li><strong class="text-white">Necessities</strong> — Foundational operational bucket. Covers essential costs required to maintain the baseline of the system and daily operations.</li><li><strong class="text-white">Reserve</strong> — Focused on liquidity and security. Acts as a buffer to ensure stability and provides a safety net for the entire structure.</li><li><strong class="text-white">Velocity</strong> — Dedicated to debt reduction and interest recovery. Keeps capital moving and recaptures lost opportunity costs.</li><li><strong class="text-white">Growth</strong> — Designed for wealth multiplication. Focuses on acquiring and scaling assets to build long-term value.</li><li><strong class="text-white">Lifestyle</strong> — Ensures personal enrichment and quality of life. The system serves the individual, not the other way around.</li><li><strong class="text-white">Legacy</strong> — Designed for impact, contribution, and mentorship. Focuses on long-term influence and the transition of value to others.</li></ol><p class="text-gray-500 text-sm">Start here. The system builds from this foundation upward.</p>`,
+  f2: `<h2 class="text-xl font-black text-white mb-4">Day Zero: Your Debt Baseline Snapshot</h2><p class="text-gray-300 mb-4">Before you can fight your way out of debt, you need to know exactly what you're fighting. Day Zero is the moment you commit to your financial revolution — and document every dollar of debt that exists.</p><h3 class="font-bold text-white mb-2">What to Document</h3><ul class="text-gray-400 space-y-2 list-disc list-inside mb-4"><li>Every credit card balance + interest rate</li><li>Every auto loan + remaining term</li><li>Student loans (federal + private, separately)</li><li>Medical debt</li><li>Personal loans</li><li>HELOC / second mortgage</li></ul><p class="text-gray-400 mb-4">Upload your credit report in the <a href="/document-vault" class="text-yellow-400 hover:text-yellow-300">Document Vault</a> to automatically establish your Day Zero baseline. The system parses it for you.</p><p class="text-gray-500 text-sm">The most important number is Total Monthly Debt Service — how much of your income goes to debt payments each month.</p>`,
+  f3: `<h2 class="text-xl font-black text-white mb-4">The 4 Phases of FACTS</h2><p class="text-gray-300 mb-4">The FACTS Protocol maps your financial journey across 4 distinct phases, each with its own character, tools, and milestones.</p><div class="space-y-4 mb-4"><div class="p-4 rounded-xl" style="background:rgba(205,127,50,0.1);border:1px solid rgba(205,127,50,0.2);"><div class="font-bold" style="color:#e8a857;">Phase I: RESISTANCE (L1-3)</div><p class="text-gray-400 text-sm mt-1">Know your enemy. Map your debt. Build your tracking habit. Stop the bleeding before you start advancing.</p></div><div class="p-4 rounded-xl" style="background:rgba(168,184,200,0.1);border:1px solid rgba(168,184,200,0.2);"><div class="font-bold" style="color:#d4e1ec;">Phase II: UPRISING (L4-6)</div><p class="text-gray-400 text-sm mt-1">Automate your finances. Eliminate leaks. Deploy the Debt Velocity strategy. Pro tools come online.</p></div><div class="p-4 rounded-xl" style="background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.2);"><div class="font-bold" style="color:#e8c96a;">Phase III: EXPANSION (L7-9)</div><p class="text-gray-400 text-sm mt-1">Business allocation, tax optimization, Friday Sweep system. Money starts working for you, not against you.</p></div><div class="p-4 rounded-xl" style="background:rgba(229,228,226,0.1);border:1px solid rgba(229,228,226,0.2);"><div class="font-bold" style="color:#f0f0f0;">Phase IV: LIBERATION (L10-12)</div><p class="text-gray-400 text-sm mt-1">HELOC velocity, wealth acceleration, prestige status. You're no longer fighting debt — you're building empire.</p></div></div>`,
+};
+
+function openContent(id) {
+  const item = allContent.find(c => c.id === id);
+  if (!item || !item.accessible) return;
+
+  const body = CONTENT_INTROS[id] || `<h2 class="text-xl font-black text-white mb-4">${esc(item.title)}</h2><p class="text-gray-400 mb-4">${esc(item.desc)}</p><p class="text-gray-500 text-sm">Full content available in the FACTS Learning Center. Navigate to the relevant tool in the FACTS app to apply these strategies.</p>`;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  modal.innerHTML = `
+    <div style="background:linear-gradient(145deg,#13192a,#1a2235);border:1px solid rgba(201,162,39,0.2);border-radius:1.25rem;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;padding:2rem;">
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">${esc(item.icon)}</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full type-badge type-${esc(item.type)}">${esc(item.type)}</span>
+          <span class="text-xs text-gray-500">· ${esc(item.read_time)}</span>
+        </div>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#9ca3af;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;line-height:1;">×</button>
+      </div>
+      <div class="text-sm leading-relaxed">${body}</div>
+      <div class="mt-6 flex gap-3 flex-wrap">
+        <a href="/sovereign" class="text-xs font-bold px-4 py-2 rounded-xl" style="background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;">↗ Apply in Sovereign Protocol</a>
+        <button onclick="this.closest('[style*=fixed]').remove()" class="text-xs font-medium px-4 py-2 rounded-xl" style="background:rgba(255,255,255,0.06);color:#9ca3af;border:1px solid rgba(255,255,255,0.1);">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
+
+init();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

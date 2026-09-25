@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — FACTS</title>
+  <meta name="description" content="We didn't build a app. We built a liberation system. Learn about FACTS, our mission, and the philosophy of the Silent Architect." />
+
+  <!-- Google Fonts: Instrument Serif -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <!-- Fontshare: Satoshi -->
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --navy:        #0d1117;
+      --navy-mid:    #111820;
+      --navy-card:   #141c26;
+      --navy-border: #1e2a38;
+      --gold:        #c9a227;
+      --gold-light:  #e0b93a;
+      --gold-muted:  rgba(201, 162, 39, 0.12);
+      --gold-glow:   rgba(201, 162, 39, 0.08);
+      --text-primary:   #f0ece0;
+      --text-secondary: #a8a090;
+      --text-muted:     #5e5a52;
+      --serif: 'Instrument Serif', Georgia, serif;
+      --sans:  'Satoshi', system-ui, sans-serif;
+      --radius: 12px;
+      --radius-lg: 20px;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background-color: var(--navy);
+      color: var(--text-primary);
+      font-family: var(--sans);
+      font-size: 1rem;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ─── Utility ──────────────────────────────────────────────── */
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin-inline: auto;
+      padding-inline: clamp(1.25rem, 5vw, 2.5rem);
+    }
+
+    .gold { color: var(--gold); }
+    .italic { font-style: italic; }
+
+    /* ─── Decorative line ──────────────────────────────────────── */
+    .divider {
+      width: 64px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin-bottom: 2rem;
+    }
+
+    /* ─── Section spacing ──────────────────────────────────────── */
+    section {
+      padding-block: clamp(4rem, 9vw, 7rem);
+    }
+
+    section + section {
+      border-top: 1px solid var(--navy-border);
+    }
+
+    /* ─── Typography ───────────────────────────────────────────── */
+    .eyebrow {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+
+    h1, h2, h3 {
+      font-family: var(--serif);
+      font-weight: 400;
+      line-height: 1.15;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 6.5vw, 5.5rem);
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.25rem);
+    }
+
+    h3 {
+      font-size: clamp(1.35rem, 2.5vw, 1.9rem);
+    }
+
+    p {
+      color: var(--text-secondary);
+      font-size: clamp(1rem, 1.5vw, 1.125rem);
+      max-width: 68ch;
+    }
+
+    p + p {
+      margin-top: 1.25rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════════════════════ */
+    #hero {
+      position: relative;
+      padding-block: clamp(6rem, 14vw, 11rem) clamp(5rem, 10vw, 9rem);
+      overflow: hidden;
+      border-top: none;
+    }
+
+    /* Ambient orbs */
+    #hero::before,
+    #hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(120px);
+    }
+
+    #hero::before {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(201,162,39,0.13) 0%, transparent 70%);
+      top: -180px;
+      left: -160px;
+    }
+
+    #hero::after {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(201,162,39,0.07) 0%, transparent 70%);
+      bottom: -80px;
+      right: 0;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 2.25rem;
+    }
+
+    .hero-brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--gold) 0%, #a07a10 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .hero-brand-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--navy);
+    }
+
+    .hero-brand-name {
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .hero-headline {
+      margin-bottom: 1.75rem;
+    }
+
+    .hero-headline .line-dim {
+      display: block;
+      color: var(--text-muted);
+      font-size: clamp(1.6rem, 3.5vw, 3rem);
+    }
+
+    .hero-tagline {
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      color: var(--text-secondary);
+      max-width: 60ch;
+      font-style: italic;
+      font-family: var(--serif);
+      margin-bottom: 2.5rem;
+      border-left: 2px solid var(--gold);
+      padding-left: 1.25rem;
+    }
+
+    .hero-body {
+      max-width: 62ch;
+      font-size: clamp(1rem, 1.6vw, 1.125rem);
+      color: var(--text-secondary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       STORY / MISSION
+    ═══════════════════════════════════════════════════════════ */
+    #story .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(2.5rem, 5vw, 5rem);
+      align-items: start;
+    }
+
+    #story .story-left {}
+
+    #story .story-right {
+      padding-top: 0.5rem;
+    }
+
+    #story h2 {
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 720px) {
+      #story .story-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       SILENT ARCHITECT
+    ═══════════════════════════════════════════════════════════ */
+    #architect {
+      background: linear-gradient(135deg, var(--navy-card) 0%, #0f1920 100%);
+      border-top: 1px solid var(--navy-border);
+      border-bottom: 1px solid var(--navy-border);
+    }
+
+    .architect-inner {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: clamp(2.5rem, 6vw, 6rem);
+      align-items: center;
+    }
+
+    .architect-label {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+
+    .architect-title {
+      font-family: var(--serif);
+      font-size: clamp(2.2rem, 4.5vw, 4rem);
+      line-height: 1.1;
+      margin-bottom: 2rem;
+    }
+
+    .architect-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .architect-quote {
+      position: relative;
+      background: var(--gold-glow);
+      border: 1px solid rgba(201,162,39,0.18);
+      border-radius: var(--radius-lg);
+      padding: clamp(1.75rem, 4vw, 3rem);
+    }
+
+    .architect-quote blockquote {
+      font-family: var(--serif);
+      font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+      line-height: 1.55;
+      color: var(--text-primary);
+      font-style: italic;
+    }
+
+    .architect-quote blockquote strong {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .architect-quote::before {
+      content: '\201C';
+      position: absolute;
+      top: -0.5rem;
+      left: 1.5rem;
+      font-family: var(--serif);
+      font-size: 6rem;
+      color: var(--gold);
+      opacity: 0.2;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    @media (max-width: 760px) {
+      .architect-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       ECOSYSTEM
+    ═══════════════════════════════════════════════════════════ */
+    #ecosystem .eco-header {
+      max-width: 56ch;
+      margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    }
+
+    #ecosystem h2 {
+      margin-bottom: 1rem;
+    }
+
+    .eco-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 860px) {
+      .eco-grid {
+        grid-template-columns: 1fr;
+        max-width: 520px;
+      }
+    }
+
+    .eco-card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: var(--radius-lg);
+      padding: clamp(1.75rem, 3.5vw, 2.5rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      transition: border-color 0.25s ease, transform 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .eco-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--gold-glow) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .eco-card:hover {
+      border-color: rgba(201,162,39,0.35);
+      transform: translateY(-4px);
+    }
+
+    .eco-card:hover::after {
+      opacity: 1;
+    }
+
+    .eco-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: var(--gold-muted);
+      border: 1px solid rgba(201,162,39,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .eco-card-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--gold);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .eco-card-body {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eco-card-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+
+    .eco-card h3 {
+      margin-bottom: 0.75rem;
+      font-size: clamp(1.2rem, 2vw, 1.5rem);
+    }
+
+    .eco-card p {
+      font-size: 0.925rem;
+      max-width: none;
+      color: var(--text-secondary);
+    }
+
+    .eco-card-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--gold-muted);
+      border: 1px solid rgba(201,162,39,0.2);
+      border-radius: 100px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gold);
+      margin-top: 0.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       CORE VALUES
+    ═══════════════════════════════════════════════════════════ */
+    #values .values-header {
+      text-align: center;
+      max-width: 52ch;
+      margin-inline: auto;
+      margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+    }
+
+    #values h2 {
+      margin-bottom: 1rem;
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 2px solid var(--navy-border);
+    }
+
+    @media (max-width: 760px) {
+      .values-grid {
+        grid-template-columns: 1fr;
+        border-radius: var(--radius);
+      }
+    }
+
+    .value-item {
+      background: var(--navy-card);
+      padding: clamp(2rem, 4vw, 3rem) clamp(1.5rem, 3vw, 2.25rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: background 0.25s ease;
+    }
+
+    .value-item:hover {
+      background: #172030;
+    }
+
+    .value-number {
+      font-family: var(--serif);
+      font-size: 3.5rem;
+      line-height: 1;
+      color: rgba(201,162,39,0.15);
+      font-style: italic;
+    }
+
+    .value-title {
+      font-family: var(--serif);
+      font-size: clamp(1.3rem, 2.2vw, 1.75rem);
+      line-height: 1.2;
+    }
+
+    .value-title .over {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.8em;
+    }
+
+    .value-title .main {
+      color: var(--gold);
+    }
+
+    .value-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      max-width: none;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       CTA
+    ═══════════════════════════════════════════════════════════ */
+    #cta {
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    #cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 900px 500px at 50% 50%, rgba(201,162,39,0.09) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin-inline: auto;
+    }
+
+    #cta .eyebrow {
+      text-align: center;
+    }
+
+    #cta h2 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      margin-bottom: 1.25rem;
+    }
+
+    #cta p {
+      margin-inline: auto;
+      text-align: center;
+      margin-bottom: 2.75rem;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      padding: 1rem 2.25rem;
+      border-radius: 100px;
+      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 0 0 0 rgba(201,162,39,0.4);
+    }
+
+    .cta-btn:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(201,162,39,0.25);
+    }
+
+    .cta-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--navy);
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .cta-note {
+      margin-top: 1.25rem;
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       Gold rule ornament
+    ═══════════════════════════════════════════════════════════ */
+    .gold-rule {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .gold-rule span {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.5;
+    }
+
+    .gold-rule-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+  </style>
+</head>
+<body>
+
+<script src="/facts-nav.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+
+      <div class="hero-brand">
+        <div class="hero-brand-icon">
+          <!-- Flame / torch icon -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C9 6 7 9 10 13c-3-1-5-4-3-8C4 7 2 11 4 15c1 3 4 5 8 5s7-2 8-5c2-4 0-8-4-10 1 4-1 6-4 6 2-3 0-6 0-9z"/>
+          </svg>
+        </div>
+        <span class="hero-brand-name">FACTS</span>
+      </div>
+
+      <h1 class="hero-headline">
+        <span class="line-dim">We didn't build</span>
+        an app.<br />
+      </h1>
+
+      <p class="hero-tagline">
+        We didn't build an app. We built a liberation system.
+      </p>
+
+      <p class="hero-body">
+        The old way was about guilt and restriction. Financial apps made you feel like a failure every time you overspent. FACTS is built on a different philosophy: every dollar has a mission before it arrives.
+      </p>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     STORY / MISSION
+═══════════════════════════════════════════════════════════ -->
+<section id="story">
+  <div class="container">
+    <div class="story-grid">
+
+      <div class="story-left">
+        <p class="eyebrow">Our Mission</p>
+        <div class="divider"></div>
+        <h2>Why we<br /><em class="italic gold">built this</em></h2>
+      </div>
+
+      <div class="story-right">
+        <p>
+          The financial system was designed to confuse you with terms you don't understand and advice that benefits banks—not you. FACTS exists to change that. We built this on the principle that world-class tools and architectural precision should be available to everyone, not just the elite. While our doors are open to all who seek a better way forward, we believe true value lies in the individual experience. We've created an inclusive community where the high-level strategy typically reserved for the few is now yours—ensuring that while you are part of a global movement, your journey remains entirely your own.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SILENT ARCHITECT
+═══════════════════════════════════════════════════════════ -->
+<section id="architect">
+  <div class="container">
+    <div class="architect-inner">
+
+      <div>
+        <p class="architect-label">Our Philosophy</p>
+        <h2 class="architect-title">
+          The <em>Silent</em><br />Architect
+        </h2>
+        <p style="color: var(--text-secondary); max-width: 44ch;">
+          We don't lead with shame. We don't shout motivational platitudes. We build systems — quiet, elegant, powerful systems that work while you live your life.
+        </p>
+      </div>
+
+      <div class="architect-quote">
+        <blockquote>
+          A great architect doesn't beg you to live in a beautiful home — <strong>they design one that works.</strong> That's us. We designed the financial system. You just have to live in it.
+        </blockquote>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ECOSYSTEM
+═══════════════════════════════════════════════════════════ -->
+<section id="ecosystem">
+  <div class="container">
+
+    <div class="eco-header">
+      <p class="eyebrow">The Ecosystem</p>
+      <div class="divider"></div>
+      <h2>One revolution,<br /><em class="italic gold">three pillars</em></h2>
+      <p>Every entity in our ecosystem plays a distinct role — and together they form a complete economic liberation system.</p>
+    </div>
+
+    <div class="eco-grid">
+
+      <!-- Card 1: FACTS -->
+      <div class="eco-card">
+        <div class="eco-card-icon">
+          <!-- Chart / allocation icon -->
+          <svg viewBox="0 0 24 24">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <div class="eco-card-body">
+          <p class="eco-card-tag">Core Platform</p>
+          <h3>FACTS</h3>
+          <p>
+            FACTS' flagship tool. FACTS gives you a complete allocation system — every dollar assigned a role before it arrives. Strategy, not reaction.
+          </p>
+          <span class="eco-card-pill">
+            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            The Foundation
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 2: Aura Restored -->
+      <div class="eco-card">
+        <div class="eco-card-icon">
+          <!-- Star / reward icon -->
+          <svg viewBox="0 0 24 24">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div class="eco-card-body">
+          <p class="eco-card-tag">Business Partner</p>
+          <h3>Aura Restored</h3>
+          <p>
+            An online marketplace and charitable clothing store based in Columbus, OH — curated products that give back. Purpose-driven commerce aligned with the FACTS philosophy of intentional living.
+          </p>
+          <span class="eco-card-pill">
+            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Tied to FACTS XP
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 3: Majestic Legacy -->
+      <div class="eco-card">
+        <div class="eco-card-icon">
+          <!-- Heart / legacy icon -->
+          <svg viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </div>
+        <div class="eco-card-body">
+          <p class="eco-card-tag">Non-Profit</p>
+          <h3>Majestic Legacy</h3>
+          <p>
+            A charitable organization supporting communities worldwide — education, healthcare, and clean water access. Breaking the cycle of poverty and empowering individuals to build lasting change.
+          </p>
+          <span class="eco-card-pill">
+            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Legacy Allocation
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CORE VALUES
+═══════════════════════════════════════════════════════════ -->
+<section id="values">
+  <div class="container">
+
+    <div class="values-header">
+      <p class="eyebrow">Core Values</p>
+      <div class="divider" style="margin-inline: auto;"></div>
+      <h2>What we stand for</h2>
+      <p>Three principles underpin every decision we make — from how we design the product to how we talk about money.</p>
+    </div>
+
+    <div class="values-grid">
+
+      <div class="value-item">
+        <span class="value-number">01</span>
+        <h3 class="value-title">
+          <span class="over">Liberation</span>
+          <span class="main">over Restriction</span>
+        </h3>
+        <p class="value-desc">
+          Freedom is not the reward for perfect discipline. It is the starting point. Every feature we build expands what's possible — not what's permitted.
+        </p>
+      </div>
+
+      <div class="value-item">
+        <span class="value-number">02</span>
+        <h3 class="value-title">
+          <span class="over">Strategy</span>
+          <span class="main">over Shame</span>
+        </h3>
+        <p class="value-desc">
+          Guilt is noise. Strategy is signal. We don't make you feel bad about the past — we give you a system that makes the future inevitable.
+        </p>
+      </div>
+
+      <div class="value-item">
+        <span class="value-number">03</span>
+        <h3 class="value-title">
+          <span class="over">Systems</span>
+          <span class="main">over Struggle</span>
+        </h3>
+        <p class="value-desc">
+          Willpower runs out. Systems don't. We replace the exhausting daily fight with a designed structure that works automatically — so you can stop managing money and start living.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CTA
+═══════════════════════════════════════════════════════════ -->
+<section id="cta">
+  <div class="container">
+    <div class="cta-inner">
+      <p class="eyebrow">Ready?</p>
+      <h2>Join the<br /><em class="italic gold">Revolution</em></h2>
+      <p>Your money already knows where it's going. Now, so will you. Take control of your financial future — free, today.</p>
+      <a class="cta-btn" href="https://app.factsmoney.com/signup.html">
+        Start Free
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <p class="cta-note">No card required. No restriction. No shame.</p>
+    </div>
+  </div>
+</section>
+
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Legacy Lens — Financial Revolution</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { 900: '#0a0f1e', 800: '#0d1528', 700: '#111d36', 600: '#162040' },
+          gold: { DEFAULT: '#C5A55A', light: '#d4b96a', dark: '#a88c48', glow: '#C5A55A40' }
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: #0a0f1e; color: #e2e8f0; font-family: 'Inter', system-ui, sans-serif; }
+  .gold-text { color: #C5A55A; }
+  .gold-border { border-color: #C5A55A; }
+  .gold-bg { background: #C5A55A; }
+  .card { background: #0d1528; border: 1px solid #1e2d4a; border-radius: 12px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600;
+  }
+  .pill-optimal  { background: #052e16; color: #4ade80; }
+  .pill-watch    { background: #1c1a03; color: #facc15; }
+  .pill-critical { background: #2d0505; color: #f87171; }
+  .pill-building { background: #0c1a2e; color: #60a5fa; }
+  .pill-gold     { background: #C5A55A20; color: #C5A55A; border: 1px solid #C5A55A50; }
+  .gauge-bar { height: 6px; border-radius: 3px; background: #1e2d4a; overflow: hidden; }
+  .gauge-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+  .blurred { filter: blur(8px); pointer-events: none; user-select: none; }
+  .locked-overlay {
+    position: absolute; inset: 0; border-radius: 12px;
+    background: linear-gradient(135deg, #0d152890, #0a0f1e90);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(2px); z-index: 10;
+  }
+  .flow-line {
+    stroke: #C5A55A; stroke-width: 2; fill: none;
+    stroke-dasharray: 8 4; animation: flowDash 2s linear infinite;
+  }
+  @keyframes flowDash { to { stroke-dashoffset: -24; } }
+  .entity-node {
+    border: 1px solid #1e2d4a; background: #111d36; border-radius: 8px;
+    padding: 10px 16px; position: relative; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .entity-node:hover { border-color: #C5A55A50; }
+  .entity-node.active { border-color: #C5A55A; }
+  .entity-node.personal { border-color: #374151; opacity: 0.6; }
+  .tab { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; }
+  .tab.active { background: #C5A55A20; color: #C5A55A; }
+  .tab:not(.active) { color: #94a3b8; }
+  .tab:not(.active):hover { color: #cbd5e1; }
+  .btn-gold {
+    background: #C5A55A; color: #0a0f1e; padding: 8px 20px; border-radius: 8px;
+    font-weight: 700; font-size: 0.875rem; border: none; cursor: pointer; transition: background 0.2s;
+  }
+  .btn-gold:hover { background: #d4b96a; }
+  .btn-outline {
+    background: transparent; color: #C5A55A; padding: 8px 20px; border-radius: 8px;
+    font-weight: 600; font-size: 0.875rem; border: 1px solid #C5A55A50; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-outline:hover { background: #C5A55A15; }
+  .btn-sm { padding: 5px 12px; font-size: 0.75rem; }
+  select, input, textarea {
+    background: #111d36; border: 1px solid #1e2d4a; color: #e2e8f0;
+    border-radius: 8px; padding: 8px 12px; font-size: 0.875rem; width: 100%;
+  }
+  select:focus, input:focus, textarea:focus { outline: none; border-color: #C5A55A50; }
+  .modal-backdrop { position: fixed; inset: 0; background: #00000088; z-index: 50; display: flex; align-items: center; justify-content: center; }
+  .modal { background: #0d1528; border: 1px solid #1e2d4a; border-radius: 12px; padding: 24px; width: min(480px, 90vw); max-height: 90vh; overflow-y: auto; }
+  .silent-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.7rem; color: #94a3b8; background: #111d36; border: 1px solid #1e2d4a; border-radius: 99px; padding: 2px 8px; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="sticky top-0 z-40 border-b border-white/5" style="background:#0d1528cc;backdrop-filter:blur(12px)">
+  <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/app" class="text-slate-400 hover:text-white text-sm">← Dashboard</a>
+      <span class="text-slate-600">/</span>
+      <span class="gold-text font-semibold text-sm">Legacy Lens</span>
+    </div>
+    <div id="tierBadge" class="pill pill-gold">Loading…</div>
+  </div>
+</nav>
+
+<!-- Main -->
+<main class="max-w-6xl mx-auto px-4 py-8 space-y-8">
+
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Legacy Lens</h1>
+      <p class="text-slate-400 text-sm mt-1">Entity hierarchy · Equity vault · Sovereign health score</p>
+    </div>
+    <div id="silentArchitectBadge" class="hidden silent-badge">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Silent Architect Active
+    </div>
+  </div>
+
+  <!-- Locked State -->
+  <div id="lockedState" class="hidden">
+    <div class="card p-8 text-center relative overflow-hidden">
+      <div class="absolute inset-0 opacity-20">
+        <!-- Blurred preview grid -->
+        <div class="grid grid-cols-3 gap-4 p-8 blurred">
+          <div class="bg-navy-700 rounded-lg h-32"></div>
+          <div class="bg-navy-700 rounded-lg h-32"></div>
+          <div class="bg-navy-700 rounded-lg h-32"></div>
+        </div>
+      </div>
+      <div class="relative z-10 space-y-4">
+        <div class="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C5A55A" stroke-width="1.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-white">Activate Legacy Lens</h2>
+        <p class="text-slate-400 text-sm max-w-md mx-auto">Unlock the Entity Hierarchy Visualizer, Equity Vault, and Sovereign Health Score.</p>
+        <!-- Teaser metrics -->
+        <div id="teaserMetrics" class="grid grid-cols-3 gap-3 max-w-sm mx-auto text-center"></div>
+        <div class="pt-2">
+          <button onclick="activateModule()" class="btn-gold px-8 py-3 text-base">Activate Module — $29/mo</button>
+        </div>
+        <p class="text-slate-500 text-xs">Included in Business &amp; Sovereignty tiers</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active State -->
+  <div id="activeState" class="hidden space-y-8">
+
+    <!-- Health Score -->
+    <section>
+      <h2 class="text-lg font-semibold text-white mb-4">Sovereign Health Score</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="pillarsGrid">
+        <!-- Filled by JS -->
+      </div>
+      <!-- Composite -->
+      <div class="card p-5 mt-4 flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <div class="text-slate-400 text-sm mb-1">Composite Score</div>
+          <div class="flex items-end gap-3">
+            <span id="compositeScore" class="text-4xl font-black gold-text">—</span>
+            <span class="text-slate-400 text-sm mb-1">/ 100</span>
+          </div>
+          <div id="sovereigntyLevel" class="text-sm text-slate-400 mt-1"></div>
+        </div>
+        <div class="text-right text-sm text-slate-500">
+          <div>Streak multiplier: <span id="streakMultiplier" class="gold-text font-semibold">—</span>×</div>
+          <div id="computedAt" class="text-xs mt-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 flex-wrap border-b border-white/10 pb-3">
+      <button class="tab active" onclick="switchTab('equity', this)">Equity Vault</button>
+      <button class="tab" onclick="switchTab('entities', this)">Entity Hierarchy</button>
+    </div>
+
+    <!-- Equity Vault Tab -->
+    <div id="tab-equity" class="space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-slate-400 text-sm">Total Vault Value</div>
+          <div id="grandTotal" class="text-3xl font-black text-white">$—</div>
+        </div>
+        <button onclick="openAddEquityModal()" class="btn-gold btn-sm">+ Add Asset</button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="equityGrid">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- Entity Hierarchy Tab -->
+    <div id="tab-entities" class="hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <p class="text-slate-400 text-sm">Corporate structure & capital flow visualization</p>
+        <button onclick="openAddEntityModal()" class="btn-gold btn-sm">+ Add Entity</button>
+      </div>
+      <div id="entityHierarchy" class="space-y-3">
+        <!-- Filled by JS -->
+      </div>
+      <div id="onboardingCTA" class="hidden card p-6 text-center">
+        <p class="text-slate-400 text-sm mb-3">All accounts are Personal — structure your sovereign entity stack to unlock capital flow visualization.</p>
+        <button onclick="openAddEntityModal()" class="btn-outline">Set Up Entity Structure</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Add Equity Modal -->
+<div id="addEquityModal" class="modal-backdrop hidden" onclick="if(event.target===this)closeModal('addEquityModal')">
+  <div class="modal">
+    <h3 class="text-white font-bold text-lg mb-4">Add Equity Asset</h3>
+    <div class="space-y-3">
+      <div>
+        <label class="text-slate-400 text-xs mb-1 block">Asset Class</label>
+        <select id="eq_class">
+          <option value="digital_assets">Digital Assets (crypto, tokens, digital IP)</option>
+          <option value="intellectual_property">Intellectual Property (courses, content, patents)</option>
+          <option value="information_systems">Information Systems (software, SaaS tools)</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-slate-400 text-xs mb-1 block">Asset Name</label>
+        <input id="eq_name" placeholder="e.g. Bitcoin Holdings, FACTS Course, Polsia Subscription"/>
+      </div>
+      <div>
+        <label class="text-slate-400 text-xs mb-1 block">Estimated Value ($)</label>
+        <input id="eq_value" type="number" min="0" placeholder="0"/>
+      </div>
+      <div>
+        <label class="text-slate-400 text-xs mb-1 block">Notes (optional)</label>
+        <textarea id="eq_notes" rows="2" placeholder="Additional details…"></textarea>
+      </div>
+    </div>
+    <div class="flex gap-3 mt-5">
+      <button onclick="submitAddEquity()" class="btn-gold flex-1">Add Asset</button>
+      <button onclick="closeModal('addEquityModal')" class="btn-outline flex-1">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Entity Modal -->
+<div id="addEntityModal" class="modal-backdrop hidden" onclick="if(event.target===this)closeModal('addEntityModal')">
+  <div class="modal">
+    <h3 class="text-white font-bold text-lg mb-4">Add Entity</h3>
+    <div class="space-y-3">
+      <div>
+        <label class="text-slate-400 text-xs mb-1 block">Entity Name</label>
+        <input id="ent_name" placeholder="e.g. T-Dagsis LLC, Operating Co"/>
+      </div>
+      <div>
+        <label class="text-slate-400 text-xs mb-1 block">Entity Type</label>
+        <select id="ent_type">
+          <option value="holding_co">Wyoming Holding Company</option>
+          <option value="operating_llc">Operating LLC</option>
+          <option value="brokerage">Brokerage Account (EIN)</option>
+          <option value="trust">Trust</option>
+          <option value="individual">Individual (Personal)</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-slate-400 text-xs mb-1 block">Parent Entity (optional)</label>
+        <select id="ent_parent">
+          <option value="">None (Root entity)</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-slate-400 text-xs mb-1 block">State of Formation</label>
+          <input id="ent_state" placeholder="WY"/>
+        </div>
+        <div>
+          <label class="text-slate-400 text-xs mb-1 block">EIN (optional)</label>
+          <input id="ent_ein" placeholder="XX-XXXXXXX"/>
+        </div>
+      </div>
+      <div>
+        <label class="text-slate-400 text-xs mb-1 block">Description (optional)</label>
+        <textarea id="ent_desc" rows="2" placeholder="Role/purpose of this entity…"></textarea>
+      </div>
+    </div>
+    <div class="flex gap-3 mt-5">
+      <button onclick="submitAddEntity()" class="btn-gold flex-1">Add Entity</button>
+      <button onclick="closeModal('addEntityModal')" class="btn-outline flex-1">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let state = {
+  status: null,
+  healthScore: null,
+  equity: null,
+  entities: null
+};
+
+const ASSET_CLASS_META = {
+  digital_assets: { label: 'Digital Assets', icon: '₿', color: '#f59e0b', desc: 'Crypto, tokens, digital IP' },
+  intellectual_property: { label: 'Intellectual Property', icon: '🧠', color: '#8b5cf6', desc: 'Courses, content, patents' },
+  information_systems: { label: 'Information Systems', icon: '⚙️', color: '#C5A55A', desc: 'Software, Polsia, SaaS' }
+};
+
+const ENTITY_TYPE_META = {
+  holding_co:    { label: 'Holding Company', icon: '🏛️', color: '#C5A55A' },
+  operating_llc: { label: 'Operating LLC',   icon: '⚙️', color: '#60a5fa' },
+  brokerage:     { label: 'Brokerage (EIN)', icon: '📈', color: '#4ade80' },
+  trust:         { label: 'Trust',           icon: '🔐', color: '#a78bfa' },
+  individual:    { label: 'Individual',      icon: '👤', color: '#94a3b8' },
+  other:         { label: 'Other',           icon: '◆',  color: '#64748b' }
+};
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const statusRes = await fetch('/api/mod_legacy_lens/status');
+    if (statusRes.status === 401) { window.location.href = '/login'; return; }
+    state.status = await statusRes.json();
+
+    // Tier badge
+    const tierLabel = {
+      free: 'Free', elite: 'Elite', business: 'Business', sovereignty: 'Sovereignty'
+    };
+    document.getElementById('tierBadge').textContent = tierLabel[state.status.user_tier] || state.status.user_tier;
+
+    if (!state.status.allowed) {
+      // Show locked state
+      document.getElementById('lockedState').classList.remove('hidden');
+      // Load blurred preview
+      loadLockedPreview();
+    } else {
+      document.getElementById('activeState').classList.remove('hidden');
+      // Silent Architect badge
+      if (['business', 'sovereignty'].includes(state.status.user_tier)) {
+        document.getElementById('silentArchitectBadge').classList.remove('hidden');
+      }
+      loadAll();
+    }
+  } catch (e) {
+    console.error('Init error', e);
+  }
+}
+
+async function loadAll() {
+  await Promise.all([loadHealthScore(), loadEquity(), loadEntities()]);
+}
+
+// ─── Locked Preview ───────────────────────────────────────────────────────────
+async function loadLockedPreview() {
+  try {
+    const res = await fetch('/api/mod_legacy_lens/health-score');
+    if (res.status === 423) {
+      const data = await res.json();
+      if (data.preview?.teaser) {
+        const container = document.getElementById('teaserMetrics');
+        container.innerHTML = data.preview.teaser.map(t => `
+          <div class="card p-3">
+            <div class="text-slate-500 text-xs">${t.label}</div>
+            <div class="blurred text-lg font-bold text-white mt-1">██</div>
+            <div class="pill pill-${t.status === 'optimal' ? 'optimal' : t.status === 'watch' ? 'watch' : 'critical'} mt-2">${t.status}</div>
+          </div>
+        `).join('');
+      }
+    }
+  } catch {}
+}
+
+// ─── Health Score ─────────────────────────────────────────────────────────────
+async function loadHealthScore() {
+  try {
+    const res = await fetch('/api/mod_legacy_lens/health-score');
+    if (!res.ok) return;
+    state.healthScore = await res.json();
+    renderHealthScore();
+  } catch {}
+}
+
+function renderHealthScore() {
+  const s = state.healthScore;
+  if (!s) return;
+
+  document.getElementById('compositeScore').textContent = s.composite_score ?? '—';
+  document.getElementById('streakMultiplier').textContent = s.streak_multiplier ?? '1.0';
+  document.getElementById('sovereigntyLevel').textContent = s.sovereignty_level ?? '';
+  if (s.computed_at) {
+    document.getElementById('computedAt').textContent = 'Updated ' + new Date(s.computed_at).toLocaleTimeString();
+  }
+
+  const pillars = [
+    { key: 'necessities_index', color: '#4ade80' },
+    { key: 'reserve_index',     color: '#60a5fa' },
+    { key: 'growth_index',      color: '#C5A55A' }
+  ];
+
+  document.getElementById('pillarsGrid').innerHTML = pillars.map(({ key, color }) => {
+    const p = s[key];
+    if (!p) return '';
+    const score = p.score ?? 0;
+    const statusClass = p.status === 'optimal' || p.status === 'accelerating' ? 'pill-optimal'
+                       : p.status === 'watch' || p.status === 'building' ? 'pill-watch'
+                       : p.status === 'critical' || p.status === 'overspend' ? 'pill-critical' : 'pill-building';
+    return `
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-xs text-slate-400">${p.label}</div>
+          <div class="pill ${statusClass}">${p.status || '—'}</div>
+        </div>
+        <div class="text-3xl font-black mb-3" style="color:${color}">${score}</div>
+        <div class="gauge-bar">
+          <div class="gauge-fill" style="width:${score}%;background:${color}"></div>
+        </div>
+        <div class="mt-3 text-xs text-slate-500 space-y-1">
+          ${key === 'necessities_index' ? `
+            <div>Actual: <span class="text-slate-300">${p.pct_actual ?? '—'}%</span></div>
+            <div>Target: <span class="text-slate-300">50%</span></div>
+          ` : ''}
+          ${key === 'reserve_index' ? `
+            <div>Coverage: <span class="text-slate-300">${p.months_covered ?? '—'} mo</span></div>
+            <div>Target: <span class="text-slate-300">6 mo</span></div>
+          ` : ''}
+          ${key === 'growth_index' ? `
+            <div>MoM: <span class="text-slate-300">${p.mom_growth_pct != null ? (p.mom_growth_pct > 0 ? '+' : '') + p.mom_growth_pct + '%' : '—'}</span></div>
+            <div>Status: <span class="text-slate-300">${p.status ?? '—'}</span></div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── Equity Vault ─────────────────────────────────────────────────────────────
+async function loadEquity() {
+  try {
+    const res = await fetch('/api/mod_legacy_lens/equity');
+    if (!res.ok) return;
+    state.equity = await res.json();
+    renderEquity();
+  } catch {}
+}
+
+function renderEquity() {
+  const d = state.equity;
+  if (!d) return;
+  document.getElementById('grandTotal').textContent = formatCents(d.grand_total);
+
+  const grid = document.getElementById('equityGrid');
+  grid.innerHTML = Object.keys(ASSET_CLASS_META).map(cls => {
+    const meta = ASSET_CLASS_META[cls];
+    const assets = d.assets[cls] || [];
+    const total = d.totals[cls] || 0;
+    return `
+      <div class="card p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-xl">${meta.icon}</span>
+          <div>
+            <div class="text-white font-semibold text-sm">${meta.label}</div>
+            <div class="text-slate-500 text-xs">${meta.desc}</div>
+          </div>
+        </div>
+        <div class="text-2xl font-black mb-3" style="color:${meta.color}">${formatCents(total)}</div>
+        <div class="space-y-2">
+          ${assets.length === 0 ? `<div class="text-slate-600 text-xs italic">No assets yet</div>` : ''}
+          ${assets.map(a => `
+            <div class="flex items-center justify-between bg-navy-800 rounded p-2">
+              <span class="text-slate-300 text-xs truncate flex-1 mr-2">${escHtml(a.asset_name)}</span>
+              <span class="text-xs font-semibold" style="color:${meta.color}">${formatCents(a.estimated_value_cents)}</span>
+            </div>
+          `).join('')}
+        </div>
+        <button onclick="openAddEquityModal('${cls}')" class="btn-outline btn-sm w-full mt-3">+ Add</button>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── Entity Hierarchy ─────────────────────────────────────────────────────────
+async function loadEntities() {
+  try {
+    const res = await fetch('/api/mod_legacy_lens/entities');
+    if (!res.ok) return;
+    state.entities = await res.json();
+    renderEntities();
+  } catch {}
+}
+
+function renderEntities() {
+  const d = state.entities;
+  if (!d) return;
+
+  const container = document.getElementById('entityHierarchy');
+  const onboarding = document.getElementById('onboardingCTA');
+
+  if (d.show_onboarding_cta) {
+    onboarding.classList.remove('hidden');
+  } else {
+    onboarding.classList.add('hidden');
+  }
+
+  if (!d.entities || d.entities.length === 0) {
+    container.innerHTML = `
+      <div class="card p-8 text-center">
+        <div class="text-4xl mb-3">🏛️</div>
+        <p class="text-slate-400 text-sm mb-3">No entities yet — add your first entity to build your sovereign structure.</p>
+        <button onclick="openAddEntityModal()" class="btn-gold btn-sm">Add First Entity</button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = d.entities.map(e => renderEntityNode(e, 0)).join('');
+
+  // Populate parent select in modal
+  populateParentSelect(flattenEntities(d.entities));
+}
+
+function renderEntityNode(entity, depth) {
+  const meta = ENTITY_TYPE_META[entity.entity_type] || ENTITY_TYPE_META.other;
+  const isPersonal = entity.entity_type === 'individual';
+  const indent = depth * 24;
+  return `
+    <div style="margin-left:${indent}px">
+      <div class="entity-node ${isPersonal ? 'personal' : 'active'} flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="text-xl">${meta.icon}</span>
+          <div class="min-w-0">
+            <div class="text-white font-semibold text-sm truncate">${escHtml(entity.entity_name)}</div>
+            <div class="text-xs" style="color:${meta.color}">${meta.label}${entity.state_of_formation ? ' · ' + entity.state_of_formation : ''}${entity.ein ? ' · ' + escHtml(entity.ein) : ''}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          ${(entity.tagged_assets || []).length > 0 ? `<span class="text-xs text-slate-500">${entity.tagged_assets.length} asset${entity.tagged_assets.length > 1 ? 's' : ''}</span>` : ''}
+          <button onclick="deleteEntity(${entity.id})" class="text-slate-600 hover:text-red-400 text-xs">✕</button>
+        </div>
+      </div>
+      ${entity.children && entity.children.length > 0 ? `
+        <div class="relative mt-2 space-y-2">
+          <div class="absolute left-3 top-0 bottom-0 w-px" style="background:#C5A55A30"></div>
+          ${entity.children.map(c => renderEntityNode(c, depth + 1)).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function flattenEntities(entities, result = []) {
+  for (const e of entities) {
+    result.push(e);
+    if (e.children) flattenEntities(e.children, result);
+  }
+  return result;
+}
+
+function populateParentSelect(entities) {
+  const sel = document.getElementById('ent_parent');
+  sel.innerHTML = '<option value="">None (Root entity)</option>';
+  for (const e of entities) {
+    const opt = document.createElement('option');
+    opt.value = e.id;
+    opt.textContent = e.entity_name;
+    sel.appendChild(opt);
+  }
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-equity').classList.toggle('hidden', tab !== 'equity');
+  document.getElementById('tab-entities').classList.toggle('hidden', tab !== 'entities');
+}
+
+// ─── Modals ───────────────────────────────────────────────────────────────────
+function openAddEquityModal(defaultClass) {
+  if (defaultClass) document.getElementById('eq_class').value = defaultClass;
+  document.getElementById('eq_name').value = '';
+  document.getElementById('eq_value').value = '';
+  document.getElementById('eq_notes').value = '';
+  document.getElementById('addEquityModal').classList.remove('hidden');
+}
+function openAddEntityModal() {
+  document.getElementById('ent_name').value = '';
+  document.getElementById('ent_type').value = 'holding_co';
+  document.getElementById('ent_state').value = '';
+  document.getElementById('ent_ein').value = '';
+  document.getElementById('ent_desc').value = '';
+  document.getElementById('addEntityModal').classList.remove('hidden');
+}
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+async function submitAddEquity() {
+  const cls = document.getElementById('eq_class').value;
+  const name = document.getElementById('eq_name').value.trim();
+  const val = parseFloat(document.getElementById('eq_value').value) || 0;
+  const notes = document.getElementById('eq_notes').value.trim();
+  if (!name) return alert('Asset name required');
+  try {
+    const res = await fetch('/api/mod_legacy_lens/equity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ asset_class: cls, asset_name: name, estimated_value_cents: Math.round(val * 100), notes })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    closeModal('addEquityModal');
+    await loadEquity();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function submitAddEntity() {
+  const name = document.getElementById('ent_name').value.trim();
+  const type = document.getElementById('ent_type').value;
+  const parent = document.getElementById('ent_parent').value;
+  const state_of_formation = document.getElementById('ent_state').value.trim();
+  const ein = document.getElementById('ent_ein').value.trim();
+  const desc = document.getElementById('ent_desc').value.trim();
+  if (!name) return alert('Entity name required');
+  try {
+    const res = await fetch('/api/mod_legacy_lens/entities', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entity_name: name, entity_type: type, parent_id: parent || null, description: desc || null, state_of_formation: state_of_formation || null, ein: ein || null })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    closeModal('addEntityModal');
+    await loadEntities();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function deleteEntity(id) {
+  if (!confirm('Remove this entity?')) return;
+  await fetch(`/api/mod_legacy_lens/entities/${id}`, { method: 'DELETE' });
+  await loadEntities();
+}
+
+// ─── Activate ─────────────────────────────────────────────────────────────────
+async function activateModule() {
+  try {
+    const res = await fetch('/api/checkout/addon', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ module_id: 'legacy_lens', price_cents: 2900 })
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else alert(data.error || 'Unable to open checkout. Contact support.');
+  } catch {
+    alert('Stripe checkout unavailable. Contact support.');
+  }
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function formatCents(cents) {
+  if (cents == null) return '$—';
+  return '$' + (cents / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+init();
+</script>
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

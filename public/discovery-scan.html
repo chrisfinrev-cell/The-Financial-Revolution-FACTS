@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discovery Scan — Future Generations | FACTS</title>
+  <meta name="description" content="Complete your Discovery Scan to unlock your Future Generations Affiliate Link. Map your financial footprint in under 3 minutes.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#212d42' },
+            gold:  { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; background: #0d1117; color: #f1f5f9; }
+
+    /* ── Gold gradient text ── */
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    /* ── Progress bar ── */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 4px; background: rgba(255,255,255,0.06);
+    }
+    #progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c9a227, #e8c96a);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    /* 12-segment tick marks */
+    .prog-tick {
+      position: absolute; top: 0; width: 1px; height: 100%;
+      background: rgba(13,17,23,0.5);
+    }
+
+    /* ── Screen container ── */
+    #screens {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 4rem 1rem 2rem;
+    }
+
+    /* Individual screen — one visible at a time */
+    .screen {
+      display: none;
+      width: 100%; max-width: 600px;
+      animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    .screen.active { display: block; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Input styles ── */
+    .input-currency {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: #f1f5f9;
+      font-size: 1.5rem;
+      font-weight: 700;
+      padding: 1rem 1.25rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .input-currency:focus {
+      border-color: #c9a227;
+      background: rgba(201,162,39,0.05);
+    }
+    .input-currency::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; }
+
+    /* ── Range slider ── */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%; height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      box-shadow: 0 0 0 4px rgba(201,162,39,0.2);
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 8px rgba(201,162,39,0.2);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      border: none; cursor: pointer;
+    }
+
+    /* ── Gold button ── */
+    .btn-gold {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      color: #0d1117; font-weight: 800; font-size: 1rem;
+      padding: 0.9rem 2.25rem;
+      border-radius: 12px; border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(201,162,39,0.25);
+    }
+    .btn-gold:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(201,162,39,0.35); }
+    .btn-gold:active { transform: translateY(0); }
+    .btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ── Outline button ── */
+    .btn-outline {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      color: #9ca3af; font-weight: 600; font-size: 0.9rem;
+      padding: 0.7rem 1.5rem; border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.08); color: #f1f5f9; border-color: rgba(255,255,255,0.2); }
+
+    /* ── Option cards ── */
+    .option-card {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: rgba(255,255,255,0.03);
+      border: 1.5px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      user-select: none;
+    }
+    .option-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); transform: translateX(3px); }
+    .option-card.selected {
+      background: rgba(201,162,39,0.08);
+      border-color: #c9a227;
+    }
+    .option-card.selected .option-check { background: #c9a227; border-color: #c9a227; }
+    .option-check {
+      width: 22px; height: 22px; flex-shrink: 0;
+      border-radius: 6px; border: 2px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .option-check svg { display: none; }
+    .option-card.selected .option-check svg { display: block; }
+
+    /* ── Sovereign Score chip ── */
+    #score-badge {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: linear-gradient(135deg, rgba(201,162,39,0.15), rgba(201,162,39,0.08));
+      border: 1px solid rgba(201,162,39,0.3);
+      border-radius: 999px;
+      padding: 0.5rem 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.8rem; font-weight: 700;
+      color: #e8c96a;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 50;
+    }
+    #score-badge.hidden { opacity: 0; transform: scale(0.9); }
+
+    /* ── Skip popup overlay ── */
+    #skip-popup {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(13,17,23,0.88); backdrop-filter: blur(8px);
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    #skip-popup.open { display: flex; }
+
+    /* ── Card ── */
+    .card {
+      background: linear-gradient(145deg, #13192a, #1a2235);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    /* ── Screen step label ── */
+    .step-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #c9a227; margin-bottom: 0.5rem;
+    }
+
+    /* ── Micro-copy ── */
+    .micro { font-size: 0.78rem; color: #6b7280; }
+
+    /* ── Sovereign score pulse animation ── */
+    @keyframes scorePulse {
+      0%   { box-shadow: 0 0 0 0 rgba(201,162,39,0.4); }
+      70%  { box-shadow: 0 0 0 10px rgba(201,162,39,0); }
+      100% { box-shadow: 0 0 0 0 rgba(201,162,39,0); }
+    }
+    .score-pulse { animation: scorePulse 0.6s ease; }
+
+    /* Responsive: on tiny screens stack CTA full width */
+    @media (max-width: 480px) {
+      .btn-gold { width: 100%; }
+      .btn-outline { width: 100%; }
+      .screen-actions { flex-direction: column; gap: 0.75rem; }
+    }
+  </style>
+
+  <script defer src="/nav-bar.js"></script>
+</head>
+<body>
+
+  <!-- ── Progress Bar (12 segments) ── -->
+  <div id="progress-bar">
+    <div id="progress-fill" style="width:0%"></div>
+    <!-- 11 dividers = 12 segments -->
+    <div class="prog-tick" style="left:8.33%"></div>
+    <div class="prog-tick" style="left:16.66%"></div>
+    <div class="prog-tick" style="left:25%"></div>
+    <div class="prog-tick" style="left:33.33%"></div>
+    <div class="prog-tick" style="left:41.66%"></div>
+    <div class="prog-tick" style="left:50%"></div>
+    <div class="prog-tick" style="left:58.33%"></div>
+    <div class="prog-tick" style="left:66.66%"></div>
+    <div class="prog-tick" style="left:75%"></div>
+    <div class="prog-tick" style="left:83.33%"></div>
+    <div class="prog-tick" style="left:91.66%"></div>
+  </div>
+
+  <!-- ── Step counter ── -->
+  <div id="step-counter" style="
+    position:fixed; top:12px; right:1rem; z-index:101;
+    font-size:0.72rem; font-weight:600; color:rgba(255,255,255,0.35);
+    pointer-events:none; display:none;
+  ">
+    <span id="step-current">1</span> / 7
+  </div>
+
+  <!-- ── Screens ── -->
+  <main id="screens">
+
+    <!-- ─────────────────────────────── SCREEN 1: The Vision ── -->
+    <div id="screen-1" class="screen active" role="main">
+      <div class="text-center px-2">
+
+        <!-- Logo pill -->
+        <div class="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full text-sm font-semibold"
+             style="background:rgba(201,162,39,0.08); border:1px solid rgba(201,162,39,0.2); color:#e8c96a;">
+          🌿 Future Generations — Discovery Scan
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl font-black leading-tight mb-4">
+          Welcome to the<br>
+          <span class="gold-text">Revolution.</span>
+        </h1>
+
+        <p class="text-gray-400 text-lg leading-relaxed mb-10 max-w-md mx-auto">
+          Before we map your legacy, we need to locate your current coordinates.
+          <br><br>
+          This 3-minute scan unlocks your <strong class="text-white">Future Generations Affiliate Link</strong> and sets the foundation for your Certification.
+        </p>
+
+        <!-- Feature pills -->
+        <div class="flex flex-wrap justify-center gap-2 mb-10">
+          <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);color:#34d399;">🔒 100% Private</span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:#60a5fa;">⚡ 3 Minutes</span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.2);color:#e8c96a;">🎯 7 Questions</span>
+        </div>
+
+        <button class="btn-gold text-lg px-10 py-4" onclick="goTo(2)" id="start-btn">
+          Start My Scan →
+        </button>
+
+        <p class="micro mt-5">Already completed? <a href="/sovereign-oath.html" class="text-gold-300 underline">Continue to Sovereign Oath →</a></p>
+      </div>
+    </div>
+
+    <!-- ──────────────────────────── SCREEN 2: Survival Runway ── -->
+    <div id="screen-2" class="screen">
+      <div class="step-label">Question 1 of 6</div>
+      <h2 class="text-2xl sm:text-3xl font-black leading-tight mb-2">
+        Survival Runway 🛬
+      </h2>
+      <p class="text-gray-400 text-base leading-relaxed mb-8">
+        If all your income stopped today, how many months could you maintain your current lifestyle before your cash reserves hit zero?
+      </p>
+
+      <!-- Slider -->
+      <div class="mb-4">
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-sm font-semibold text-gray-400">0 months</span>
+          <div class="text-center">
+            <div id="runway-display" class="text-4xl font-black gold-text">0</div>
+            <div class="text-xs text-gray-500">months</div>
+          </div>
+          <span class="text-sm font-semibold text-gray-400">24+</span>
+        </div>
+        <input type="range" id="runway-slider" min="0" max="25" value="0" step="1"
+               oninput="onRunwayChange(this.value)" class="w-full">
+      </div>
+
+      <!-- Context label that changes based on value -->
+      <div id="runway-label" class="card rounded-xl p-3 text-sm text-center text-gray-400 mb-8" style="min-height:48px;">
+        No runway — every month is critical.
+      </div>
+
+      <div class="flex gap-3 screen-actions">
+        <button class="btn-outline" onclick="goTo(1)">← Back</button>
+        <button class="btn-gold flex-1" onclick="nextFromRunway()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────── SCREEN 3: Debt Weight ── -->
+    <div id="screen-3" class="screen">
+      <div class="step-label">Question 2 of 6</div>
+      <h2 class="text-2xl sm:text-3xl font-black leading-tight mb-2">
+        Total Liabilities Check 📊
+      </h2>
+      <p class="text-gray-400 text-base leading-relaxed mb-2">
+        Approximately how much do you currently owe to creditors?
+      </p>
+      <p class="micro mb-8">Credit cards, auto, student loans, medical — everything.</p>
+
+      <div class="relative mb-2">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400 pointer-events-none">$</span>
+        <input type="number" id="debt-input" class="input-currency pl-10"
+               placeholder="0" min="0" step="100"
+               oninput="updateScore()" style="padding-left:2.5rem;">
+      </div>
+      <p class="micro mb-8">
+        Don't worry — we'll verify the exact cents with your credit report in the next step.
+      </p>
+
+      <div class="flex gap-3 screen-actions">
+        <button class="btn-outline" onclick="goTo(2)">← Back</button>
+        <button class="btn-gold flex-1" onclick="nextFromDebt()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────────── SCREEN 4: Monthly Burn ── -->
+    <div id="screen-4" class="screen">
+      <div class="step-label">Question 3 of 6</div>
+      <h2 class="text-2xl sm:text-3xl font-black leading-tight mb-2">
+        Your Oxygen Number 🌬️
+      </h2>
+      <p class="text-gray-400 text-base leading-relaxed mb-2">
+        What is the bare minimum monthly cost to keep your family running?
+      </p>
+      <p class="micro mb-8">Housing, food, utilities — the non-negotiables.</p>
+
+      <div class="relative mb-2">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400 pointer-events-none">$</span>
+        <input type="number" id="burn-input" class="input-currency"
+               placeholder="0" min="0" step="50"
+               oninput="updateScore()" style="padding-left:2.5rem;">
+      </div>
+      <p class="micro mb-8">
+        This is your <strong class="text-white">"Oxygen Number"</strong> — the cost of staying alive financially.
+      </p>
+
+      <div class="flex gap-3 screen-actions">
+        <button class="btn-outline" onclick="goTo(3)">← Back</button>
+        <button class="btn-gold flex-1" onclick="nextFromBurn()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ───────────────────────────── SCREEN 5: Legacy Anchor ── -->
+    <div id="screen-5" class="screen">
+      <div class="step-label">Question 4 of 6</div>
+      <h2 class="text-2xl sm:text-3xl font-black leading-tight mb-2">
+        Who Are You Anchoring This For? ⚓
+      </h2>
+      <p class="text-gray-400 text-base leading-relaxed mb-8">
+        Who are you building this legacy for?
+      </p>
+
+      <div class="flex flex-col gap-3 mb-8" id="anchor-options">
+        <div class="option-card" data-value="just_me" onclick="selectAnchor(this)">
+          <div class="option-check">
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+              <path d="M1 5L4.5 8.5L11 1.5" stroke="#0d1117" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-white">Just Me (For Now)</div>
+            <div class="text-xs text-gray-400 mt-0.5">Building my own foundation first</div>
+          </div>
+          <span class="ml-auto text-xl">🙋</span>
+        </div>
+
+        <div class="option-card" data-value="children" onclick="selectAnchor(this)">
+          <div class="option-check">
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+              <path d="M1 5L4.5 8.5L11 1.5" stroke="#0d1117" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-white">My Children / Grandchildren</div>
+            <div class="text-xs text-gray-400 mt-0.5">Creating generational wealth for the next generation</div>
+          </div>
+          <span class="ml-auto text-xl">👨‍👩‍👧‍👦</span>
+        </div>
+
+        <div class="option-card" data-value="family" onclick="selectAnchor(this)">
+          <div class="option-check">
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+              <path d="M1 5L4.5 8.5L11 1.5" stroke="#0d1117" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-white">My Parents / Extended Family</div>
+            <div class="text-xs text-gray-400 mt-0.5">Protecting and uplifting the people who raised me</div>
+          </div>
+          <span class="ml-auto text-xl">👴👵</span>
+        </div>
+
+        <div class="option-card" data-value="charity" onclick="selectAnchor(this)">
+          <div class="option-check">
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+              <path d="M1 5L4.5 8.5L11 1.5" stroke="#0d1117" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-white">A Charitable Cause or Trust</div>
+            <div class="text-xs text-gray-400 mt-0.5">Making a lasting impact beyond my family</div>
+          </div>
+          <span class="ml-auto text-xl">🌍</span>
+        </div>
+      </div>
+
+      <div class="flex gap-3 screen-actions">
+        <button class="btn-outline" onclick="goTo(4)">← Back</button>
+        <button class="btn-gold flex-1" id="anchor-continue" onclick="nextFromAnchor()" disabled>Continue →</button>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────── SCREEN 6: Sovereign Target ── -->
+    <div id="screen-6" class="screen">
+      <div class="step-label">Question 5 of 6</div>
+      <h2 class="text-2xl sm:text-3xl font-black leading-tight mb-2">
+        The Freedom Number 🔓
+      </h2>
+      <p class="text-gray-400 text-base leading-relaxed mb-8">
+        What is the monthly residual income goal that sets your family free — <em class="text-white not-italic font-bold">forever?</em>
+      </p>
+
+      <div class="relative mb-2">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400 pointer-events-none">$</span>
+        <input type="number" id="goal-input" class="input-currency"
+               placeholder="0" min="0" step="500"
+               oninput="updateScore()" style="padding-left:2.5rem;">
+      </div>
+
+      <!-- Goal context preview -->
+      <div id="goal-context" class="card rounded-xl p-4 text-sm mb-8 hidden">
+        <div class="font-semibold text-white mb-1">🎯 Your Sovereign Target</div>
+        <div id="goal-context-text" class="text-gray-400 text-xs leading-relaxed"></div>
+      </div>
+
+      <div class="flex gap-3 screen-actions">
+        <button class="btn-outline" onclick="goTo(5)">← Back</button>
+        <button class="btn-gold flex-1" onclick="nextFromGoal()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────── SCREEN 7: The Handshake ── -->
+    <div id="screen-7" class="screen">
+      <div class="text-center px-2">
+        <div class="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full text-sm font-semibold"
+             style="background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.25); color:#34d399;">
+          ✅ Scan Complete
+        </div>
+
+        <h2 class="text-3xl sm:text-4xl font-black leading-tight mb-3">
+          Now, Let's Get<br>
+          <span class="gold-text">100% Accurate.</span>
+        </h2>
+
+        <p class="text-gray-400 text-base leading-relaxed mb-10 max-w-md mx-auto">
+          To unlock your <strong class="text-white">Future Generations Affiliate Link</strong>, we need to link your real-time financial data.
+        </p>
+
+        <!-- Verification options -->
+        <div class="grid sm:grid-cols-2 gap-4 mb-6 text-left">
+          <!-- Option A: Credit Report -->
+          <div class="card rounded-2xl p-5 flex flex-col gap-3">
+            <div class="text-2xl">📄</div>
+            <div>
+              <div class="font-bold text-white mb-1">Upload Credit Report</div>
+              <div class="text-xs text-gray-400 leading-relaxed">Download your free PDF from AnnualCreditReport.com and upload it here for instant verification.</div>
+            </div>
+            <button class="btn-gold w-full mt-auto" onclick="handleCreditUpload()">
+              Upload AnnualCreditReport.com PDF
+            </button>
+          </div>
+
+          <!-- Option B: Plaid -->
+          <div class="card rounded-2xl p-5 flex flex-col gap-3">
+            <div class="text-2xl">🔐</div>
+            <div>
+              <div class="font-bold text-white mb-1">Link Bank Accounts</div>
+              <div class="text-xs text-gray-400 leading-relaxed">Connect securely via Plaid (256-bit encrypted) for real-time balance and transaction verification.</div>
+            </div>
+            <button class="btn-gold w-full mt-auto" onclick="handlePlaid()">
+              Securely Link My Bank Accounts (via Plaid)
+            </button>
+            <!-- Zero-Knowledge Security Badge -->
+            <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-top:10px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span style="font-size:0.72rem;color:#64748b;font-weight:500;">🔒 Zero-Knowledge Security — Your financial data is encrypted and never shared</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skip option -->
+        <div class="mt-4">
+          <button class="btn-outline text-sm" onclick="showSkipPopup()">
+            Skip this step for now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────────────────────── SCREEN 8: Completed ── -->
+    <div id="screen-complete" class="screen">
+      <div class="text-center px-2">
+        <!-- Animated checkmark -->
+        <div class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl"
+             style="background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(52,211,153,0.08)); border:2px solid rgba(52,211,153,0.3);">
+          🎉
+        </div>
+
+        <h2 class="text-3xl sm:text-4xl font-black leading-tight mb-3">
+          You're <span class="gold-text">Locked In.</span>
+        </h2>
+        <p class="text-gray-400 text-base leading-relaxed mb-10 max-w-md mx-auto">
+          Your Discovery Scan is complete. Your Sovereign Score has been calculated and your financial coordinates are mapped.
+          <br><br>
+          Head to your <strong class="text-white">Future Generations Dashboard</strong> to see your profile and access your Affiliate Link.
+        </p>
+
+        <!-- Score summary -->
+        <div id="final-score-card" class="card rounded-2xl p-5 mb-8 text-left max-w-sm mx-auto">
+          <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Your Sovereign Score</div>
+          <div class="text-5xl font-black gold-text mb-1" id="final-score-number">—</div>
+          <div class="text-xs text-gray-400" id="final-score-label">Calculating...</div>
+        </div>
+
+        <a href="/sovereign-oath.html" class="btn-gold text-base px-8 py-3.5">
+          Sign Sovereign Oath →
+        </a>
+      </div>
+    </div>
+
+  </main><!-- /screens -->
+
+  <!-- ── Sovereign Score Badge (fixed bottom-right) ── -->
+  <div id="score-badge" class="hidden">
+    <span>⚡</span>
+    <span>Score: <strong id="score-value">0</strong></span>
+  </div>
+
+  <!-- ── Skip Popup ── -->
+  <div id="skip-popup">
+    <div class="card rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl"
+         style="border:1px solid rgba(248,113,113,0.2);">
+      <div class="text-4xl mb-4">⚠️</div>
+      <h3 class="text-xl font-black text-white mb-2">Hold On</h3>
+      <p class="text-gray-400 text-sm leading-relaxed mb-6">
+        Skipping this step will <strong class="text-red-400">prevent you from unlocking your Affiliate Link</strong> and Phase 1 Commissions.
+        <br><br>
+        You can always come back later to complete verification — your scan data will be saved.
+      </p>
+      <div class="flex flex-col gap-3">
+        <button class="btn-gold w-full" onclick="closeSkipPopup()">
+          Complete Verification Now
+        </button>
+        <button class="btn-outline text-sm" onclick="skipAndFinish()">
+          I understand — save my scan &amp; skip verification
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ──────────────────────────────────────────────────────────────────
+  // State
+  // ──────────────────────────────────────────────────────────────────
+  const state = {
+    runway: 0,
+    debt: null,
+    burn: null,
+    anchor: null,
+    goal: null,
+    currentScreen: 1,
+    totalScreens: 7
+  };
+
+  // Progress: screen 1 = start (0%), screen 7 = end (100%)
+  // We have 7 screens — progress per screen = 100/7 ≈ 14.3%
+  // But we'll show progress as "questions answered" (6 questions + welcome = 7 steps)
+  const SCREEN_PROGRESS = {
+    1: 0,
+    2: 14.3,
+    3: 28.6,
+    4: 42.9,
+    5: 57.1,
+    6: 71.4,
+    7: 92,
+    'complete': 100
+  };
+
+  // ──────────────────────────────────────────────────────────────────
+  // Navigation
+  // ──────────────────────────────────────────────────────────────────
+  function goTo(n) {
+    // Hide current
+    document.querySelectorAll('.screen').forEach(s => {
+      s.classList.remove('active');
+      s.style.animation = '';
+    });
+
+    // Show target
+    const target = n === 'complete'
+      ? document.getElementById('screen-complete')
+      : document.getElementById('screen-' + n);
+
+    if (!target) return;
+
+    // Re-trigger animation
+    target.style.animation = 'none';
+    target.offsetHeight; // reflow
+    target.style.animation = '';
+    target.classList.add('active');
+
+    state.currentScreen = n;
+
+    // Update progress bar
+    const pct = SCREEN_PROGRESS[n] || 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+
+    // Update step counter
+    const counter = document.getElementById('step-counter');
+    if (n >= 2 && n <= 7) {
+      counter.style.display = 'block';
+      document.getElementById('step-current').textContent = n - 1;
+    } else {
+      counter.style.display = 'none';
+    }
+
+    // Show/hide score badge
+    const badge = document.getElementById('score-badge');
+    if (n >= 3) {
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Sovereign Score (0–100)
+  // ──────────────────────────────────────────────────────────────────
+  function calcScore() {
+    let score = 0;
+
+    // Runway: 0–25 months → 0–30 pts
+    const r = Math.min(state.runway, 24);
+    score += Math.round((r / 24) * 30);
+
+    // Debt: lower is better. $0 = 25pts; $100k+ = 0pts
+    if (state.debt !== null) {
+      const maxDebt = 100000;
+      const debtScore = Math.max(0, 1 - (state.debt / maxDebt));
+      score += Math.round(debtScore * 25);
+    }
+
+    // Burn: lower relative to goal = better. If we don't have goal yet skip.
+    if (state.burn !== null && state.goal !== null && state.goal > 0) {
+      const ratio = Math.min(state.burn / state.goal, 2);
+      score += Math.round(Math.max(0, 1 - ratio / 2) * 20);
+    } else if (state.burn !== null) {
+      // Give partial credit if they entered something
+      score += 5;
+    }
+
+    // Anchor: any answer = 10 pts
+    if (state.anchor) score += 10;
+
+    // Goal: having a concrete goal = 15 pts
+    if (state.goal !== null && state.goal > 0) score += 15;
+
+    return Math.min(100, score);
+  }
+
+  function updateScore() {
+    // Read any current inputs into state
+    const debtEl = document.getElementById('debt-input');
+    const burnEl = document.getElementById('burn-input');
+    const goalEl = document.getElementById('goal-input');
+
+    if (debtEl && debtEl.value) state.debt = parseFloat(debtEl.value) || 0;
+    if (burnEl && burnEl.value) state.burn = parseFloat(burnEl.value) || 0;
+    if (goalEl && goalEl.value) {
+      state.goal = parseFloat(goalEl.value) || 0;
+      updateGoalContext(state.goal);
+    }
+
+    const score = calcScore();
+    document.getElementById('score-value').textContent = score;
+
+    // Pulse on change
+    const badge = document.getElementById('score-badge');
+    badge.classList.remove('score-pulse');
+    badge.offsetHeight;
+    badge.classList.add('score-pulse');
+  }
+
+  function updateGoalContext(goal) {
+    const el = document.getElementById('goal-context');
+    const txt = document.getElementById('goal-context-text');
+    if (!el || !txt) return;
+
+    if (!goal || goal <= 0) {
+      el.classList.add('hidden'); return;
+    }
+
+    el.classList.remove('hidden');
+    const annual = goal * 12;
+    const burn = state.burn || 0;
+    const multiple = burn > 0 ? (goal / burn).toFixed(1) : '∞';
+    txt.textContent = `$${goal.toLocaleString()}/mo = $${annual.toLocaleString()}/year. ` +
+      (burn > 0
+        ? `That's ${multiple}× your Oxygen Number — enough to cover your family and build wealth simultaneously.`
+        : 'Enter your Oxygen Number on the previous screen to see your freedom multiplier.');
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Screen-specific logic
+  // ──────────────────────────────────────────────────────────────────
+  const RUNWAY_LABELS = [
+    'No runway — every month is critical.',           // 0
+    '1 month of safety. Every decision matters.',     // 1
+    '2 months — still very vulnerable.',              // 2
+    '3 months — approaching the first safety threshold.', // 3
+    '4 months — building awareness.',                 // 4
+    '5 months — solid early momentum.',               // 5
+    '6 months — the standard "emergency fund" goal.',  // 6
+    '7 months — above average. Keep stacking.',       // 7
+    '8 months — approaching genuine stability.',      // 8
+    '9 months — 3 quarters of a year. Strong.',       // 9
+    '10 months — double-digit runway. Real security.', // 10
+    '11 months — almost a year of protection.',       // 11
+    '12 months — a full year of runway. Excellent.',  // 12
+    '13 months — beyond the norm.',                   // 13
+    '14 months — financial confidence is building.',  // 14
+    '15 months — serious cushion.',                   // 15
+    '16 months — you\'ve been disciplined.',          // 16
+    '17 months — elite-level preparation.',           // 17
+    '18 months — 1.5 years. That\'s rare.',           // 18
+    '19 months — sovereign territory.',               // 19
+    '20 months — approaching 2 years. Impressive.',   // 20
+    '21 months — freedom-level reserves.',            // 21
+    '22 months — near the top.',                      // 22
+    '23 months — almost fully sovereign.',            // 23
+    '24 months — 2 full years. Maximum score.',       // 24
+    '24+ months — fully sovereign. The Revolution wins.', // 25
+  ];
+
+  function onRunwayChange(val) {
+    const v = parseInt(val);
+    state.runway = v;
+    const display = document.getElementById('runway-display');
+    display.textContent = v >= 25 ? '24+' : v;
+
+    const label = document.getElementById('runway-label');
+    label.textContent = RUNWAY_LABELS[Math.min(v, 25)] || '';
+
+    updateScore();
+  }
+
+  function nextFromRunway() {
+    savePartial({ survival_runway_months: state.runway });
+    goTo(3);
+  }
+
+  function nextFromDebt() {
+    const val = parseFloat(document.getElementById('debt-input').value) || 0;
+    state.debt = val;
+    savePartial({ estimated_total_debt: val });
+    goTo(4);
+  }
+
+  function nextFromBurn() {
+    const val = parseFloat(document.getElementById('burn-input').value) || 0;
+    if (!val || val <= 0) {
+      document.getElementById('burn-input').focus();
+      shakeInput('burn-input');
+      return;
+    }
+    state.burn = val;
+    savePartial({ monthly_burn: val });
+    goTo(5);
+  }
+
+  function selectAnchor(card) {
+    document.querySelectorAll('#anchor-options .option-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    state.anchor = card.dataset.value;
+    document.getElementById('anchor-continue').disabled = false;
+    updateScore();
+  }
+
+  function nextFromAnchor() {
+    if (!state.anchor) return;
+    savePartial({ legacy_anchor: state.anchor });
+    goTo(6);
+  }
+
+  function nextFromGoal() {
+    const val = parseFloat(document.getElementById('goal-input').value) || 0;
+    if (!val || val <= 0) {
+      document.getElementById('goal-input').focus();
+      shakeInput('goal-input');
+      return;
+    }
+    state.goal = val;
+    savePartial({ master_goal_monthly: val });
+    goTo(7);
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Shake animation for empty required fields
+  // ──────────────────────────────────────────────────────────────────
+  function shakeInput(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.borderColor = '#ef4444';
+    el.style.animation = 'none';
+    el.offsetHeight;
+    el.style.animation = 'shake 0.4s ease';
+    setTimeout(() => {
+      el.style.borderColor = '';
+      el.style.animation = '';
+    }, 600);
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Skip Popup
+  // ──────────────────────────────────────────────────────────────────
+  function showSkipPopup() { document.getElementById('skip-popup').classList.add('open'); }
+  function closeSkipPopup() { document.getElementById('skip-popup').classList.remove('open'); }
+
+  function skipAndFinish() {
+    closeSkipPopup();
+    completeScan();
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Plaid / Credit Report handlers (stubs — Plaid integration is next phase)
+  // ──────────────────────────────────────────────────────────────────
+  function handleCreditUpload() {
+    // TODO: wire up actual file upload when R2 + parsing integration is built
+    alert('Credit report upload is coming in Phase 2 of Certification. Your scan data has been saved.');
+    completeScan();
+  }
+
+  function handlePlaid() {
+    // TODO: wire up Plaid Link SDK when Plaid integration is built
+    alert('Plaid bank linking is coming in Phase 2 of Certification. Your scan data has been saved.');
+    completeScan();
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // API: save partial data mid-scan (best-effort, non-blocking)
+  // ──────────────────────────────────────────────────────────────────
+  function savePartial(data) {
+    fetch('/api/discovery-scan/complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(data)
+    }).catch(() => { /* non-fatal */ });
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // API: complete the scan (mark as done)
+  // ──────────────────────────────────────────────────────────────────
+  async function completeScan() {
+    const payload = {
+      survival_runway_months: state.runway,
+      estimated_total_debt:   state.debt || 0,
+      monthly_burn:           state.burn || 0,
+      legacy_anchor:          state.anchor || 'just_me',
+      master_goal_monthly:    state.goal  || 0,
+      completed:              true
+    };
+
+    try {
+      const res = await fetch('/api/discovery-scan/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Save failed');
+    } catch (e) {
+      console.warn('[DiscoveryScan] save error:', e.message);
+      // Still show complete screen — data may have been partially saved
+    }
+
+    // Update final score display
+    const score = calcScore();
+    const scoreEl = document.getElementById('final-score-number');
+    const labelEl = document.getElementById('final-score-label');
+    if (scoreEl) scoreEl.textContent = score;
+    if (labelEl) {
+      if (score >= 80) labelEl.textContent = '🏆 Elite — Sovereign Foundation';
+      else if (score >= 60) labelEl.textContent = '💪 Strong — Building Momentum';
+      else if (score >= 40) labelEl.textContent = '🌱 Growing — Keep Stacking';
+      else labelEl.textContent = '🔥 Starting — The Revolution Begins';
+    }
+
+    document.getElementById('progress-fill').style.width = '100%';
+    goTo('complete');
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Auth check: redirect to login if not authenticated
+  // ──────────────────────────────────────────────────────────────────
+  async function checkAuth() {
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const data = await res.json();
+      if (!data.authenticated) {
+        window.location.href = '/login.html?next=/discovery-scan.html';
+      }
+    } catch (e) {
+      // Non-fatal: let page render, API will 401 on submit
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Load existing scan data (if user partially completed before)
+  // ──────────────────────────────────────────────────────────────────
+  async function loadExistingData() {
+    try {
+      const res = await fetch('/api/discovery-scan/status', { credentials: 'include' });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // If scan already completed, continue to next gate step
+      if (data.completed) {
+        // Check if oath is already signed — if so go straight to dashboard
+        try {
+          const oathRes = await fetch('/api/sovereign-oath/status', { credentials: 'include' });
+          if (oathRes.ok) {
+            const oathData = await oathRes.json();
+            if (oathData.signed) {
+              window.location.href = '/future-generations-dashboard.html';
+              return;
+            }
+          }
+        } catch (e) { /* non-fatal — fall through to oath page */ }
+        window.location.href = '/sovereign-oath.html';
+        return;
+      }
+
+      // Pre-fill state from saved data
+      if (data.survival_runway_months != null) {
+        state.runway = data.survival_runway_months;
+        const slider = document.getElementById('runway-slider');
+        if (slider) { slider.value = state.runway; onRunwayChange(state.runway); }
+      }
+      if (data.estimated_total_debt_cents != null) {
+        state.debt = data.estimated_total_debt_cents / 100;
+        const el = document.getElementById('debt-input');
+        if (el) el.value = state.debt;
+      }
+      if (data.monthly_burn_cents != null) {
+        state.burn = data.monthly_burn_cents / 100;
+        const el = document.getElementById('burn-input');
+        if (el) el.value = state.burn;
+      }
+      if (data.legacy_anchor) {
+        state.anchor = data.legacy_anchor;
+        const card = document.querySelector(`[data-value="${data.legacy_anchor}"]`);
+        if (card) {
+          card.classList.add('selected');
+          document.getElementById('anchor-continue').disabled = false;
+        }
+      }
+      if (data.master_goal_monthly_cents != null) {
+        state.goal = data.master_goal_monthly_cents / 100;
+        const el = document.getElementById('goal-input');
+        if (el) { el.value = state.goal; updateGoalContext(state.goal); }
+      }
+
+      updateScore();
+    } catch (e) {
+      // Non-fatal
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────────
+  // Init
+  // ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
+    await loadExistingData();
+
+    // Inject shake keyframes
+    const style = document.createElement('style');
+    style.textContent = `@keyframes shake {
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-8px)}
+      40%{transform:translateX(8px)}
+      60%{transform:translateX(-5px)}
+      80%{transform:translateX(5px)}
+    }`;
+    document.head.appendChild(style);
+  });
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

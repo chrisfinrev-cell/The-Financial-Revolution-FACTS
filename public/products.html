@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Products — FACTS | Financial Allocation Control & Tracking System</title>
+  <meta name="description" content="Personal FACTS and Business FACTS — two powerful allocation systems designed to give you complete control over your financial future. Active allocation strategy over passive tracking.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="FACTS Products — Two Systems. One Revolution.">
+  <meta property="og:description" content="Personal FACTS and Business FACTS give you the allocation framework to achieve financial freedom. Strategy over restriction.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://factsmoney.com/products">
+  <meta property="og:site_name" content="FACTS">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0d1117', 800: '#13192a', 700: '#1a2235' },
+            gold: { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227' }
+          },
+          fontFamily: {
+            display: ['Instrument Serif', 'Georgia', 'serif'],
+            body: ['Satoshi', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Instrument Serif -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <!-- Satoshi via Fontshare CDN -->
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Satoshi', system-ui, sans-serif; }
+    h1, h2, h3, .display { font-family: 'Instrument Serif', Georgia, serif; }
+
+    :root {
+      --gold: #c9a227;
+      --gold-light: #e8c96a;
+      --navy: #0d1117;
+      --navy-mid: #13192a;
+      --navy-card: #1a2235;
+      --text-muted: #6b7280;
+    }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-bg {
+      background:
+        radial-gradient(ellipse 100% 60% at 50% -10%, rgba(201,162,39,0.12) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 40% at 80% 30%, rgba(16,185,129,0.04) 0%, transparent 60%),
+        linear-gradient(180deg, #0d1117 0%, #13192a 100%);
+    }
+
+    /* NAV */
+    .nav-link { color: #9ca3af; transition: color 0.2s; font-size: 0.875rem; font-weight: 500; }
+    .nav-link:hover { color: #fff; }
+    .nav-link.active { color: #c9a227; }
+
+    /* BUTTONS */
+    .btn-primary {
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      color: #0d1117;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.01em;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: opacity 0.2s, transform 0.2s;
+      text-decoration: none;
+    }
+    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #d1d5db;
+      font-weight: 500;
+      font-size: 0.9rem;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.2); }
+
+    /* CARDS */
+    .card {
+      background: linear-gradient(145deg, #13192a 0%, #1a2235 100%);
+      border: 1px solid rgba(201,162,39,0.18);
+      border-radius: 16px;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 20px 48px rgba(0,0,0,0.5); }
+
+    .card-subtle {
+      background: #13192a;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+    }
+
+    /* BADGE */
+    .badge-live { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.28); border-radius: 999px; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600; }
+    .badge-gold { background: rgba(201,162,39,0.12); color: #e8c96a; border: 1px solid rgba(201,162,39,0.25); border-radius: 999px; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600; }
+    .badge-soon { background: rgba(139,92,246,0.12); color: #a78bfa; border: 1px solid rgba(139,92,246,0.28); border-radius: 999px; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600; }
+
+    /* ALLOCATION BUCKETS */
+    .bucket {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      transition: border-color 0.2s;
+    }
+    .bucket:hover { border-color: rgba(201,162,39,0.25); }
+
+    .bucket-bar {
+      height: 6px;
+      border-radius: 3px;
+      margin-top: 0.5rem;
+    }
+
+    /* DIVIDER */
+    .divider { background: linear-gradient(90deg, transparent, rgba(201,162,39,0.35), transparent); height: 1px; }
+
+    /* FEATURE ROW */
+    .feature-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .feature-row:last-child { border-bottom: none; }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    /* COMPARISON TABLE */
+    .compare-table { width: 100%; border-collapse: collapse; }
+    .compare-table th {
+      padding: 1rem 1.25rem;
+      text-align: left;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7280;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .compare-table th:not(:first-child) { text-align: center; }
+    .compare-table td {
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.9rem;
+      color: #d1d5db;
+    }
+    .compare-table td:not(:first-child) { text-align: center; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .check-yes { color: #4ade80; font-size: 1.1rem; }
+    .check-no { color: #374151; font-size: 1.1rem; }
+    .check-soon { color: #a78bfa; font-size: 0.75rem; font-weight: 600; }
+
+    /* PRODUCT CARD LARGE */
+    .product-card {
+      background: linear-gradient(145deg, #13192a 0%, #1a2235 100%);
+      border-radius: 24px;
+      overflow: hidden;
+      position: relative;
+    }
+    .product-card-personal { border: 1px solid rgba(201,162,39,0.22); }
+    .product-card-business { border: 1px solid rgba(139,92,246,0.22); }
+
+    .product-card-header {
+      padding: 2.5rem 2.5rem 2rem;
+      position: relative;
+    }
+
+    .product-card-body { padding: 0 2.5rem 2.5rem; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-up { animation: fadeUp 0.6s ease forwards; }
+    .d1 { animation-delay: 0.05s; opacity: 0; }
+    .d2 { animation-delay: 0.18s; opacity: 0; }
+    .d3 { animation-delay: 0.32s; opacity: 0; }
+    .d4 { animation-delay: 0.46s; opacity: 0; }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(201,162,39,0.2); }
+      50% { box-shadow: 0 0 0 8px rgba(201,162,39,0.0); }
+    }
+    .pulse-gold { animation: pulse-glow 3s ease infinite; }
+
+    /* MOBILE MENU */
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: flex; }
+
+    /* FOOTER */
+    footer a { color: #6b7280; transition: color 0.2s; text-decoration: none; }
+    footer a:hover { color: #d1d5db; }
+
+    /* Accent glow backgrounds */
+    .glow-gold { background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,162,39,0.08) 0%, transparent 70%); }
+    .glow-purple { background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(139,92,246,0.07) 0%, transparent 70%); }
+
+    @media (max-width: 640px) {
+      .product-card-header, .product-card-body { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .compare-table th, .compare-table td { padding: 0.75rem 0.75rem; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body class="min-h-screen" style="background:#0d1117; color:#f1f5f9;">
+
+<script src="/facts-nav.js"></script>
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section class="hero-bg pt-20 pb-16 px-4 sm:px-6 text-center">
+  <div class="max-w-4xl mx-auto">
+    <div class="animate-up d1 inline-flex items-center gap-2 mb-6">
+      <span class="badge-gold">Products</span>
+    </div>
+    <h1 class="animate-up d2 display text-4xl sm:text-5xl md:text-6xl font-normal leading-tight mb-6" style="font-family:'Instrument Serif',serif;">
+      Two systems.<br>
+      <span class="gold-text italic">One revolution.</span>
+    </h1>
+    <p class="animate-up d3 text-lg sm:text-xl max-w-2xl mx-auto mb-10" style="color:#9ca3af; line-height:1.7;">
+      FACTS replaces passive expense tracking with active allocation strategy. Whether you're building personal wealth or scaling a business, we have a system engineered for your freedom.
+    </p>
+    <div class="animate-up d4 flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="https://app.factsmoney.com/signup.html" class="btn-primary text-base">
+        Get Started Free →
+      </a>
+      <a href="#personal-facts" class="btn-secondary text-base">
+        Explore Products ↓
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Product overview pills -->
+<div class="max-w-3xl mx-auto px-4 sm:px-6 -mt-4 mb-16">
+  <div class="flex flex-col sm:flex-row gap-4 justify-center">
+    <a href="#personal-facts" class="flex items-center gap-3 px-5 py-3 rounded-xl text-sm font-semibold transition-all" style="background:rgba(201,162,39,0.1); border:1px solid rgba(201,162,39,0.25); color:#e8c96a; text-decoration:none;">
+      <span>👤</span> Personal FACTS
+      <span class="badge-live ml-auto sm:ml-2">Live</span>
+    </a>
+    <a href="#business-facts" class="flex items-center gap-3 px-5 py-3 rounded-xl text-sm font-semibold transition-all" style="background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.22); color:#a78bfa; text-decoration:none;">
+      <span>🏢</span> Business FACTS
+      <span class="badge-live ml-auto sm:ml-2">Live</span>
+    </a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ PERSONAL FACTS ═══════════════════════════ -->
+<section id="personal-facts" class="px-4 sm:px-6 pb-24">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Section label -->
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 mb-4">
+        <span class="badge-live">Live Now</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl mb-4" style="font-family:'Instrument Serif',serif;">Personal FACTS</h2>
+      <p class="text-lg max-w-2xl mx-auto" style="color:#9ca3af;">
+        Your complete personal finance command center. Allocate every dollar with intention, track your net worth in real time, and build a sovereign financial identity.
+      </p>
+    </div>
+
+    <!-- Main product card -->
+    <div class="product-card product-card-personal glow-gold mb-12">
+
+      <!-- Header band -->
+      <div class="product-card-header" style="border-bottom:1px solid rgba(201,162,39,0.12);">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style="background:rgba(201,162,39,0.12); border:1px solid rgba(201,162,39,0.25);">₣</div>
+              <h3 class="text-xl font-bold text-white" style="font-family:'Satoshi',sans-serif;">Personal FACTS</h3>
+            </div>
+            <p style="color:#9ca3af; font-size:0.9rem;">The 6-bucket allocation system for personal financial freedom</p>
+          </div>
+          <div class="flex flex-col items-start sm:items-end gap-2">
+            <span class="badge-live">Available Now</span>
+            <span style="color:#6b7280; font-size:0.8rem;">Connect accounts or track manually</span>
+          </div>
+        </div>
+
+        <!-- 6-Bucket breakdown -->
+        <div class="mb-2">
+          <p class="text-xs uppercase tracking-widest mb-4" style="color:#6b7280;">The FACTS Allocation Framework — 6 Buckets</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+
+            <!-- Necessities 50% -->
+            <div class="bucket">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#60a5fa;">Necessities</span>
+                <span class="text-lg font-bold" style="color:#60a5fa; font-family:'Instrument Serif',serif;">50%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(96,165,250,0.25);">
+                <div class="bucket-bar" style="background:#60a5fa; width:50%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">Housing, utilities, food, transportation — the non-negotiables.</p>
+            </div>
+
+            <!-- Reserve 10% -->
+            <div class="bucket">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#a78bfa;">Reserve</span>
+                <span class="text-lg font-bold" style="color:#a78bfa; font-family:'Instrument Serif',serif;">10%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(167,139,250,0.25);">
+                <div class="bucket-bar" style="background:#a78bfa; width:10%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">Emergency fund, strategic savings, opportunity capital.</p>
+            </div>
+
+            <!-- Velocity 10% -->
+            <div class="bucket">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#fbbf24;">Velocity</span>
+                <span class="text-lg font-bold" style="color:#fbbf24; font-family:'Instrument Serif',serif;">10%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(251,191,36,0.25);">
+                <div class="bucket-bar" style="background:#fbbf24; width:10%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">Debt acceleration, payoff strategy, interest elimination.</p>
+            </div>
+
+            <!-- Growth 10% -->
+            <div class="bucket">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#34d399;">Growth</span>
+                <span class="text-lg font-bold" style="color:#34d399; font-family:'Instrument Serif',serif;">10%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(52,211,153,0.25);">
+                <div class="bucket-bar" style="background:#34d399; width:10%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">Investments, retirement contributions, wealth-building assets.</p>
+            </div>
+
+            <!-- Lifestyle 10% -->
+            <div class="bucket">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#f472b6;">Lifestyle</span>
+                <span class="text-lg font-bold" style="color:#f472b6; font-family:'Instrument Serif',serif;">10%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(244,114,182,0.25);">
+                <div class="bucket-bar" style="background:#f472b6; width:10%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">Dining, entertainment, experiences — guilt-free living.</p>
+            </div>
+
+            <!-- Legacy 10% -->
+            <div class="bucket">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#c9a227;">Legacy</span>
+                <span class="text-lg font-bold" style="color:#c9a227; font-family:'Instrument Serif',serif;">10%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(201,162,39,0.25);">
+                <div class="bucket-bar" style="background:#c9a227; width:10%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">Generational wealth, estate planning, charitable giving.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature list -->
+      <div class="product-card-body pt-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+
+          <!-- Left column -->
+          <div>
+
+            <!-- Net Worth Dashboard -->
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.2);">📊</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Net Worth Dashboard</span>
+                  <span class="badge-live" style="font-size:0.65rem; padding:0.15rem 0.5rem;">Live</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  Real-time snapshot of assets vs. liabilities. Watch your net worth trend upward as your allocation strategy takes hold. Track every account in one unified command view.
+                </p>
+              </div>
+            </div>
+
+            <!-- Debt Tracking -->
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.2);">🎯</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Debt Tracking & Rate Radar</span>
+                  <span class="badge-live" style="font-size:0.65rem; padding:0.15rem 0.5rem;">Live</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  Track every debt with its interest rate, balance, and payoff timeline. Rate Radar alerts you when refinancing opportunities emerge — so you can stop paying the bank more than you owe.
+                </p>
+              </div>
+            </div>
+
+            <!-- Sovereign Score -->
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(201,162,39,0.1); border:1px solid rgba(201,162,39,0.2);">👑</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Sovereign Score</span>
+                  <span class="badge-live" style="font-size:0.65rem; padding:0.15rem 0.5rem;">Live</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  Your financial health score — built on allocation discipline, not just credit history. The Sovereign Score reflects how well you're executing your strategy, week over week.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right column -->
+          <div>
+
+            <!-- Wallet / Account Connections -->
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2);">🔗</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Account Connections & Manual Tracking</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  Connect your bank accounts, credit cards, and investment accounts for automatic sync — or track everything manually if you prefer full control. FACTS works both ways.
+                </p>
+              </div>
+            </div>
+
+            <!-- Allocation Reports -->
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.2);">📈</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Allocation Reports & Insights</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  Monthly and weekly breakdown of how your income flowed through each bucket. See exactly where your strategy is working and where you have room to optimize.
+                </p>
+              </div>
+            </div>
+
+            <!-- Family Mode -->
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2);">🏠</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Family Mode</span>
+                  <span class="badge-live" style="font-size:0.65rem; padding:0.15rem 0.5rem;">Live</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  Share your FACTS system with a partner or spouse. Unified family allocation view with individual account privacy — build wealth together without losing autonomy.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Manual tracking note -->
+        <div class="mt-6 flex items-center gap-3 px-4 py-3 rounded-xl text-sm" style="background:rgba(201,162,39,0.06); border:1px solid rgba(201,162,39,0.14);">
+          <span style="color:#c9a227;">ℹ</span>
+          <span style="color:#9ca3af;">Connect your accounts securely or enter transactions manually — FACTS is designed to meet you where you are, no integrations required to get started.</span>
+        </div>
+
+        <!-- CTA -->
+        <div class="mt-8 flex flex-col sm:flex-row gap-3">
+          <a href="https://app.factsmoney.com/signup.html" class="btn-primary">
+            Start Personal FACTS Free →
+          </a>
+          <a href="https://app.factsmoney.com/login.html" class="btn-secondary">
+            Log In to Your System
+          </a>
+        </div>
+      </div>
+
+    </div>
+    <!-- end personal product card -->
+
+  </div>
+</section>
+
+<!-- Divider -->
+<div class="max-w-4xl mx-auto px-6 mb-24">
+  <div class="divider"></div>
+</div>
+
+<!-- ═══════════════════════════ BUSINESS FACTS ═══════════════════════════ -->
+<section id="business-facts" class="px-4 sm:px-6 pb-24">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Section label -->
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 mb-4">
+        <span class="badge-live">Live Now</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl mb-4" style="font-family:'Instrument Serif',serif;">Business FACTS</h2>
+      <p class="text-lg max-w-2xl mx-auto" style="color:#9ca3af;">
+        The same allocation discipline — rebuilt for business revenue. Control every dollar your business generates with a system designed for entrepreneurs, founders, and self-employed professionals.
+      </p>
+    </div>
+
+    <!-- Main business product card -->
+    <div class="product-card product-card-business glow-purple mb-12">
+
+      <div class="product-card-header" style="border-bottom:1px solid rgba(139,92,246,0.12);">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style="background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.25);">🏢</div>
+              <h3 class="text-xl font-bold text-white" style="font-family:'Satoshi',sans-serif;">Business FACTS</h3>
+            </div>
+            <p style="color:#9ca3af; font-size:0.9rem;">Revenue allocation & business financial command center</p>
+          </div>
+          <div class="flex flex-col items-start sm:items-end gap-2">
+            <span class="badge-live">Available Now</span>
+            <span style="color:#6b7280; font-size:0.8rem;">Connect your business accounts today</span>
+          </div>
+        </div>
+
+        <!-- Freedom Map: 5-bucket for business revenue (sliding scale ranges) -->
+        <div class="mb-2">
+          <p class="text-xs uppercase tracking-widest mb-4" style="color:#6b7280;">The Freedom Map — 5 Buckets for Business Revenue</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+
+            <!-- Operations 30–50% (default 45%) -->
+            <div class="bucket" style="border-color:rgba(139,92,246,0.12);">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#60a5fa;">Operations</span>
+                <span class="text-lg font-bold" style="color:#60a5fa; font-family:'Instrument Serif',serif;">30–50%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(96,165,250,0.15);">
+                <div class="bucket-bar" style="background:rgba(96,165,250,0.5); width:45%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">Payroll, overhead, software, supplies — keep the machine running. Default 45%.</p>
+            </div>
+
+            <!-- Reserves 3–10% (default 5%) -->
+            <div class="bucket" style="border-color:rgba(139,92,246,0.12);">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#34d399;">Reserves</span>
+                <span class="text-lg font-bold" style="color:#34d399; font-family:'Instrument Serif',serif;">3–10%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(52,211,153,0.15);">
+                <div class="bucket-bar" style="background:rgba(52,211,153,0.5); width:5%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">Emergency fund, cash buffer, opportunity capital. Default 5%.</p>
+            </div>
+
+            <!-- Taxes 25–30% (default 30%) -->
+            <div class="bucket" style="border-color:rgba(139,92,246,0.12);">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#fbbf24;">Taxes</span>
+                <span class="text-lg font-bold" style="color:#fbbf24; font-family:'Instrument Serif',serif;">25–30%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(251,191,36,0.15);">
+                <div class="bucket-bar" style="background:rgba(251,191,36,0.5); width:30%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">Never be surprised by a tax bill. Reserve first, spend second. Default 30%.</p>
+            </div>
+
+            <!-- Marketing 5–10% (default 10%) -->
+            <div class="bucket" style="border-color:rgba(139,92,246,0.12);">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#f472b6;">Marketing</span>
+                <span class="text-lg font-bold" style="color:#f472b6; font-family:'Instrument Serif',serif;">5–10%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(244,114,182,0.15);">
+                <div class="bucket-bar" style="background:rgba(244,114,182,0.5); width:10%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">Advertising, content, campaigns — invest in growth. Default 10%.</p>
+            </div>
+
+            <!-- Innovation 5–10% (default 10%) -->
+            <div class="bucket" style="border-color:rgba(139,92,246,0.12);">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold uppercase tracking-wide" style="color:#a78bfa;">Innovation</span>
+                <span class="text-lg font-bold" style="color:#a78bfa; font-family:'Instrument Serif',serif;">5–10%</span>
+              </div>
+              <div class="bucket-bar" style="background:rgba(167,139,250,0.15);">
+                <div class="bucket-bar" style="background:rgba(167,139,250,0.5); width:10%;"></div>
+              </div>
+              <p class="text-xs mt-2" style="color:#6b7280;">R&D, new products, tools, hiring — invest in scale. Default 10%.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Business feature list -->
+      <div class="product-card-body pt-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+
+          <!-- Left -->
+          <div>
+
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.2);">📉</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Brokerage Tracker & P/L Visibility</span>
+                  <span class="badge-live" style="font-size:0.65rem; padding:0.15rem 0.5rem;">Live</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  Full profit-and-loss visibility at the business level. Track brokerage accounts, investment holdings, and realized gains — all within your business allocation dashboard.
+                </p>
+              </div>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.2);">🏛️</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Business Entity Tools</span>
+                  <span class="badge-live" style="font-size:0.65rem; padding:0.15rem 0.5rem;">Live</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  LLC, S-Corp, sole proprietor — manage your entity structure, track expenses by category, and keep business finances cleanly separated from personal allocations.
+                </p>
+              </div>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.2);">📊</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Revenue Intelligence</span>
+                  <span class="badge-live" style="font-size:0.65rem; padding:0.15rem 0.5rem;">Live</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  Month-over-month revenue trends, runway calculations, and cash flow projections. Know your numbers before your accountant does.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right -->
+          <div>
+
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2);">🔄</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Personal + Business Integration</span>
+                  <span class="badge-live" style="font-size:0.65rem; padding:0.15rem 0.5rem;">Live</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  When your owner's pay flows from Business FACTS to Personal FACTS, your personal allocation system picks it up automatically. One ecosystem, complete financial visibility.
+                </p>
+              </div>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(244,114,182,0.1); border:1px solid rgba(244,114,182,0.2);">👥</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Team & Contractor Management</span>
+                  <span class="badge-live" style="font-size:0.65rem; padding:0.15rem 0.5rem;">Live</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  Track payroll and contractor payments within your Operations bucket. Allocation-aware expense tracking so every team cost is visible against your Freedom Map.
+                </p>
+              </div>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-icon" style="background:rgba(201,162,39,0.1); border:1px solid rgba(201,162,39,0.2);">🎯</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-white text-sm">Freedom Number Calculator</span>
+                  <span class="badge-live" style="font-size:0.65rem; padding:0.15rem 0.5rem;">Live</span>
+                </div>
+                <p class="text-xs" style="color:#6b7280; line-height:1.6;">
+                  Define the revenue target that gives you full financial freedom — then track every dollar toward it. Your Freedom Number is the north star for every business decision.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Waitlist CTA -->
+        <div class="mt-8 flex flex-col sm:flex-row gap-3">
+          <a href="https://app.factsmoney.com/signup.html" class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff;">
+            Start Business FACTS →
+          </a>
+          <a href="#compare" class="btn-secondary">
+            Compare Plans ↓
+          </a>
+        </div>
+      </div>
+
+    </div>
+    <!-- end business product card -->
+
+  </div>
+</section>
+
+<!-- Divider -->
+<div class="max-w-4xl mx-auto px-6 mb-20">
+  <div class="divider"></div>
+</div>
+
+<!-- ═══════════════════════════ COMPARISON TABLE ═══════════════════════════ -->
+<section id="compare" class="px-4 sm:px-6 pb-24">
+  <div class="max-w-5xl mx-auto">
+
+    <div class="text-center mb-12">
+      <h2 class="text-3xl sm:text-4xl mb-4" style="font-family:'Instrument Serif',serif;">Personal vs Business FACTS</h2>
+      <p style="color:#9ca3af;">Every feature, side by side — so you know exactly what you get.</p>
+    </div>
+
+    <div class="card-subtle overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="compare-table">
+          <thead>
+            <tr style="background:rgba(255,255,255,0.02);">
+              <th style="width:48%;">Feature</th>
+              <th style="width:26%; color:#e8c96a;">
+                <div class="flex flex-col items-center gap-1">
+                  <span>Personal FACTS</span>
+                  <span class="badge-live" style="font-size:0.65rem;">Live</span>
+                </div>
+              </th>
+              <th style="width:26%; color:#a78bfa;">
+                <div class="flex flex-col items-center gap-1">
+                  <span>Business FACTS</span>
+                  <span class="badge-live" style="font-size:0.65rem;">Live</span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Allocation system -->
+            <tr>
+              <td style="color:#9ca3af; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; padding-top:1.25rem; padding-bottom:0.5rem;" colspan="3">Allocation System</td>
+            </tr>
+            <tr>
+              <td>6-Bucket allocation framework</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Customizable bucket percentages</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Income allocation on every deposit</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Freedom Map (business revenue model)</td>
+              <td><span class="check-no">—</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+
+            <!-- Tracking & Reporting -->
+            <tr>
+              <td style="color:#9ca3af; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; padding-top:1.25rem; padding-bottom:0.5rem;" colspan="3">Tracking & Reporting</td>
+            </tr>
+            <tr>
+              <td>Net Worth Dashboard</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Debt tracking & Rate Radar</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-no">—</span></td>
+            </tr>
+            <tr>
+              <td>Allocation reports (weekly/monthly)</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Profit & Loss visibility</td>
+              <td><span class="check-no">—</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Revenue intelligence & cash flow projections</td>
+              <td><span class="check-no">—</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Tax reserve tracking</td>
+              <td><span class="check-no">—</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+
+            <!-- Scores & Identity -->
+            <tr>
+              <td style="color:#9ca3af; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; padding-top:1.25rem; padding-bottom:0.5rem;" colspan="3">Scores & Financial Identity</td>
+            </tr>
+            <tr>
+              <td>Sovereign Score</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-no">—</span></td>
+            </tr>
+            <tr>
+              <td>Freedom Number calculator</td>
+              <td><span class="check-no">—</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>XP & milestone rewards system</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+
+            <!-- Accounts & Connections -->
+            <tr>
+              <td style="color:#9ca3af; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; padding-top:1.25rem; padding-bottom:0.5rem;" colspan="3">Accounts & Connections</td>
+            </tr>
+            <tr>
+              <td>Manual transaction entry</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Bank & credit card account sync</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Brokerage account tracking</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Business entity separation</td>
+              <td><span class="check-no">—</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+
+            <!-- Collaboration -->
+            <tr>
+              <td style="color:#9ca3af; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; padding-top:1.25rem; padding-bottom:0.5rem;" colspan="3">Collaboration</td>
+            </tr>
+            <tr>
+              <td>Family / partner mode</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-no">—</span></td>
+            </tr>
+            <tr>
+              <td>Team & contractor tracking</td>
+              <td><span class="check-no">—</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Personal + Business integration</td>
+              <td><span class="check-no">—</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+
+            <!-- Community -->
+            <tr>
+              <td style="color:#9ca3af; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; padding-top:1.25rem; padding-bottom:0.5rem;" colspan="3">Community & Knowledge</td>
+            </tr>
+            <tr>
+              <td>Community feed & accountability</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Knowledge Vault (financial education)</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td>Expert resource center</td>
+              <td><span class="check-yes">✓</span></td>
+              <td><span class="check-yes">✓</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Divider -->
+<div class="max-w-4xl mx-auto px-6 mb-20">
+  <div class="divider"></div>
+</div>
+
+<!-- ═══════════════════════════ FINAL CTA ═══════════════════════════ -->
+<section class="px-4 sm:px-6 pb-28">
+  <div class="max-w-3xl mx-auto text-center">
+    <div class="score-card p-10 rounded-3xl" style="background:linear-gradient(145deg, rgba(201,162,39,0.07), rgba(201,162,39,0.02)); border:1px solid rgba(201,162,39,0.2);">
+      <div class="text-4xl mb-4">₣</div>
+      <h2 class="text-3xl sm:text-4xl mb-4" style="font-family:'Instrument Serif',serif;">
+        Your allocation system<br>
+        <span class="gold-text italic">starts today.</span>
+      </h2>
+      <p class="text-base mb-8 max-w-xl mx-auto" style="color:#9ca3af; line-height:1.7;">
+        Stop letting your income disappear without a strategy. FACTS gives you a system — not a set of restrictions — to allocate every dollar toward the life you're building.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="https://app.factsmoney.com/signup.html" class="btn-primary text-base" style="padding:1rem 2.5rem;">
+          Start Personal FACTS — Free →
+        </a>
+        <a href="/pricing.html" class="btn-secondary text-base" style="padding:1rem 2.5rem;">
+          View Pricing
+        </a>
+      </div>
+      <p class="mt-6 text-xs" style="color:#4b5563;">No credit card required. Free tier available. Upgrade when you're ready.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer injected by facts-nav.js — do not hardcode a second footer here -->
+
+<script>
+  // ── Mobile menu toggle ──
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const h1 = document.getElementById('ham-1');
+    const h2 = document.getElementById('ham-2');
+    const h3 = document.getElementById('ham-3');
+    const isOpen = menu.classList.toggle('open');
+    h1.style.transform = isOpen ? 'translateY(6px) rotate(45deg)' : '';
+    h2.style.opacity   = isOpen ? '0' : '';
+    h3.style.transform = isOpen ? 'translateY(-6px) rotate(-45deg)' : '';
+  }
+
+  // ── Referral code capture ──
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      sessionStorage.setItem('facts_ref', ref);
+      // Append ref to all CTA links
+      document.querySelectorAll('a[href*="signup.html"]').forEach(function(link) {
+        try {
+          const url = new URL(link.href);
+          url.searchParams.set('ref', ref);
+          link.href = url.toString();
+        } catch(e) {}
+      });
+    }
+  })();
+
+  // ── Smooth scroll for anchor links ──
+  document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+    anchor.addEventListener('click', function(e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Partners & Integrations | FACTS Finance</title>
+  <meta name="description" content="FACTS partners with leading technology providers and mission-aligned organizations to deliver a complete financial sovereignty platform." />
+
+  <!-- Google Fonts: Instrument Serif -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <!-- Fontshare: Satoshi -->
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --navy: #0d1117;
+      --navy-mid: #131920;
+      --navy-light: #1a2233;
+      --navy-border: #1e2d42;
+      --gold: #c9a227;
+      --gold-light: #e0b83a;
+      --gold-dim: #a07e1a;
+      --gold-muted: rgba(201, 162, 39, 0.15);
+      --text-primary: #f0ead6;
+      --text-secondary: #9aa3b2;
+      --text-muted: #5e6a7a;
+      --white: #ffffff;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'Satoshi', -apple-system, BlinkMacSystemFont, sans-serif;
+      --radius: 12px;
+      --radius-lg: 20px;
+      --transition: 0.2s ease;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--navy);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section {
+      padding: 96px 0;
+    }
+
+    section + section {
+      border-top: 1px solid var(--navy-border);
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-serif);
+      line-height: 1.15;
+      font-weight: 400;
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 5.5vw, 4rem);
+      color: var(--text-primary);
+    }
+
+    h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      color: var(--text-primary);
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      color: var(--text-primary);
+    }
+
+    p {
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+
+    .gold {
+      color: var(--gold);
+    }
+
+    .italic {
+      font-style: italic;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--transition);
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    .btn-primary:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(201, 162, 39, 0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--gold);
+      border: 1.5px solid var(--gold);
+    }
+
+    .btn-outline:hover {
+      background: var(--gold-muted);
+      transform: translateY(-1px);
+    }
+
+    /* ─────────────────────────────────────────
+       HERO
+    ───────────────────────────────────────── */
+    #hero {
+      padding: 120px 0 96px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 0%, rgba(201, 162, 39, 0.1) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 20% 100%, rgba(201, 162, 39, 0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold-muted);
+      border: 1px solid rgba(201, 162, 39, 0.3);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      margin-bottom: 32px;
+    }
+
+    .hero-badge svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--gold);
+    }
+
+    #hero h1 {
+      max-width: 780px;
+      margin: 0 auto 24px;
+    }
+
+    #hero .subhead {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto 48px;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* ─────────────────────────────────────────
+       PARTNER CARDS
+    ───────────────────────────────────────── */
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-header p {
+      max-width: 520px;
+      margin: 16px auto 0;
+    }
+
+    .partners-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .partner-card {
+      background: var(--navy-light);
+      border: 1px solid var(--navy-border);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+
+    .partner-card:hover {
+      border-color: rgba(201, 162, 39, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .partner-card.featured {
+      border-color: rgba(201, 162, 39, 0.35);
+      background: linear-gradient(135deg, rgba(201, 162, 39, 0.07) 0%, var(--navy-light) 100%);
+    }
+
+    .partner-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: var(--gold-muted);
+      border-radius: 4px;
+      padding: 3px 8px;
+      margin-bottom: 16px;
+    }
+
+    .partner-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+    }
+
+    .partner-card p {
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+
+    .partner-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    /* ─────────────────────────────────────────
+       HOW WE PARTNER
+    ───────────────────────────────────────── */
+    #how-we-partner {
+      background: var(--navy-mid);
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .value-card {
+      background: var(--navy-light);
+      border: 1px solid var(--navy-border);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      text-align: center;
+      transition: border-color var(--transition);
+    }
+
+    .value-card:hover {
+      border-color: rgba(201, 162, 39, 0.25);
+    }
+
+    .value-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--gold-muted);
+      border: 1.5px solid rgba(201, 162, 39, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 1.4rem;
+    }
+
+    .value-card h3 {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+    }
+
+    .value-card p {
+      font-size: 0.88rem;
+    }
+
+    /* ─────────────────────────────────────────
+       CTA
+    ───────────────────────────────────────── */
+    #cta {
+      text-align: center;
+      padding: 112px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 70% at 50% 100%, rgba(201, 162, 39, 0.09) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    #cta h2 {
+      max-width: 640px;
+      margin: 0 auto 20px;
+    }
+
+    #cta .subhead {
+      max-width: 500px;
+      margin: 0 auto 48px;
+      font-size: 1rem;
+    }
+
+    .cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      section {
+        padding: 72px 0;
+      }
+
+      .partners-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .values-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+<script src="/facts-nav.js"></script>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Partners &amp; Integrations
+    </div>
+
+    <h1>Built on trusted<br /><span class="gold italic">partnerships.</span></h1>
+
+    <p class="subhead">
+      FACTS integrates with leading technology providers and partners with mission-aligned organizations to deliver a complete financial sovereignty platform.
+    </p>
+
+    <div class="hero-cta-group">
+      <a href="https://app.factsmoney.com/signup.html" class="btn btn-primary">
+        Get Started
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#partners" class="btn btn-outline">View Partners</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TECHNOLOGY PARTNERS
+════════════════════════════════════════════ -->
+<section id="partners">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Technology Partners</span>
+      <h2>The infrastructure behind FACTS</h2>
+      <p>Every integration is chosen for reliability, security, and alignment with our mission of financial transparency.</p>
+    </div>
+
+    <div class="partners-grid">
+      <div class="partner-card featured">
+        <span class="partner-icon">🏦</span>
+        <div class="partner-tag">Bank Connectivity</div>
+        <h3>Plaid</h3>
+        <p>
+          Secure bank account linking and balance synchronization. Plaid connects your financial institutions directly to FACTS so your allocation data stays current — automatically and safely.
+        </p>
+      </div>
+
+      <div class="partner-card featured">
+        <span class="partner-icon">💳</span>
+        <div class="partner-tag">Payments</div>
+        <h3>Stripe</h3>
+        <p>
+          Industry-leading payment processing for subscriptions and billing. Stripe handles all FACTS transactions with bank-grade encryption and PCI compliance built in.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ECOSYSTEM PARTNERS
+════════════════════════════════════════════ -->
+<section id="ecosystem">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Ecosystem</span>
+      <h2>Part of something larger</h2>
+      <p>FACTS is one pillar of a broader ecosystem dedicated to human flourishing — financial, physical, and communal.</p>
+    </div>
+
+    <div class="partners-grid">
+      <div class="partner-card">
+        <span class="partner-icon">✨</span>
+        <div class="partner-tag">Business Partner</div>
+        <h3>Aura Restored</h3>
+        <p>
+          An online marketplace and charitable clothing store based in Columbus, OH — offering curated products that give back. Purpose-driven commerce aligned with the FACTS mission of intentional living.
+        </p>
+      </div>
+
+      <div class="partner-card">
+        <span class="partner-icon">🌍</span>
+        <div class="partner-tag">Non-Profit</div>
+        <h3>Majestic Legacy</h3>
+        <p>
+          A charitable organization supporting communities worldwide through education, healthcare, and clean water access — breaking the cycle of poverty and empowering individuals to build lasting change.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     HOW WE PARTNER
+════════════════════════════════════════════ -->
+<section id="how-we-partner">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Our Approach</span>
+      <h2>How we choose partners</h2>
+      <p>Every partnership reflects the same principles we bring to financial architecture — precision, transparency, and long-term value.</p>
+    </div>
+
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">🔒</div>
+        <h3>Security First</h3>
+        <p>Every integration meets our security standards. Your financial data is encrypted end-to-end with bank-grade protocols.</p>
+      </div>
+
+      <div class="value-card">
+        <div class="value-icon">🎯</div>
+        <h3>Mission Aligned</h3>
+        <p>We partner with organizations that share our commitment to empowering individuals — not extracting from them.</p>
+      </div>
+
+      <div class="value-card">
+        <div class="value-icon">⚡</div>
+        <h3>Built to Last</h3>
+        <p>No short-term integrations. Every partner is chosen for long-term reliability so your financial system never skips a beat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CTA
+════════════════════════════════════════════ -->
+<section id="cta">
+  <div class="container">
+    <span class="section-label">Get Started</span>
+    <h2>Your finances,<br /><span class="gold italic">architected right.</span></h2>
+    <p class="subhead">
+      Join the FACTS platform and experience a financial system built on trusted technology and mission-driven partnerships.
+    </p>
+
+    <div class="cta-group">
+      <a href="https://app.factsmoney.com/signup.html" class="btn btn-primary">
+        Start Your Journey
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>FACTS — The Allocation Engine | factsmoney.com</title>
+  <meta name="description" content="FACTS is the allocation engine: six buckets, paycheck in, surplus sweep, Sovereign Score. Education lives at thefinancialrevolution.net.">
+  <script src="/tfr-host-gate.js"></script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0a0f1a', 800: '#111827', 700: '#1a2235', 600: '#212d42', 500: '#2a3650' },
+            gold: { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a88620' },
+            blood: { 500: '#dc2626', 600: '#b91c1c' },
+            mint: { 500: '#10b981' }
+          },
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            body:    ['Satoshi', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Instrument Sans', system-ui, sans-serif;
+      background: #0d1117;
+      color: #e2e8f0;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .font-display { font-family: 'Syne', sans-serif; }
+
+    /* ── Navigation ─────────────────────────────────────────── */
+    .nav-link {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: #f1f5f9; }
+
+    /* ── Tailwind CDN fallback ──────────────────────────────── */
+    /* These replicate critical Tailwind utility classes so the nav
+       renders correctly even when the CDN script is blocked
+       (e.g. DuckDuckGo, Brave, aggressive ad-blockers).
+       When Tailwind loads, its later-injected styles override these. */
+    header.sticky { position: sticky; top: 0; z-index: 50; }
+    header .flex { display: flex; align-items: center; }
+    header .items-center { align-items: center; }
+    header .justify-between { justify-content: space-between; }
+    header .gap-4 { gap: 1rem; }
+    header .gap-3 { gap: 0.75rem; }
+    header .gap-6 { gap: 1.5rem; }
+    header .gap-1\.5 { gap: 0.375rem; }
+    header .h-16 { height: 4rem; }
+    header .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    header .max-w-7xl { max-width: 80rem; margin-left: auto; margin-right: auto; }
+    header .no-underline { text-decoration: none; }
+    header .flex-shrink-0 { flex-shrink: 0; }
+    header .leading-none { line-height: 1; }
+    header .w-9 { width: 2.25rem; }
+    header .h-9 { height: 2.25rem; }
+    header .rounded-xl { border-radius: 0.75rem; }
+    header .rounded-lg { border-radius: 0.5rem; }
+    header .text-sm { font-size: 0.875rem; }
+    header .text-xs { font-size: 0.75rem; }
+    header .text-lg { font-size: 1.125rem; }
+    header .font-bold { font-weight: 700; }
+    header .text-white { color: #fff; }
+    header .uppercase { text-transform: uppercase; }
+    header .flex-col { flex-direction: column; }
+    header .p-2 { padding: 0.5rem; }
+    header .block { display: block; }
+    header .w-5 { width: 1.25rem; }
+    header .h-0\.5 { height: 0.125rem; }
+    header .bg-gray-400 { background-color: rgb(156,163,175); }
+    header .border-b { border-bottom: 1px solid rgba(255,255,255,0.06); }
+    header .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    header .px-4 { padding-left: 1rem; padding-right: 1rem; }
+
+    /* Mobile-first: hide desktop-only elements, show hamburger */
+    header .hidden { display: none; }
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: flex; flex-direction: column; }
+
+    @media (min-width: 768px) {
+      header .hidden.md\:flex { display: flex; }
+      header .md\:hidden { display: none; }
+      #mobile-menu { display: none; }
+    }
+    @media (min-width: 640px) {
+      header .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+
+    /* ── General layout fallbacks (Tailwind CDN blocked) ────── */
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .text-center { text-align: center; }
+    .relative { position: relative; }
+    .overflow-hidden { overflow: hidden; }
+    .absolute { position: absolute; }
+    .bottom-0 { bottom: 0; }
+    .left-0 { left: 0; }
+    .right-0 { right: 0; }
+    .inline-block { display: inline-block; }
+    .max-w-3xl { max-width: 48rem; }
+    .max-w-4xl { max-width: 56rem; }
+    .max-w-6xl { max-width: 72rem; }
+    .max-w-xl { max-width: 36rem; }
+    .max-w-lg { max-width: 32rem; }
+    .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+    .text-base { font-size: 1rem; }
+    .text-xs { font-size: 0.75rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-xl { font-size: 1.25rem; }
+    .text-2xl { font-size: 1.5rem; }
+    .font-bold { font-weight: 700; }
+    .font-semibold { font-weight: 600; }
+    .font-normal { font-weight: 400; }
+    .font-medium { font-weight: 500; }
+    .text-white { color: #fff; }
+    .text-gray-400 { color: rgb(156,163,175); }
+    .text-gray-500 { color: rgb(107,114,128); }
+    .text-gray-600 { color: rgb(75,85,99); }
+    .leading-tight { line-height: 1.25; }
+    .leading-relaxed { line-height: 1.625; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-5 { margin-bottom: 1.25rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mb-10 { margin-bottom: 2.5rem; }
+    .mb-14 { margin-bottom: 3.5rem; }
+    .mb-16 { margin-bottom: 4rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-5 { margin-top: 1.25rem; }
+    .mt-16 { margin-top: 4rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .py-20 { padding-top: 5rem; padding-bottom: 5rem; }
+    .py-24 { padding-top: 6rem; padding-bottom: 6rem; }
+    .rounded-full { border-radius: 9999px; }
+    .rounded-2xl { border-radius: 1rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .flex { display: flex; }
+    .grid { display: grid; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-4 { gap: 1rem; }
+    .gap-5 { gap: 1.25rem; }
+    .gap-8 { gap: 2rem; }
+    .grid-cols-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .h-16 { height: 4rem; }
+    .w-14 { width: 3.5rem; }
+    .h-14 { height: 3.5rem; }
+    @media (min-width: 640px) {
+      .sm\:text-5xl { font-size: 3rem; line-height: 1; }
+      .sm\:text-lg { font-size: 1.125rem; }
+      .sm\:flex-row { flex-direction: row; }
+      .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .sm\:grid-cols-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .sm\:flex-row { flex-direction: row; }
+    }
+    @media (min-width: 768px) {
+      .md\:text-6xl { font-size: 3.75rem; line-height: 1; }
+      .md\:grid-cols-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .md\:grid-cols-6 { grid-template-columns: repeat(6,minmax(0,1fr)); }
+    }
+    @media (min-width: 1024px) {
+      .lg\:grid-cols-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .lg\:gap-12 { gap: 3rem; }
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #c9a227, #d4a929);
+      color: #0a0f1a; font-weight: 700; font-size: 0.9rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 10px; border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(201,162,39,0.3);
+      font-family: 'Instrument Sans', sans-serif;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,162,39,0.4); }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      color: #e2e8f0; font-weight: 600; font-size: 0.9rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      font-family: 'Instrument Sans', sans-serif;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.3); }
+
+    /* ── Hero background ─────────────────────────────────────── */
+    .hero-bg {
+      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,162,39,0.08) 0%, transparent 70%),
+                  #0d1117;
+    }
+
+    /* ── Animated elements ───────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both; }
+    .d1 { animation-delay: 0.05s; }
+    .d2 { animation-delay: 0.15s; }
+    .d3 { animation-delay: 0.25s; }
+    .d4 { animation-delay: 0.35s; }
+
+    /* ── Pulse gold ──────────────────────────────────────────── */
+    @keyframes pulseGold {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(201,162,39,0.4); }
+      50%       { box-shadow: 0 0 0 6px rgba(201,162,39,0); }
+    }
+    .pulse-gold { animation: pulseGold 2.5s ease infinite; }
+
+    /* ── Divider ─────────────────────────────────────────────── */
+    .divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+    }
+
+    /* ── Step numbers ────────────────────────────────────────── */
+    .step-num {
+      width: 2.5rem; height: 2.5rem;
+      border-radius: 50%;
+      background: rgba(201,162,39,0.1);
+      border: 1px solid rgba(201,162,39,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 0.95rem;
+      color: #c9a227;
+    }
+
+    /* ── Bucket cards ────────────────────────────────────────── */
+    .bucket {
+      padding: 1rem 0.75rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.02);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .bucket:hover {
+      border-color: rgba(201,162,39,0.3);
+      background: rgba(201,162,39,0.04);
+    }
+
+    /* ── Feature cards ───────────────────────────────────────── */
+    .feature-card {
+      padding: 1.5rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(17,24,39,0.6);
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(201,162,39,0.2);
+      transform: translateY(-2px);
+    }
+
+    /* ── Mobile menu ─────────────────────────────────────────── */
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: flex; }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    footer a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.8rem; }
+    footer a:hover { color: rgba(255,255,255,0.7); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ NAVIGATION ═══════════════════════════ -->
+<header class="sticky top-0 z-50 border-b" style="background:rgba(13,17,23,0.94); backdrop-filter:blur(14px); border-color:rgba(255,255,255,0.06);">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+
+    <!-- Brand -->
+    <a href="/" class="flex items-center gap-3 no-underline flex-shrink-0">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-lg pulse-gold" style="background:rgba(201,162,39,0.12); border:1px solid rgba(201,162,39,0.32); color:#c9a227; font-family:'Instrument Serif',serif;">₣</div>
+      <div class="leading-none">
+        <div class="text-sm font-bold tracking-[0.12em] uppercase text-white">FACTS</div>
+        <div class="text-xs tracking-wide" style="color:#c9a227;">factsmoney.com</div>
+      </div>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="hidden md:flex items-center gap-6">
+      <a href="/products" class="nav-link">Products</a>
+      <a href="/pricing" class="nav-link">Pricing</a>
+      <a href="/tfr/" class="nav-link">Education</a>
+      <a href="/partners" class="nav-link">Partners</a>
+      <a href="/about" class="nav-link">About</a>
+    </nav>
+
+    <!-- Desktop CTAs -->
+    <div class="hidden md:flex items-center gap-3">
+      <button id="pwa-header-install-btn" onclick="window.FACTS_PWA && window.FACTS_PWA.triggerInstall()" style="display:none; align-items:center; gap:6px; padding:0.5rem 1rem; border-radius:8px; font-size:0.82rem; font-weight:600; background:rgba(201,162,39,0.1); color:#c9a227; border:1px solid rgba(201,162,39,0.3); cursor:pointer; transition:all 0.2s; white-space:nowrap;">⬇ Install App</button>
+      <a href="https://app.factsmoney.com/login.html" class="nav-link px-4 py-2 rounded-lg" style="border:1px solid rgba(255,255,255,0.1);">Log In</a>
+      <a href="https://app.factsmoney.com/signup.html" class="btn-primary" style="padding:0.6rem 1.4rem; font-size:0.85rem;">Start Free →</a>
+    </div>
+
+    <!-- Mobile hamburger -->
+    <button id="hamburger-btn" class="md:hidden flex flex-col gap-1.5 p-2" aria-label="Open menu" onclick="toggleMobileMenu()">
+      <span class="block w-5 h-0.5 bg-gray-400 transition-all duration-200" id="ham-1"></span>
+      <span class="block w-5 h-0.5 bg-gray-400 transition-all duration-200" id="ham-2"></span>
+      <span class="block w-5 h-0.5 bg-gray-400 transition-all duration-200" id="ham-3"></span>
+    </button>
+  </div>
+
+  <!-- Mobile menu dropdown -->
+  <div id="mobile-menu" class="flex-col border-t md:hidden" style="background:rgba(13,17,23,0.98); border-color:rgba(255,255,255,0.06);">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
+      <a href="/products" class="nav-link py-3 border-b" style="border-color:rgba(255,255,255,0.06);">Products</a>
+      <a href="/pricing" class="nav-link py-3 border-b" style="border-color:rgba(255,255,255,0.06);">Pricing</a>
+      <a href="/tfr/" class="nav-link py-3 border-b" style="border-color:rgba(255,255,255,0.06);">Education</a>
+      <a href="/partners" class="nav-link py-3 border-b" style="border-color:rgba(255,255,255,0.06);">Partners</a>
+      <a href="/about" class="nav-link py-3 border-b" style="border-color:rgba(255,255,255,0.06);">About</a>
+      <div class="flex gap-3 pt-3">
+        <a href="https://app.factsmoney.com/login.html" class="flex-1 text-center py-2.5 rounded-lg text-sm font-medium" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#d1d5db;">Log In</a>
+        <a href="https://app.factsmoney.com/signup.html" class="flex-1 btn-primary justify-center" style="padding:0.6rem 1rem; font-size:0.85rem;">Start Free →</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section class="hero-bg relative overflow-hidden" style="padding:6rem 1rem 5rem;">
+  <div class="max-w-3xl mx-auto text-center">
+
+    <!-- Badge -->
+    <div class="animate-up d1 inline-block text-xs font-semibold tracking-[0.2em] uppercase mb-6 px-3 py-1 rounded-full" style="background:rgba(201,162,39,0.08); color:#c9a227; border:1px solid rgba(201,162,39,0.15);">
+      The FACTS Engine · factsmoney.com
+    </div>
+
+    <!-- Headline -->
+    <h1 class="animate-up d2 text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight" style="font-family:'Syne',sans-serif; color:#fff;">
+      Give every dollar a <em style="color:#c9a227; font-style:normal;">purpose</em> before it arrives
+    </h1>
+
+    <!-- Subheadline -->
+    <p class="animate-up d3 text-base sm:text-lg text-gray-400 max-w-xl mx-auto mb-10 leading-relaxed">
+      Six allocation categories. Zero guilt. One path to financial freedom. FACTS replaces passive budgeting with active income allocation — so your money works <strong style="color:#e8c96a;">before</strong> you spend it.
+    </p>
+
+    <!-- CTAs -->
+    <div class="animate-up d4 flex flex-col sm:flex-row gap-4 justify-center items-center">
+      <a href="https://app.factsmoney.com/signup.html" class="btn-primary text-base" style="padding:0.9rem 2.25rem;">
+        Start Free →
+      </a>
+      <a href="/facts-funnel" class="btn-secondary text-base" style="padding:0.9rem 2.25rem;">
+        See Your Wealth Report
+      </a>
+    </div>
+
+    <p class="animate-up d4 text-xs text-gray-600 mt-5">No credit card required · Free forever</p>
+
+  </div>
+
+  <!-- Gradient fade -->
+  <div class="absolute bottom-0 left-0 right-0 h-16" style="background:linear-gradient(to bottom,transparent,#0d1117);"></div>
+</section>
+
+
+<!-- ═══════════════════════════ TWO PLATFORMS ═══════════════════════════ -->
+<section class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+  <div class="grid md:grid-cols-2 gap-5">
+    <div class="feature-card" style="border-color:rgba(201,162,39,0.22);">
+      <div class="text-xs font-semibold tracking-[0.18em] uppercase mb-3" style="color:#c9a227;">This site · the engine</div>
+      <h2 class="text-2xl text-white mb-3" style="font-family:'Instrument Serif',serif;">Allocate. Track. Sweep.</h2>
+      <p class="text-gray-400 text-sm leading-relaxed mb-5">factsmoney.com is the FACTS operating system — six buckets, paycheck entry, Friday Sweep, Sovereign Score, and the live 12-level protocol.</p>
+      <a href="https://app.factsmoney.com/signup.html" class="btn-primary" style="padding:0.65rem 1.25rem; font-size:0.85rem;">Start Free →</a>
+    </div>
+    <div class="feature-card">
+      <div class="text-xs font-semibold tracking-[0.18em] uppercase mb-3" style="color:#c9a227;">Sister site · the school</div>
+      <h2 class="text-2xl text-white mb-3" style="font-family:'Instrument Serif',serif;">Learn the protocol first</h2>
+      <p class="text-gray-400 text-sm leading-relaxed mb-5">thefinancialrevolution.net houses the education library, programs, module catalog, and public tools — outside the engine.</p>
+      <a href="/tfr/" class="btn-secondary" style="padding:0.65rem 1.25rem; font-size:0.85rem;">Open Education →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ HOW IT WORKS ═══════════════════════════ -->
+<section class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+  <div class="text-center mb-16">
+    <div class="inline-block text-xs font-semibold tracking-[0.2em] uppercase mb-4 px-3 py-1 rounded-full" style="background:rgba(201,162,39,0.08); color:#c9a227; border:1px solid rgba(201,162,39,0.15);">How It Works</div>
+    <h2 class="text-4xl sm:text-5xl font-normal mb-4" style="font-family:'Instrument Serif',serif;">Three steps to <em style="color:#c9a227;">freedom</em></h2>
+    <p class="text-gray-400 max-w-lg mx-auto">The FACTS method is simple on purpose. It doesn't require willpower — it requires a system.</p>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+
+    <div class="flex flex-col items-center text-center">
+      <div class="step-num mb-6">1</div>
+      <div class="w-14 h-14 rounded-2xl mb-5 flex items-center justify-center text-2xl" style="background:rgba(201,162,39,0.1); border:1px solid rgba(201,162,39,0.2);">⚖️</div>
+      <h3 class="text-xl font-bold text-white mb-3" style="font-family:'Instrument Serif',serif;">Allocate</h3>
+      <p class="text-gray-400 text-sm leading-relaxed">
+        Before money arrives, decide where every dollar goes. Split your income across 6 categories: <strong style="color:#e8c96a;">Necessities, Reserve, Velocity, Growth, Lifestyle,</strong> and <strong style="color:#e8c96a;">Legacy.</strong>
+      </p>
+    </div>
+
+    <div class="flex flex-col items-center text-center">
+      <div class="step-num mb-6">2</div>
+      <div class="w-14 h-14 rounded-2xl mb-5 flex items-center justify-center text-2xl" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2);">📊</div>
+      <h3 class="text-xl font-bold text-white mb-3" style="font-family:'Instrument Serif',serif;">Track</h3>
+      <p class="text-gray-400 text-sm leading-relaxed">
+        Connect your accounts or enter manually. FACTS auto-categorizes every transaction in real time and shows you exactly where your plan stands — no guesswork.
+      </p>
+    </div>
+
+    <div class="flex flex-col items-center text-center">
+      <div class="step-num mb-6">3</div>
+      <div class="w-14 h-14 rounded-2xl mb-5 flex items-center justify-center text-2xl" style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2);">🏆</div>
+      <h3 class="text-xl font-bold text-white mb-3" style="font-family:'Instrument Serif',serif;">Freedom</h3>
+      <p class="text-gray-400 text-sm leading-relaxed">
+        Watch your Sovereign Score rise as you execute your allocation plan. Earn XP, advance through 12 levels, and build the financial life you've always wanted.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Six Buckets -->
+  <div class="mt-16 max-w-3xl mx-auto">
+    <p class="text-center text-xs font-semibold tracking-widest uppercase mb-6" style="color:#c9a227;">The 6 Allocation Buckets</p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+      <div class="bucket text-center">
+        <div class="text-2xl mb-2">🏠</div>
+        <div class="text-xs font-bold text-white mb-1">Necessities</div>
+        <div class="text-xs text-gray-500">50%</div>
+      </div>
+      <div class="bucket text-center">
+        <div class="text-2xl mb-2">🔒</div>
+        <div class="text-xs font-bold text-white mb-1">Reserve</div>
+        <div class="text-xs text-gray-500">10%</div>
+      </div>
+      <div class="bucket text-center">
+        <div class="text-2xl mb-2">⚡</div>
+        <div class="text-xs font-bold text-white mb-1">Velocity</div>
+        <div class="text-xs text-gray-500">10%</div>
+      </div>
+      <div class="bucket text-center">
+        <div class="text-2xl mb-2">📈</div>
+        <div class="text-xs font-bold text-white mb-1">Growth</div>
+        <div class="text-xs text-gray-500">10%</div>
+      </div>
+      <div class="bucket text-center">
+        <div class="text-2xl mb-2">🎯</div>
+        <div class="text-xs font-bold text-white mb-1">Lifestyle</div>
+        <div class="text-xs text-gray-500">10%</div>
+      </div>
+      <div class="bucket text-center">
+        <div class="text-2xl mb-2">🌿</div>
+        <div class="text-xs font-bold text-white mb-1">Legacy</div>
+        <div class="text-xs text-gray-500">10%</div>
+      </div>
+    </div>
+    <p class="text-center text-xs text-gray-600 mt-4">Default allocations — customize to your situation in the app</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ FEATURES ═══════════════════════════ -->
+<section style="background:rgba(17,24,39,0.5); border-top:1px solid rgba(255,255,255,0.05); border-bottom:1px solid rgba(255,255,255,0.05);">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+    <div class="text-center mb-14">
+      <div class="inline-block text-xs font-semibold tracking-[0.2em] uppercase mb-4 px-3 py-1 rounded-full" style="background:rgba(201,162,39,0.08); color:#c9a227; border:1px solid rgba(201,162,39,0.15);">Tools Built for Sovereignty</div>
+      <h2 class="text-4xl sm:text-5xl font-normal mb-4" style="font-family:'Instrument Serif',serif;">Every tool you need to <em style="color:#c9a227;">win</em></h2>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="feature-card">
+        <div class="text-2xl mb-3">🧠</div>
+        <h3 class="font-bold text-white mb-2">AI Coach</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Your personal financial strategist, available 24/7. Gets smarter as it learns your allocation patterns.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="text-2xl mb-3">📡</div>
+        <h3 class="font-bold text-white mb-2">Rate Radar</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Automatically scans your recurring bills and surfaces better alternatives — saving money without lifting a finger.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="text-2xl mb-3">🔍</div>
+        <h3 class="font-bold text-white mb-2">Forensic Credit Scan</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Upload your credit report and get a penny-accurate breakdown of every interest leak across your debt portfolio.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="text-2xl mb-3">🛒</div>
+        <h3 class="font-bold text-white mb-2">Shopping Calculator</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">GPS-powered store radar with community price data. Never overpay for groceries again.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="text-2xl mb-3">⚡</div>
+        <h3 class="font-bold text-white mb-2">Friday Sweep</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Automated end-of-week surplus reallocation. Your leftover money goes to work the moment you stop spending.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="text-2xl mb-3">🏆</div>
+        <h3 class="font-bold text-white mb-2">Sovereign Score</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">A dynamic score that tracks your financial architecture in real time. 12 levels. One destination: Liberation.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ CTA BOTTOM ═══════════════════════════ -->
+<section class="max-w-4xl mx-auto px-4 sm:px-6 py-24 text-center">
+  <div class="divider mb-16"></div>
+
+  <h2 class="text-4xl sm:text-5xl font-normal mb-6" style="font-family:'Instrument Serif',serif;">
+    Ready to stop <em style="color:#c9a227;">bleeding</em> wealth?
+  </h2>
+  <p class="text-gray-400 max-w-xl mx-auto mb-10 leading-relaxed">
+    Start with the Back Door Bleed Calculator — 3 minutes to discover exactly how much interest is quietly draining your wealth every month.
+  </p>
+
+  <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+    <a href="/bleed-calculator" class="btn-primary text-base" style="padding:0.9rem 2.25rem;">
+      Calculate My Bleed →
+    </a>
+    <a href="https://app.factsmoney.com/signup.html" class="btn-secondary text-base" style="padding:0.9rem 2.25rem;">
+      Create Free Account
+    </a>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer style="border-top:1px solid rgba(255,255,255,0.06); padding:2rem 1rem;">
+  <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" style="background:rgba(201,162,39,0.12); border:1px solid rgba(201,162,39,0.3); color:#c9a227; font-family:'Instrument Serif',serif;">₣</div>
+      <span class="text-xs font-bold tracking-widest uppercase" style="color:rgba(255,255,255,0.4);">FACTS</span>
+    </div>
+    <div class="flex items-center gap-5">
+      <a href="/about">About</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/tfr/">Education</a>
+      <a href="/facts-funnel">Get Started</a>
+    </div>
+    <p class="text-xs" style="color:rgba(255,255,255,0.2);">© 2026 Financial Revolution. All rights reserved.</p>
+  </div>
+</footer>
+
+
+<!-- ── Mobile menu toggle ─────────────────────────────────────────── -->
+<script>
+var _menuOpen = false;
+function toggleMobileMenu() {
+  _menuOpen = !_menuOpen;
+  var menu = document.getElementById('mobile-menu');
+  var ham1 = document.getElementById('ham-1');
+  var ham2 = document.getElementById('ham-2');
+  var ham3 = document.getElementById('ham-3');
+  if (menu) {
+    if (_menuOpen) { menu.classList.add('open'); } else { menu.classList.remove('open'); }
+  }
+  if (ham1) ham1.style.transform = _menuOpen ? 'rotate(45deg) translate(4px, 4px)' : '';
+  if (ham2) ham2.style.opacity  = _menuOpen ? '0' : '';
+  if (ham3) ham3.style.transform = _menuOpen ? 'rotate(-45deg) translate(4px, -4px)' : '';
+}
+document.addEventListener('DOMContentLoaded', function () {
+  var links = document.querySelectorAll('#mobile-menu a');
+  links.forEach(function (link) {
+    link.addEventListener('click', function () {
+      _menuOpen = false;
+      var menu = document.getElementById('mobile-menu');
+      if (menu) menu.classList.remove('open');
+    });
+  });
+});
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

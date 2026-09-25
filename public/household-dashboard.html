@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Dashboard — FACTS</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0f1a;
+      --card: #111827;
+      --elevated: #1a2332;
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --text: #e8e0d4;
+      --muted: #a89a7e;
+      --subtle: #6b5c44;
+      --border: rgba(201,162,39,0.15);
+      --border-subtle: rgba(255,255,255,0.06);
+      --success: #10b981;
+      --error: #f43f5e;
+      --warning: #f59e0b;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+
+    /* ─── Header ─── */
+    .page-header {
+      background: rgba(10,15,26,0.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 12px;
+      height: 56px; padding: 0 20px;
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--muted); text-decoration: none;
+      font-size: 14px; font-weight: 500;
+      padding: 6px 10px; border-radius: 7px;
+      transition: all 0.15s;
+    }
+    .back-btn:hover { color: var(--gold); background: rgba(201,162,39,0.08); }
+    .page-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .header-badge {
+      margin-left: auto;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.7px;
+      color: var(--gold);
+      background: rgba(201,162,39,0.12);
+      border: 1px solid rgba(201,162,39,0.25);
+      padding: 3px 9px; border-radius: 20px;
+    }
+
+    /* ─── Layout ─── */
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 28px 20px 100px;
+    }
+
+    /* ─── Hero Stats ─── */
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 520px) {
+      .hero-stats { grid-template-columns: 1fr; }
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 18px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .stat-card.net-positive { border-color: rgba(16,185,129,0.3); }
+    .stat-card.net-negative { border-color: rgba(244,63,94,0.3); }
+    .stat-label {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      color: var(--subtle);
+    }
+    .stat-value {
+      font-size: 26px; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--text);
+      line-height: 1;
+    }
+    .stat-value.income { color: var(--success); }
+    .stat-value.expense { color: var(--error); }
+    .stat-value.positive { color: var(--success); }
+    .stat-value.negative { color: var(--error); }
+    .stat-sub {
+      font-size: 12px; color: var(--muted);
+    }
+
+    /* ─── Section labels ─── */
+    .section-label {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--subtle);
+      margin-bottom: 10px; padding-left: 4px;
+    }
+
+    /* ─── Cards ─── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .card-sub { font-size: 12px; color: var(--muted); }
+
+    /* ─── Member Summary Rows ─── */
+    .member-row {
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.1s;
+    }
+    .member-row:last-child { border-bottom: none; }
+    .member-row:hover { background: rgba(255,255,255,0.02); }
+    .member-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(201,162,39,0.2), rgba(201,162,39,0.05));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 15px;
+      color: var(--gold);
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+    .member-info { flex: 1; min-width: 0; }
+    .member-name {
+      font-size: 14px; font-weight: 600;
+      color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .member-role {
+      font-size: 11px; color: var(--muted);
+      text-transform: capitalize;
+    }
+    .member-financials {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+    }
+    .member-net {
+      font-size: 14px; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .member-net.positive { color: var(--success); }
+    .member-net.negative { color: var(--error); }
+    .member-breakdown {
+      font-size: 11px; color: var(--muted);
+    }
+    .privacy-note {
+      font-size: 11px; color: var(--subtle);
+      padding: 10px 20px 14px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* ─── Category Bars ─── */
+    .category-row {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .category-row:last-child { border-bottom: none; }
+    .cat-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .cat-name {
+      font-size: 13px; font-weight: 500; color: var(--text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .cat-icon { font-size: 16px; }
+    .cat-amounts {
+      font-size: 12px; color: var(--muted);
+    }
+    .cat-bar-bg {
+      height: 6px; background: rgba(255,255,255,0.06);
+      border-radius: 3px; overflow: hidden;
+    }
+    .cat-bar-fill {
+      height: 100%; border-radius: 3px;
+      transition: width 0.6s ease;
+      background: var(--gold);
+    }
+    .cat-bar-fill.over { background: var(--error); }
+    .cat-pct {
+      font-size: 11px; color: var(--muted);
+      margin-top: 4px; text-align: right;
+    }
+
+    /* ─── Empty State ─── */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ─── Loading ─── */
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      padding: 60px 24px;
+      color: var(--muted); font-size: 14px; gap: 10px;
+    }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(201,162,39,0.2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Affiliate Commissions ─── */
+    .aff-member-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+    }
+    .aff-member-row:last-child { border-bottom: none; }
+    .aff-name { flex: 1; min-width: 100px; font-size: 13px; font-weight: 600; color: var(--text); }
+    .aff-code { font-size: 11px; color: var(--muted); font-family: 'Courier New', monospace; }
+    .aff-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .aff-pill {
+      padding: 5px 11px; border-radius: 8px;
+      font-size: 12px; font-weight: 700; white-space: nowrap;
+    }
+    .aff-pill.green { background: rgba(16,185,129,0.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
+    .aff-pill.blue { background: rgba(59,130,246,0.1); color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+    .aff-total-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .aff-frozen-banner {
+      padding: 12px 20px;
+      font-size: 12px; color: #93c5fd;
+      background: rgba(59,130,246,0.06);
+      border-top: 1px solid var(--border-subtle);
+      display: flex; align-items: center; gap: 8px;
+    }
+    /* ─── Error ─── */
+    .error-banner {
+      background: rgba(244,63,94,0.1);
+      border: 1px solid rgba(244,63,94,0.25);
+      color: #fca5a5;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    /* ─── Month filter ─── */
+    .filter-bar {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .filter-bar label { font-size: 13px; color: var(--muted); }
+    .month-select {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      outline: none;
+      cursor: pointer;
+    }
+    .month-select:focus { border-color: var(--gold); }
+    select option { background: #1a2332; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="/family-settings.html" class="back-btn">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Family Settings
+  </a>
+  <span class="page-title" id="householdName">Family Dashboard</span>
+  <span class="header-badge" id="headerBadge">Family Plan</span>
+</header>
+
+<div class="container">
+  <div id="loadingState" class="loading">
+    <div class="spinner"></div>
+    Loading family data…
+  </div>
+  <div id="errorState" class="error-banner" style="display:none"></div>
+  <div id="mainContent" style="display:none">
+
+    <!-- Family Incubator: Sub-Account Banner (shown for sub-accounts only) -->
+    <div id="subAccountBanner" style="display:none;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:16px 18px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:20px">🏠</span>
+        <span style="font-size:14px;font-weight:700;color:#c9a84c">Family Incubator Sub-Account</span>
+        <span style="margin-left:auto;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;background:rgba(201,168,76,0.2);color:#c9a84c;padding:3px 8px;border-radius:20px">Levels 1–3</span>
+      </div>
+      <p style="font-size:13px;color:#a89a7e;line-height:1.5;margin:0 0 12px">
+        You have free educational access to FACTS courtesy of your Head of family.
+        You can access <strong style="color:#e8e0d4">Levels 1–3</strong>: Manual FACTS ledger, basic dashboards, and educational content.
+        Upgrade to your own Family plan ($25/mo) to unlock full features and become commission-eligible.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="/pricing.html" style="display:inline-flex;align-items:center;gap:6px;background:#c9a84c;color:#0a0f1a;font-weight:700;font-size:13px;padding:10px 18px;border-radius:8px;text-decoration:none">
+          ⬆️ Upgrade to Family plan
+        </a>
+        <button onclick="initiateBreakaway()" id="breakawayBtn" style="display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid rgba(201,168,76,0.4);color:#a89a7e;font-weight:600;font-size:13px;padding:10px 18px;border-radius:8px;cursor:pointer;font-family:inherit">
+          🚀 Break Away (Go Independent)
+        </button>
+      </div>
+    </div>
+
+    <!-- Family Incubator: Head of family Panel (shown for heads only) -->
+    <div id="incubatorHeadPanel" style="display:none;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:16px 18px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:20px">👑</span>
+        <span style="font-size:14px;font-weight:700;color:#10b981">Family Incubator — Head of family</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px 14px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#6b5c44;margin-bottom:4px">Active Sub-Accounts</div>
+          <div style="font-size:22px;font-weight:700;font-family:'Space Grotesk',sans-serif;color:#e8e0d4" id="incubatorActiveCount">0 / 5</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px 14px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:#6b5c44;margin-bottom:4px">Broke Away</div>
+          <div style="font-size:22px;font-weight:700;font-family:'Space Grotesk',sans-serif;color:#a89a7e" id="incubatorBrokeAwayCount">0</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#a89a7e;margin:0 0 12px;line-height:1.5">
+        Your $25/mo Family plan grants <strong style="color:#e8e0d4">up to 5 family sub-accounts</strong> free educational access (Levels 1–3).
+        Sub-accounts can break away at any time to subscribe independently and unlock full commission eligibility.
+      </p>
+      <a href="/family-settings.html" style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;font-weight:600;font-size:13px;padding:9px 16px;border-radius:8px;text-decoration:none">
+        ⚙️ Manage Sub-Accounts →
+      </a>
+    </div>
+
+    <!-- Aggregated Totals -->
+    <div class="hero-stats" id="heroStats">
+      <div class="stat-card">
+        <div class="stat-label">Total Income</div>
+        <div class="stat-value income" id="totalIncome">$0</div>
+        <div class="stat-sub" id="memberCount">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Expenses</div>
+        <div class="stat-value expense" id="totalExpenses">$0</div>
+        <div class="stat-sub">All categories</div>
+      </div>
+      <div class="stat-card" id="netCard">
+        <div class="stat-label">Net Balance</div>
+        <div class="stat-value" id="netBalance">$0</div>
+        <div class="stat-sub" id="netSub">—</div>
+      </div>
+    </div>
+
+    <!-- Member Summaries -->
+    <div class="section-label">Members</div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">family Members</span>
+        <span class="card-sub">Aggregated totals only</span>
+      </div>
+      <div id="membersList">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+      <div class="privacy-note">
+        🔒 Individual transaction details are private. Only total income &amp; expenses are shared.
+      </div>
+    </div>
+
+    <!-- Family Affiliate Earnings (visible when applicable) -->
+    <div id="affiliateSection" style="display:none">
+      <div class="section-label">Family Affiliate Earnings</div>
+      <div class="card" id="affiliateCard">
+        <div class="card-header">
+          <span class="card-title">Commission Split</span>
+          <span class="card-sub" id="affiliateSubLabel">50/50 while on Family Plan</span>
+        </div>
+        <div id="affiliateContent">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="section-label">Spending by Category</div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">family Allocations</span>
+        <span class="card-sub">Combined across all members</span>
+      </div>
+      <div id="categoriesList">
+        <div class="empty-state"><div class="icon">📊</div><p>No category data yet</p></div>
+      </div>
+    </div>
+
+  </div><!-- /mainContent -->
+</div>
+
+<script>
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmt(val) {
+  const n = parseFloat(val) || 0;
+  return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function initials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+}
+
+// ── Resolve family ID from URL ─────────────────────────────────────────
+const params = new URLSearchParams(location.search);
+let householdId = params.get('id');
+
+// ── Load family list if no ID provided ────────────────────────────────
+async function init() {
+  const loading = document.getElementById('loadingState');
+  const errorEl = document.getElementById('errorState');
+  const mainContent = document.getElementById('mainContent');
+
+  try {
+    if (!householdId) {
+      // Try to find the user's family from the list endpoint
+      const listRes = await fetch('/api/households', { credentials: 'include' });
+      if (!listRes.ok) {
+        throw new Error('Please log in to view your family dashboard.');
+      }
+      const listData = await listRes.json();
+      const households = listData.households || [];
+      if (households.length === 0) {
+        throw new Error('No family found. Create or join a Family Plan family first.');
+      }
+      householdId = households[0].id;
+    }
+
+    // Load dashboard data + member summaries in parallel
+    const [dashRes, membersRes] = await Promise.all([
+      fetch(`/api/households/${householdId}/dashboard`, { credentials: 'include' }),
+      fetch(`/api/households/${householdId}/members-summary`, { credentials: 'include' })
+    ]);
+
+    if (!dashRes.ok) {
+      const err = await dashRes.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to load family data. Make sure you are a member of this family.');
+    }
+
+    const dash = await dashRes.json();
+    const membersData = membersRes.ok ? await membersRes.json() : { members: [] };
+
+    // Update family name
+    const hhName = dash.household_name || 'Family Dashboard';
+    document.getElementById('householdName').textContent = hhName;
+    document.title = `${hhName} — FACTS`;
+
+    // Hero stats
+    const income = parseFloat(dash.total_income) || 0;
+    const expenses = parseFloat(dash.total_expenses) || 0;
+    const net = parseFloat(dash.net_balance) || 0;
+    const memberCount = dash.member_count || 0;
+
+    document.getElementById('totalIncome').textContent = fmt(income);
+    document.getElementById('totalExpenses').textContent = fmt(expenses);
+    document.getElementById('memberCount').textContent = `${memberCount} member${memberCount !== 1 ? 's' : ''}`;
+
+    const netEl = document.getElementById('netBalance');
+    const netCard = document.getElementById('netCard');
+    const netSub = document.getElementById('netSub');
+    netEl.textContent = (net >= 0 ? '+' : '-') + fmt(Math.abs(net));
+    netEl.className = 'stat-value ' + (net >= 0 ? 'positive' : 'negative');
+    netCard.className = 'stat-card ' + (net >= 0 ? 'net-positive' : 'net-negative');
+    netSub.textContent = net >= 0 ? 'Surplus' : 'Deficit';
+
+    // Members list
+    const membersList = document.getElementById('membersList');
+    const members = membersData.members || membersData.member_summaries || [];
+    if (members.length === 0) {
+      membersList.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No members yet</p></div>';
+    } else {
+      membersList.innerHTML = members.map(m => {
+        const mIncome = parseFloat(m.total_income) || 0;
+        const mExpenses = parseFloat(m.total_expenses) || 0;
+        const mNet = parseFloat(m.net_balance) || 0;
+        const isPositive = mNet >= 0;
+        return `
+          <div class="member-row">
+            <div class="member-avatar">${initials(m.name || m.email)}</div>
+            <div class="member-info">
+              <div class="member-name">${m.name || m.email || 'Member'}</div>
+              <div class="member-role">${m.role || 'member'}</div>
+            </div>
+            <div class="member-financials">
+              <div class="member-net ${isPositive ? 'positive' : 'negative'}">
+                ${isPositive ? '+' : '-'}${fmt(Math.abs(mNet))}
+              </div>
+              <div class="member-breakdown">${fmt(mIncome)} in · ${fmt(mExpenses)} out</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Categories
+    const categoriesList = document.getElementById('categoriesList');
+    const cats = (dash.categories || []).filter(c => parseFloat(c.spent) > 0 || parseFloat(c.allocated) > 0);
+    if (cats.length === 0) {
+      categoriesList.innerHTML = '<div class="empty-state"><div class="icon">📊</div><p>No category data yet</p></div>';
+    } else {
+      categoriesList.innerHTML = cats.map(c => {
+        const pct = parseFloat(c.usage_percent) || 0;
+        const isOver = pct > 100;
+        const barWidth = Math.min(100, pct);
+        return `
+          <div class="category-row">
+            <div class="cat-header">
+              <div class="cat-name">
+                <span class="cat-icon">${c.icon || '📁'}</span>
+                ${c.name}
+              </div>
+              <div class="cat-amounts">${fmt(c.spent)} / ${fmt(c.allocated)}</div>
+            </div>
+            <div class="cat-bar-bg">
+              <div class="cat-bar-fill ${isOver ? 'over' : ''}" style="width:${barWidth}%"></div>
+            </div>
+            <div class="cat-pct">${pct.toFixed(1)}% used${isOver ? ' ⚠️ over budget' : ''}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Load family affiliate commissions (if owner, show per-member split)
+    loadFamilyAffiliateSection(householdId).catch(() => {});
+
+    // Load incubator status (non-blocking)
+    loadIncubatorStatus(householdId, dash).catch(() => {});
+
+    // Show content
+    loading.style.display = 'none';
+    mainContent.style.display = 'block';
+
+  } catch (err) {
+    loading.style.display = 'none';
+    errorEl.style.display = 'block';
+    errorEl.textContent = err.message || 'Failed to load family dashboard.';
+  }
+}
+
+// ── Family Affiliate Commissions ────────────────────────────────────────────
+async function loadFamilyAffiliateSection(hhId) {
+  try {
+    // Try owner view first
+    const ownerRes = await fetch(`/api/households/${hhId}/family-commissions`, { credentials: 'include' });
+    if (ownerRes.ok) {
+      const data = await ownerRes.json();
+      if (data.members && data.members.length > 0) {
+        renderOwnerAffiliateSection(data);
+      }
+      return;
+    }
+
+    // If not owner (403), try member frozen view
+    if (ownerRes.status === 403) {
+      const frozenRes = await fetch('/api/affiliate/family-frozen', { credentials: 'include' });
+      if (frozenRes.ok) {
+        const frozenData = await frozenRes.json();
+        if (frozenData.is_family_member) {
+          renderMemberFrozenSection(frozenData);
+        }
+      }
+    }
+  } catch (err) {
+    // Silently fail — affiliate section is non-critical
+  }
+}
+
+function renderOwnerAffiliateSection(data) {
+  const section = document.getElementById('affiliateSection');
+  const content = document.getElementById('affiliateContent');
+  section.style.display = '';
+
+  let totalOwnerEarned = 0;
+  let totalMemberFrozen = 0;
+
+  const rows = data.members.map(m => {
+    const ownerEarned = m.owner_earned_cents || 0;
+    const memberFrozen = m.member_frozen_cents || 0;
+    totalOwnerEarned += ownerEarned;
+    totalMemberFrozen += memberFrozen;
+    const name = m.name || m.email || 'Member';
+    if (!m.affiliate_id) return '';
+    return `
+      <div class="aff-member-row">
+        <div>
+          <div class="aff-name">${name}</div>
+          <div class="aff-code">${m.referral_code || ''}</div>
+        </div>
+        <div class="aff-pills">
+          <div class="aff-pill green" title="Your earned 50%">📈 ${fmt(ownerEarned / 100)}</div>
+          <div class="aff-pill blue" title="Their frozen 50%">🧊 ${fmt(memberFrozen / 100)}</div>
+        </div>
+      </div>
+    `;
+  }).filter(Boolean).join('');
+
+  content.innerHTML = `
+    <div class="aff-total-row">
+      <div style="font-size:13px;color:var(--muted)">Your total earned (50% share)</div>
+      <div style="font-size:16px;font-weight:700;font-family:'Space Grotesk',sans-serif;color:var(--success)">${fmt(totalOwnerEarned / 100)}</div>
+    </div>
+    ${rows || '<div style="padding:16px 20px;font-size:13px;color:var(--muted)">No affiliate activity yet</div>'}
+    <div class="aff-frozen-banner">
+      🧊 Total frozen across members: <strong>${fmt(totalMemberFrozen / 100)}</strong>
+      &nbsp;·&nbsp; <a href="/family-settings?id=${data.household_id}" style="color:#93c5fd">Gift from Settings →</a>
+    </div>
+  `;
+}
+
+function renderMemberFrozenSection(data) {
+  const section = document.getElementById('affiliateSection');
+  const content = document.getElementById('affiliateContent');
+  const sublabel = document.getElementById('affiliateSubLabel');
+  section.style.display = '';
+  sublabel.textContent = 'Your frozen commission balance';
+
+  const frozen = data.frozen_balance_cents || 0;
+  const unfrozen = data.unfrozen_balance_cents || 0;
+
+  content.innerHTML = `
+    <div class="aff-total-row">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">Your Referral Code</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'Courier New',monospace;margin-top:2px">${data.referral_code || '—'}</div>
+      </div>
+    </div>
+    <div class="aff-total-row">
+      <div style="font-size:13px;color:var(--muted)">🧊 Frozen (unlocks on individual Pro)</div>
+      <div style="font-size:16px;font-weight:700;font-family:'Space Grotesk',sans-serif;color:#93c5fd">${fmt(frozen / 100)}</div>
+    </div>
+    ${unfrozen > 0 ? `
+    <div class="aff-total-row">
+      <div style="font-size:13px;color:var(--muted)">✅ Unfrozen (available)</div>
+      <div style="font-size:16px;font-weight:700;font-family:'Space Grotesk',sans-serif;color:var(--success)">${fmt(unfrozen / 100)}</div>
+    </div>` : ''}
+    <div class="aff-frozen-banner">
+      💡 Your commissions are frozen while on the Family Plan. Upgrade to an Individual plan to unlock them.
+      &nbsp;·&nbsp; <a href="/affiliate-dashboard.html" style="color:#93c5fd">View affiliate dashboard →</a>
+    </div>
+  `;
+}
+
+// ── Incubator Status ──────────────────────────────────────────────────────────
+async function loadIncubatorStatus(hhId, dashData) {
+  try {
+    // Check if current user is a sub-account (check /api/auth/me cached data)
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!meRes.ok) return;
+    const me = await meRes.json();
+
+    // Get incubator status from API
+    const incubRes = await fetch(`/api/households/${hhId}/incubator-status`, { credentials: 'include' });
+    if (!incubRes.ok) return;
+    const incub = await incubRes.json();
+    if (!incub.is_incubator) return;
+
+    // Update header badge
+    const badge = document.getElementById('headerBadge');
+    if (badge) badge.textContent = 'Family Incubator';
+
+    if (incub.is_owner) {
+      // Show head-of-family panel
+      const panel = document.getElementById('incubatorHeadPanel');
+      if (panel) {
+        panel.style.display = '';
+        document.getElementById('incubatorActiveCount').textContent =
+          `${incub.active_sub_accounts} / ${incub.max_sub_accounts}`;
+        document.getElementById('incubatorBrokeAwayCount').textContent =
+          incub.broke_away_members ? incub.broke_away_members.length : 0;
+      }
+    } else if (me.user && me.user.is_incubator_sub) {
+      // Show sub-account banner
+      const banner = document.getElementById('subAccountBanner');
+      if (banner) banner.style.display = '';
+    }
+  } catch (err) {
+    // Non-critical — fail silently
+  }
+}
+
+// ── Break Away ────────────────────────────────────────────────────────────────
+async function initiateBreakaway() {
+  const confirmed = confirm(
+    '🚀 Break Away from Family Incubator\n\n' +
+    'This will permanently separate you from the family. You will:\n' +
+    '• Become commission-eligible immediately\n' +
+    '• Keep your referral tree position\n' +
+    '• Lose your free educational access (you\'ll need your own Family plan subscription)\n\n' +
+    'This action cannot be undone. Are you sure?'
+  );
+  if (!confirmed) return;
+
+  const btn = document.getElementById('breakawayBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
+
+  try {
+    const res = await fetch(`/api/households/${householdId}/breakaway`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alert('✅ You\'ve successfully broken away!\n\nYou are now commission-eligible and independent. Subscribe to Family plan to maintain full access to FACTS.');
+      window.location.href = '/pricing.html';
+    } else {
+      throw new Error(data.error || 'Breakaway failed');
+    }
+  } catch (err) {
+    alert('Error: ' + (err.message || 'Failed to process breakaway. Please try again.'));
+    if (btn) { btn.disabled = false; btn.textContent = '🚀 Break Away (Go Independent)'; }
+  }
+}
+
+init();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

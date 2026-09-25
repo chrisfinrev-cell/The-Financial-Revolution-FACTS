@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FACTS™ — Paycheck Allocation Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Tailwind CDN fallback — privacy browsers (DuckDuckGo, Brave) block the CDN. */
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0f172a; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .max-w-2xl { max-width: 42rem; }
+    .w-full { width: 100%; }
+    .bg-slate-800 { background: #1e293b; }
+    .bg-slate-900 { background: #0f172a; }
+    .bg-slate-900\/80 { background: rgba(15, 23, 42, 0.8); }
+    .bg-slate-700 { background: #334155; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded { border-radius: 0.25rem; }
+    .rounded-full { border-radius: 9999px; }
+    .border { border: 1px solid #334155; }
+    .border-slate-700 { border-color: #334155; }
+    .border-slate-600 { border-color: #475569; }
+    .border-slate-800 { border-color: #1e293b; }
+    .border-indigo-500 { border-color: #6366f1; }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+    .p-6 { padding: 1.5rem; }
+    .p-4 { padding: 1rem; }
+    .p-2 { padding: 0.5rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+    .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+    .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .pt-2 { padding-top: 0.5rem; }
+    .pb-4 { padding-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .flex { display: flex; }
+    .grid { display: grid; }
+    .hidden { display: none !important; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .gap-4 { gap: 1rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-2 { gap: 0.5rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .space-y-3 > * + * { margin-top: 0.75rem; }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    .block { display: block; }
+    .w-1\/3 { width: 33.333%; }
+    .w-2\/3 { width: 66.666%; }
+    .text-xl { font-size: 1.25rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-xs { font-size: 0.75rem; }
+    .font-bold { font-weight: 700; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
+    .text-white { color: #fff; }
+    .text-slate-100 { color: #f1f5f9; }
+    .text-slate-200 { color: #e2e8f0; }
+    .text-slate-300 { color: #cbd5e1; }
+    .text-slate-400 { color: #94a3b8; }
+    .text-indigo-300 { color: #a5b4fc; }
+    .text-indigo-400 { color: #818cf8; }
+    .text-emerald-400 { color: #34d399; }
+    .text-rose-400 { color: #fb7185; }
+    .tracking-wide { letter-spacing: 0.025em; }
+    .tracking-wider { letter-spacing: 0.05em; }
+    .uppercase { text-transform: uppercase; }
+    .bg-indigo-600 { background: #4f46e5; color: #fff; }
+    .bg-emerald-600 { background: #059669; color: #fff; }
+    .bg-indigo-500\/20 { background: rgba(99, 102, 241, 0.2); }
+    .border-indigo-500\/30 { border-color: rgba(99, 102, 241, 0.3); }
+    .border-t { border-top-style: solid; border-top-width: 1px; }
+    button { cursor: pointer; font-family: inherit; }
+    button:hover { filter: brightness(1.08); }
+    input, select { font-family: inherit; }
+    a { color: #818cf8; }
+    #status-msg { min-height: 1.25rem; font-size: 0.8rem; margin-top: 0.75rem; }
+    #status-msg.error { color: #fb7185; }
+    #status-msg.ok { color: #34d399; }
+    @media (min-width: 768px) {
+      .md\:p-8 { padding: 2rem; }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="max-w-2xl w-full bg-slate-800 rounded-xl border border-slate-700 shadow-2xl p-6 md:p-8">
+
+    <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
+      <div>
+        <h1 class="text-xl font-bold text-white tracking-wide">FACTS™ Income Engine</h1>
+        <p class="text-xs text-slate-400">Educational Non-Custodial Allocation</p>
+        <p class="text-xs text-slate-400" style="margin-top:4px;"><a href="/app.html">← Back to dashboard</a> · <a href="/coaching-readiness.html">Coaching Rubric</a></p>
+      </div>
+      <span id="step-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Step 1 of 3</span>
+    </div>
+
+    <form id="facts-paycheck-form" onsubmit="return false;">
+
+      <div id="step-1" class="space-y-4">
+        <label class="block text-sm font-medium text-slate-300">Calculation Mode</label>
+        <div class="grid grid-cols-2 gap-4">
+          <button type="button" id="btn-mode-gross" onclick="setMode('GROSS')" class="py-2.5 rounded-lg font-medium text-sm border bg-indigo-600 border-indigo-500 text-white">Gross Paystub</button>
+          <button type="button" id="btn-mode-net" onclick="setMode('NET')" class="py-2.5 rounded-lg font-medium text-sm border bg-slate-700 border-slate-600 text-slate-300">Net Deposit</button>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-300">Income Source</label>
+          <input type="text" id="source_name" placeholder="Paycheck" value="Paycheck" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white">
+        </div>
+
+        <div id="gross-input-group" class="space-y-2">
+          <label class="block text-sm font-medium text-slate-300">Gross Amount ($)</label>
+          <input type="number" step="0.01" min="0" id="gross_amount" placeholder="5000.00" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white">
+        </div>
+
+        <div id="net-input-group" class="space-y-2 hidden">
+          <label class="block text-sm font-medium text-slate-300">Net Take-Home Deposit ($)</label>
+          <input type="number" step="0.01" min="0" id="net_amount" placeholder="3500.00" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white">
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-300">Employer Match ($) <span class="text-xs text-slate-400">(Direct to Growth)</span></label>
+          <input type="number" step="0.01" min="0" id="employer_match" placeholder="250.00" value="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white">
+        </div>
+
+        <button type="button" id="btn-step1-next" onclick="advanceFromStep1()" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-lg transition">Next: Payroll Off-Pulls &rarr;</button>
+      </div>
+
+      <div id="step-2" class="space-y-4 hidden">
+        <div class="flex justify-between items-center">
+          <label class="block text-sm font-medium text-slate-300">Pre-Tax Deductions &amp; Off-Pulls</label>
+          <button type="button" onclick="addDeductionRow()" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">+ Add Row</button>
+        </div>
+
+        <div id="deductions-list" class="space-y-3"></div>
+
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="goToStep(1)" class="w-1/3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2.5 rounded-lg">Back</button>
+          <button type="button" id="btn-calculate" onclick="calculateAndPreview()" class="w-2/3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-lg">Calculate Splits &rarr;</button>
+        </div>
+      </div>
+
+      <div id="step-3" class="space-y-4 hidden">
+        <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700 space-y-2">
+          <div class="flex justify-between text-sm"><span class="text-slate-400">Total Economic Value:</span><span id="res-total" class="font-bold text-emerald-400">$0.00</span></div>
+          <div class="flex justify-between text-sm"><span class="text-slate-400">Pre-Tax Off-Pulls:</span><span id="res-offpulls" class="text-rose-400">$0.00</span></div>
+          <div class="flex justify-between text-sm border-t border-slate-800 pt-2"><span class="text-slate-300 font-medium">Net Liquid Waterfall Cash:</span><span id="res-liquid" class="font-bold text-indigo-300">$0.00</span></div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Bucket Waterfall Allocations (50/10/10/10/10/10)</label>
+          <div id="bucket-display" class="grid grid-cols-2 gap-2 text-xs"></div>
+        </div>
+        <p id="edu-notice" class="text-xs text-slate-400"></p>
+
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="goToStep(mode === 'NET' ? 1 : 2)" class="w-1/3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2.5 rounded-lg">Edit</button>
+          <button type="button" id="btn-save" onclick="submitPaycheck(true)" class="w-2/3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg shadow-lg">Save to Paycheck Ledger</button>
+        </div>
+      </div>
+
+    </form>
+    <p id="status-msg" role="status"></p>
+  </div>
+
+  <script src="/legal-disclaimer.js"></script>
+  <script>
+    let mode = 'GROSS';
+    let currentPayload = {};
+
+    function money(n) {
+      return '$' + Number(n || 0).toFixed(2);
+    }
+
+    function setStatus(text, kind) {
+      const el = document.getElementById('status-msg');
+      el.textContent = text || '';
+      el.className = kind || '';
+    }
+
+    function setMode(selected) {
+      mode = selected;
+      document.getElementById('btn-mode-gross').className = mode === 'GROSS'
+        ? 'py-2.5 rounded-lg font-medium text-sm border bg-indigo-600 border-indigo-500 text-white'
+        : 'py-2.5 rounded-lg font-medium text-sm border bg-slate-700 border-slate-600 text-slate-300';
+      document.getElementById('btn-mode-net').className = mode === 'NET'
+        ? 'py-2.5 rounded-lg font-medium text-sm border bg-indigo-600 border-indigo-500 text-white'
+        : 'py-2.5 rounded-lg font-medium text-sm border bg-slate-700 border-slate-600 text-slate-300';
+      document.getElementById('gross-input-group').classList.toggle('hidden', mode !== 'GROSS');
+      document.getElementById('net-input-group').classList.toggle('hidden', mode !== 'NET');
+      document.getElementById('btn-step1-next').innerHTML = mode === 'NET'
+        ? 'Calculate Splits &rarr;'
+        : 'Next: Payroll Off-Pulls &rarr;';
+    }
+
+    function goToStep(step) {
+      document.getElementById('step-1').classList.toggle('hidden', step !== 1);
+      document.getElementById('step-2').classList.toggle('hidden', step !== 2);
+      document.getElementById('step-3').classList.toggle('hidden', step !== 3);
+      document.getElementById('step-badge').innerText = 'Step ' + step + ' of 3';
+      if (step !== 3) setStatus('');
+    }
+
+    function advanceFromStep1() {
+      if (mode === 'NET') return calculateAndPreview();
+      goToStep(2);
+    }
+
+    function addDeductionRow(label, amount, target) {
+      label = label || '';
+      amount = amount || '';
+      target = target || 'NECESSITIES';
+      const container = document.getElementById('deductions-list');
+      const div = document.createElement('div');
+      div.className = 'flex gap-2 items-center deduction-row';
+
+      const labelInput = document.createElement('input');
+      labelInput.type = 'text';
+      labelInput.placeholder = 'Label (e.g. Health)';
+      labelInput.value = label;
+      labelInput.className = 'ded-label w-1/3 bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white';
+
+      const amountInput = document.createElement('input');
+      amountInput.type = 'number';
+      amountInput.step = '0.01';
+      amountInput.min = '0';
+      amountInput.placeholder = 'Amount';
+      amountInput.value = amount;
+      amountInput.className = 'ded-amount w-1/3 bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white';
+
+      const select = document.createElement('select');
+      select.className = 'ded-target w-1/3 bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-xs text-white';
+      [
+        ['NECESSITIES', 'Necessities'],
+        ['GROWTH', 'Growth (401k)'],
+        ['RESERVE', 'Reserve (HSA)'],
+        ['VELOCITY', 'Velocity'],
+        ['LIFESTYLE', 'Lifestyle'],
+        ['LEGACY', 'Legacy']
+      ].forEach(function (opt) {
+        const option = document.createElement('option');
+        option.value = opt[0];
+        option.textContent = opt[1];
+        if (target === opt[0]) option.selected = true;
+        select.appendChild(option);
+      });
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'text-rose-400 hover:text-rose-300 text-sm px-1';
+      removeBtn.setAttribute('aria-label', 'Remove deduction');
+      removeBtn.innerHTML = '&times;';
+      removeBtn.addEventListener('click', function () { div.remove(); });
+
+      div.appendChild(labelInput);
+      div.appendChild(amountInput);
+      div.appendChild(select);
+      div.appendChild(removeBtn);
+      container.appendChild(div);
+    }
+
+    function collectPayload(save) {
+      const deductions = [];
+      if (mode === 'GROSS') {
+        document.querySelectorAll('.deduction-row').forEach(function (row) {
+          const label = row.querySelector('.ded-label').value.trim();
+          const amount = parseFloat(row.querySelector('.ded-amount').value) || 0;
+          const target_bucket = row.querySelector('.ded-target').value;
+          if (label && amount > 0) deductions.push({ label: label, amount: amount, target_bucket: target_bucket });
+        });
+      }
+      return {
+        source_name: (document.getElementById('source_name').value || 'Paycheck').trim(),
+        calculation_mode: mode,
+        gross_amount: parseFloat(document.getElementById('gross_amount').value) || 0,
+        net_amount: parseFloat(document.getElementById('net_amount').value) || 0,
+        employer_match: parseFloat(document.getElementById('employer_match').value) || 0,
+        employer_match_target: 'GROWTH',
+        deductions: deductions,
+        save: !!save
+      };
+    }
+
+    async function postProcess(payload) {
+      const res = await fetch('/api/engine/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+      let data = {};
+      try { data = await res.json(); } catch (e) { data = {}; }
+      return { res: res, data: data };
+    }
+
+    function renderPreview(data) {
+      const summary = data.summary || {};
+      document.getElementById('res-total').innerText = money(summary.total_economic_compensation);
+      document.getElementById('res-offpulls').innerText = money(summary.total_pre_tax_off_pulls);
+      document.getElementById('res-liquid').innerText = money(summary.net_liquid_take_home || summary.liquid_take_home);
+
+      const bucketContainer = document.getElementById('bucket-display');
+      bucketContainer.innerHTML = '';
+      const order = ['NECESSITIES', 'VELOCITY', 'RESERVE', 'LIFESTYLE', 'GROWTH', 'LEGACY'];
+      const allocations = data.bucket_allocations || {};
+      order.forEach(function (bucket) {
+        if (allocations[bucket] === undefined) return;
+        const card = document.createElement('div');
+        card.className = 'bg-slate-800 p-2 rounded border border-slate-700 flex justify-between';
+        const name = document.createElement('span');
+        name.className = 'text-slate-400 font-medium';
+        name.textContent = bucket;
+        const amt = document.createElement('span');
+        amt.className = 'font-bold text-white';
+        amt.textContent = money(allocations[bucket]);
+        card.appendChild(name);
+        card.appendChild(amt);
+        bucketContainer.appendChild(card);
+      });
+
+      const notice = document.getElementById('edu-notice');
+      notice.textContent = data.notice || '';
+    }
+
+    async function calculateAndPreview() {
+      setStatus('');
+      currentPayload = collectPayload(false);
+      const base = mode === 'GROSS' ? currentPayload.gross_amount : currentPayload.net_amount;
+      if (!(base > 0)) {
+        setStatus('Enter a paycheck amount before calculating.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-calculate') || document.getElementById('btn-step1-next');
+      if (btn) btn.disabled = true;
+      try {
+        const out = await postProcess(currentPayload);
+        if (!out.res.ok) {
+          setStatus(out.data.error || 'Could not calculate allocation.', 'error');
+          return;
+        }
+        renderPreview(out.data);
+        goToStep(3);
+      } catch (err) {
+        setStatus('Network error — try again.', 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    async function submitPaycheck(save) {
+      currentPayload = collectPayload(save);
+      const btn = document.getElementById('btn-save');
+      if (btn) btn.disabled = true;
+      setStatus('Saving…');
+      try {
+        const out = await postProcess(currentPayload);
+        if (out.res.status === 401) {
+          window.location.href = '/login.html?next=/paycheck-entry.html';
+          return;
+        }
+        if (!out.res.ok) {
+          setStatus(out.data.error || 'Save failed.', 'error');
+          return;
+        }
+        setStatus('Paycheck entry processed and recorded successfully.', 'ok');
+        goToStep(1);
+        document.getElementById('gross_amount').value = '';
+        document.getElementById('net_amount').value = '';
+        document.getElementById('employer_match').value = '0.00';
+        document.getElementById('deductions-list').innerHTML = '';
+        addDeductionRow('Federal/State Tax', '', 'NECESSITIES');
+        setStatus('Paycheck entry processed and recorded successfully.', 'ok');
+      } catch (err) {
+        setStatus('Network error — try again.', 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    addDeductionRow('Federal/State Tax', '', 'NECESSITIES');
+  </script>
+</body>
+</html>

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Monthly Heartbeat Audit — FACTS Financial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #0a0f1a; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+    .gold { color: #d4af37; }
+    .bg-card { background: #111827; }
+    .bg-card-inner { background: #1f2937; }
+    .border-gold { border-color: #d4af37; }
+    .border-gold-dim { border-color: rgba(212,175,55,0.3); }
+
+    .step-circle {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1rem; flex-shrink: 0;
+      border: 2px solid;
+    }
+    .step-circle.pending { border-color: #4b5563; color: #9ca3af; background: #1f2937; }
+    .step-circle.active { border-color: #d4af37; color: #d4af37; background: rgba(212,175,55,0.1); }
+    .step-circle.done { border-color: #4ade80; color: #4ade80; background: rgba(74,222,128,0.1); }
+
+    .pulse-gold { animation: pulseGold 2s ease-in-out infinite; }
+    @keyframes pulseGold {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(212,175,55,0); }
+    }
+
+    .checkbox-custom {
+      width: 22px; height: 22px; border: 2px solid #4b5563;
+      border-radius: 4px; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; transition: all 0.2s; flex-shrink: 0;
+    }
+    .checkbox-custom.checked { border-color: #d4af37; background: rgba(212,175,55,0.2); }
+
+    input[type="text"] {
+      background: #1f2937; border: 1px solid #374151; color: #e0e0e0;
+      padding: 12px 16px; border-radius: 8px; width: 100%;
+      font-size: 1rem; outline: none; transition: border-color 0.2s;
+    }
+    input[type="text"]:focus { border-color: #d4af37; }
+    input[type="text"]::placeholder { color: #6b7280; }
+
+    .btn-gold {
+      background: #d4af37; color: #0a0f1a; font-weight: 700;
+      padding: 14px 32px; border-radius: 8px; border: none; cursor: pointer;
+      font-size: 1rem; transition: all 0.2s; display: inline-flex;
+      align-items: center; gap: 8px;
+    }
+    .btn-gold:hover { background: #c9a227; transform: translateY(-1px); }
+    .btn-gold:disabled { background: #4b5563; color: #9ca3af; cursor: not-allowed; transform: none; }
+
+    .badge-window { background: rgba(74,222,128,0.15); border: 1px solid #4ade80; color: #4ade80; }
+    .badge-closed { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #ef4444; }
+    .badge-hold { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #ef4444; }
+    .badge-active { background: rgba(74,222,128,0.15); border: 1px solid #4ade80; color: #4ade80; }
+
+    .txn-row:nth-child(even) { background: rgba(255,255,255,0.02); }
+    .txn-income { color: #4ade80; }
+    .txn-expense { color: #f87171; }
+
+    .scroll-table { overflow-x: auto; max-height: 320px; overflow-y: auto; }
+    .scroll-table::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scroll-table::-webkit-scrollbar-track { background: #1f2937; }
+    .scroll-table::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+
+    .declaration-box {
+      background: #1a2035; border: 1px solid #d4af37;
+      border-radius: 8px; padding: 20px; font-style: italic;
+      line-height: 1.7; color: #d1d5db; font-size: 0.95rem;
+    }
+
+    /* Completed state */
+    #completed-view { display: none; }
+    #audit-form { display: none; }
+    #loading-view { display: block; }
+    #not-affiliate-view { display: none; }
+    #window-closed-view { display: none; }
+  </style>
+  <script defer src="/nav-bar.js"></script>
+</head>
+<body>
+  <div class="min-h-screen">
+    <!-- Header -->
+    <header style="background:#111827; border-bottom: 1px solid rgba(212,175,55,0.2);">
+      <div class="max-w-4xl mx-auto px-4 py-4 sm:px-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-bold gold">🏛️ Monthly Heartbeat Audit</h1>
+          <p class="text-sm text-gray-400">FACTS Financial · Future Generations Affiliate</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="/affiliate-dashboard.html" class="text-sm text-blue-400 hover:text-blue-300">← Affiliate Dashboard</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8 sm:px-6">
+
+      <!-- Loading -->
+      <div id="loading-view" class="text-center py-20">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+        <p class="mt-4 text-gray-400">Loading your compliance status...</p>
+      </div>
+
+      <!-- Not Affiliate -->
+      <div id="not-affiliate-view" class="hidden">
+        <div class="bg-card rounded-xl p-8 text-center max-w-lg mx-auto" style="border:1px solid rgba(212,175,55,0.2);">
+          <div class="text-5xl mb-4">🔒</div>
+          <h2 class="text-xl font-bold text-white mb-2">Affiliate Access Required</h2>
+          <p class="text-gray-400 mb-6">The Monthly Heartbeat Audit is only available to active Future Generations affiliates.</p>
+          <a href="/affiliate-dashboard.html" class="btn-gold">Join the Program →</a>
+        </div>
+      </div>
+
+      <!-- Already Completed -->
+      <div id="completed-view" class="hidden">
+        <div class="bg-card rounded-xl p-8 text-center max-w-2xl mx-auto" style="border:1px solid rgba(74,222,128,0.4);">
+          <div class="text-6xl mb-4">✅</div>
+          <h2 class="text-2xl font-bold text-white mb-2">Heartbeat Complete</h2>
+          <p class="text-gray-300 mb-2" id="completed-month-label">Your audit is confirmed for this month.</p>
+          <p class="text-sm text-gray-500 mb-6">Completed on <span id="completed-date" class="gold"></span> · Signed by <span id="completed-signer" class="gold"></span></p>
+          <div class="bg-card-inner rounded-lg p-4 text-left mb-6" style="border:1px solid rgba(74,222,128,0.2);">
+            <p class="text-green-400 font-semibold mb-1">✓ Your account is in full compliance</p>
+            <p class="text-gray-400 text-sm">Commissions are processing normally. You remain eligible for Orphan Placements.</p>
+          </div>
+          <a href="/affiliate-dashboard.html" class="btn-gold">Back to Dashboard</a>
+        </div>
+      </div>
+
+      <!-- Audit Form (active window) -->
+      <div id="audit-form">
+        <!-- Deadline Banner -->
+        <div id="deadline-banner" class="rounded-lg p-4 mb-6 flex items-center justify-between flex-wrap gap-3" style="background:rgba(212,175,55,0.1); border:1px solid rgba(212,175,55,0.4);">
+          <div class="flex items-center gap-3">
+            <div class="text-2xl">⏳</div>
+            <div>
+              <div class="font-semibold gold" id="banner-month"></div>
+              <div class="text-sm text-gray-300" id="banner-deadline"></div>
+            </div>
+          </div>
+          <div class="text-right">
+            <span id="days-badge" class="px-3 py-1 rounded-full text-sm font-bold badge-window"></span>
+          </div>
+        </div>
+
+        <!-- Compliance Hold Warning (if currently on hold) -->
+        <div id="hold-warning" class="hidden rounded-lg p-4 mb-6 badge-hold" style="border:1px solid #ef4444;">
+          <div class="flex items-start gap-3">
+            <div class="text-2xl">🚨</div>
+            <div>
+              <div class="font-bold text-red-400 mb-1">Compliance Hold Active</div>
+              <div class="text-sm text-red-300">Your commissions are currently on hold from a missed previous audit. Completing this month's Heartbeat will restore your account.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step Flow -->
+        <div class="space-y-4 mb-6">
+
+          <!-- Step 1: Allocation Audit -->
+          <div class="bg-card rounded-xl p-6" style="border:1px solid rgba(212,175,55,0.2);">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="step-circle active" id="step1-circle">1</div>
+              <div>
+                <h3 class="font-bold text-white text-lg">Allocation Audit</h3>
+                <p class="text-gray-400 text-sm">Confirm your income/expense categories are current</p>
+              </div>
+            </div>
+
+            <div id="allocation-summary" class="mb-4">
+              <div class="text-sm text-gray-400 mb-3">Previous month's allocation breakdown:</div>
+              <div id="allocation-table" class="rounded-lg overflow-hidden" style="border:1px solid #374151;">
+                <div class="text-center py-6 text-gray-500 text-sm">Loading allocation data...</div>
+              </div>
+            </div>
+
+            <label class="flex items-start gap-3 cursor-pointer" onclick="toggleCheck('alloc')">
+              <div class="checkbox-custom mt-0.5" id="check-alloc">
+                <svg id="check-alloc-icon" class="hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <span class="text-gray-300 text-sm leading-relaxed">
+                I confirm that I have reviewed my allocation categories and they accurately reflect my income and expense structure for the previous month.
+              </span>
+            </label>
+          </div>
+
+          <!-- Step 2: Transaction Ledger -->
+          <div class="bg-card rounded-xl p-6" style="border:1px solid rgba(212,175,55,0.2);">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="step-circle pending" id="step2-circle">2</div>
+              <div>
+                <h3 class="font-bold text-white text-lg">Transaction Ledger</h3>
+                <p class="text-gray-400 text-sm">Review all transactions for the previous month</p>
+              </div>
+            </div>
+
+            <div id="txn-period-label" class="text-sm text-gray-400 mb-3"></div>
+            <div class="scroll-table rounded-lg mb-4" style="border:1px solid #374151;">
+              <table class="w-full text-sm" id="txn-table">
+                <thead style="background:#1f2937; position:sticky; top:0;">
+                  <tr>
+                    <th class="text-left px-3 py-2 text-gray-400 font-semibold">Date</th>
+                    <th class="text-left px-3 py-2 text-gray-400 font-semibold">Description</th>
+                    <th class="text-left px-3 py-2 text-gray-400 font-semibold">Category</th>
+                    <th class="text-right px-3 py-2 text-gray-400 font-semibold">Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="txn-body">
+                  <tr><td colspan="4" class="text-center py-6 text-gray-500">Loading transactions...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="txn-count-note" class="text-xs text-gray-500 mb-4"></div>
+
+            <label class="flex items-start gap-3 cursor-pointer" onclick="toggleCheck('txn')">
+              <div class="checkbox-custom mt-0.5" id="check-txn">
+                <svg id="check-txn-icon" class="hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <span class="text-gray-300 text-sm leading-relaxed">
+                I confirm that I have reviewed my Transaction Ledger for the previous month and the records accurately reflect my financial activity.
+              </span>
+            </label>
+          </div>
+
+          <!-- Step 3: Declaration + Signature -->
+          <div class="bg-card rounded-xl p-6" style="border:1px solid rgba(212,175,55,0.2);">
+            <div class="flex items-center gap-4 mb-5">
+              <div class="step-circle pending" id="step3-circle">3</div>
+              <div>
+                <h3 class="font-bold text-white text-lg">Declaration of Accuracy</h3>
+                <p class="text-gray-400 text-sm">Sign to confirm everything is accurate</p>
+              </div>
+            </div>
+
+            <!-- Declaration Text -->
+            <div class="declaration-box mb-6">
+              <p id="declaration-text">
+                "I, <span id="declaration-name" class="gold font-semibold">[Your Full Name]</span>, hereby acknowledge that I have reviewed all transactions, commissions, and organizational volume associated with my account for the period of
+                <span id="declaration-period" class="gold font-semibold">[Month/Year]</span>.
+                I confirm that these records accurately reflect my business activity and the FACTS of my financial allocation for this period."
+              </p>
+            </div>
+
+            <!-- Signature Input -->
+            <div class="mb-5">
+              <label class="block text-sm font-semibold text-gray-300 mb-2">
+                Type your full legal name to sign <span class="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                id="signature-input"
+                placeholder="e.g. Jane Elizabeth Smith"
+                oninput="onSignatureInput()"
+                autocomplete="name"
+              />
+              <p class="text-xs text-gray-500 mt-1">This is your digital signature. It must match the name on your account.</p>
+            </div>
+
+            <!-- Final checkbox -->
+            <label class="flex items-start gap-3 cursor-pointer mb-6" onclick="toggleCheck('final')">
+              <div class="checkbox-custom mt-0.5" id="check-final">
+                <svg id="check-final-icon" class="hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <span class="text-gray-300 text-sm leading-relaxed">
+                I understand that by typing my name and clicking confirm, I am providing a legally binding digital signature affirming the accuracy of this Declaration.
+              </span>
+            </label>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+              <button id="submit-btn" class="btn-gold pulse-gold" onclick="submitHeartbeat()" disabled>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Acknowledge &amp; Confirm
+              </button>
+              <p class="text-xs text-gray-500 mt-3">
+                Submitting this declaration will record your compliance for <span id="submit-month-label" class="gold"></span>.
+              </p>
+            </div>
+
+            <!-- Error message -->
+            <div id="submit-error" class="hidden mt-4 p-3 rounded-lg text-red-400 text-sm" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3);"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Window Closed (past 7th, not yet completed) -->
+      <div id="window-closed-view" class="hidden">
+        <div class="bg-card rounded-xl p-8 max-w-2xl mx-auto" style="border:1px solid rgba(239,68,68,0.3);">
+          <div class="text-center mb-6">
+            <div class="text-5xl mb-4">🔒</div>
+            <h2 class="text-2xl font-bold text-white mb-2">Audit Window Closed</h2>
+            <p class="text-gray-400" id="window-closed-month"></p>
+          </div>
+          <div style="background:rgba(239,68,68,0.1); border:1px solid #ef4444; border-radius:8px; padding:16px;" class="mb-6">
+            <p class="text-red-300 text-sm">The 1st–7th window has passed. If you did not complete your Heartbeat, the system has flagged your account for compliance review. Commissions may be placed on hold pending next month's audit.</p>
+          </div>
+          <div style="background:rgba(212,175,55,0.1); border:1px solid rgba(212,175,55,0.4); border-radius:8px; padding:16px;" class="mb-6">
+            <p class="gold font-semibold mb-1">🔄 How to Restore</p>
+            <p class="text-gray-300 text-sm">Complete the Heartbeat during the 1st–7th window next month. All held commissions will be released automatically upon completion.</p>
+          </div>
+          <div class="text-center">
+            <a href="/affiliate-dashboard.html" class="btn-gold">Back to Dashboard</a>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+    }
+
+    const state = {
+      status: null,
+      reviewData: null,
+      allocChecked: false,
+      txnChecked: false,
+      finalChecked: false,
+      signatureName: ''
+    };
+
+    function fmt(cents) {
+      if (cents == null) return '—';
+      const n = parseFloat(cents);
+      const prefix = n < 0 ? '-$' : '$';
+      return prefix + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function fmtDate(d) {
+      if (!d) return '—';
+      return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    async function apiFetch(path, opts = {}) {
+      const res = await fetch(path, {
+        ...opts,
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers || {}) }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      return res.json();
+    }
+
+    async function init() {
+      try {
+        state.status = await apiFetch('/api/affiliate/heartbeat/status');
+      } catch (err) {
+        if (err.message.includes('Not an affiliate') || err.message.includes('404')) {
+          hide('loading-view'); show('not-affiliate-view');
+          return;
+        }
+        document.getElementById('loading-view').innerHTML =
+          `<p class="text-red-400">Failed to load: ${err.message}</p>`;
+        return;
+      }
+
+      hide('loading-view');
+      const s = state.status;
+
+      // Already completed this month?
+      if (s.completed) {
+        document.getElementById('completed-month-label').textContent = `Heartbeat confirmed for ${s.monthLabel}`;
+        document.getElementById('completed-date').textContent = fmtDate(s.completedAt);
+        document.getElementById('completed-signer').textContent = s.signerName || '—';
+        show('completed-view');
+        return;
+      }
+
+      // Load the review data for previous month
+      try {
+        state.reviewData = await apiFetch('/api/affiliate/heartbeat/previous-month-data');
+        populateReviewData();
+      } catch (err) {
+        console.warn('Review data not available:', err.message);
+        // Not fatal — still show the form
+        document.getElementById('allocation-table').innerHTML = '<div class="text-center py-6 text-gray-500 text-sm">No transaction data available for review.</div>';
+        document.getElementById('txn-body').innerHTML = '<tr><td colspan="4" class="text-center py-6 text-gray-500 text-sm">No transactions found.</td></tr>';
+      }
+
+      // Within window?
+      if (s.withinWindow) {
+        // Show form
+        populateFormMeta();
+        if (s.commissionsOnHold) show('hold-warning');
+        show('audit-form');
+      } else {
+        // Window closed and not completed
+        document.getElementById('window-closed-month').textContent = `${s.monthLabel} Audit Window`;
+        show('window-closed-view');
+      }
+    }
+
+    function populateFormMeta() {
+      const s = state.status;
+      document.getElementById('banner-month').textContent = `${s.monthLabel} Compliance Audit`;
+      document.getElementById('banner-deadline').textContent = `Complete your Heartbeat by the 7th of this month`;
+      const dl = s.daysLeft;
+      const badge = document.getElementById('days-badge');
+      badge.textContent = dl === 0 ? 'Due Today!' : `${dl} day${dl !== 1 ? 's' : ''} remaining`;
+      if (dl <= 1) { badge.className = badge.className.replace('badge-window', 'badge-hold'); }
+      document.getElementById('submit-month-label').textContent = s.monthLabel;
+      document.getElementById('declaration-period').textContent = s.monthLabel;
+    }
+
+    function populateReviewData() {
+      const d = state.reviewData;
+      if (!d) return;
+
+      // Period label
+      const el = document.getElementById('txn-period-label');
+      if (el) el.textContent = `Reviewing transactions for ${d.monthLabel} (${d.periodStart} – ${d.periodEnd})`;
+
+      // Allocation table
+      const allocTable = document.getElementById('allocation-table');
+      if (d.allocationSummary && d.allocationSummary.length > 0) {
+        let rows = d.allocationSummary.map(r => `
+          <tr class="txn-row">
+            <td class="px-3 py-2 capitalize">${r.type || '—'}</td>
+            <td class="px-3 py-2 text-right ${r.type === 'income' ? 'txn-income' : 'txn-expense'}">${fmt(r.total_amount)}</td>
+            <td class="px-3 py-2 text-right text-gray-400">${r.count} txn${r.count !== 1 ? 's' : ''}</td>
+          </tr>
+        `).join('');
+        allocTable.innerHTML = `
+          <table class="w-full text-sm">
+            <thead style="background:#1f2937;"><tr>
+              <th class="text-left px-3 py-2 text-gray-400 font-semibold">Type</th>
+              <th class="text-right px-3 py-2 text-gray-400 font-semibold">Total</th>
+              <th class="text-right px-3 py-2 text-gray-400 font-semibold">Count</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+      } else {
+        allocTable.innerHTML = '<div class="text-center py-4 text-gray-500 text-sm">No allocation data for previous month.</div>';
+      }
+
+      // Transaction ledger
+      const tbody = document.getElementById('txn-body');
+      if (d.transactions && d.transactions.length > 0) {
+        tbody.innerHTML = d.transactions.map(t => `
+          <tr class="txn-row">
+            <td class="px-3 py-2 text-gray-400">${t.date ? t.date.split('T')[0] : '—'}</td>
+            <td class="px-3 py-2 text-gray-200">${escHtml(t.description || '—')}</td>
+            <td class="px-3 py-2 text-gray-400">${escHtml(t.category || t.type || '—')}</td>
+            <td class="px-3 py-2 text-right ${parseFloat(t.amount) >= 0 ? 'txn-income' : 'txn-expense'}">${fmt(t.amount)}</td>
+          </tr>
+        `).join('');
+        const note = document.getElementById('txn-count-note');
+        if (note) note.textContent = `Showing ${d.transactions.length} transaction${d.transactions.length !== 1 ? 's' : ''}${d.transactions.length === 50 ? ' (most recent 50)' : ''}`;
+      } else {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-gray-500 text-sm">No transactions found for this period.</td></tr>';
+      }
+    }
+
+    function toggleCheck(id) {
+      const el = document.getElementById(`check-${id}`);
+      const icon = document.getElementById(`check-${id}-icon`);
+      const isChecked = el.classList.contains('checked');
+
+      if (!isChecked) {
+        el.classList.add('checked');
+        icon.classList.remove('hidden');
+        icon.style.color = '#d4af37';
+        state[id === 'alloc' ? 'allocChecked' : id === 'txn' ? 'txnChecked' : 'finalChecked'] = true;
+      } else {
+        el.classList.remove('checked');
+        icon.classList.add('hidden');
+        state[id === 'alloc' ? 'allocChecked' : id === 'txn' ? 'txnChecked' : 'finalChecked'] = false;
+      }
+
+      updateStepCircles();
+      updateSubmitButton();
+    }
+
+    function onSignatureInput() {
+      const val = document.getElementById('signature-input').value.trim();
+      state.signatureName = val;
+      // Update declaration text
+      const nameSpan = document.getElementById('declaration-name');
+      if (nameSpan) nameSpan.textContent = val || '[Your Full Name]';
+      updateStepCircles();
+      updateSubmitButton();
+    }
+
+    function updateStepCircles() {
+      // Step 1
+      const c1 = document.getElementById('step1-circle');
+      if (c1) {
+        c1.className = `step-circle ${state.allocChecked ? 'done' : 'active'}`;
+        c1.textContent = state.allocChecked ? '✓' : '1';
+      }
+      // Step 2
+      const c2 = document.getElementById('step2-circle');
+      if (c2) {
+        c2.className = `step-circle ${state.txnChecked ? 'done' : (state.allocChecked ? 'active' : 'pending')}`;
+        c2.textContent = state.txnChecked ? '✓' : '2';
+      }
+      // Step 3
+      const c3 = document.getElementById('step3-circle');
+      if (c3) {
+        const ready = state.allocChecked && state.txnChecked;
+        c3.className = `step-circle ${(state.finalChecked && state.signatureName.length >= 2) ? 'done' : (ready ? 'active' : 'pending')}`;
+        c3.textContent = (state.finalChecked && state.signatureName.length >= 2) ? '✓' : '3';
+      }
+    }
+
+    function updateSubmitButton() {
+      const btn = document.getElementById('submit-btn');
+      const ready = state.allocChecked && state.txnChecked && state.finalChecked && state.signatureName.length >= 2;
+      btn.disabled = !ready;
+      if (ready) {
+        btn.classList.add('pulse-gold');
+      } else {
+        btn.classList.remove('pulse-gold');
+      }
+    }
+
+    async function submitHeartbeat() {
+      const btn = document.getElementById('submit-btn');
+      const errEl = document.getElementById('submit-error');
+      errEl.classList.add('hidden');
+
+      if (!state.allocChecked) { showError('Please confirm your Allocation Audit review.'); return; }
+      if (!state.txnChecked) { showError('Please confirm your Transaction Ledger review.'); return; }
+      if (!state.finalChecked) { showError('Please check the Declaration acknowledgment.'); return; }
+      if (!state.signatureName || state.signatureName.length < 2) { showError('Please enter your full legal name as your signature.'); return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Submitting...';
+
+      try {
+        const result = await apiFetch('/api/affiliate/heartbeat/complete', {
+          method: 'POST',
+          body: JSON.stringify({
+            signatureName: state.signatureName,
+            allocationAuditReviewed: state.allocChecked,
+            transactionLedgerReviewed: state.txnChecked
+          })
+        });
+
+        // Show success
+        hide('audit-form');
+        hide('hold-warning');
+        const monthLabel = state.status?.monthLabel || result.monthLabel;
+        document.getElementById('completed-month-label').textContent = `Heartbeat confirmed for ${monthLabel}`;
+        document.getElementById('completed-date').textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        document.getElementById('completed-signer').textContent = state.signatureName;
+        show('completed-view');
+
+      } catch (err) {
+        showError(err.message || 'Failed to submit. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Acknowledge & Confirm';
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('submit-error');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function show(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
+    function hide(id) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Boot
+    init();
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

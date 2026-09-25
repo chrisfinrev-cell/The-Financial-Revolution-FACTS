@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Future Generations — FACTS</title>
+  <meta name="description" content="Secure your future by helping others secure theirs. Join Future Generations — the affiliate program included with your subscription — and earn commissions through five levels of connection.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0d1117', 800: '#13192a', 700: '#1a2235' },
+            gold:  { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #13192a, #1a2235);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .card-gold {
+      background: linear-gradient(145deg, rgba(201,162,39,0.08), rgba(201,162,39,0.04));
+      border: 1px solid rgba(201,162,39,0.2);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      color: #0d1117; font-weight: 700;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-gold:hover { opacity: 0.9; transform: translateY(-2px); }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #d1d5db;
+      transition: background 0.2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.09); }
+
+    .step-dot {
+      width: 2.5rem; height: 2.5rem; border-radius: 50%;
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      color: #0d1117; font-weight: 800; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .badge-pro {
+      background: rgba(201,162,39,0.12);
+      border: 1px solid rgba(201,162,39,0.3);
+      color: #e8c96a; font-size: 0.7rem; font-weight: 700;
+      padding: 0.2rem 0.55rem; border-radius: 999px; letter-spacing: 0.04em;
+    }
+
+    .badge-aura {
+      background: rgba(139,92,246,0.12);
+      border: 1px solid rgba(139,92,246,0.28);
+      color: #c4b5fd; font-size: 0.7rem; font-weight: 700;
+      padding: 0.2rem 0.55rem; border-radius: 999px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: fadeUp 0.5s ease 0.05s both; }
+    .anim-2 { animation: fadeUp 0.5s ease 0.15s both; }
+    .anim-3 { animation: fadeUp 0.5s ease 0.25s both; }
+    .anim-4 { animation: fadeUp 0.5s ease 0.35s both; }
+
+    .glow-green { box-shadow: 0 0 24px rgba(52,211,153,0.12); }
+    .glow-gold  { box-shadow: 0 0 32px rgba(201,162,39,0.15); }
+
+    /* Reward card hover */
+    .reward-card {
+      background: linear-gradient(145deg, #13192a, #1a2235);
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .reward-card:hover { border-color: rgba(201,162,39,0.25); transform: translateY(-3px); }
+  </style>
+  <script defer src="/nav-bar.js"></script>
+</head>
+<body class="min-h-screen" style="background:#0d1117; color:#f1f5f9;">
+
+  <!-- Nav -->
+  <nav class="border-b" style="border-color:rgba(255,255,255,0.06); background:#0d1117;">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2.5 text-white no-underline">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-base font-bold" style="background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;">₣</div>
+        <span class="font-semibold text-sm hidden sm:block">FACTS</span>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="/" class="text-xs text-gray-400 hover:text-white transition-colors px-3 py-1.5">← FACTS Hub</a>
+        <div id="nav-cta"></div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-16 pb-12 text-center anim-1">
+    <div class="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full text-sm font-medium" style="background:rgba(201,162,39,0.08); border:1px solid rgba(201,162,39,0.2); color:#e8c96a;">
+      🌿 Future Generations Program
+    </div>
+    <h1 class="text-4xl sm:text-5xl font-extrabold leading-tight mb-5">
+      Build Wealth That<br class="hidden sm:block">
+      <span class="gold-text">Outlasts You</span>
+    </h1>
+    <p class="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+      Secure your future by helping others secure theirs. Use the program, share the mission, and earn through five levels of connection. With Future Generations, your influence builds wealth that outlasts you.
+    </p>
+    <div id="hero-cta" class="flex flex-col sm:flex-row gap-3 justify-center">
+      <!-- Filled by JS -->
+      <div class="h-12 w-48 rounded-xl mx-auto sm:mx-0 animate-pulse" style="background:rgba(201,162,39,0.12);"></div>
+    </div>
+  </section>
+
+  <!-- Stats strip -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-12 anim-2">
+    <div class="grid grid-cols-3 gap-4">
+      <div class="card-gold rounded-2xl p-5 text-center">
+        <div class="text-3xl font-extrabold gold-text mb-1">Paid</div>
+        <div class="text-xs text-gray-400 font-medium">Subscription required</div>
+      </div>
+      <div class="card-gold rounded-2xl p-5 text-center">
+        <div class="text-3xl font-extrabold gold-text mb-1">5</div>
+        <div class="text-xs text-gray-400 font-medium">Levels of commissions</div>
+      </div>
+      <div class="card-gold rounded-2xl p-5 text-center">
+        <div class="text-3xl font-extrabold gold-text mb-1">31%</div>
+        <div class="text-xs text-gray-400 font-medium">Total payout across 5 levels</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-16 anim-3">
+    <h2 class="text-2xl font-bold mb-2 text-center">How It Works</h2>
+    <p class="text-gray-400 text-sm text-center mb-8">Three steps from subscriber to income earner.</p>
+
+    <div class="grid sm:grid-cols-3 gap-5">
+      <!-- Step 1 -->
+      <div class="card rounded-2xl p-6 flex flex-col gap-4">
+        <div class="flex items-center gap-3">
+          <div class="step-dot">1</div>
+          <span class="badge-pro">PRO REQUIRED</span>
+        </div>
+        <div>
+          <h3 class="font-bold text-white mb-1.5">Subscribe</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Future Generations is bundled with your Individual or Business subscription. No extra charge — it's included.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="card rounded-2xl p-6 flex flex-col gap-4">
+        <div class="flex items-center gap-3">
+          <div class="step-dot">2</div>
+          <span class="badge-pro">SHARE THE MISSION</span>
+        </div>
+        <div>
+          <h3 class="font-bold text-white mb-1.5">Share Your Referral Link</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Share your unique referral link with family, friends, and your network. When they join and subscribe, you earn a commission — instantly.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="card rounded-2xl p-6 flex flex-col gap-4">
+        <div class="flex items-center gap-3">
+          <div class="step-dot">3</div>
+          <span class="badge-pro">EARN DEEP</span>
+        </div>
+        <div>
+          <h3 class="font-bold text-white mb-1.5">Earn Through 5 Levels</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Your network earns you commissions five levels deep. As the people you refer bring in their own referrals, your influence — and your income — compounds.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Commission structure -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-16 anim-4">
+    <div class="grid sm:grid-cols-2 gap-8">
+
+      <!-- How commissions work -->
+      <div>
+        <h2 class="text-xl font-bold mb-1">How You Earn</h2>
+        <p class="text-gray-500 text-sm mb-5">Real commissions from a real referral network.</p>
+        <div class="flex flex-col gap-3">
+          <div class="card rounded-xl p-4 flex items-start gap-3">
+            <span class="text-xl mt-0.5">💰</span>
+            <div>
+              <div class="font-semibold text-sm text-white">16% Level 1 Commission</div>
+              <div class="text-xs text-gray-400 mt-0.5">Earn 16% of every payment from people you directly enroll — initial and renewals</div>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 flex items-start gap-3">
+            <span class="text-xl mt-0.5">🔄</span>
+            <div>
+              <div class="font-semibold text-sm text-white">8% / 4% / 2% / 1% on Levels 2–5</div>
+              <div class="text-xs text-gray-400 mt-0.5">Earn from your network's referrals — same flat rate on every payment, no split between initial and renewal</div>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 flex items-start gap-3">
+            <span class="text-xl mt-0.5">🌳</span>
+            <div>
+              <div class="font-semibold text-sm text-white">5 Levels Deep</div>
+              <div class="text-xs text-gray-400 mt-0.5">Earn from your network's referrals — five levels of connection building your income</div>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 flex items-start gap-3">
+            <span class="text-xl mt-0.5">⏱️</span>
+            <div>
+              <div class="font-semibold text-sm text-white">Net-30 Payouts</div>
+              <div class="text-xs text-gray-400 mt-0.5">Approved commissions paid out monthly once you hit the $50 minimum threshold</div>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 flex items-start gap-3">
+            <span class="text-xl mt-0.5">🔒</span>
+            <div>
+              <div class="font-semibold text-sm text-white">Stay Active to Stay Eligible</div>
+              <div class="text-xs text-gray-400 mt-0.5">Active paid subscription required to receive and retain commissions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Who it's built for -->
+      <div>
+        <h2 class="text-xl font-bold mb-1">Built for Builders</h2>
+        <p class="text-gray-500 text-sm mb-5">Future Generations rewards people who spread financial literacy.</p>
+        <div class="flex flex-col gap-3">
+          <div class="card rounded-xl p-4 flex items-start gap-3">
+            <span class="text-xl mt-0.5">👨‍👩‍👧</span>
+            <div>
+              <div class="font-semibold text-sm text-white">Family First</div>
+              <div class="text-xs text-gray-400 mt-0.5">Bring your family into FACTS and build generational financial habits together</div>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 flex items-start gap-3">
+            <span class="text-xl mt-0.5">🤝</span>
+            <div>
+              <div class="font-semibold text-sm text-white">Community Leaders</div>
+              <div class="text-xs text-gray-400 mt-0.5">Share the mission with your network — your influence is your greatest asset</div>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 flex items-start gap-3">
+            <span class="text-xl mt-0.5">📣</span>
+            <div>
+              <div class="font-semibold text-sm text-white">Content Creators</div>
+              <div class="text-xs text-gray-400 mt-0.5">Teach financial freedom to your audience and earn as they join</div>
+            </div>
+          </div>
+          <div class="card rounded-xl p-4 flex items-start gap-3">
+            <span class="text-xl mt-0.5">🏆</span>
+            <div>
+              <div class="font-semibold text-sm text-white">Long-Term Thinkers</div>
+              <div class="text-xs text-gray-400 mt-0.5">A network that grows with time — so does the income it generates</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA band -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
+    <div class="card-gold rounded-2xl p-8 text-center glow-gold">
+      <div class="text-3xl mb-3">🌿</div>
+      <h2 class="text-2xl font-bold mb-2">Ready to Start Earning?</h2>
+      <p class="text-gray-400 text-sm mb-6 max-w-md mx-auto">
+        Paid members get immediate access to the Future Generations program. Your referral link is active from day one.
+      </p>
+      <div id="bottom-cta" class="flex flex-col sm:flex-row gap-3 justify-center">
+        <!-- Filled by JS -->
+        <div class="h-12 w-48 rounded-xl mx-auto animate-pulse" style="background:rgba(201,162,39,0.12);"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t pb-10 pt-8 text-center" style="border-color:rgba(255,255,255,0.06);">
+    <a href="/" class="text-xs text-gray-500 hover:text-gray-300 transition-colors">← Back to FACTS Hub</a>
+    <div class="mt-3 text-xs text-gray-600">© 2026 FACTS. Active paid subscription required to participate in Future Generations.</div>
+  </footer>
+
+  <script>
+    async function init() {
+      const res = await fetch('/api/future-generations/status').catch(() => null);
+      const data = res ? await res.json().catch(() => null) : null;
+
+      const authenticated = data?.authenticated ?? false;
+      const hasPro = data?.has_access ?? false;
+
+      // For Pro users, check where they are in the Certification Gate
+      let scanCompleted = false;
+      let oathSigned = false;
+      if (authenticated && hasPro) {
+        try {
+          const [scanRes, oathRes] = await Promise.all([
+            fetch('/api/discovery-scan/status', { credentials: 'include' }),
+            fetch('/api/sovereign-oath/status', { credentials: 'include' })
+          ]);
+          if (scanRes.ok) {
+            const scanData = await scanRes.json();
+            scanCompleted = scanData.completed || false;
+          }
+          if (oathRes.ok) {
+            const oathData = await oathRes.json();
+            oathSigned = oathData.signed || false;
+          }
+        } catch (e) { /* non-fatal */ }
+      }
+
+      // Determine the correct next step for Pro users:
+      // 1. Discovery Scan not done → /discovery-scan.html
+      // 2. Scan done, Oath not signed → /sovereign-oath.html
+      // 3. All complete → /future-generations-dashboard.html
+      function getProDestination() {
+        if (!scanCompleted) return { dest: '/discovery-scan.html', label: 'Start Discovery Scan →', navLabel: 'Start Scan' };
+        if (!oathSigned)    return { dest: '/sovereign-oath.html', label: 'Sign Sovereign Oath →', navLabel: 'Sign Oath' };
+        return { dest: '/future-generations-dashboard.html', label: 'View Your Dashboard →', navLabel: 'Dashboard' };
+      }
+
+      // Build CTAs
+      const heroCta = document.getElementById('hero-cta');
+      const bottomCta = document.getElementById('bottom-cta');
+      const navCta = document.getElementById('nav-cta');
+
+      const isAffiliate = data?.is_affiliate ?? false;
+
+      if (authenticated && hasPro) {
+        // Pro user — route to the correct certification step
+        const { dest: dashDest, label: dashLabel, navLabel } = getProDestination();
+        const dashBtn = `<a href="${dashDest}" class="btn-gold inline-flex items-center gap-2 px-7 py-3 rounded-xl text-sm font-bold shadow-lg">
+          ${dashLabel}
+        </a>`;
+        heroCta.innerHTML = dashBtn;
+        bottomCta.innerHTML = dashBtn;
+        navCta.innerHTML = `<a href="${dashDest}" class="btn-gold text-xs font-bold px-4 py-2 rounded-lg">${navLabel}</a>`;
+      } else if (authenticated && !hasPro) {
+        // Logged in but free — upgrade prompt
+        const upgradeBtn = `<a href="/pricing.html" class="btn-gold inline-flex items-center gap-2 px-7 py-3 rounded-xl text-sm font-bold shadow-lg">
+          Upgrade Now →
+        </a>`;
+        const loginBtn = `<a href="/future-generations/dashboard" class="btn-outline inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold opacity-60 cursor-not-allowed">
+          🔒 Dashboard (Paid Only)
+        </a>`;
+        heroCta.innerHTML = upgradeBtn + loginBtn;
+        bottomCta.innerHTML = upgradeBtn;
+        navCta.innerHTML = `<a href="/pricing.html" class="btn-gold text-xs font-bold px-4 py-2 rounded-lg">Upgrade Now</a>`;
+      } else {
+        // Not logged in
+        const signupBtn = `<a href="/signup.html" class="btn-gold inline-flex items-center gap-2 px-7 py-3 rounded-xl text-sm font-bold shadow-lg">
+          Get Started Free →
+        </a>`;
+        const loginBtn = `<a href="/login.html" class="btn-outline inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold">
+          Sign In
+        </a>`;
+        heroCta.innerHTML = signupBtn + loginBtn;
+        bottomCta.innerHTML = signupBtn + loginBtn;
+        navCta.innerHTML = `<a href="/login.html" class="btn-outline text-xs font-semibold px-3 py-1.5 rounded-lg">Sign In</a>`;
+      }
+    }
+
+    init();
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

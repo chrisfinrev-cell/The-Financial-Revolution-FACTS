@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<!-- Proprietary – Financial Revolution – All Rights Reserved -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Financial Revolution">
+  <meta name="copyright" content="© 2024-2026 Financial Revolution. All rights reserved.">
+  <meta name="robots" content="noai, noimageai">
+  <title>Terms of Service – Financial Revolution</title>
+  <link rel="icon" href="/icons/icon-192.png" type="image/png">
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --bg2: #0d1117;
+      --bg3: #111827;
+      --border: rgba(201,162,39,0.15);
+      --gold: #c9a227;
+      --gold-light: #e8c547;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "DM Sans", system-ui, sans-serif;
+      line-height: 1.7;
+      font-size: 1rem;
+      padding-bottom: 100px;
+    }
+
+    /* ── Header ── */
+    .tos-header {
+      background: linear-gradient(180deg, #0d1117 0%, #0a0e17 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 24px 24px;
+      text-align: center;
+    }
+    .tos-header .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tos-header .logo-mark svg { color: var(--gold); }
+    .tos-header .brand {
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+    .tos-header h1 {
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .tos-header .effective {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Back nav ── */
+    .back-nav {
+      max-width: 820px;
+      margin: 20px auto 0;
+      padding: 0 24px;
+    }
+    .back-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .back-nav a:hover { opacity: 0.75; }
+
+    /* ── Main content ── */
+    .tos-body {
+      max-width: 820px;
+      margin: 28px auto 0;
+      padding: 0 24px;
+    }
+
+    /* ── Table of Contents ── */
+    .toc-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 36px;
+    }
+    .toc-card h2 {
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+    }
+    .toc-list {
+      columns: 2;
+      column-gap: 24px;
+      list-style: none;
+    }
+    .toc-list li { break-inside: avoid; margin-bottom: 6px; }
+    .toc-list a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.15s;
+    }
+    .toc-list a:hover { color: var(--gold); }
+    @media (max-width: 540px) {
+      .toc-list { columns: 1; }
+    }
+
+    /* ── Sections ── */
+    .tos-section {
+      margin-bottom: 40px;
+      scroll-margin-top: 80px;
+    }
+    .tos-section h2 {
+      font-family: "Space Grotesk", Inter, sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--gold);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+    }
+    .tos-section h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 18px 0 8px;
+    }
+    .tos-section p {
+      color: var(--text-muted);
+      font-size: 0.93rem;
+      margin-bottom: 12px;
+    }
+    .tos-section ul, .tos-section ol {
+      padding-left: 22px;
+      color: var(--text-muted);
+      font-size: 0.93rem;
+      margin-bottom: 12px;
+    }
+    .tos-section li { margin-bottom: 6px; }
+
+    /* Highlighted blocks */
+    .highlight-block {
+      background: rgba(201,162,39,0.06);
+      border: 1px solid rgba(201,162,39,0.2);
+      border-left: 3px solid var(--gold);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .highlight-block p {
+      color: var(--text);
+      font-size: 0.9rem;
+      margin-bottom: 0;
+    }
+    .highlight-block strong { color: var(--gold-light); }
+
+    /* Warning block */
+    .warning-block {
+      background: rgba(239,68,68,0.06);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-left: 3px solid #ef4444;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .warning-block p {
+      color: #fca5a5;
+      font-size: 0.9rem;
+      margin-bottom: 0;
+    }
+
+    /* IP badge */
+    .ip-tag {
+      display: inline-block;
+      background: rgba(201,162,39,0.12);
+      border: 1px solid rgba(201,162,39,0.3);
+      color: var(--gold);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── Footer strip ── */
+    .tos-footer {
+      max-width: 820px;
+      margin: 40px auto 0;
+      padding: 24px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .tos-footer p {
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+    .tos-footer a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────── -->
+<div class="tos-header">
+  <div class="logo-mark">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+    <span class="brand">FINANCIAL REVOLUTION</span>
+  </div>
+  <h1>Terms of Service</h1>
+  <p class="effective">Effective Date: January 1, 2025 &nbsp;·&nbsp; Last Updated: April 22, 2026</p>
+</div>
+
+<!-- ── Back Nav ────────────────────────────── -->
+<nav class="back-nav" aria-label="Navigation">
+  <a href="/">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    Back to Home
+  </a>
+</nav>
+
+<!-- ── Body ───────────────────────────────── -->
+<main class="tos-body">
+
+  <!-- Table of Contents -->
+  <div class="toc-card">
+    <h2>Contents</h2>
+    <ul class="toc-list">
+      <li><a href="#acceptance">1. Acceptance of Terms</a></li>
+      <li><a href="#service">2. Description of Service</a></li>
+      <li><a href="#accounts">3. Account Registration & Usage</a></li>
+      <li><a href="#billing">4. Subscription & Billing</a></li>
+      <li><a href="#ip">5. Intellectual Property</a></li>
+      <li><a href="#prohibited">6. Prohibited Use</a></li>
+      <li><a href="#privacy">7. Data Privacy</a></li>
+      <li><a href="#disclaimer">8. Disclaimers</a></li>
+      <li><a href="#liability">9. Limitation of Liability</a></li>
+      <li><a href="#indemnification">10. Indemnification</a></li>
+      <li><a href="#termination">11. Termination</a></li>
+      <li><a href="#disputes">12. Dispute Resolution</a></li>
+      <li><a href="#changes">13. Changes to Terms</a></li>
+      <li><a href="#contact">14. Contact</a></li>
+    </ul>
+  </div>
+
+  <!-- 1. Acceptance -->
+  <section id="acceptance" class="tos-section">
+    <h2>1. Acceptance of Terms</h2>
+    <p>
+      By accessing or using the Financial Revolution platform (the "Platform"), including its website,
+      mobile web application, and all associated tools, content, and services (collectively, the "Service"),
+      you ("User," "you," or "your") agree to be legally bound by these Terms of Service ("Terms").
+    </p>
+    <p>
+      If you do not agree to these Terms in their entirety, you must immediately cease using the Service.
+      Your continued use of the Platform constitutes ongoing acceptance of these Terms.
+    </p>
+    <div class="highlight-block">
+      <p>
+        <strong>Important:</strong> These Terms constitute a legally binding agreement between you and
+        Financial Revolution ("Company," "we," "us," or "our"). Please read them carefully.
+      </p>
+    </div>
+  </section>
+
+  <!-- 2. Service Description -->
+  <section id="service" class="tos-section">
+    <h2>2. Description of Service</h2>
+    <p>
+      Financial Revolution is a People-to-People (P2P) Educational SaaS and Financial Logic Layer.
+      The Platform provides:
+    </p>
+    <ul>
+      <li>Personal financial education tools and frameworks</li>
+      <li>The FACTS™ Allocation System for family budgeting and wealth-building education</li>
+      <li>The Financial Freedom Number calculator and methodology</li>
+      <li>Sovereignty Scoring and the 6-Category Financial Model</li>
+      <li>Financial health tracking, document management, and analytics tools</li>
+      <li>Community features, training content, and educational resources</li>
+      <li>Business financial protocols including the 5-Bucket System</li>
+    </ul>
+    <p>
+      The Service is provided exclusively for <strong>educational and informational purposes</strong>.
+      Financial Revolution does not provide licensed financial, investment, tax, or legal advice.
+      All tools, calculators, and projections are illustrative models, not professional recommendations.
+    </p>
+    <p>
+      The Service is a <strong>strictly non-custodial platform</strong>. We do not hold, move, manage,
+      or control user funds. All financial institution connections (where available) are read-only.
+    </p>
+  </section>
+
+  <!-- 3. Accounts -->
+  <section id="accounts" class="tos-section">
+    <h2>3. Account Registration &amp; Usage</h2>
+    <h3>3.1 Eligibility</h3>
+    <p>
+      You must be at least 18 years of age to create an account. By registering, you represent
+      and warrant that you meet this requirement. Users under 18 may access certain features only
+      through a parent or guardian's Family Pro account, with appropriate supervision.
+    </p>
+
+    <h3>3.2 Account Accuracy</h3>
+    <p>
+      You agree to provide accurate, current, and complete information during registration and to
+      keep your account information updated. You are responsible for all activity occurring under
+      your account credentials.
+    </p>
+
+    <h3>3.3 Account Security</h3>
+    <p>
+      You are solely responsible for maintaining the confidentiality of your password and account.
+      You must immediately notify us of any unauthorized use or security breach at
+      <a href="mailto:support@financial-revolution.app" style="color:#c9a227;">support@financial-revolution.app</a>.
+      We are not liable for losses resulting from unauthorized account access where you failed
+      to safeguard your credentials.
+    </p>
+
+    <h3>3.4 Account Tiers</h3>
+    <p>
+      The Platform offers multiple service tiers including Free, Individual, Family,
+      Business Core, Full Business Bundle, Elite, and Sovereign Executive tiers. Access to
+      specific features, tools, and content is determined by your active subscription tier.
+      Tier access is governed by the pricing schedule in effect at the time of purchase.
+    </p>
+
+    <h3>3.5 One Account Per Person</h3>
+    <p>
+      Each individual may maintain only one primary account. Family plan accounts may include
+      sub-accounts as defined under that plan's terms. Creating multiple accounts to circumvent
+      access restrictions is a material breach of these Terms.
+    </p>
+  </section>
+
+  <!-- 4. Billing -->
+  <section id="billing" class="tos-section">
+    <h2>4. Subscription &amp; Billing</h2>
+    <h3>4.1 Subscription Terms</h3>
+    <p>
+      Paid subscriptions are billed on a recurring basis (monthly or annually, as selected)
+      until cancelled. All fees are stated in US Dollars and are non-refundable except as
+      required by applicable law or as expressly provided herein.
+    </p>
+
+    <h3>4.2 Automatic Renewal</h3>
+    <p>
+      Subscriptions automatically renew at the end of each billing period at the then-current
+      published rate. You authorize us to charge your payment method on file for each renewal
+      period unless you cancel at least 24 hours before the renewal date.
+    </p>
+
+    <h3>4.3 Free Trial</h3>
+    <p>
+      We may offer free trial periods. At the end of a free trial, your subscription automatically
+      converts to a paid plan unless you cancel before the trial ends. We reserve the right to
+      modify or discontinue trial offers at any time.
+    </p>
+
+    <h3>4.4 Price Changes</h3>
+    <p>
+      We reserve the right to change subscription pricing. We will provide at least 30 days'
+      notice of material price increases via email or in-platform notification. Continued use
+      after the effective date of a price change constitutes acceptance of the new price.
+    </p>
+
+    <h3>4.5 Refund Policy</h3>
+    <p>
+      All subscription fees are non-refundable. In exceptional circumstances (technical errors,
+      duplicate charges), refunds may be issued at our sole discretion. To request a review,
+      contact support within 30 days of the charge.
+    </p>
+
+    <h3>4.6 Failed Payments</h3>
+    <p>
+      If a payment fails, we may suspend or downgrade your account access. You remain responsible
+      for all outstanding amounts. Accounts with unpaid balances may be terminated after a
+      reasonable cure period.
+    </p>
+
+    <h3>4.7 Affiliate Commission Structure</h3>
+    <p>
+      Participants in the Financial Revolution affiliate program are subject to separate affiliate
+      terms and commission schedules, including vesting periods, audit requirements, and escrow
+      conditions as disclosed at enrollment. Commission payments are contingent on compliance with
+      all program requirements. We reserve the right to modify, suspend, or terminate the affiliate
+      program with reasonable notice.
+    </p>
+  </section>
+
+  <!-- 5. IP -->
+  <section id="ip" class="tos-section">
+    <h2>5. Intellectual Property</h2>
+
+    <h3>5.1 Ownership</h3>
+    <p>
+      All content, features, functionality, methodologies, systems, and materials comprising
+      the Service are and remain the exclusive property of Financial Revolution and its licensors.
+      This includes, without limitation:
+    </p>
+
+    <div class="highlight-block">
+      <p>
+        <strong>FACTS™ Allocation System</strong> <span class="ip-tag">Proprietary</span><br>
+        The FACTS (Financial Allocation & Clarity Tracking System) 6-category wealth allocation
+        framework, including its category definitions, allocation logic, percentage models,
+        and accompanying educational materials. FACTS™ is a proprietary system of Financial Revolution.
+      </p>
+    </div>
+
+    <div class="highlight-block">
+      <p>
+        <strong>Financial Freedom Number™ Methodology</strong> <span class="ip-tag">Proprietary</span><br>
+        The proprietary formula, calculation engine, inputs, and educational framework used
+        to determine a user's personalized Financial Freedom Number target.
+      </p>
+    </div>
+
+    <div class="highlight-block">
+      <p>
+        <strong>Sovereignty Scoring System</strong> <span class="ip-tag">Proprietary</span><br>
+        The multi-factor scoring algorithm, weighting methodology, tier definitions, and
+        scoring rubric used to assess and present a user's financial sovereignty status.
+      </p>
+    </div>
+
+    <div class="highlight-block">
+      <p>
+        <strong>6-Category Financial Model</strong> <span class="ip-tag">Proprietary</span><br>
+        The six-bucket family finance categorization model — Necessities, Education, Give,
+        Save, Fun, and Financial Freedom — including the proprietary allocation targets,
+        rebalancing logic, and visual presentation system.
+      </p>
+    </div>
+
+    <div class="highlight-block">
+      <p>
+        <strong>Additional Proprietary Systems</strong> <span class="ip-tag">Proprietary</span><br>
+        The HELOC Velocity Engine methodology, the 5-Bucket Business Protocol, the Friday Sweep
+        Allocation System, the Heartbeat Audit Framework, the 12-Level Progression Architecture,
+        and all associated training content, scripts, and educational frameworks.
+      </p>
+    </div>
+
+    <h3>5.2 Limited License</h3>
+    <p>
+      Subject to your compliance with these Terms, we grant you a limited, non-exclusive,
+      non-transferable, revocable license to access and use the Service solely for your
+      personal, non-commercial financial education. This license does not include:
+    </p>
+    <ul>
+      <li>Copying, reproducing, or distributing any portion of the Service or its content</li>
+      <li>Modifying or creating derivative works based on the Service</li>
+      <li>Commercially exploiting any part of the Service</li>
+      <li>Using any proprietary methodology, scoring system, or framework outside the Platform</li>
+    </ul>
+
+    <h3>5.3 User Content</h3>
+    <p>
+      Any financial data, notes, or information you input into the Platform remains yours.
+      By using the Service, you grant us a limited, non-exclusive license to process and store
+      your data solely to provide the Service. We do not sell, license, or disclose your
+      personal financial data to third parties except as required by law or as necessary to
+      provide the Service (e.g., payment processing).
+    </p>
+
+    <h3>5.4 Trademarks</h3>
+    <p>
+      "Financial Revolution," "FACTS™," "FACTS," and all associated
+      logos, slogans, and trade dress are trademarks or service marks of Financial Revolution.
+      You may not use these marks without our prior written consent.
+    </p>
+
+    <h3>5.5 Copyright Notice</h3>
+    <p>
+      © 2024–2026 Financial Revolution. All rights reserved. Unauthorized reproduction,
+      distribution, or use of any portion of this Platform or its proprietary systems is
+      strictly prohibited and may result in civil and criminal liability.
+    </p>
+  </section>
+
+  <!-- 6. Prohibited Use -->
+  <section id="prohibited" class="tos-section">
+    <h2>6. Prohibited Use</h2>
+    <p>You agree not to use the Service to:</p>
+    <ul>
+      <li>Violate any applicable laws or regulations</li>
+      <li>Infringe upon the intellectual property rights of Financial Revolution or any third party</li>
+      <li>Transmit spam, phishing attempts, or malicious code</li>
+      <li>Impersonate any person or entity, or misrepresent your affiliation</li>
+      <li>Circumvent, disable, or interfere with Platform security features</li>
+      <li>Harvest or collect user data or personal information without authorization</li>
+      <li>Use automated scripts, bots, scrapers, or crawlers to access, extract, or index Platform content</li>
+      <li>Attempt unauthorized access to any area of the Platform or its infrastructure</li>
+      <li>Interfere with the proper operation or performance of the Service</li>
+      <li>Frame or mirror the Platform on any other website without written consent</li>
+      <li>Sell, resell, sublicense, or commercially exploit access to the Service</li>
+    </ul>
+
+    <h3>6.1 Reverse-Engineering Prohibition</h3>
+    <div class="warning-block">
+      <p>
+        <strong>You are strictly prohibited from:</strong> reverse-engineering, disassembling,
+        decompiling, decoding, adapting, or otherwise attempting to derive the source code,
+        algorithms, methodologies, or data structures underlying the Platform or any of its
+        proprietary systems (including, but not limited to, the FACTS™ Allocation System,
+        Sovereignty Scoring System, Financial Freedom Number methodology, 6-Category Model,
+        or any other proprietary framework). Any such attempt constitutes a material breach of
+        these Terms and may give rise to civil and criminal liability.
+      </p>
+    </div>
+
+    <h3>6.2 AI Training Prohibition</h3>
+    <div class="warning-block">
+      <p>
+        You may not use any content, data, methodology, framework, tool output, or other
+        materials from this Platform to train, fine-tune, test, or develop any artificial
+        intelligence or machine learning model, system, or product — whether commercial or
+        non-commercial. This prohibition applies to scraping, systematic copying, and
+        any other method of bulk content extraction.
+      </p>
+    </div>
+
+    <h3>6.3 Competitor Use</h3>
+    <p>
+      Access to or use of the Service by direct competitors of Financial Revolution for the
+      purpose of competitive intelligence, benchmarking, product development, or any similar
+      purpose is prohibited without our prior written consent.
+    </p>
+  </section>
+
+  <!-- 7. Privacy -->
+  <section id="privacy" class="tos-section">
+    <h2>7. Data Privacy</h2>
+    <h3>7.1 Data Collection</h3>
+    <p>
+      We collect data you voluntarily provide (account information, financial data entered into
+      the Platform) and automatically collected data (usage logs, session data, device
+      information). We do not sell your personal data to third parties.
+    </p>
+
+    <h3>7.2 Financial Data</h3>
+    <p>
+      Financial data you enter into the Platform is stored securely and used solely to power
+      your personalized dashboard, tools, and recommendations. Where banking connections are
+      enabled via third-party providers, connections are strictly read-only. We never store
+      banking credentials.
+    </p>
+
+    <h3>7.3 Data Security</h3>
+    <p>
+      We implement industry-standard security measures including encryption at rest and in transit,
+      secure session management, and access controls. However, no internet transmission is 100%
+      secure. You acknowledge and accept this inherent risk.
+    </p>
+
+    <h3>7.4 Data Retention</h3>
+    <p>
+      We retain your data for as long as your account is active or as needed to provide the
+      Service. Upon account termination, we will delete or anonymize your personal data within
+      90 days, except where retention is required by law.
+    </p>
+
+    <h3>7.5 Third-Party Services</h3>
+    <p>
+      The Platform may integrate with third-party services (payment processors, financial data
+      providers). Your use of those integrations is also subject to the applicable third-party
+      terms and privacy policies.
+    </p>
+  </section>
+
+  <!-- 8. Disclaimers -->
+  <section id="disclaimer" class="tos-section">
+    <h2>8. Disclaimers</h2>
+    <p>
+      THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND,
+      WHETHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+    </p>
+    <p>
+      WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR FREE OF
+      VIRUSES OR OTHER HARMFUL COMPONENTS. WE DO NOT WARRANT THE ACCURACY, COMPLETENESS,
+      OR TIMELINESS OF ANY INFORMATION PROVIDED THROUGH THE SERVICE.
+    </p>
+    <p>
+      ALL FINANCIAL TOOLS, CALCULATORS, PROJECTIONS, AND EDUCATIONAL CONTENT ARE PROVIDED
+      FOR INFORMATIONAL AND EDUCATIONAL PURPOSES ONLY. THEY DO NOT CONSTITUTE FINANCIAL,
+      INVESTMENT, TAX, OR LEGAL ADVICE. PAST PERFORMANCE IS NOT INDICATIVE OF FUTURE RESULTS.
+      NO SPECIFIC FINANCIAL OUTCOME IS GUARANTEED.
+    </p>
+    <p>
+      FINANCIAL REVOLUTION IS NOT A REGISTERED INVESTMENT ADVISOR, BROKER-DEALER, FINANCIAL
+      INSTITUTION, OR INSURANCE COMPANY. ALL FINANCIAL DECISIONS ARE MADE SOLELY BY THE USER
+      AT THEIR OWN RISK.
+    </p>
+  </section>
+
+  <!-- 9. Liability -->
+  <section id="liability" class="tos-section">
+    <h2>9. Limitation of Liability</h2>
+    <p>
+      TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, FINANCIAL REVOLUTION AND ITS OFFICERS,
+      DIRECTORS, EMPLOYEES, AGENTS, AND AFFILIATES SHALL NOT BE LIABLE FOR ANY INDIRECT,
+      INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT
+      LIMITED TO LOSS OF PROFITS, LOSS OF DATA, LOSS OF GOODWILL, OR FINANCIAL LOSSES ARISING
+      FROM YOUR USE OF OR INABILITY TO USE THE SERVICE.
+    </p>
+    <p>
+      OUR TOTAL AGGREGATE LIABILITY TO YOU FOR ANY CLAIM ARISING FROM OR RELATED TO THESE TERMS
+      OR THE SERVICE SHALL NOT EXCEED THE GREATER OF: (A) THE TOTAL AMOUNTS PAID BY YOU TO US
+      IN THE 12 MONTHS PRECEDING THE CLAIM; OR (B) ONE HUNDRED US DOLLARS ($100).
+    </p>
+    <p>
+      SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF CERTAIN WARRANTIES OR
+      LIABILITY. IN SUCH JURISDICTIONS, OUR LIABILITY IS LIMITED TO THE EXTENT PERMITTED BY LAW.
+    </p>
+  </section>
+
+  <!-- 10. Indemnification -->
+  <section id="indemnification" class="tos-section">
+    <h2>10. Indemnification</h2>
+    <p>
+      You agree to indemnify, defend, and hold harmless Financial Revolution and its officers,
+      directors, employees, agents, and affiliates from and against any claims, liabilities,
+      damages, judgments, awards, losses, costs, expenses, or fees (including reasonable
+      attorneys' fees) arising out of or relating to:
+    </p>
+    <ul>
+      <li>Your violation of these Terms</li>
+      <li>Your use or misuse of the Service</li>
+      <li>Your violation of any applicable laws or regulations</li>
+      <li>Your infringement of any third-party rights</li>
+      <li>Any content you submit, post, or transmit through the Service</li>
+    </ul>
+  </section>
+
+  <!-- 11. Termination -->
+  <section id="termination" class="tos-section">
+    <h2>11. Termination</h2>
+    <h3>11.1 By You</h3>
+    <p>
+      You may cancel your subscription at any time through your account settings or by
+      contacting support. Cancellation takes effect at the end of the current billing period.
+      No refund is provided for unused time within a billing period.
+    </p>
+
+    <h3>11.2 By Us</h3>
+    <p>
+      We reserve the right to suspend or terminate your account and access to the Service at
+      any time, with or without notice, for:
+    </p>
+    <ul>
+      <li>Material breach of these Terms</li>
+      <li>Fraudulent, abusive, or illegal activity</li>
+      <li>Non-payment of fees</li>
+      <li>Actions that harm other users, third parties, or Financial Revolution</li>
+    </ul>
+
+    <h3>11.3 Effect of Termination</h3>
+    <p>
+      Upon termination, your license to use the Service ends immediately. Sections 5 (IP),
+      6 (Prohibited Use), 8 (Disclaimers), 9 (Limitation of Liability), 10 (Indemnification),
+      and 12 (Dispute Resolution) survive termination.
+    </p>
+  </section>
+
+  <!-- 12. Disputes -->
+  <section id="disputes" class="tos-section">
+    <h2>12. Dispute Resolution</h2>
+
+    <h3>12.1 Governing Law</h3>
+    <p>
+      These Terms are governed by and construed in accordance with the laws of the United States
+      and the state in which Financial Revolution is incorporated, without regard to conflict of
+      law principles.
+    </p>
+
+    <h3>12.2 Informal Resolution</h3>
+    <p>
+      Before initiating any formal proceeding, you agree to first contact us at
+      <a href="mailto:support@financial-revolution.app" style="color:#c9a227;">support@financial-revolution.app</a>
+      to attempt informal resolution. We will work in good faith to resolve the matter within 30 days.
+    </p>
+
+    <h3>12.3 Binding Arbitration</h3>
+    <p>
+      If informal resolution fails, disputes shall be resolved by binding individual arbitration
+      administered by the American Arbitration Association (AAA) under its Consumer Arbitration Rules.
+      Arbitration shall be conducted in English. The arbitrator's decision shall be final and binding.
+    </p>
+
+    <h3>12.4 Class Action Waiver</h3>
+    <p>
+      YOU AND FINANCIAL REVOLUTION AGREE THAT EACH PARTY MAY BRING CLAIMS AGAINST THE OTHER
+      ONLY IN AN INDIVIDUAL CAPACITY AND NOT AS A PLAINTIFF OR CLASS MEMBER IN ANY PURPORTED
+      CLASS, CONSOLIDATED, OR REPRESENTATIVE PROCEEDING.
+    </p>
+
+    <h3>12.5 Exceptions</h3>
+    <p>
+      Notwithstanding the above, either party may seek injunctive or other equitable relief in
+      a court of competent jurisdiction for infringement or misappropriation of intellectual
+      property rights, including the proprietary systems described in Section 5.
+    </p>
+  </section>
+
+  <!-- 13. Changes -->
+  <section id="changes" class="tos-section">
+    <h2>13. Changes to Terms</h2>
+    <p>
+      We reserve the right to modify these Terms at any time. Material changes will be
+      communicated via email or prominent in-platform notice at least 14 days before taking
+      effect (except for changes required by law, which take effect immediately).
+    </p>
+    <p>
+      Your continued use of the Service after the effective date of updated Terms constitutes
+      acceptance of those changes. If you do not agree to the changes, you must stop using
+      the Service and cancel your subscription.
+    </p>
+  </section>
+
+  <!-- 14. Contact -->
+  <section id="contact" class="tos-section">
+    <h2>14. Contact</h2>
+    <p>For questions about these Terms, please contact us:</p>
+    <p>
+      <strong>Financial Revolution</strong><br>
+      Email: <a href="mailto:support@financial-revolution.app" style="color:#c9a227;">support@financial-revolution.app</a>
+    </p>
+    <p style="margin-top:16px; font-size:0.88rem; color:#475569;">
+      By using the Financial Revolution platform, you acknowledge that you have read,
+      understood, and agree to be bound by these Terms of Service.
+    </p>
+  </section>
+
+</main>
+
+<!-- ── Footer ──────────────────────────────── -->
+<footer class="tos-footer">
+  <p>
+    © 2024–2026 Financial Revolution. All rights reserved. FACTS™ is a proprietary system.
+    &nbsp;·&nbsp;
+    <a href="/terms-of-service">Terms of Service</a>
+    &nbsp;·&nbsp;
+    <a href="/privacy-policy">Privacy Policy</a>
+    &nbsp;·&nbsp;
+    <a href="/">Home</a>
+  </p>
+</footer>
+
+<!-- Legal disclaimer auto-injector -->
+<script src="/legal-disclaimer.js"></script>
+
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

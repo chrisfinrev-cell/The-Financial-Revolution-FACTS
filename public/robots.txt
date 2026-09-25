@@ -1,0 +1,102 @@
+# Financial Revolution — robots.txt
+# © 2024–2026 Financial Revolution. All rights reserved.
+# Unauthorized scraping, data extraction, and AI training use is prohibited.
+# See /terms-of-service for full legal terms.
+
+User-agent: *
+Disallow: /api/
+Disallow: /app
+Disallow: /admin
+Disallow: /settings
+Disallow: /affiliate-dashboard
+Disallow: /command-console
+Disallow: /document-vault
+Disallow: /household-dashboard
+Disallow: /household-settings
+Disallow: /sovereign-dashboard
+Disallow: /vantage-point
+Disallow: /level1
+Disallow: /junior-command
+Disallow: /junior-parent
+Disallow: /business-pro-dashboard
+Disallow: /business-pro-heartbeat
+Disallow: /scorecard
+Disallow: /scorecard-view
+Disallow: /receipt-scanner
+Disallow: /discovery-scan
+Disallow: /net-worth
+Disallow: /heloc-velocity-engine
+Disallow: /crypto-tracker
+Disallow: /future-generations
+Disallow: /future-generations-dashboard
+Disallow: /session-env/
+
+Allow: /
+Allow: /index.html
+Allow: /pricing
+Allow: /login
+Allow: /signup
+Allow: /terms-of-service
+Allow: /community
+Allow: /training
+Allow: /feed
+
+# ── Block AI content scrapers ──────────────────────
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: Omgili
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: YouBot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: ia_archiver
+Disallow: /
+
+User-agent: magpie-crawler
+Disallow: /
+
+User-agent: DiffBot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+Sitemap: https://app.factsmoney.com/sitemap.xml

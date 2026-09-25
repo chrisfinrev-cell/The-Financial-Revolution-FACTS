@@ -1,0 +1,68 @@
+{
+  "id": "/app",
+  "name": "FACTS — Financial Allocation Control & Tracking System",
+  "short_name": "FACTS",
+  "description": "Allocate every dollar before you spend. Zero-based budgeting made simple.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0a0f1a",
+  "background_color": "#050810",
+  "lang": "en-US",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/sovereign-seal.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Open your FACTS dashboard",
+      "url": "/app",
+      "icons": [{"src": "/icons/sovereign-seal.svg", "sizes": "any", "type": "image/svg+xml"}]
+    },
+    {
+      "name": "Sovereign Protocol",
+      "short_name": "Sovereign",
+      "description": "FACTS 12-Level Progression — earn your Sovereign Seal",
+      "url": "/sovereign",
+      "icons": [{"src": "/icons/sovereign-seal.svg", "sizes": "any", "type": "image/svg+xml"}]
+    },
+    {
+      "name": "Knowledge Vault",
+      "short_name": "Vault",
+      "description": "Level-gated financial intelligence and strategy guides",
+      "url": "/knowledge-vault",
+      "icons": [{"src": "/icons/sovereign-seal.svg", "sizes": "any", "type": "image/svg+xml"}]
+    },
+    {
+      "name": "Transactions",
+      "short_name": "Transactions",
+      "description": "Record a transaction",
+      "url": "/app?tab=transactions",
+      "icons": [{"src": "/icons/icon-192.png", "sizes": "192x192"}]
+    }
+  ]
+}

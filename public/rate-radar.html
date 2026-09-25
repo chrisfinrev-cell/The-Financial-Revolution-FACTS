@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FACTS">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Rate Radar — Find Better Deals | FACTS</title>
+  <meta name="description" content="Track every recurring bill, scan statements, and let AI find better deals. FACTS Rate Radar.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' fill='%23c9a227'%3E📡%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:  { 950:'#080d16', 900:'#0d1117', 800:'#13192a', 700:'#1a2235', 600:'#243049' },
+            gold:  { 300:'#f0d97a', 400:'#e8c96a', 500:'#d4a929', 600:'#c9a227', 700:'#a07c1a' },
+            emerald: { 400:'#34d399', 500:'#10b981' },
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+    body { background: #0a0f1a; color: #f1f5f9; margin: 0; min-height: 100vh; overflow-x: hidden; }
+
+    .gold-text { background: linear-gradient(135deg,#c9a227 0%,#e8c96a 50%,#c9a227 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .gold-text-solid { color: #c9a227; }
+    .emerald-text { color: #34d399; }
+
+    .card { background: linear-gradient(145deg,#13192a,#1a2235); border:1px solid rgba(255,255,255,0.07); border-radius:0.875rem; }
+    .card-gold { background: linear-gradient(145deg,#1a2235,#243049); border:1px solid rgba(201,162,39,0.25); border-radius:0.875rem; }
+    .card-emerald { background: linear-gradient(145deg,#0d1a14,#0f2018); border:1px solid rgba(52,211,153,0.2); border-radius:0.875rem; }
+    .card-savings { background: linear-gradient(135deg,#0d1117 0%,#1a2235 100%); border:1px solid rgba(52,211,153,0.3); border-radius:0.875rem; }
+
+    .btn-gold { background: linear-gradient(135deg,#c9a227,#e8c96a); color:#0d1117; font-weight:700; transition:opacity 0.2s,transform 0.15s; border:none; cursor:pointer; }
+    .btn-gold:hover { opacity:0.88; transform:translateY(-1px); }
+    .btn-ghost { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#94a3b8; transition:background 0.2s; cursor:pointer; }
+    .btn-ghost:hover { background:rgba(255,255,255,0.09); color:#e2e8f0; }
+    .btn-emerald { background: linear-gradient(135deg,#059669,#34d399); color:#fff; font-weight:700; border:none; cursor:pointer; transition:opacity 0.2s; }
+    .btn-emerald:hover { opacity:0.88; }
+    .btn-danger { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); color:#f87171; cursor:pointer; }
+    .btn-danger:hover { background:rgba(239,68,68,0.15); }
+
+    .input-field { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f1f5f9; border-radius:0.5rem; padding:0.65rem 0.875rem; width:100%; transition:border-color 0.2s; }
+    .input-field:focus { outline:none; border-color:rgba(201,162,39,0.5); }
+    .input-field::placeholder { color:#64748b; }
+
+    .tab-btn { padding:0.5rem 1rem; border-radius:0.5rem; font-weight:600; font-size:0.875rem; cursor:pointer; border:none; transition:all 0.2s; }
+    .tab-btn.active { background:rgba(201,162,39,0.15); color:#c9a227; }
+    .tab-btn:not(.active) { background:transparent; color:#64748b; }
+    .tab-btn:not(.active):hover { color:#94a3b8; background:rgba(255,255,255,0.04); }
+
+    .bill-row { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:0.75rem; transition:border-color 0.2s; }
+    .bill-row:hover { border-color:rgba(201,162,39,0.2); }
+
+    .savings-badge { background:rgba(52,211,153,0.15); color:#34d399; border:1px solid rgba(52,211,153,0.3); border-radius:999px; padding:0.2rem 0.6rem; font-size:0.75rem; font-weight:700; }
+    .warning-badge { background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); border-radius:999px; padding:0.2rem 0.6rem; font-size:0.75rem; font-weight:600; }
+    .locked-badge { background:rgba(255,255,255,0.07); color:#64748b; border-radius:999px; padding:0.2rem 0.6rem; font-size:0.75rem; }
+
+    .comparison-card { background:rgba(52,211,153,0.05); border:1px solid rgba(52,211,153,0.15); border-radius:0.75rem; padding:1rem; margin-top:0.75rem; }
+
+    .drop-zone { border:2px dashed rgba(201,162,39,0.3); border-radius:0.875rem; padding:2.5rem; text-align:center; transition:border-color 0.2s,background 0.2s; cursor:pointer; }
+    .drop-zone.active { border-color:rgba(201,162,39,0.7); background:rgba(201,162,39,0.05); }
+
+    .toast { position:fixed; bottom:1.5rem; right:1.5rem; background:#1a2235; border:1px solid rgba(201,162,39,0.3); padding:0.875rem 1.25rem; border-radius:0.75rem; color:#f1f5f9; z-index:9999; transform:translateY(120%); transition:transform 0.3s; max-width:320px; box-shadow:0 8px 32px rgba(0,0,0,0.4); }
+    .toast.show { transform:translateY(0); }
+
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:50; display:none; align-items:flex-start; justify-content:center; padding:2rem 1rem; overflow-y:auto; }
+    .modal-backdrop.open { display:flex; }
+    .modal { background:#13192a; border:1px solid rgba(255,255,255,0.1); border-radius:1rem; width:100%; max-width:540px; padding:1.75rem; }
+
+    .category-dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+
+    .spinner { width:20px; height:20px; border:2px solid rgba(255,255,255,0.15); border-top-color:#c9a227; border-radius:50%; animation:spin 0.7s linear infinite; display:inline-block; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .ease-badge-easy     { background:rgba(52,211,153,0.15); color:#34d399; }
+    .ease-badge-moderate { background:rgba(251,191,36,0.15); color:#fbbf24; }
+    .ease-badge-hard     { background:rgba(239,68,68,0.15); color:#f87171; }
+
+    @media (max-width: 640px) {
+      .modal { margin: 0; border-radius:1rem 1rem 0 0; }
+      .modal-backdrop { align-items:flex-end; padding:0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────────────────────── -->
+<nav style="background:rgba(13,17,23,0.97); border-bottom:1px solid rgba(255,255,255,0.07); position:sticky; top:0; z-index:40; backdrop-filter:blur(10px);">
+  <div style="max-width:1100px; margin:0 auto; padding:0 1rem; display:flex; align-items:center; justify-content:space-between; height:56px;">
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+      <a href="/app" style="color:#64748b; text-decoration:none; font-size:0.875rem; display:flex; align-items:center; gap:0.4rem;">
+        ← App
+      </a>
+      <span style="color:#2d3748;">|</span>
+      <span style="font-weight:700; font-size:1rem;" class="gold-text">📡 Rate Radar</span>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button onclick="openScanModal()" class="btn-ghost" style="padding:0.4rem 0.875rem; border-radius:0.5rem; font-size:0.875rem;">📷 Scan Bill</button>
+      <button onclick="openAddModal()" class="btn-gold" style="padding:0.4rem 0.875rem; border-radius:0.5rem; font-size:0.875rem;">+ Add Bill</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Main ─────────────────────────────────────────────────────────────── -->
+<div style="max-width:1100px; margin:0 auto; padding:1.5rem 1rem 5rem;">
+
+  <!-- Locked state (free tier) -->
+  <div id="locked-state" style="display:none; text-align:center; padding:4rem 1rem;">
+    <div style="font-size:3rem; margin-bottom:1rem;">🔒</div>
+    <h2 style="font-size:1.5rem; font-weight:700; margin:0 0 0.5rem;" class="gold-text">Rate Radar</h2>
+    <p style="color:#64748b; max-width:400px; margin:0 auto 1.5rem;">Find better deals on every recurring bill. Available on Individual plan and above.</p>
+    <a href="/tier-upgrade" class="btn-gold" style="display:inline-block; padding:0.75rem 2rem; border-radius:0.5rem; text-decoration:none; font-size:0.9375rem;">Upgrade to Unlock</a>
+  </div>
+
+  <!-- Main content (authenticated + tier OK) -->
+  <div id="main-content" style="display:none;">
+
+    <!-- Savings dashboard summary cards -->
+    <div id="dashboard-cards" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-bottom:1.5rem;">
+      <div class="card-savings" style="padding:1.25rem;">
+        <div style="font-size:0.75rem; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Monthly Spend</div>
+        <div id="total-monthly" style="font-size:1.75rem; font-weight:800; color:#f1f5f9;">—</div>
+        <div id="bill-count" style="font-size:0.8125rem; color:#64748b; margin-top:0.25rem;">—</div>
+      </div>
+      <div class="card-emerald" style="padding:1.25rem;">
+        <div style="font-size:0.75rem; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Potential Monthly Savings</div>
+        <div id="total-savings" style="font-size:1.75rem; font-weight:800;" class="emerald-text">—</div>
+        <div id="annual-savings" style="font-size:0.8125rem; color:#64748b; margin-top:0.25rem;">—</div>
+      </div>
+      <div class="card" style="padding:1.25rem;">
+        <div style="font-size:0.75rem; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Quick Win</div>
+        <div id="quick-win-text" style="font-size:0.9375rem; font-weight:700; color:#f1f5f9;">—</div>
+        <div id="quick-win-sub" style="font-size:0.8125rem; color:#64748b; margin-top:0.25rem;">—</div>
+      </div>
+    </div>
+
+    <!-- FACTS allocation suggestion -->
+    <div id="facts-suggestion" class="card-gold" style="padding:1rem 1.25rem; margin-bottom:1.5rem; display:none; align-items:flex-start; gap:0.875rem;">
+      <span style="font-size:1.25rem; flex-shrink:0;">💡</span>
+      <div>
+        <div id="facts-suggestion-text" style="font-size:0.9375rem; color:#f1f5f9; font-weight:600;"></div>
+        <div id="facts-buckets" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.5rem;"></div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex; gap:0.25rem; margin-bottom:1.25rem; background:rgba(255,255,255,0.03); border-radius:0.625rem; padding:0.25rem; width:fit-content;">
+      <button class="tab-btn active" onclick="switchTab('bills')" id="tab-bills">All Bills</button>
+      <button class="tab-btn" onclick="switchTab('comparison')" id="tab-comparison">Comparisons</button>
+      <button class="tab-btn" onclick="switchTab('due-soon')" id="tab-due-soon">Due Soon</button>
+    </div>
+
+    <!-- Tab: All Bills -->
+    <div id="panel-bills">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <h3 style="font-size:1rem; font-weight:700; margin:0; color:#94a3b8;">Tracked Bills</h3>
+        <button onclick="refreshAllComparisons()" class="btn-ghost" style="padding:0.4rem 0.875rem; border-radius:0.5rem; font-size:0.8125rem; display:flex; align-items:center; gap:0.4rem;">
+          <span id="refresh-all-icon">🔄</span> Refresh All Rates
+        </button>
+      </div>
+      <div id="bills-list">
+        <div style="text-align:center; padding:3rem; color:#64748b;">
+          <div class="spinner" style="margin:0 auto 1rem;"></div>
+          <div>Loading bills...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Comparisons -->
+    <div id="panel-comparison" style="display:none;">
+      <h3 style="font-size:1rem; font-weight:700; margin:0 0 1rem; color:#94a3b8;">AI Comparison Results</h3>
+      <div id="comparisons-list">
+        <div style="text-align:center; padding:3rem; color:#64748b;">Loading comparison data...</div>
+      </div>
+    </div>
+
+    <!-- Tab: Due Soon -->
+    <div id="panel-due-soon" style="display:none;">
+      <h3 style="font-size:1rem; font-weight:700; margin:0 0 1rem; color:#94a3b8;">Due in Next 7 Days</h3>
+      <div id="due-soon-list">
+        <div style="text-align:center; padding:3rem; color:#64748b;">Loading...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Toast ─────────────────────────────────────────────────────────────── -->
+<div id="toast" class="toast"></div>
+
+<!-- ── Add Bill Modal ─────────────────────────────────────────────────────── -->
+<div id="modal-add" class="modal-backdrop" onclick="if(event.target===this) closeAddModal()">
+  <div class="modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+      <h2 style="font-size:1.125rem; font-weight:700; margin:0;" class="gold-text">Add Bill</h2>
+      <button onclick="closeAddModal()" style="background:none; border:none; color:#64748b; font-size:1.5rem; cursor:pointer; line-height:1;">×</button>
+    </div>
+
+    <form id="form-add-bill" onsubmit="submitAddBill(event)">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.875rem;">
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Category *</label>
+          <select id="add-category" class="input-field" required onchange="updateSubcategories()">
+            <option value="">Select category...</option>
+            <option value="insurance">Insurance</option>
+            <option value="loans">Loans / Mortgage</option>
+            <option value="subscriptions">Subscriptions</option>
+            <option value="utilities">Utilities</option>
+            <option value="memberships">Memberships</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div style="grid-column:1/-1;" id="subcategory-row">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Subcategory</label>
+          <select id="add-subcategory" class="input-field">
+            <option value="">Select subcategory...</option>
+          </select>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Provider / Company *</label>
+          <input id="add-provider" class="input-field" type="text" placeholder="e.g. Geico, Netflix, Con Edison" required>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Plan / Product Name</label>
+          <input id="add-plan" class="input-field" type="text" placeholder="e.g. Comprehensive Auto, Basic Streaming">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Amount *</label>
+          <input id="add-amount" class="input-field" type="number" step="0.01" min="0" placeholder="0.00" required>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Frequency *</label>
+          <select id="add-frequency" class="input-field" required>
+            <option value="monthly">Monthly</option>
+            <option value="annually">Annually</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="semiannually">Semi-annually</option>
+            <option value="biweekly">Bi-weekly</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Next Payment Date</label>
+          <input id="add-next-date" class="input-field" type="date">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Contract End Date</label>
+          <input id="add-contract-end" class="input-field" type="date">
+        </div>
+        <div style="grid-column:1/-1; display:flex; align-items:center; gap:0.75rem;">
+          <input id="add-auto-renewal" type="checkbox" checked style="width:18px; height:18px; accent-color:#c9a227;">
+          <label for="add-auto-renewal" style="font-size:0.875rem; color:#94a3b8;">Auto-renewal enabled</label>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Notes</label>
+          <textarea id="add-notes" class="input-field" rows="2" placeholder="Any details worth remembering..." style="resize:vertical;"></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.75rem; margin-top:1.25rem;">
+        <button type="button" onclick="closeAddModal()" class="btn-ghost" style="flex:1; padding:0.75rem; border-radius:0.5rem;">Cancel</button>
+        <button type="submit" id="btn-add-submit" class="btn-gold" style="flex:2; padding:0.75rem; border-radius:0.5rem; font-size:0.9375rem;">Add Bill</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Edit Bill Modal ─────────────────────────────────────────────────────── -->
+<div id="modal-edit" class="modal-backdrop" onclick="if(event.target===this) closeEditModal()">
+  <div class="modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+      <h2 style="font-size:1.125rem; font-weight:700; margin:0;" class="gold-text">Edit Bill</h2>
+      <button onclick="closeEditModal()" style="background:none; border:none; color:#64748b; font-size:1.5rem; cursor:pointer; line-height:1;">×</button>
+    </div>
+    <form id="form-edit-bill" onsubmit="submitEditBill(event)">
+      <input type="hidden" id="edit-id">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.875rem;">
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Category *</label>
+          <select id="edit-category" class="input-field" required onchange="updateEditSubcategories()">
+            <option value="">Select category...</option>
+            <option value="insurance">Insurance</option>
+            <option value="loans">Loans / Mortgage</option>
+            <option value="subscriptions">Subscriptions</option>
+            <option value="utilities">Utilities</option>
+            <option value="memberships">Memberships</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Subcategory</label>
+          <select id="edit-subcategory" class="input-field">
+            <option value="">Select subcategory...</option>
+          </select>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Provider / Company *</label>
+          <input id="edit-provider" class="input-field" type="text" placeholder="e.g. Geico, Netflix, Con Edison" required>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Plan / Product Name</label>
+          <input id="edit-plan" class="input-field" type="text" placeholder="e.g. Comprehensive Auto, Basic Streaming">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Amount *</label>
+          <input id="edit-amount" class="input-field" type="number" step="0.01" min="0" placeholder="0.00" required>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Frequency *</label>
+          <select id="edit-frequency" class="input-field" required>
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Bi-weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="semiannually">Semi-annually</option>
+            <option value="annually">Annually</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Next Payment Date</label>
+          <input id="edit-next-date" class="input-field" type="date">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Contract End Date</label>
+          <input id="edit-contract-end" class="input-field" type="date">
+        </div>
+        <div style="grid-column:1/-1; display:flex; align-items:center; gap:0.75rem;">
+          <input id="edit-auto-renewal" type="checkbox" style="width:18px; height:18px; accent-color:#c9a227;">
+          <label for="edit-auto-renewal" style="font-size:0.875rem; color:#94a3b8;">Auto-renewal enabled</label>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Notes</label>
+          <textarea id="edit-notes" class="input-field" rows="2" placeholder="Any details worth remembering..." style="resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.75rem; margin-top:1.25rem;">
+        <button type="button" onclick="closeEditModal()" class="btn-ghost" style="flex:1; padding:0.75rem; border-radius:0.5rem;">Cancel</button>
+        <button type="submit" id="btn-edit-submit" class="btn-gold" style="flex:2; padding:0.75rem; border-radius:0.5rem; font-size:0.9375rem;">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Scan Bill Modal ────────────────────────────────────────────────────── -->
+<div id="modal-scan" class="modal-backdrop" onclick="if(event.target===this) closeScanModal()">
+  <div class="modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+      <h2 style="font-size:1.125rem; font-weight:700; margin:0;" class="gold-text">📷 Scan a Bill</h2>
+      <button onclick="closeScanModal()" style="background:none; border:none; color:#64748b; font-size:1.5rem; cursor:pointer; line-height:1;">×</button>
+    </div>
+
+    <div id="scan-upload-step">
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('scan-file-input').click()">
+        <div style="font-size:2.5rem; margin-bottom:0.75rem;">📄</div>
+        <div style="font-weight:600; color:#f1f5f9; margin-bottom:0.25rem;">Drop bill here or tap to upload</div>
+        <div style="font-size:0.8125rem; color:#64748b;">JPG, PNG, HEIC, PDF — up to 10 MB</div>
+        <input id="scan-file-input" type="file" accept="image/jpeg,image/png,image/heic,image/webp,application/pdf" style="display:none;" onchange="handleScanFile(this.files[0])">
+      </div>
+      <div style="text-align:center; margin-top:1rem;">
+        <button onclick="document.getElementById('scan-file-input').setAttribute('capture','environment'); document.getElementById('scan-file-input').click();" class="btn-ghost" style="padding:0.6rem 1.25rem; border-radius:0.5rem; font-size:0.875rem; margin-right:0.5rem;">📷 Use Camera</button>
+      </div>
+    </div>
+
+    <div id="scan-loading-step" style="display:none; text-align:center; padding:2rem 0;">
+      <div class="spinner" style="margin:0 auto 1rem; width:36px; height:36px; border-width:3px;"></div>
+      <div style="font-weight:600; color:#f1f5f9; margin-bottom:0.25rem;">AI is reading your bill...</div>
+      <div style="font-size:0.8125rem; color:#64748b;">Extracting provider, amount, and renewal date</div>
+    </div>
+
+    <div id="scan-review-step" style="display:none;">
+      <div class="card-emerald" style="padding:0.875rem 1rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem;">
+        <span style="font-size:1.25rem;">✅</span>
+        <div>
+          <div style="font-weight:600; font-size:0.9375rem;">Bill extracted — review and confirm</div>
+          <div style="font-size:0.8125rem; color:#64748b;">Low-confidence fields are highlighted. Edit any field before saving.</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Category *</label>
+          <select id="scan-category" class="input-field" required onchange="updateScanSubcategories()">
+            <option value="insurance">Insurance</option>
+            <option value="loans">Loans / Mortgage</option>
+            <option value="subscriptions">Subscriptions</option>
+            <option value="utilities">Utilities</option>
+            <option value="memberships">Memberships</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Provider *</label>
+          <input id="scan-provider" class="input-field" type="text" required>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Plan Name</label>
+          <input id="scan-plan" class="input-field" type="text">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Amount *</label>
+          <input id="scan-amount" class="input-field" type="number" step="0.01" min="0" required>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Frequency *</label>
+          <select id="scan-frequency" class="input-field" required>
+            <option value="monthly">Monthly</option>
+            <option value="annually">Annually</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="semiannually">Semi-annually</option>
+            <option value="biweekly">Bi-weekly</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Next Payment Date</label>
+          <input id="scan-next-date" class="input-field" type="date">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:600; color:#94a3b8; margin-bottom:0.35rem;">Account #</label>
+          <input id="scan-account" class="input-field" type="text" placeholder="****1234">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.75rem; margin-top:1.25rem;">
+        <button onclick="resetScanModal()" class="btn-ghost" style="flex:1; padding:0.75rem; border-radius:0.5rem;">↩ Try Again</button>
+        <button onclick="saveScanBill()" id="btn-scan-save" class="btn-emerald" style="flex:2; padding:0.75rem; border-radius:0.5rem; font-size:0.9375rem;">✅ Save Bill</button>
+      </div>
+    </div>
+
+    <div id="scan-error-step" style="display:none; text-align:center; padding:1.5rem 0;">
+      <div style="font-size:2.5rem; margin-bottom:0.75rem;">⚠️</div>
+      <div style="font-weight:600; color:#f87171; margin-bottom:0.5rem;" id="scan-error-msg">Couldn't read this bill.</div>
+      <div style="font-size:0.875rem; color:#64748b; margin-bottom:1.25rem;">Try a clearer image, or add the bill manually.</div>
+      <div style="display:flex; gap:0.75rem; justify-content:center;">
+        <button onclick="resetScanModal()" class="btn-ghost" style="padding:0.65rem 1.25rem; border-radius:0.5rem;">Try Again</button>
+        <button onclick="closeScanModal(); openAddModal();" class="btn-gold" style="padding:0.65rem 1.25rem; border-radius:0.5rem;">Add Manually</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Comparison Detail Modal ────────────────────────────────────────────── -->
+<div id="modal-comparison" class="modal-backdrop" onclick="if(event.target===this) closeComparisonModal()">
+  <div class="modal" style="max-width:620px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+      <h2 style="font-size:1.125rem; font-weight:700; margin:0;" class="gold-text">AI Rate Comparison</h2>
+      <button onclick="closeComparisonModal()" style="background:none; border:none; color:#64748b; font-size:1.5rem; cursor:pointer; line-height:1;">×</button>
+    </div>
+    <div id="comparison-modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let bills = [];
+let dashboardData = {};
+let scanFileUrl = null;
+
+const SUBCATEGORY_MAP = {
+  insurance:     ['Auto','Home','Life','Health','Renters','Other'],
+  loans:         ['Mortgage','Auto Loan','Personal Loan','Student Loan','HELOC','Other'],
+  subscriptions: ['Streaming','Cell Phone','Internet','Software/SaaS','Cloud Storage','News','Other'],
+  utilities:     ['Electric','Gas','Water','Trash','Internet','Other'],
+  memberships:   ['Gym','Country Club','Professional Org','Warehouse Club','Other'],
+  other:         [],
+};
+
+const CATEGORY_COLORS = {
+  insurance:'#c9a227', loans:'#f87171', subscriptions:'#a78bfa',
+  utilities:'#60a5fa', memberships:'#34d399', other:'#94a3b8'
+};
+
+// ─── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    await Promise.all([loadDashboard(), loadBills()]);
+  } catch (e) {
+    if (e.status === 401) {
+      window.location.href = '/login';
+    } else if (e.status === 403 || e.upgrade_required) {
+      document.getElementById('main-content').style.display = 'none';
+      document.getElementById('locked-state').style.display = 'block';
+    }
+  }
+  setupDragDrop();
+}
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch('/api/mod_rate_radar' + path, {
+    headers: { 'Content-Type': 'application/json', ...opts.headers },
+    ...opts,
+  });
+  if (!res.ok) {
+    const err = { status: res.status, ...(await res.json().catch(() => ({}))) };
+    throw err;
+  }
+  return res.json();
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const data = await apiFetch('/dashboard');
+  dashboardData = data;
+
+  document.getElementById('main-content').style.display = 'block';
+  document.getElementById('locked-state').style.display = 'none';
+
+  document.getElementById('total-monthly').textContent = '$' + (data.total_monthly || 0).toFixed(2);
+  document.getElementById('bill-count').textContent = (data.bill_count || 0) + ' recurring bills';
+  document.getElementById('total-savings').textContent = '$' + (data.total_potential_savings || 0).toFixed(2);
+  document.getElementById('annual-savings').textContent = data.annual_potential_savings > 0
+    ? '$' + data.annual_potential_savings.toFixed(0) + '/yr potential' : 'Run comparisons to find savings';
+
+  if (data.quick_wins && data.quick_wins.length > 0) {
+    const qw = data.quick_wins[0];
+    document.getElementById('quick-win-text').textContent = qw.provider;
+    document.getElementById('quick-win-sub').textContent = `Save ~$${parseFloat(qw.potential_savings).toFixed(2)}/mo`;
+  } else {
+    document.getElementById('quick-win-text').textContent = 'No comparisons yet';
+    document.getElementById('quick-win-sub').textContent = 'Add bills and run AI analysis';
+  }
+
+  if (data.facts_allocation_suggestion) {
+    const s = data.facts_allocation_suggestion;
+    document.getElementById('facts-suggestion').style.display = 'flex';
+    document.getElementById('facts-suggestion-text').textContent = s.message;
+    const bucketsEl = document.getElementById('facts-buckets');
+    bucketsEl.innerHTML = '';
+    (s.suggestions || []).forEach(sug => {
+      const chip = document.createElement('div');
+      chip.style.cssText = 'background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.2);border-radius:999px;padding:0.2rem 0.75rem;font-size:0.75rem;color:#c9a227;font-weight:600;';
+      chip.textContent = `${sug.bucket} +$${sug.amount}/mo`;
+      bucketsEl.appendChild(chip);
+    });
+  }
+}
+
+// ─── Bills list ───────────────────────────────────────────────────────────────
+async function loadBills() {
+  const data = await apiFetch('/bills');
+  bills = data.bills || [];
+  renderBills();
+  renderComparisons();
+  renderDueSoon();
+}
+
+function renderBills() {
+  const el = document.getElementById('bills-list');
+  if (!bills.length) {
+    el.innerHTML = `<div style="text-align:center;padding:3rem;color:#64748b;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">📋</div>
+      <div style="font-weight:600;color:#f1f5f9;margin-bottom:0.5rem;">No bills tracked yet</div>
+      <div style="margin-bottom:1.25rem;">Add a bill manually or scan a statement to get started.</div>
+      <div style="display:flex;gap:0.75rem;justify-content:center;">
+        <button onclick="openScanModal()" class="btn-ghost" style="padding:0.65rem 1.25rem;border-radius:0.5rem;">📷 Scan Bill</button>
+        <button onclick="openAddModal()" class="btn-gold" style="padding:0.65rem 1.25rem;border-radius:0.5rem;">+ Add Manually</button>
+      </div>
+    </div>`;
+    return;
+  }
+
+  // Group by category
+  const grouped = {};
+  bills.forEach(b => {
+    if (!grouped[b.category]) grouped[b.category] = [];
+    grouped[b.category].push(b);
+  });
+
+  let html = '';
+  Object.entries(grouped).forEach(([cat, catBills]) => {
+    const catTotal = catBills.reduce((s, b) => s + parseFloat(b.monthly_equivalent), 0);
+    const color = CATEGORY_COLORS[cat] || '#94a3b8';
+    html += `<div style="margin-bottom:1.5rem;">
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.625rem;">
+        <span class="category-dot" style="background:${color};"></span>
+        <span style="font-size:0.8125rem;font-weight:700;text-transform:capitalize;color:#94a3b8;">${cat}</span>
+        <span style="font-size:0.8125rem;color:#64748b;margin-left:auto;">$${catTotal.toFixed(2)}/mo</span>
+      </div>`;
+
+    catBills.forEach(bill => {
+      const hasSavings = bill.potential_savings > 0;
+      const isDueSoon = bill.next_payment_date && isDueWithin7(bill.next_payment_date);
+      html += `<div class="bill-row" style="padding:0.875rem 1rem;margin-bottom:0.5rem;">
+        <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <span style="font-weight:700;font-size:0.9375rem;">${escHtml(bill.provider)}</span>
+              ${bill.plan_name ? `<span style="font-size:0.8125rem;color:#64748b;">${escHtml(bill.plan_name)}</span>` : ''}
+              ${isDueSoon ? `<span class="warning-badge">Due soon</span>` : ''}
+              ${hasSavings ? `<span class="savings-badge">Save $${parseFloat(bill.potential_savings).toFixed(2)}/mo</span>` : ''}
+            </div>
+            <div style="font-size:0.8125rem;color:#64748b;margin-top:0.25rem;">
+              $${parseFloat(bill.amount).toFixed(2)} ${bill.frequency}
+              ${bill.monthly_equivalent !== bill.amount ? `· $${parseFloat(bill.monthly_equivalent).toFixed(2)}/mo equiv.` : ''}
+              ${bill.next_payment_date ? `· Next: ${formatDate(bill.next_payment_date)}` : ''}
+              ${bill.checked_at ? `<span style="color:#475569;"> · Checked ${timeAgo(bill.checked_at)}</span>` : ''}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+            <button onclick="openEditModal(${bill.id})" class="btn-ghost" style="padding:0.35rem 0.625rem;border-radius:0.375rem;font-size:0.75rem;" title="Edit bill">✏️</button>
+            <button onclick="runComparison(${bill.id})" class="btn-ghost" style="padding:0.35rem 0.625rem;border-radius:0.375rem;font-size:0.75rem;" title="Refresh rates">🔄</button>
+            ${hasSavings ? `<button onclick="openComparisonModal(${bill.id})" class="btn-emerald" style="padding:0.35rem 0.75rem;border-radius:0.375rem;font-size:0.75rem;">View Deals</button>` : `<button onclick="runComparison(${bill.id})" class="btn-ghost" style="padding:0.35rem 0.75rem;border-radius:0.375rem;font-size:0.75rem;">Find Deals</button>`}
+            <button onclick="deleteBill(${bill.id})" class="btn-danger" style="padding:0.35rem 0.625rem;border-radius:0.375rem;font-size:0.75rem;" title="Delete">🗑</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderComparisons() {
+  const el = document.getElementById('comparisons-list');
+  const withComparisons = bills.filter(b => b.alternatives && b.alternatives.length > 0 && b.potential_savings > 0);
+  const sorted = [...withComparisons].sort((a, b) => b.potential_savings - a.potential_savings);
+
+  if (!sorted.length) {
+    el.innerHTML = `<div style="text-align:center;padding:3rem;color:#64748b;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">🤖</div>
+      <div style="font-weight:600;color:#f1f5f9;margin-bottom:0.5rem;">No comparisons run yet</div>
+      <div style="margin-bottom:1.25rem;">Add bills and click "Find Deals" or "Refresh All Rates" to run AI analysis.</div>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+  sorted.forEach(bill => {
+    const alts = bill.alternatives || [];
+    html += `<div class="card" style="padding:1.25rem;margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.875rem;">
+        <div>
+          <div style="font-weight:700;font-size:0.9375rem;">${escHtml(bill.provider)}</div>
+          <div style="font-size:0.8125rem;color:#64748b;">${bill.category} · $${parseFloat(bill.monthly_equivalent).toFixed(2)}/mo current</div>
+        </div>
+        <span class="savings-badge" style="font-size:0.875rem;padding:0.3rem 0.75rem;">Save $${parseFloat(bill.potential_savings).toFixed(2)}/mo</span>
+      </div>
+
+      <!-- Current -->
+      <div style="background:rgba(255,255,255,0.04);border-radius:0.5rem;padding:0.625rem 0.875rem;margin-bottom:0.625rem;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:0.875rem;font-weight:600;color:#94a3b8;">Current: ${escHtml(bill.provider)}</div>
+        <div style="font-weight:700;color:#f1f5f9;">$${parseFloat(bill.monthly_equivalent).toFixed(2)}/mo</div>
+      </div>
+
+      <!-- Alternatives -->
+      ${alts.slice(0,3).map((alt, i) => `
+      <div class="comparison-card" style="margin-top:${i===0?'0':'0.5rem'};">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.75rem;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">
+              <span style="font-weight:700;font-size:0.9375rem;">${escHtml(alt.provider)}</span>
+              ${alt.plan_name ? `<span style="font-size:0.8125rem;color:#64748b;">${escHtml(alt.plan_name)}</span>` : ''}
+              <span class="ease-badge-${alt.switching_ease || 'moderate'}" style="font-size:0.6875rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;">${alt.switching_ease || 'moderate'} switch</span>
+            </div>
+            <div style="font-size:0.8125rem;color:#94a3b8;">${escHtml(alt.details || '')}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-weight:800;font-size:1rem;color:#34d399;">$${parseFloat(alt.monthly_amount).toFixed(2)}/mo</div>
+            <div style="font-size:0.75rem;color:#34d399;font-weight:600;">−$${parseFloat(alt.monthly_savings).toFixed(2)}/mo</div>
+            <div style="font-size:0.75rem;color:#64748b;">$${parseFloat(alt.annual_savings).toFixed(0)}/yr</div>
+          </div>
+        </div>
+      </div>`).join('')}
+
+      <div style="font-size:0.75rem;color:#475569;margin-top:0.75rem;">Last checked: ${bill.checked_at ? timeAgo(bill.checked_at) : 'unknown'}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderDueSoon() {
+  const el = document.getElementById('due-soon-list');
+  const dueSoon = dashboardData.due_soon || [];
+  if (!dueSoon.length) {
+    el.innerHTML = `<div style="text-align:center;padding:3rem;color:#64748b;">No bills due in the next 7 days.</div>`;
+    return;
+  }
+  let html = '';
+  dueSoon.forEach(b => {
+    html += `<div class="bill-row" style="padding:0.875rem 1rem;margin-bottom:0.5rem;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-weight:700;">${escHtml(b.provider)}</div>
+        <div style="font-size:0.8125rem;color:#64748b;">${b.category} · Due ${formatDate(b.next_payment_date)}</div>
+      </div>
+      <div style="font-weight:700;font-size:1.0625rem;color:#fbbf24;">$${parseFloat(b.amount).toFixed(2)}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ─── Tab switching ────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  ['bills','comparison','due-soon'].forEach(t => {
+    document.getElementById(`panel-${t}`).style.display = t === tab ? 'block' : 'none';
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+  });
+}
+
+// ─── Add Bill modal ───────────────────────────────────────────────────────────
+function openAddModal() { document.getElementById('modal-add').classList.add('open'); }
+function closeAddModal() { document.getElementById('modal-add').classList.remove('open'); document.getElementById('form-add-bill').reset(); }
+
+function updateSubcategories() {
+  const cat = document.getElementById('add-category').value;
+  const sel = document.getElementById('add-subcategory');
+  const subs = SUBCATEGORY_MAP[cat] || [];
+  sel.innerHTML = '<option value="">Select subcategory...</option>' + subs.map(s => `<option value="${s.toLowerCase()}">${s}</option>`).join('');
+}
+
+async function submitAddBill(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-add-submit');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    await apiFetch('/bills', {
+      method: 'POST',
+      body: JSON.stringify({
+        category: document.getElementById('add-category').value,
+        subcategory: document.getElementById('add-subcategory').value || null,
+        provider: document.getElementById('add-provider').value,
+        plan_name: document.getElementById('add-plan').value || null,
+        amount: document.getElementById('add-amount').value,
+        frequency: document.getElementById('add-frequency').value,
+        next_payment_date: document.getElementById('add-next-date').value || null,
+        auto_renewal: document.getElementById('add-auto-renewal').checked,
+        contract_end_date: document.getElementById('add-contract-end').value || null,
+        notes: document.getElementById('add-notes').value || null,
+      }),
+    });
+    closeAddModal();
+    showToast('✅ Bill added successfully');
+    await Promise.all([loadDashboard(), loadBills()]);
+  } catch (err) {
+    showToast('❌ ' + (err.error || 'Failed to add bill'), 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Add Bill';
+  }
+}
+
+// ─── Edit Bill modal ──────────────────────────────────────────────────────────
+function openEditModal(billId) {
+  const bill = bills.find(b => b.id === billId);
+  if (!bill) return;
+  document.getElementById('edit-id').value = bill.id;
+  document.getElementById('edit-category').value = bill.category || '';
+  document.getElementById('edit-provider').value = bill.provider || '';
+  document.getElementById('edit-plan').value = bill.plan_name || '';
+  document.getElementById('edit-amount').value = bill.amount || '';
+  document.getElementById('edit-frequency').value = bill.frequency || 'monthly';
+  document.getElementById('edit-next-date').value = bill.next_payment_date ? bill.next_payment_date.split('T')[0] : '';
+  document.getElementById('edit-contract-end').value = bill.contract_end_date ? bill.contract_end_date.split('T')[0] : '';
+  document.getElementById('edit-auto-renewal').checked = bill.auto_renewal !== false;
+  document.getElementById('edit-notes').value = bill.notes || '';
+  updateEditSubcategories();
+  if (bill.subcategory) document.getElementById('edit-subcategory').value = bill.subcategory;
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('modal-edit').classList.remove('open');
+  document.getElementById('form-edit-bill').reset();
+}
+
+function updateEditSubcategories() {
+  const cat = document.getElementById('edit-category').value;
+  const sel = document.getElementById('edit-subcategory');
+  const subs = SUBCATEGORY_MAP[cat] || [];
+  sel.innerHTML = '<option value="">Select subcategory...</option>' + subs.map(s => `<option value="${s.toLowerCase()}">${s}</option>`).join('');
+}
+
+async function submitEditBill(e) {
+  e.preventDefault();
+  const billId = document.getElementById('edit-id').value;
+  const btn = document.getElementById('btn-edit-submit');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    await apiFetch('/bills/' + billId, {
+      method: 'PUT',
+      body: JSON.stringify({
+        category: document.getElementById('edit-category').value,
+        subcategory: document.getElementById('edit-subcategory').value || null,
+        provider: document.getElementById('edit-provider').value,
+        plan_name: document.getElementById('edit-plan').value || null,
+        amount: document.getElementById('edit-amount').value,
+        frequency: document.getElementById('edit-frequency').value,
+        next_payment_date: document.getElementById('edit-next-date').value || null,
+        auto_renewal: document.getElementById('edit-auto-renewal').checked,
+        contract_end_date: document.getElementById('edit-contract-end').value || null,
+        notes: document.getElementById('edit-notes').value || null,
+      }),
+    });
+    closeEditModal();
+    showToast('✅ Bill updated');
+    await Promise.all([loadDashboard(), loadBills()]);
+  } catch (err) {
+    showToast('❌ ' + (err.error || 'Failed to update bill'), 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save Changes';
+  }
+}
+
+// ─── Delete Bill ──────────────────────────────────────────────────────────────
+async function deleteBill(id) {
+  if (!confirm('Remove this bill from Rate Radar?')) return;
+  await apiFetch('/bills/' + id, { method: 'DELETE' });
+  showToast('Bill removed');
+  await Promise.all([loadDashboard(), loadBills()]);
+}
+
+// ─── Run Comparison ───────────────────────────────────────────────────────────
+async function runComparison(billId) {
+  showToast('🤖 AI is searching for better rates...');
+  try {
+    const result = await apiFetch('/bills/' + billId + '/compare', { method: 'POST' });
+    showToast(`✅ Found ${result.alternatives.length} alternatives — save up to $${result.potential_savings.toFixed(2)}/mo`);
+    await Promise.all([loadDashboard(), loadBills()]);
+  } catch (err) {
+    showToast('❌ ' + (err.error || 'Comparison failed. Try again.'), 'error');
+  }
+}
+
+async function refreshAllComparisons() {
+  const icon = document.getElementById('refresh-all-icon');
+  icon.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;"></span>';
+  try {
+    const result = await apiFetch('/compare-all', { method: 'POST' });
+    showToast(`🔄 Running comparisons for ${result.queued} bills — refresh in ~30s`);
+    setTimeout(() => Promise.all([loadDashboard(), loadBills()]), 35000);
+  } catch (err) {
+    showToast('❌ ' + (err.error || 'Failed to start refresh'), 'error');
+  } finally {
+    setTimeout(() => { icon.innerHTML = '🔄'; }, 3000);
+  }
+}
+
+// ─── Comparison Detail Modal ──────────────────────────────────────────────────
+async function openComparisonModal(billId) {
+  document.getElementById('modal-comparison').classList.add('open');
+  const el = document.getElementById('comparison-modal-content');
+  el.innerHTML = '<div style="text-align:center;padding:2rem;"><span class="spinner" style="width:28px;height:28px;border-width:3px;"></span></div>';
+
+  try {
+    const { comparison } = await apiFetch('/bills/' + billId + '/comparison');
+    const bill = bills.find(b => b.id === billId) || {};
+    const alts = comparison.alternatives || [];
+
+    let html = `<div style="margin-bottom:1rem;">
+      <div style="font-weight:700;font-size:1rem;margin-bottom:0.25rem;">${escHtml(comparison.provider || bill.provider || '')}</div>
+      <div style="font-size:0.875rem;color:#64748b;">Currently paying $${parseFloat(comparison.monthly_equivalent || bill.monthly_equivalent || 0).toFixed(2)}/mo</div>
+    </div>`;
+
+    // Current row
+    html += `<div style="background:rgba(255,255,255,0.04);border-radius:0.5rem;padding:0.75rem 1rem;margin-bottom:0.75rem;display:flex;justify-content:space-between;">
+      <div style="font-weight:600;color:#94a3b8;">Current: ${escHtml(comparison.provider || bill.provider || '')}</div>
+      <div style="font-weight:700;">$${parseFloat(comparison.monthly_equivalent || bill.monthly_equivalent || 0).toFixed(2)}/mo</div>
+    </div>`;
+
+    alts.forEach(alt => {
+      html += `<div class="comparison-card" style="margin-bottom:0.75rem;">
+        <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:0.9375rem;margin-bottom:0.25rem;">${escHtml(alt.provider)}</div>
+            ${alt.plan_name ? `<div style="font-size:0.8125rem;color:#64748b;margin-bottom:0.25rem;">${escHtml(alt.plan_name)}</div>` : ''}
+            <div style="font-size:0.8125rem;color:#94a3b8;margin-bottom:0.5rem;">${escHtml(alt.details || '')}</div>
+            <span class="ease-badge-${alt.switching_ease || 'moderate'}" style="font-size:0.75rem;font-weight:700;padding:0.2rem 0.625rem;border-radius:999px;display:inline-block;">
+              ${alt.switching_ease || 'moderate'} to switch
+            </span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:1.25rem;font-weight:800;color:#34d399;">$${parseFloat(alt.monthly_amount).toFixed(2)}/mo</div>
+            <div style="font-size:0.875rem;color:#34d399;font-weight:600;">Save $${parseFloat(alt.monthly_savings).toFixed(2)}/mo</div>
+            <div style="font-size:0.8125rem;color:#64748b;">$${parseFloat(alt.annual_savings).toFixed(0)} saved/yr</div>
+          </div>
+        </div>
+      </div>`;
+    });
+
+    if (comparison.notes) {
+      html += `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:0.5rem;padding:0.875rem;font-size:0.875rem;color:#94a3b8;margin-top:0.75rem;">${escHtml(comparison.notes)}</div>`;
+    }
+
+    html += `<div style="font-size:0.75rem;color:#475569;margin-top:0.875rem;">Comparison run: ${timeAgo(comparison.checked_at)}</div>`;
+    html += `<div style="margin-top:1.25rem;display:flex;gap:0.75rem;">
+      <button onclick="closeComparisonModal()" class="btn-ghost" style="flex:1;padding:0.75rem;border-radius:0.5rem;">Close</button>
+      <button onclick="runComparison(${billId}); closeComparisonModal();" class="btn-gold" style="flex:1;padding:0.75rem;border-radius:0.5rem;">🔄 Refresh Rates</button>
+    </div>`;
+
+    el.innerHTML = html;
+  } catch (err) {
+    el.innerHTML = `<div style="text-align:center;padding:2rem;color:#f87171;">Failed to load comparison data.</div>`;
+  }
+}
+
+function closeComparisonModal() { document.getElementById('modal-comparison').classList.remove('open'); }
+
+// ─── Scan Bill modal ──────────────────────────────────────────────────────────
+function openScanModal() { document.getElementById('modal-scan').classList.add('open'); resetScanModal(); }
+function closeScanModal() { document.getElementById('modal-scan').classList.remove('open'); }
+
+function resetScanModal() {
+  document.getElementById('scan-upload-step').style.display = 'block';
+  document.getElementById('scan-loading-step').style.display = 'none';
+  document.getElementById('scan-review-step').style.display = 'none';
+  document.getElementById('scan-error-step').style.display = 'none';
+  document.getElementById('scan-file-input').value = '';
+  scanFileUrl = null;
+}
+
+function updateScanSubcategories() { /* subcategory not shown in scan form for simplicity */ }
+
+async function handleScanFile(file) {
+  if (!file) return;
+  document.getElementById('scan-upload-step').style.display = 'none';
+  document.getElementById('scan-loading-step').style.display = 'block';
+
+  const formData = new FormData();
+  formData.append('bill', file);
+
+  try {
+    const res = await fetch('/api/mod_rate_radar/bills/scan', {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || 'OCR failed');
+
+    scanFileUrl = data.file_url;
+    const ex = data.extracted;
+
+    // Populate review form
+    document.getElementById('scan-category').value = ex.category || 'other';
+    document.getElementById('scan-provider').value = ex.provider || '';
+    document.getElementById('scan-plan').value = ex.plan_name || '';
+    document.getElementById('scan-amount').value = ex.amount || '';
+    document.getElementById('scan-frequency').value = ex.frequency || 'monthly';
+    document.getElementById('scan-next-date').value = ex.due_date ? ex.due_date.split('T')[0] : '';
+    document.getElementById('scan-account').value = ex.account_number_masked || '';
+
+    document.getElementById('scan-loading-step').style.display = 'none';
+    document.getElementById('scan-review-step').style.display = 'block';
+  } catch (err) {
+    document.getElementById('scan-loading-step').style.display = 'none';
+    document.getElementById('scan-error-step').style.display = 'block';
+    document.getElementById('scan-error-msg').textContent = err.message || "Couldn't read this bill.";
+  }
+}
+
+async function saveScanBill() {
+  const btn = document.getElementById('btn-scan-save');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+  try {
+    await apiFetch('/bills', {
+      method: 'POST',
+      body: JSON.stringify({
+        category: document.getElementById('scan-category').value,
+        provider: document.getElementById('scan-provider').value,
+        plan_name: document.getElementById('scan-plan').value || null,
+        amount: document.getElementById('scan-amount').value,
+        frequency: document.getElementById('scan-frequency').value,
+        next_payment_date: document.getElementById('scan-next-date').value || null,
+        scan_source: 'image',
+        original_file_url: scanFileUrl,
+      }),
+    });
+    closeScanModal();
+    showToast('✅ Bill saved from scan');
+    await Promise.all([loadDashboard(), loadBills()]);
+  } catch (err) {
+    showToast('❌ ' + (err.error || 'Failed to save bill'), 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '✅ Save Bill';
+  }
+}
+
+// ─── Drag & Drop ──────────────────────────────────────────────────────────────
+function setupDragDrop() {
+  const dz = document.getElementById('drop-zone');
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('active'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('active'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('active');
+    const file = e.dataTransfer.files[0];
+    if (file) { openScanModal(); setTimeout(() => handleScanFile(file), 100); }
+  });
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = type === 'error' ? 'rgba(239,68,68,0.4)' : 'rgba(201,162,39,0.3)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function timeAgo(d) {
+  if (!d) return 'unknown';
+  const secs = Math.floor((Date.now() - new Date(d)) / 1000);
+  if (secs < 60) return 'just now';
+  if (secs < 3600) return Math.floor(secs/60) + 'm ago';
+  if (secs < 86400) return Math.floor(secs/3600) + 'h ago';
+  return Math.floor(secs/86400) + 'd ago';
+}
+
+function isDueWithin7(dateStr) {
+  const d = new Date(dateStr);
+  const now = Date.now();
+  const diff = d - now;
+  return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+init();
+</script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>

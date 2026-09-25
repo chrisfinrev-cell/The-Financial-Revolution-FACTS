@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benefits Masterclass — Interactive Calculators | FACTS</title>
+  <meta name="description" content="Maximize your total rewards package with 6 interactive calculators. 401k, HSA, dental, education rebate, total comp, and 30-day action plan.">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1f2e'/%3E%3Ctext x='50%25' y='62%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='bold' fill='%23c9a227'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950: '#070c14', 900: '#0d1117', 800: '#13192a', 700: '#1a2235', 600: '#1e293b' },
+            gold: { 300: '#e8c96a', 400: '#d4a929', 500: '#c9a227', 600: '#a07c18' }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    body { background: #0d1117; color: #e5e7eb; min-height: 100vh; min-height: 100dvh; }
+
+    .gold-text {
+      background: linear-gradient(135deg, #c9a227 0%, #e8c96a 50%, #c9a227 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .gold-text-solid { color: #e8c96a; }
+
+    .card {
+      background: linear-gradient(145deg, #13192a, #1a2235);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { border-color: rgba(201,162,39,0.2); }
+    .card.active-card { border-color: rgba(201,162,39,0.35); box-shadow: 0 0 0 1px rgba(201,162,39,0.1); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #c9a227, #e8c96a);
+      color: #0d1117; font-weight: 700; border-radius: 0.6rem;
+      transition: opacity 0.2s, transform 0.15s; border: none; cursor: pointer;
+    }
+    .btn-gold:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #d1d5db; border-radius: 0.6rem;
+      transition: background 0.2s; cursor: pointer;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.09); }
+
+    .pro-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700;
+      background: rgba(201,162,39,0.2); color: #e8c96a; border: 1px solid rgba(201,162,39,0.35);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    /* Input styles */
+    .calc-input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #e5e7eb; border-radius: 0.5rem;
+      padding: 10px 14px; font-size: 14px; width: 100%;
+      outline: none; transition: border-color 0.2s;
+    }
+    .calc-input:focus { border-color: rgba(201,162,39,0.5); }
+    .calc-input::placeholder { color: #4b5563; }
+    .input-prefix {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: #6b7280; font-size: 14px; pointer-events: none;
+    }
+    .input-suffix {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      color: #6b7280; font-size: 14px; pointer-events: none;
+    }
+    .input-wrap { position: relative; }
+    .input-with-prefix input { padding-left: 28px; }
+    .input-with-suffix input { padding-right: 36px; }
+
+    /* Output stat cards */
+    .stat-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.75rem; padding: 16px;
+    }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: #e8c96a; }
+    .stat-label { font-size: 12px; color: #6b7280; margin-top: 2px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-green { color: #34d399; }
+    .stat-red { color: #f87171; }
+    .stat-blue { color: #60a5fa; }
+    .stat-purple { color: #a78bfa; }
+
+    /* Calculator card header */
+    .calc-header {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      padding: 20px 24px; user-select: none;
+    }
+    .calc-icon {
+      width: 44px; height: 44px; border-radius: 0.6rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .calc-body { padding: 0 24px 24px; }
+    .calc-toggle { margin-left: auto; color: #6b7280; transition: transform 0.2s; }
+    .calc-toggle.open { transform: rotate(180deg); }
+
+    /* Slide reference badge */
+    .slide-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+      background: rgba(59,130,246,0.15); color: #93c5fd;
+      border: 1px solid rgba(59,130,246,0.2);
+    }
+
+    /* Pro gate overlay */
+    #proGateOverlay {
+      position: fixed; inset: 0; z-index: 900;
+      background: linear-gradient(to bottom, transparent 0%, rgba(7,12,20,0.95) 40%, rgba(7,12,20,0.99) 100%);
+      pointer-events: none;
+    }
+    .pro-gate-cta {
+      position: sticky; bottom: 0; z-index: 901;
+      background: linear-gradient(135deg, #13192a, #1a2235);
+      border-top: 1px solid rgba(201,162,39,0.3);
+      padding: 20px 24px; pointer-events: all;
+    }
+
+    /* Range slider */
+    .range-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px; border-radius: 2px;
+      background: rgba(255,255,255,0.1); outline: none;
+      cursor: pointer;
+    }
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #c9a227; cursor: pointer;
+    }
+
+    /* Toggle switch */
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .toggle-track {
+      width: 40px; height: 22px; border-radius: 11px;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+      position: relative; transition: background 0.2s;
+    }
+    .toggle-thumb {
+      position: absolute; top: 3px; left: 3px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #6b7280; transition: left 0.2s, background 0.2s;
+    }
+    .toggle-track.on { background: rgba(201,162,39,0.3); border-color: rgba(201,162,39,0.5); }
+    .toggle-track.on .toggle-thumb { left: 21px; background: #c9a227; }
+
+    /* Chart container */
+    .chart-box { position: relative; height: 200px; }
+
+    /* Week action items */
+    .week-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px; border-radius: 0.75rem;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 10px;
+    }
+    .week-badge {
+      flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; background: rgba(201,162,39,0.2);
+      color: #e8c96a; border: 1px solid rgba(201,162,39,0.3);
+    }
+
+    /* Divider */
+    .divider { height: 1px; background: rgba(255,255,255,0.06); margin: 20px 0; }
+
+    /* Section label */
+    .section-label {
+      font-size: 11px; font-weight: 700; color: #4b5563;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+    }
+
+    /* Responsive grid */
+    .input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    .output-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+
+    /* Page body offset for nav */
+    .page-body { padding-top: 44px; }
+
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #1a2235 25%, #1e293b 50%, #1a2235 75%);
+      background-size: 1000px 100%; animation: shimmer 2s infinite; border-radius: 0.5rem;
+    }
+
+    /* Calc number pill */
+    .calc-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: rgba(201,162,39,0.15); border: 1px solid rgba(201,162,39,0.3);
+      color: #e8c96a; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    /* Progress bar */
+    .progress-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.07); overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #c9a227, #e8c96a); transition: width 0.4s ease; }
+
+    @media (max-width: 640px) {
+      .calc-header { padding: 16px; }
+      .calc-body { padding: 0 16px 16px; }
+      .input-grid { grid-template-columns: 1fr; }
+      .output-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Global Nav Bar -->
+  <script src="/nav-bar.js"></script>
+
+  <div class="page-body">
+
+    <!-- Hero Header -->
+    <div style="background: linear-gradient(180deg, #0a0f1a 0%, #0d1117 100%); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 40px 24px 32px;">
+      <div style="max-width: 900px; margin: 0 auto;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <span class="slide-badge">📊 Masterclass Series</span>
+        </div>
+        <h1 style="font-size: clamp(24px, 5vw, 38px); font-weight: 800; margin: 0 0 10px;" class="gold-text">
+          Benefits Masterclass
+        </h1>
+        <p style="font-size: clamp(14px, 2vw, 17px); color: #9ca3af; max-width: 580px; line-height: 1.6; margin-bottom: 20px;">
+          Interactive calculators to accompany <strong style="color: #d1d5db;">Maximizing Your Total Rewards Package</strong>. Enter your real numbers — see your real money.
+        </p>
+
+        <!-- Progress indicator -->
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <div style="display: flex; gap: 8px; align-items: center;" id="proStatusBadge">
+            <div class="skeleton" style="width: 80px; height: 24px;"></div>
+          </div>
+          <div style="font-size: 13px; color: #4b5563;">6 calculators · Real-time results</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div style="max-width: 900px; margin: 0 auto; padding: 32px 24px 120px;" id="mainContent">
+
+      <!-- Benefits Data Status Banner -->
+      <div id="benefitsDataBanner" style="display:none; margin-bottom: 20px; padding: 14px 20px; border-radius: 0.875rem; background: rgba(201,162,39,0.07); border: 1px solid rgba(201,162,39,0.25); display:none;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:20px;">🎁</span>
+            <div>
+              <div style="font-size:13px; font-weight:700; color:#e8c96a;" id="benefitsBannerTitle">Benefits package connected</div>
+              <div style="font-size:12px; color:#6b7280; margin-top:2px;" id="benefitsBannerSub">All 6 calculators pre-filled with your real employer data</div>
+            </div>
+          </div>
+          <a href="/document-vault" style="text-decoration:none; font-size:12px; color:#c9a227; font-weight:600; white-space:nowrap;">Update package →</a>
+        </div>
+      </div>
+
+      <!-- No Benefits Data Hint (for pro users without vault data) -->
+      <div id="noBenefitsBanner" style="display:none; margin-bottom: 20px; padding: 14px 20px; border-radius: 0.875rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:20px; opacity:0.5;">📂</span>
+            <div>
+              <div style="font-size:13px; font-weight:600; color:#9ca3af;">Using example numbers</div>
+              <div style="font-size:12px; color:#4b5563; margin-top:2px;">Upload your employer benefits package to use your real data</div>
+            </div>
+          </div>
+          <a href="/document-vault#benefits_packages" style="text-decoration:none; font-size:12px; color:#c9a227; font-weight:600; white-space:nowrap; padding:6px 12px; border:1px solid rgba(201,162,39,0.3); border-radius:0.5rem;">Upload Package →</a>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div id="loadingState" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="card" style="padding: 24px;">
+          <div class="skeleton" style="height: 20px; width: 40%; margin-bottom: 12px;"></div>
+          <div class="skeleton" style="height: 14px; width: 70%;"></div>
+        </div>
+        <div class="card" style="padding: 24px;">
+          <div class="skeleton" style="height: 20px; width: 55%; margin-bottom: 12px;"></div>
+          <div class="skeleton" style="height: 14px; width: 60%;"></div>
+        </div>
+      </div>
+
+      <!-- Calculators Container -->
+      <div id="calculatorsContainer" style="display: none; flex-direction: column; gap: 16px;">
+
+        <!-- CALCULATOR 1: 401(k) Match Calculator -->
+        <div class="card" id="card1">
+          <div class="calc-header" onclick="toggleCard(1)">
+            <div class="calc-icon" style="background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.2);">💰</div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                <div class="calc-num">1</div>
+                <span class="slide-badge">Slide 2</span>
+              </div>
+              <div style="font-weight: 700; font-size: 16px; color: #f1f5f9;">401(k) Match Calculator</div>
+              <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">How much "free money" are you capturing vs. leaving behind?</div>
+            </div>
+            <svg class="calc-toggle" id="toggle1" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="calc-body" id="body1" style="display: none;">
+            <div class="divider" style="margin-top: 0;"></div>
+            <div class="section-label">Your Numbers</div>
+            <div class="input-grid" style="margin-bottom: 20px;">
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Annual Salary</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="k401_salary" value="75000" min="0" oninput="calc401k()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Employer Match %</label>
+                <div class="input-wrap input-with-suffix">
+                  <input type="number" class="calc-input" id="k401_match_pct" value="4" min="0" max="100" step="0.5" oninput="calc401k()">
+                  <span class="input-suffix">%</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Your Contribution %</label>
+                <div class="input-wrap input-with-suffix">
+                  <input type="number" class="calc-input" id="k401_contrib_pct" value="3" min="0" max="100" step="0.5" oninput="calc401k()">
+                  <span class="input-suffix">%</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Years to Grow (projection)</label>
+                <div class="input-wrap">
+                  <input type="number" class="calc-input" id="k401_years" value="20" min="1" max="40" oninput="calc401k()">
+                </div>
+              </div>
+            </div>
+
+            <div class="section-label">Results</div>
+            <div class="output-grid" style="margin-bottom: 20px;" id="k401_results">
+              <div class="stat-card">
+                <div class="stat-value stat-green" id="k401_captured">$0</div>
+                <div class="stat-label">Free Money Captured / yr</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value stat-red" id="k401_left">$0</div>
+                <div class="stat-label">Free Money Left Behind / yr</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="k401_projected">$0</div>
+                <div class="stat-label" id="k401_proj_label">Projected Value (20 yr)</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value stat-purple" id="k401_gap_proj">$0</div>
+                <div class="stat-label" id="k401_gap_label">Value Lost to Gap (20 yr)</div>
+              </div>
+            </div>
+
+            <div id="k401_insight" style="padding: 14px 16px; border-radius: 0.75rem; background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.2); font-size: 13px; color: #a7f3d0; line-height: 1.5; margin-bottom: 20px;"></div>
+
+            <div class="chart-box">
+              <canvas id="chart401k"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- CALCULATOR 2: HSA Wealth Projector -->
+        <div class="card" id="card2">
+          <div class="calc-header" onclick="toggleCard(2)">
+            <div class="calc-icon" style="background: rgba(96,165,250,0.15); border: 1px solid rgba(96,165,250,0.2);">🏥</div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                <div class="calc-num">2</div>
+                <span class="slide-badge">Slide 3</span>
+              </div>
+              <div style="font-weight: 700; font-size: 16px; color: #f1f5f9;">HSA Wealth Projector</div>
+              <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">The triple tax advantage — see how it compounds</div>
+            </div>
+            <svg class="calc-toggle" id="toggle2" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="calc-body" id="body2" style="display: none;">
+            <div class="divider" style="margin-top: 0;"></div>
+            <div class="section-label">Your Numbers</div>
+            <div class="input-grid" style="margin-bottom: 20px;">
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Annual HSA Contribution</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="hsa_contrib" value="3850" min="0" oninput="calcHSA()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Employer Seed Amount</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="hsa_seed" value="500" min="0" oninput="calcHSA()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Investment Return Rate</label>
+                <div class="input-wrap input-with-suffix">
+                  <input type="number" class="calc-input" id="hsa_return" value="7" min="0" max="20" step="0.5" oninput="calcHSA()">
+                  <span class="input-suffix">%</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Time Horizon (years)</label>
+                <div class="input-wrap">
+                  <input type="number" class="calc-input" id="hsa_years" value="20" min="1" max="40" oninput="calcHSA()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Your Tax Bracket</label>
+                <div class="input-wrap input-with-suffix">
+                  <input type="number" class="calc-input" id="hsa_tax" value="22" min="10" max="37" step="1" oninput="calcHSA()">
+                  <span class="input-suffix">%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shoebox Strategy toggle -->
+            <div style="margin-bottom: 20px; padding: 14px 16px; border-radius: 0.75rem; background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.2);">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px;">
+                <div>
+                  <div style="font-weight: 600; font-size: 14px; color: #93c5fd;">👟 Shoebox Strategy</div>
+                  <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Invest 100% — pay medical out of pocket and save receipts</div>
+                </div>
+                <div class="toggle-wrap" onclick="toggleShoebox()">
+                  <div class="toggle-track" id="shoeboxToggle">
+                    <div class="toggle-thumb"></div>
+                  </div>
+                </div>
+              </div>
+              <div id="shoeboxNote" style="display: none; font-size: 12px; color: #93c5fd; line-height: 1.5;">
+                With the Shoebox Strategy, you pay current medical bills out of pocket and let your HSA grow tax-free. You can reimburse yourself years later — with no time limit on reimbursements — essentially creating a tax-free slush fund.
+              </div>
+            </div>
+
+            <div class="section-label">Triple Tax Advantage Breakdown</div>
+            <div class="output-grid" style="margin-bottom: 20px;">
+              <div class="stat-card">
+                <div class="stat-value stat-green" id="hsa_balance">$0</div>
+                <div class="stat-label" id="hsa_balance_label">Projected Balance</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value stat-blue" id="hsa_income_tax">$0</div>
+                <div class="stat-label">Income Tax Saved</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value stat-purple" id="hsa_cap_gains">$0</div>
+                <div class="stat-label">Capital Gains Avoided</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="hsa_total_tax">$0</div>
+                <div class="stat-label">Total Tax Advantage</div>
+              </div>
+            </div>
+
+            <div class="chart-box" style="height: 220px;">
+              <canvas id="chartHSA"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- CALCULATOR 3: Dental/Vision Year-End Strategy -->
+        <div class="card" id="card3">
+          <div class="calc-header" onclick="toggleCard(3)">
+            <div class="calc-icon" style="background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.2);">🦷</div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                <div class="calc-num">3</div>
+                <span class="slide-badge">Slide 4</span>
+              </div>
+              <div style="font-weight: 700; font-size: 16px; color: #f1f5f9;">Dental/Vision Year-End Strategy</div>
+              <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Double-dip your benefits before they reset</div>
+            </div>
+            <svg class="calc-toggle" id="toggle3" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="calc-body" id="body3" style="display: none;">
+            <div class="divider" style="margin-top: 0;"></div>
+            <div class="section-label">Your Numbers</div>
+            <div class="input-grid" style="margin-bottom: 20px;">
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Procedure Cost</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="dental_cost" value="2400" min="0" oninput="calcDental()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Annual Dental/Vision Max</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="dental_annual_max" value="1500" min="0" oninput="calcDental()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Benefits Remaining This Year</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="dental_remaining" value="1500" min="0" oninput="calcDental()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">FSA Balance (to use up)</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="dental_fsa" value="800" min="0" oninput="calcDental()">
+                </div>
+              </div>
+            </div>
+
+            <div class="section-label">Strategy Comparison</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+              <div class="stat-card" style="border-color: rgba(248,113,113,0.2);">
+                <div style="font-size: 11px; font-weight: 700; color: #f87171; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;">Single Year (No Strategy)</div>
+                <div class="stat-value stat-red" id="dental_single_oop">$0</div>
+                <div class="stat-label">Out of Pocket</div>
+              </div>
+              <div class="stat-card" style="border-color: rgba(52,211,153,0.2);">
+                <div style="font-size: 11px; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;">Year-End Double-Dip</div>
+                <div class="stat-value stat-green" id="dental_double_oop">$0</div>
+                <div class="stat-label">Out of Pocket</div>
+              </div>
+            </div>
+            <div class="stat-card" style="margin-bottom: 20px; text-align: center; border-color: rgba(201,162,39,0.25);">
+              <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">Total Savings Using Split Strategy</div>
+              <div class="stat-value" id="dental_savings" style="font-size: 2rem;">$0</div>
+            </div>
+
+            <!-- FSA Countdown -->
+            <div id="fsa_warning" style="padding: 14px 16px; border-radius: 0.75rem; background: rgba(251,146,60,0.08); border: 1px solid rgba(251,146,60,0.25); font-size: 13px; color: #fdba74; display: none;">
+            </div>
+          </div>
+        </div>
+
+        <!-- CALCULATOR 4: Education Rebate ROI -->
+        <div class="card" id="card4">
+          <div class="calc-header" onclick="toggleCard(4)">
+            <div class="calc-icon" style="background: rgba(251,146,60,0.15); border: 1px solid rgba(251,146,60,0.2);">🎓</div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                <div class="calc-num">4</div>
+                <span class="slide-badge">Slide 5</span>
+              </div>
+              <div style="font-weight: 700; font-size: 16px; color: #f1f5f9;">Education Rebate ROI Calculator</div>
+              <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Does the certification pay for itself — and when?</div>
+            </div>
+            <svg class="calc-toggle" id="toggle4" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="calc-body" id="body4" style="display: none;">
+            <div class="divider" style="margin-top: 0;"></div>
+            <div class="section-label">Your Numbers</div>
+            <div class="input-grid" style="margin-bottom: 20px;">
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Course/Cert Cost</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="edu_cost" value="8000" min="0" oninput="calcEdu()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Employer Rebate</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="edu_rebate" value="5250" min="0" oninput="calcEdu()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Expected Salary Increase</label>
+                <div class="input-wrap input-with-suffix">
+                  <input type="number" class="calc-input" id="edu_raise_pct" value="10" min="0" max="100" step="0.5" oninput="calcEdu()">
+                  <span class="input-suffix">%</span>
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Current Annual Salary</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="edu_salary" value="75000" min="0" oninput="calcEdu()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Repayment Clause Toggle -->
+            <div style="margin-bottom: 20px; padding: 14px 16px; border-radius: 0.75rem; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2);">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px;">
+                <div>
+                  <div style="font-weight: 600; font-size: 14px; color: #fca5a5;">⚠️ Repayment Clause</div>
+                  <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Must stay X months or repay the rebate</div>
+                </div>
+                <div class="toggle-wrap" onclick="toggleRepayment()">
+                  <div class="toggle-track" id="repaymentToggle">
+                    <div class="toggle-thumb"></div>
+                  </div>
+                </div>
+              </div>
+              <div id="repaymentOptions" style="display: none;">
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px; margin-top: 8px;">Required Stay Duration (months)</label>
+                <input type="number" class="calc-input" id="edu_stay_months" value="24" min="1" max="60" style="max-width: 160px;" oninput="calcEdu()">
+              </div>
+              <div id="repaymentNote" style="font-size: 12px; color: #fca5a5; line-height: 1.5; display: none;"></div>
+            </div>
+
+            <div class="section-label">Results</div>
+            <div class="output-grid" style="margin-bottom: 20px;">
+              <div class="stat-card">
+                <div class="stat-value stat-green" id="edu_net_cost">$0</div>
+                <div class="stat-label">Net Cost After Rebate</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value stat-blue" id="edu_payback">—</div>
+                <div class="stat-label">Payback Period</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="edu_5yr_roi">0%</div>
+                <div class="stat-label">5-Year ROI</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value stat-purple" id="edu_raise_annual">$0</div>
+                <div class="stat-label">Annual Raise Value</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CALCULATOR 5: Total Compensation Visualizer -->
+        <div class="card" id="card5">
+          <div class="calc-header" onclick="toggleCard(5)">
+            <div class="calc-icon" style="background: rgba(201,162,39,0.15); border: 1px solid rgba(201,162,39,0.3);">💼</div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                <div class="calc-num">5</div>
+                <span class="slide-badge">Slide 6</span>
+              </div>
+              <div style="font-weight: 700; font-size: 16px; color: #f1f5f9;">Total Compensation Visualizer</div>
+              <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Your salary is only part of the picture</div>
+            </div>
+            <svg class="calc-toggle" id="toggle5" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="calc-body" id="body5" style="display: none;">
+            <div class="divider" style="margin-top: 0;"></div>
+            <div class="section-label">Your Package</div>
+            <div class="input-grid" style="margin-bottom: 20px;">
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Base Salary</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="tc_salary" value="80000" min="0" oninput="calcTC()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Annual Bonus</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="tc_bonus" value="5000" min="0" oninput="calcTC()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Employer 401k Match</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="tc_401k" value="3200" min="0" oninput="calcTC()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Health Premium (Employer Pays)</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="tc_health" value="6000" min="0" oninput="calcTC()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Pension / Equity Accrual</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="tc_pension" value="0" min="0" oninput="calcTC()">
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Other Benefits (PTO, HSA seed, etc.)</label>
+                <div class="input-wrap input-with-prefix">
+                  <span class="input-prefix">$</span>
+                  <input type="number" class="calc-input" id="tc_other" value="2000" min="0" oninput="calcTC()">
+                </div>
+              </div>
+            </div>
+
+            <div class="section-label">Your True Compensation</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+              <div class="stat-card" style="border-color: rgba(201,162,39,0.25);">
+                <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">Total Compensation</div>
+                <div class="stat-value" id="tc_total" style="font-size: 2rem;">$0</div>
+              </div>
+              <div class="stat-card">
+                <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">Salary as % of Total Comp</div>
+                <div class="stat-value stat-blue" id="tc_salary_pct" style="font-size: 2rem;">0%</div>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 4px;" id="tc_illusion_note"></div>
+              </div>
+            </div>
+
+            <!-- Net Pay Illusion -->
+            <div style="padding: 16px; border-radius: 0.75rem; background: rgba(201,162,39,0.08); border: 1px solid rgba(201,162,39,0.2); margin-bottom: 20px;">
+              <div style="font-weight: 600; font-size: 14px; color: #e8c96a; margin-bottom: 12px;">💡 Net Pay Illusion Calculator</div>
+              <div style="font-size: 13px; color: #9ca3af; margin-bottom: 12px;">Your 401k contribution doesn't cost as much as it looks — taxes reduce the hit.</div>
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 160px;">
+                  <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">401k Contribution Amount</label>
+                  <div class="input-wrap input-with-prefix">
+                    <span class="input-prefix">$</span>
+                    <input type="number" class="calc-input" id="tc_401k_contrib" value="4000" min="0" oninput="calcTC()">
+                  </div>
+                </div>
+                <div style="flex: 1; min-width: 160px;">
+                  <label style="font-size: 12px; color: #9ca3af; display: block; margin-bottom: 6px;">Your Tax Bracket</label>
+                  <div class="input-wrap input-with-suffix">
+                    <input type="number" class="calc-input" id="tc_tax" value="22" min="10" max="37" oninput="calcTC()">
+                    <span class="input-suffix">%</span>
+                  </div>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
+                <div class="stat-card">
+                  <div style="font-size: 12px; color: #9ca3af; margin-bottom: 2px;">Apparent Pay Cut</div>
+                  <div class="stat-value stat-red" id="tc_apparent_cut" style="font-size: 1.3rem;">$0</div>
+                </div>
+                <div class="stat-card">
+                  <div style="font-size: 12px; color: #9ca3af; margin-bottom: 2px;">Actual Paycheck Reduction</div>
+                  <div class="stat-value stat-green" id="tc_real_cut" style="font-size: 1.3rem;">$0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-box" style="height: 240px;">
+              <canvas id="chartTC"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERSONALIZED SUGGESTIONS (only shown when benefits data is connected) -->
+        <div id="suggestionsCard" style="display:none;">
+          <div class="card" style="border-color: rgba(201,162,39,0.3);">
+            <div style="padding: 20px 24px 0;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                <div style="width:40px; height:40px; border-radius:0.6rem; background:rgba(201,162,39,0.15); border:1px solid rgba(201,162,39,0.3); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">💡</div>
+                <div>
+                  <div style="font-weight:700; font-size:16px; color:#f1f5f9;">Personalized Suggestions</div>
+                  <div style="font-size:12px; color:#6b7280; margin-top:2px;">Based on your real FACTS data vs. employer benefits</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 0 24px 24px; margin-top: 16px;">
+              <div id="suggestionsList" style="display:flex; flex-direction:column; gap:10px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CALCULATOR 6: 30-Day Action Plan Summary -->
+        <div class="card active-card" id="card6">
+          <div class="calc-header" onclick="toggleCard(6)">
+            <div class="calc-icon" style="background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.2);">🚀</div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                <div class="calc-num">6</div>
+                <span class="slide-badge">Slide 7</span>
+              </div>
+              <div style="font-weight: 700; font-size: 16px; color: #f1f5f9;">30-Day Action Plan Savings Estimator</div>
+              <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Everything combined — your total opportunity</div>
+            </div>
+            <svg class="calc-toggle" id="toggle6" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="calc-body" id="body6" style="display: none;">
+            <div class="divider" style="margin-top: 0;"></div>
+
+            <!-- Big total -->
+            <div style="text-align: center; padding: 24px 0; margin-bottom: 20px;">
+              <div style="font-size: 13px; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;">By Following This 4-Week Plan, You'll Capture</div>
+              <div id="plan_total" style="font-size: clamp(36px, 8vw, 56px); font-weight: 900; line-height: 1;" class="gold-text">$0</div>
+              <div style="font-size: 14px; color: #6b7280; margin-top: 8px;">in additional annual value</div>
+            </div>
+
+            <!-- Progress bar -->
+            <div style="margin-bottom: 24px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; margin-bottom: 6px;">
+                <span>Benefits Captured</span>
+                <span id="plan_progress_pct">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="plan_progress_bar" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- 4-week checklist -->
+            <div class="section-label">Your 4-Week Action Plan</div>
+
+            <div class="week-item">
+              <div class="week-badge">W1</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px; color: #f1f5f9; margin-bottom: 4px;">Maximize Your 401(k) Match</div>
+                <div style="font-size: 13px; color: #9ca3af; margin-bottom: 6px;">Log into your benefits portal and increase contribution to capture full employer match.</div>
+                <div style="font-size: 13px; color: #34d399; font-weight: 600;">💰 Annual impact: <span id="plan_401k_impact">$0</span></div>
+              </div>
+            </div>
+
+            <div class="week-item">
+              <div class="week-badge">W1</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px; color: #f1f5f9; margin-bottom: 4px;">Open & Fund Your HSA</div>
+                <div style="font-size: 13px; color: #9ca3af; margin-bottom: 6px;">Open an HSA (if eligible), enable investing, and set up automatic contributions.</div>
+                <div style="font-size: 13px; color: #60a5fa; font-weight: 600;">💰 Annual tax advantage: <span id="plan_hsa_impact">$0</span></div>
+              </div>
+            </div>
+
+            <div class="week-item">
+              <div class="week-badge">W2</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px; color: #f1f5f9; margin-bottom: 4px;">Schedule Year-End Dental / Vision Procedures</div>
+                <div style="font-size: 13px; color: #9ca3af; margin-bottom: 6px;">Review remaining dental/vision benefits. Schedule work before Dec 31 and plan carryover into next year.</div>
+                <div style="font-size: 13px; color: #a78bfa; font-weight: 600;">💰 Savings from strategy: <span id="plan_dental_impact">$0</span></div>
+              </div>
+            </div>
+
+            <div class="week-item">
+              <div class="week-badge">W2</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px; color: #f1f5f9; margin-bottom: 4px;">Spend Down Your FSA Balance</div>
+                <div style="font-size: 13px; color: #9ca3af; margin-bottom: 6px;">Use-it-or-lose-it applies to most FSAs. Review your balance and plan purchases before year-end.</div>
+                <div style="font-size: 13px; color: #fdba74; font-weight: 600;">💰 FSA protected: <span id="plan_fsa_impact">$0</span></div>
+              </div>
+            </div>
+
+            <div class="week-item">
+              <div class="week-badge">W3</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px; color: #f1f5f9; margin-bottom: 4px;">Apply for Education Reimbursement</div>
+                <div style="font-size: 13px; color: #9ca3af; margin-bottom: 6px;">Submit your course or cert for employer tuition assistance. Up to $5,250 is tax-free.</div>
+                <div style="font-size: 13px; color: #fbbf24; font-weight: 600;">💰 Net cert value: <span id="plan_edu_impact">$0</span></div>
+              </div>
+            </div>
+
+            <div class="week-item">
+              <div class="week-badge">W4</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px; color: #f1f5f9; margin-bottom: 4px;">Calculate & Negotiate Your Total Comp</div>
+                <div style="font-size: 13px; color: #9ca3af; margin-bottom: 6px;">Know your full total compensation number before your next review. Use it as your negotiating baseline.</div>
+                <div style="font-size: 13px; color: #e8c96a; font-weight: 600;">💼 Total comp revealed: <span id="plan_tc_impact">$0</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- end calculatorsContainer -->
+
+    </div><!-- end mainContent -->
+
+  </div><!-- end page-body -->
+
+  <!-- PRO GATE (for free users) -->
+  <div id="proGateOverlay" style="display: none;"></div>
+  <div class="pro-gate-cta" id="proGateCta" style="display: none;">
+    <div style="max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <span style="font-size: 28px;">🔒</span>
+        <div>
+          <div style="font-weight: 700; font-size: 16px; color: #f1f5f9;">Unlock the Benefits Masterclass Calculators</div>
+          <div style="font-size: 13px; color: #9ca3af; margin-top: 2px;">These 6 interactive tools are for paid subscribers. Start your 21-day free trial — no credit card required.</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0;">
+        <a href="/pricing.html" style="text-decoration: none; padding: 12px 24px; font-size: 14px;" class="btn-gold">Start Free Trial →</a>
+        <a href="/pricing.html" style="text-decoration: none; padding: 12px 18px; font-size: 13px; color: #9ca3af;">View Pricing</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════════════════
+    let hasPro = false;
+    let chartInstances = {};
+    let shoeboxEnabled = false;
+    let repaymentEnabled = false;
+
+    // ═══════════════════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════════════════
+    async function init() {
+      try {
+        const res = await fetch('/api/pro-status', { credentials: 'include' });
+        if (res.status === 401) {
+          window.location.href = '/login.html?redirect=/benefits-masterclass.html';
+          return;
+        }
+        const data = await res.json();
+        hasPro = data.has_pro || false;
+
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('calculatorsContainer').style.display = 'flex';
+
+        // Update Pro status badge
+        const badge = document.getElementById('proStatusBadge');
+        if (hasPro) {
+          badge.innerHTML = '<span class="pro-badge">⭐ Individual — Full Access</span>';
+        } else {
+          badge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;background:rgba(107,114,128,0.15);color:#9ca3af;border:1px solid rgba(107,114,128,0.25);">🔒 Free — Preview Only</span>';
+        }
+
+        if (!hasPro) {
+          // Show gate overlay and CTA
+          document.getElementById('proGateOverlay').style.display = 'block';
+          document.getElementById('proGateCta').style.display = 'block';
+
+          // Open first card in preview mode only
+          openCard(1);
+
+          // Disable all inputs for non-Pro
+          setTimeout(() => {
+            document.querySelectorAll('.calc-input').forEach(el => {
+              el.disabled = true;
+              el.style.opacity = '0.4';
+              el.style.cursor = 'not-allowed';
+            });
+            document.querySelectorAll('.toggle-wrap').forEach(el => {
+              el.style.pointerEvents = 'none';
+            });
+          }, 100);
+        } else {
+          // Try to load benefits data from the vault
+          let benefitsLoaded = false;
+          try {
+            const bRes = await fetch('/api/vault/benefits-data', { credentials: 'include' });
+            if (bRes.ok) {
+              const bData = await bRes.json();
+              if (bData.benefits && bData.benefits.verified_at) {
+                applyBenefitsData(bData.benefits, bData.facts_data);
+                benefitsLoaded = true;
+                showBenefitsBanner(bData.benefits);
+                renderSuggestions(bData.benefits, bData.facts_data);
+              } else if (bData.facts_data && bData.facts_data.annual_income_cents > 0) {
+                // Pre-fill salary from FACTS income even without full benefits
+                const salary = Math.round(bData.facts_data.annual_income_cents / 100);
+                setInput('k401_salary', salary);
+                setInput('edu_salary', salary);
+                setInput('tc_salary', salary);
+              }
+            }
+          } catch (e) { /* Non-fatal */ }
+
+          if (!benefitsLoaded) {
+            document.getElementById('noBenefitsBanner').style.display = 'block';
+          }
+
+          // Open card 1 by default
+          openCard(1);
+          // Run all calculations
+          calc401k(); calcHSA(); calcDental(); calcEdu(); calcTC();
+        }
+
+      } catch (err) {
+        document.getElementById('loadingState').innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
+            <div style="font-size: 40px; margin-bottom: 12px;">⚠️</div>
+            <div style="font-size: 15px;">Failed to load. Please refresh.</div>
+          </div>`;
+        console.error(err);
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // BENEFITS DATA INTEGRATION
+    // ═══════════════════════════════════════════════════════════════
+
+    function setInput(id, val) {
+      const el = document.getElementById(id);
+      if (el && val != null) el.value = val;
+    }
+
+    function applyBenefitsData(b, facts) {
+      // Salary — prefer benefits data, fall back to FACTS income
+      const salary = b.base_salary_cents
+        ? Math.round(b.base_salary_cents / 100)
+        : (facts && facts.annual_income_cents ? Math.round(facts.annual_income_cents / 100) : null);
+
+      if (salary) {
+        setInput('k401_salary', salary);
+        setInput('edu_salary', salary);
+        setInput('tc_salary', salary);
+      }
+
+      // 401(k) — match_max_percent is the cap on salary %, match_rate_percent is the rate
+      // Effective employer match as % of salary = match_rate_percent / 100 * match_max_percent
+      if (b.match_max_percent != null && b.match_rate_percent != null) {
+        const effectiveMatchPct = parseFloat(b.match_rate_percent) / 100 * parseFloat(b.match_max_percent);
+        setInput('k401_match_pct', effectiveMatchPct.toFixed(2));
+      } else if (b.match_max_percent != null) {
+        setInput('k401_match_pct', parseFloat(b.match_max_percent).toFixed(2));
+      }
+      if (b.employee_contribution_percent != null) {
+        setInput('k401_contrib_pct', parseFloat(b.employee_contribution_percent).toFixed(1));
+      }
+
+      // HSA
+      if (b.hsa_employer_seed_cents != null) {
+        setInput('hsa_seed', Math.round(b.hsa_employer_seed_cents / 100));
+      }
+      if (b.hsa_employee_contribution_cents != null) {
+        setInput('hsa_contrib', Math.round(b.hsa_employee_contribution_cents / 100));
+      }
+
+      // Dental
+      if (b.dental_annual_max_cents != null) {
+        const annualMax = Math.round(b.dental_annual_max_cents / 100);
+        const used = b.dental_used_cents ? Math.round(b.dental_used_cents / 100) : 0;
+        setInput('dental_annual_max', annualMax);
+        setInput('dental_remaining', Math.max(0, annualMax - used));
+      }
+
+      // Education
+      if (b.tuition_max_cents != null) {
+        setInput('edu_rebate', Math.round(b.tuition_max_cents / 100));
+      }
+      if (b.education_spent_cents != null) {
+        setInput('edu_cost', Math.round(b.education_spent_cents / 100));
+      }
+
+      // Total Comp — calculate employer 401k match value
+      if (salary && b.match_max_percent != null && b.match_rate_percent != null) {
+        const matchValue = Math.round(salary * parseFloat(b.match_rate_percent) / 100 * parseFloat(b.match_max_percent) / 100);
+        setInput('tc_401k', matchValue);
+        setInput('tc_401k_contrib', salary * (parseFloat(b.employee_contribution_percent || 0) / 100));
+      }
+    }
+
+    function showBenefitsBanner(b) {
+      const banner = document.getElementById('benefitsDataBanner');
+      if (!banner) return;
+      banner.style.display = 'block';
+      if (b.employer_name) {
+        document.getElementById('benefitsBannerTitle').textContent = b.employer_name + ' benefits connected';
+      }
+    }
+
+    function renderSuggestions(b, facts) {
+      const suggestions = [];
+
+      const salary = b.base_salary_cents
+        ? Math.round(b.base_salary_cents / 100)
+        : (facts && facts.annual_income_cents ? Math.round(facts.annual_income_cents / 100) : 0);
+
+      // 401(k) suggestion
+      if (salary > 0 && b.match_max_percent != null && b.employee_contribution_percent != null) {
+        const matchRate = parseFloat(b.match_rate_percent || 100) / 100;
+        const matchCap = parseFloat(b.match_max_percent);
+        const contribPct = parseFloat(b.employee_contribution_percent);
+        const maxEmployerMatch = salary * matchRate * matchCap / 100;
+        const actualContrib = salary * contribPct / 100;
+        const captured = Math.min(actualContrib, maxEmployerMatch);
+        const leftBehind = Math.max(0, maxEmployerMatch - actualContrib);
+
+        if (leftBehind > 50) {
+          suggestions.push({
+            emoji: '💰',
+            color: 'rgba(248,113,113,0.1)',
+            border: 'rgba(248,113,113,0.2)',
+            text: `You're contributing ${contribPct}% to your 401(k) but your employer matches up to ${matchCap}% — you're leaving <strong>$${Math.round(leftBehind).toLocaleString()}/year</strong> in free money on the table. Bumping your contribution could capture it all.`,
+            action: 'Adjust contribution in Calc 1 →'
+          });
+        } else if (captured >= maxEmployerMatch - 50) {
+          suggestions.push({
+            emoji: '✅',
+            color: 'rgba(52,211,153,0.08)',
+            border: 'rgba(52,211,153,0.2)',
+            text: `You're capturing the full employer 401(k) match of <strong>$${Math.round(captured).toLocaleString()}/year</strong>. Excellent — keep it up.`
+          });
+        }
+      }
+
+      // HSA suggestion
+      if (b.hsa_employer_seed_cents != null && b.hsa_employee_contribution_cents != null) {
+        const seed = Math.round(b.hsa_employer_seed_cents / 100);
+        const hsaContrib = Math.round(b.hsa_employee_contribution_cents / 100);
+        const hsaMax2025 = b.hsa_plan_type === 'family' ? 8300 : 4150;
+        const hsaGap = Math.max(0, hsaMax2025 - hsaContrib - seed);
+        if (seed > 0 && hsaGap > 0) {
+          suggestions.push({
+            emoji: '🏥',
+            color: 'rgba(96,165,250,0.08)',
+            border: 'rgba(96,165,250,0.2)',
+            text: `Your employer offers a <strong>$${seed.toLocaleString()} HSA seed</strong> but you haven't maxed your HSA contributions. You could contribute up to <strong>$${hsaGap.toLocaleString()} more</strong> this year and still get the employer seed.`
+          });
+        }
+      }
+
+      // Dental suggestion
+      if (b.dental_annual_max_cents != null) {
+        const annualMax = Math.round(b.dental_annual_max_cents / 100);
+        const used = b.dental_used_cents ? Math.round(b.dental_used_cents / 100) : 0;
+        const remaining = annualMax - used;
+        if (remaining > 50) {
+          const now = new Date();
+          const yearEnd = new Date(now.getFullYear(), 11, 31);
+          const daysLeft = Math.round((yearEnd - now) / (1000 * 60 * 60 * 24));
+          if (daysLeft < 120) {
+            suggestions.push({
+              emoji: '🦷',
+              color: 'rgba(251,191,36,0.08)',
+              border: 'rgba(251,191,36,0.2)',
+              text: `You have <strong>$${remaining.toLocaleString()} remaining</strong> in dental benefits expiring Dec 31 (${daysLeft} days away). Schedule your cleaning, x-rays, or any deferred work now.`
+            });
+          } else {
+            suggestions.push({
+              emoji: '🦷',
+              color: 'rgba(251,191,36,0.08)',
+              border: 'rgba(251,191,36,0.2)',
+              text: `You have <strong>$${remaining.toLocaleString()} remaining</strong> in dental benefits this year. Use Calc 3 to plan the most cost-effective timing for any dental procedures.`
+            });
+          }
+        }
+      }
+
+      // Tuition suggestion
+      if (b.tuition_max_cents != null && salary > 0) {
+        const tuitionMax = Math.round(b.tuition_max_cents / 100);
+        const eduSpent = b.education_spent_cents ? Math.round(b.education_spent_cents / 100) : 0;
+        const tuitionRemaining = Math.max(0, tuitionMax - eduSpent);
+        const ffAlloc = facts && facts.ff_allocation_percent ? facts.ff_allocation_percent / 100 : 0.10;
+        const annualEdAlloc = Math.round(salary * 0.10); // 10% default education allocation
+
+        if (tuitionRemaining > 200) {
+          suggestions.push({
+            emoji: '🎓',
+            color: 'rgba(249,115,22,0.08)',
+            border: 'rgba(249,115,22,0.2)',
+            text: `Your employer offers <strong>$${tuitionMax.toLocaleString()}/year in tuition reimbursement</strong> — you still have $${tuitionRemaining.toLocaleString()} remaining. At your current Education allocation, you could fund a certification course or online degree program.`,
+            action: 'See ROI in Calc 4 →'
+          });
+        }
+      }
+
+      // Render
+      const container = document.getElementById('suggestionsList');
+      if (!container) return;
+      if (suggestions.length === 0) return;
+
+      document.getElementById('suggestionsCard').style.display = 'block';
+      container.innerHTML = '';
+      suggestions.forEach(s => {
+        const el = document.createElement('div');
+        el.style.cssText = `padding:14px 16px; border-radius:0.75rem; background:${s.color}; border:1px solid ${s.border}; font-size:13px; color:#d1d5db; line-height:1.6;`;
+        el.innerHTML = `<span style="font-size:16px; margin-right:8px; vertical-align:middle;">${s.emoji}</span>${s.text}`;
+        if (s.action) {
+          el.innerHTML += `<div style="margin-top:8px;"><span style="font-size:12px; color:#c9a227; font-weight:600; cursor:pointer;">${s.action}</span></div>`;
+        }
+        container.appendChild(el);
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CARD TOGGLE
+    // ═══════════════════════════════════════════════════════════════
+    function toggleCard(n) {
+      const body = document.getElementById('body' + n);
+      const toggle = document.getElementById('toggle' + n);
+      const isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : 'block';
+      toggle.classList.toggle('open', !isOpen);
+      if (!isOpen && hasPro) {
+        // Re-render chart if opening
+        setTimeout(() => renderChartForCard(n), 50);
+      }
+    }
+
+    function openCard(n) {
+      const body = document.getElementById('body' + n);
+      const toggle = document.getElementById('toggle' + n);
+      body.style.display = 'block';
+      toggle.classList.add('open');
+    }
+
+    function renderChartForCard(n) {
+      if (n === 1) render401kChart();
+      if (n === 2) renderHSAChart();
+      if (n === 5) renderTCChart();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // UTILITIES
+    // ═══════════════════════════════════════════════════════════════
+    function fmt(n) {
+      if (n >= 1000000) return '$' + (n / 1000000).toFixed(2) + 'M';
+      if (n >= 10000) return '$' + Math.round(n).toLocaleString();
+      return '$' + n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    function fmtK(n) { return n >= 1000 ? '$' + (n/1000).toFixed(0) + 'K' : fmt(n); }
+    function pct(n) { return n.toFixed(1) + '%'; }
+    function num(id) { return parseFloat(document.getElementById(id).value) || 0; }
+    function set(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+
+    // Compound growth
+    function compound(annual, rate, years) {
+      return annual * (Math.pow(1 + rate, years) - 1) / rate;
+    }
+
+    function destroyChart(name) {
+      if (chartInstances[name]) {
+        chartInstances[name].destroy();
+        delete chartInstances[name];
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CALCULATOR 1: 401(k) Match
+    // ═══════════════════════════════════════════════════════════════
+    function calc401k() {
+      const salary = num('k401_salary');
+      const matchPct = num('k401_match_pct') / 100;
+      const contribPct = num('k401_contrib_pct') / 100;
+      const years = Math.max(1, num('k401_years'));
+      const r = 0.07;
+
+      const maxMatch = salary * matchPct;        // employer will match up to this
+      const yourContrib = salary * contribPct;   // your contribution
+
+      const captured = Math.min(yourContrib, maxMatch); // employer match actually earned
+      const leftBehind = Math.max(0, maxMatch - yourContrib);
+
+      const projectedCaptured = compound(captured, r, years);
+      const projectedGap = compound(leftBehind, r, years);
+
+      set('k401_captured', fmt(captured));
+      set('k401_left', leftBehind > 0 ? fmt(leftBehind) : '$0');
+      set('k401_projected', fmt(projectedCaptured));
+      set('k401_gap_proj', fmt(projectedGap));
+      set('k401_proj_label', `Projected Match Value (${years} yr @ 7%)`);
+      set('k401_gap_label', `Value Lost to Gap (${years} yr @ 7%)`);
+
+      let insight;
+      if (leftBehind <= 0) {
+        insight = `✅ Great news — you're capturing the full employer match of ${fmt(maxMatch)}/year. Over ${years} years at 7%, that's ${fmt(projectedCaptured)} in free money.`;
+      } else {
+        const gapPct = (leftBehind / salary * 100).toFixed(1);
+        insight = `🚨 You're leaving ${fmt(leftBehind)}/year (${gapPct}% of salary) on the table. Increasing your contribution by ${gapPct}% would capture ${fmt(leftBehind)} more annually — worth ${fmt(projectedGap)} over ${years} years at 7%.`;
+      }
+      set('k401_insight', insight);
+
+      render401kChart(salary, matchPct, contribPct, years);
+      updatePlan();
+    }
+
+    function render401kChart(salary, matchPct, contribPct, years) {
+      salary = salary || num('k401_salary');
+      matchPct = matchPct || num('k401_match_pct') / 100;
+      contribPct = contribPct || num('k401_contrib_pct') / 100;
+      years = years || Math.max(1, num('k401_years'));
+
+      const r = 0.07;
+      const maxMatch = salary * matchPct;
+      const yourContrib = salary * contribPct;
+      const captured = Math.min(yourContrib, maxMatch);
+      const leftBehind = Math.max(0, maxMatch - yourContrib);
+
+      const labels = [];
+      const capturedData = [];
+      const gapData = [];
+      for (let y = 1; y <= years; y++) {
+        labels.push('Yr ' + y);
+        capturedData.push(Math.round(compound(captured, r, y)));
+        gapData.push(Math.round(compound(leftBehind, r, y)));
+      }
+
+      destroyChart('401k');
+      const ctx = document.getElementById('chart401k').getContext('2d');
+      chartInstances['401k'] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Match Captured',
+              data: capturedData,
+              borderColor: '#34d399',
+              backgroundColor: 'rgba(52,211,153,0.1)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 0,
+            },
+            {
+              label: 'Value Left Behind',
+              data: gapData,
+              borderColor: '#f87171',
+              backgroundColor: 'rgba(248,113,113,0.08)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 0,
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#9ca3af', font: { size: 12 } } }, tooltip: { callbacks: { label: ctx => ' ' + fmtK(ctx.raw) } } },
+          scales: {
+            x: { ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { color: '#6b7280', callback: v => fmtK(v) }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          }
+        }
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CALCULATOR 2: HSA Wealth Projector
+    // ═══════════════════════════════════════════════════════════════
+    function calcHSA() {
+      const contrib = num('hsa_contrib');
+      const seed = num('hsa_seed');
+      const returnRate = num('hsa_return') / 100;
+      const years = Math.max(1, num('hsa_years'));
+      const taxRate = num('hsa_tax') / 100;
+
+      const totalAnnual = contrib + seed;
+      const r = returnRate;
+
+      // HSA invested balance
+      const hsaBalance = compound(totalAnnual, r, years);
+
+      // Triple tax advantage calculation
+      const incomeTaxSaved = contrib * taxRate * years; // tax deduction each year
+      const taxableBalance = compound(totalAnnual * (1 - taxRate), r, years); // what you'd have in taxable
+      const capGainsAvoided = Math.max(0, hsaBalance - taxableBalance); // gain from tax-free growth
+      const withdrawalBonus = hsaBalance * 0.15; // simplified: ~15% avg withdrawal tax avoided
+
+      const totalTaxAdvantage = incomeTaxSaved + capGainsAvoided;
+
+      set('hsa_balance', fmt(hsaBalance));
+      set('hsa_balance_label', `Projected Balance (${years} yr @ ${pct(num('hsa_return'))})`);
+      set('hsa_income_tax', fmt(incomeTaxSaved));
+      set('hsa_cap_gains', fmt(capGainsAvoided));
+      set('hsa_total_tax', fmt(totalTaxAdvantage));
+
+      renderHSAChart(totalAnnual, r, years, taxRate);
+      updatePlan();
+    }
+
+    function renderHSAChart(totalAnnual, r, years, taxRate) {
+      totalAnnual = totalAnnual || (num('hsa_contrib') + num('hsa_seed'));
+      r = r || num('hsa_return') / 100;
+      years = years || Math.max(1, num('hsa_years'));
+      taxRate = taxRate || num('hsa_tax') / 100;
+
+      const labels = [];
+      const hsaInvested = [];
+      const hsaCash = [];
+      const taxable = [];
+
+      for (let y = 1; y <= years; y++) {
+        labels.push('Yr ' + y);
+        hsaInvested.push(Math.round(compound(totalAnnual, r, y)));
+        hsaCash.push(Math.round(totalAnnual * y)); // no growth
+        taxable.push(Math.round(compound(totalAnnual * (1 - taxRate), r * 0.85, y))); // after-tax, lower net return
+      }
+
+      destroyChart('hsa');
+      const ctx = document.getElementById('chartHSA').getContext('2d');
+      chartInstances['hsa'] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'HSA (Invested)', data: hsaInvested, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0 },
+            { label: 'HSA (Cash)', data: hsaCash, borderColor: '#9ca3af', backgroundColor: 'rgba(156,163,175,0.05)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0 },
+            { label: 'Taxable Account', data: taxable, borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.05)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#9ca3af', font: { size: 12 } } }, tooltip: { callbacks: { label: ctx => ' ' + fmtK(ctx.raw) } } },
+          scales: {
+            x: { ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { color: '#6b7280', callback: v => fmtK(v) }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          }
+        }
+      });
+    }
+
+    function toggleShoebox() {
+      shoeboxEnabled = !shoeboxEnabled;
+      document.getElementById('shoeboxToggle').classList.toggle('on', shoeboxEnabled);
+      document.getElementById('shoeboxNote').style.display = shoeboxEnabled ? 'block' : 'none';
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CALCULATOR 3: Dental/Vision Year-End
+    // ═══════════════════════════════════════════════════════════════
+    function calcDental() {
+      const cost = num('dental_cost');
+      const annualMax = num('dental_annual_max');
+      const remaining = Math.min(num('dental_remaining'), annualMax);
+      const fsa = num('dental_fsa');
+
+      // Single year: use all remaining benefits at once
+      const singleYearOop = Math.max(0, cost - remaining);
+
+      // Double-dip: split procedure across year-end
+      // Use this year's remaining + next year's full annual max
+      const doubleMax = remaining + annualMax;
+      const doubleOop = Math.max(0, cost - doubleMax);
+      // Also apply FSA if they have it
+      const doubleOopWithFSA = Math.max(0, doubleOop - fsa);
+
+      const savings = Math.max(0, singleYearOop - doubleOopWithFSA);
+
+      set('dental_single_oop', fmt(singleYearOop));
+      set('dental_double_oop', fmt(doubleOopWithFSA));
+      set('dental_savings', fmt(savings));
+
+      // FSA countdown warning
+      const fsaWarn = document.getElementById('fsa_warning');
+      if (fsa > 0) {
+        const now = new Date();
+        const yearEnd = new Date(now.getFullYear(), 11, 31);
+        const daysLeft = Math.round((yearEnd - now) / (1000 * 60 * 60 * 24));
+        fsaWarn.style.display = 'block';
+        fsaWarn.innerHTML = `⏰ <strong>FSA Use-It-or-Lose-It Reminder:</strong> You have ${fmt(fsa)} in your FSA with <strong>${daysLeft} days</strong> until Dec 31. Eligible expenses: dental, vision, prescriptions, OTC medications, medical equipment. Don't let it disappear!`;
+      } else {
+        fsaWarn.style.display = 'none';
+      }
+
+      updatePlan();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CALCULATOR 4: Education Rebate ROI
+    // ═══════════════════════════════════════════════════════════════
+    function calcEdu() {
+      const cost = num('edu_cost');
+      const rebate = Math.min(num('edu_rebate'), cost);
+      const raisePct = num('edu_raise_pct') / 100;
+      const salary = num('edu_salary');
+      const netCost = Math.max(0, cost - rebate);
+      const annualRaise = salary * raisePct;
+
+      // Payback: how many months until raises cover netCost
+      const monthlyRaise = annualRaise / 12;
+      const paybackMonths = monthlyRaise > 0 ? Math.ceil(netCost / monthlyRaise) : null;
+
+      // 5-year ROI: (5yr gains - netCost) / netCost
+      const fiveYrGains = annualRaise * 5;
+      const roi = netCost > 0 ? ((fiveYrGains - netCost) / netCost * 100) : (fiveYrGains > 0 ? 9999 : 0);
+
+      set('edu_net_cost', fmt(netCost));
+      set('edu_payback', paybackMonths !== null ? paybackMonths + ' mo' : 'N/A');
+      set('edu_5yr_roi', roi > 999 ? '>999%' : roi.toFixed(0) + '%');
+      set('edu_raise_annual', fmt(annualRaise));
+
+      // Repayment clause
+      if (repaymentEnabled) {
+        const stayMonths = Math.max(1, num('edu_stay_months'));
+        const stayYears = stayMonths / 12;
+        const gainsDuringStay = annualRaise * stayYears;
+        const note = document.getElementById('repaymentNote');
+        note.style.display = 'block';
+        note.textContent = `If you leave before ${stayMonths} months, you repay ${fmt(rebate)}. You'll earn ${fmt(gainsDuringStay)} in raises during that period — break-even at month ${paybackMonths !== null ? Math.min(paybackMonths, stayMonths) : 'N/A'}.`;
+      }
+
+      updatePlan();
+    }
+
+    function toggleRepayment() {
+      repaymentEnabled = !repaymentEnabled;
+      document.getElementById('repaymentToggle').classList.toggle('on', repaymentEnabled);
+      document.getElementById('repaymentOptions').style.display = repaymentEnabled ? 'block' : 'none';
+      document.getElementById('repaymentNote').style.display = repaymentEnabled ? 'block' : 'none';
+      calcEdu();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CALCULATOR 5: Total Compensation Visualizer
+    // ═══════════════════════════════════════════════════════════════
+    function calcTC() {
+      const salary = num('tc_salary');
+      const bonus = num('tc_bonus');
+      const match401k = num('tc_401k');
+      const health = num('tc_health');
+      const pension = num('tc_pension');
+      const other = num('tc_other');
+
+      const total = salary + bonus + match401k + health + pension + other;
+      const salaryPct = total > 0 ? (salary / total * 100) : 0;
+
+      set('tc_total', fmt(total));
+      set('tc_salary_pct', pct(salaryPct));
+      set('tc_illusion_note', `Benefits add ${fmt(total - salary)} beyond your base pay.`);
+
+      // Net Pay Illusion
+      const k401kContrib = num('tc_401k_contrib');
+      const taxRate = num('tc_tax') / 100;
+      const apparentCut = k401kContrib;
+      const realCut = k401kContrib * (1 - taxRate);
+      set('tc_apparent_cut', fmt(apparentCut));
+      set('tc_real_cut', fmt(realCut));
+
+      renderTCChart(salary, bonus, match401k, health, pension, other);
+      updatePlan();
+    }
+
+    function renderTCChart(salary, bonus, match401k, health, pension, other) {
+      salary = salary !== undefined ? salary : num('tc_salary');
+      bonus = bonus !== undefined ? bonus : num('tc_bonus');
+      match401k = match401k !== undefined ? match401k : num('tc_401k');
+      health = health !== undefined ? health : num('tc_health');
+      pension = pension !== undefined ? pension : num('tc_pension');
+      other = other !== undefined ? other : num('tc_other');
+
+      const values = [salary, bonus, match401k, health, pension, other];
+      const labels = ['Base Salary', 'Bonus', '401k Match', 'Health Benefits', 'Pension/Equity', 'Other Benefits'];
+      const colors = ['#c9a227', '#34d399', '#60a5fa', '#f87171', '#a78bfa', '#fdba74'];
+
+      // Filter out zeros
+      const nonZero = values.map((v, i) => ({ v, l: labels[i], c: colors[i] })).filter(x => x.v > 0);
+
+      destroyChart('tc');
+      const ctx = document.getElementById('chartTC').getContext('2d');
+      chartInstances['tc'] = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: nonZero.map(x => x.l),
+          datasets: [{
+            data: nonZero.map(x => x.v),
+            backgroundColor: nonZero.map(x => x.c + '99'),
+            borderColor: nonZero.map(x => x.c),
+            borderWidth: 2,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { position: 'right', labels: { color: '#9ca3af', font: { size: 12 }, boxWidth: 12, padding: 14 } },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)} (${(ctx.raw / nonZero.reduce((a, x) => a + x.v, 0) * 100).toFixed(1)}%)` } }
+          }
+        }
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CALCULATOR 6: 30-Day Action Plan Summary
+    // ═══════════════════════════════════════════════════════════════
+    function updatePlan() {
+      // 401k: annual free money left behind (opportunity cost) + captured
+      const k401_captured_val = parseFloat((document.getElementById('k401_captured').textContent || '0').replace(/[$,KMk]/g, function(m) { return m === 'K' || m === 'k' ? '000' : m === 'M' ? '000000' : ''; }).replace('$', '')) || 0;
+      const k401_salary = num('k401_salary');
+      const k401_matchPct = num('k401_match_pct') / 100;
+      const k401_contribPct = num('k401_contrib_pct') / 100;
+      const k401_max = k401_salary * k401_matchPct;
+      const k401_contrib = k401_salary * k401_contribPct;
+      const k401_left = Math.max(0, k401_max - k401_contrib);
+      const k401_impact = k401_left; // money they'll gain by fixing this
+
+      // HSA: total annual tax advantage / years
+      const hsa_contrib = num('hsa_contrib');
+      const hsa_seed = num('hsa_seed');
+      const hsa_tax = num('hsa_tax') / 100;
+      const hsa_impact = (hsa_contrib + hsa_seed) * hsa_tax; // annual income tax benefit
+
+      // Dental: savings from strategy
+      const dental_cost = num('dental_cost');
+      const dental_remaining = Math.min(num('dental_remaining'), num('dental_annual_max'));
+      const dental_annual_max = num('dental_annual_max');
+      const dental_single = Math.max(0, dental_cost - dental_remaining);
+      const dental_double = Math.max(0, dental_cost - (dental_remaining + dental_annual_max));
+      const dental_impact = Math.max(0, dental_single - dental_double);
+
+      // FSA: balance saved from loss
+      const fsa_impact = num('dental_fsa');
+
+      // Education: net annual raise value (1-year)
+      const edu_raise = num('edu_salary') * (num('edu_raise_pct') / 100);
+
+      // Total comp
+      const tc_total = num('tc_salary') + num('tc_bonus') + num('tc_401k') + num('tc_health') + num('tc_pension') + num('tc_other');
+
+      set('plan_401k_impact', fmt(k401_impact));
+      set('plan_hsa_impact', fmt(hsa_impact));
+      set('plan_dental_impact', fmt(dental_impact));
+      set('plan_fsa_impact', fmt(fsa_impact));
+      set('plan_edu_impact', fmt(edu_raise));
+      set('plan_tc_impact', fmt(tc_total));
+
+      const annualImpact = k401_impact + hsa_impact + dental_impact + fsa_impact;
+      set('plan_total', fmt(annualImpact));
+
+      // Progress bar: relative to salary or $10k cap
+      const maxExpected = Math.max(num('k401_salary') * 0.1, 5000);
+      const progressPct = Math.min(100, (annualImpact / maxExpected) * 100);
+      const bar = document.getElementById('plan_progress_bar');
+      if (bar) bar.style.width = progressPct + '%';
+      set('plan_progress_pct', Math.round(progressPct) + '%');
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // START
+    // ═══════════════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+<script defer src="/legal-disclaimer.js"></script>
+<script src="/analytics-tracker.js" defer></script>
+</body>
+</html>

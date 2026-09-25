@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elite Modules — Financial Revolution</title>
+  <style>
+    :root {
+      --bg:           #0a0e1a;
+      --card:         #111827;
+      --card-alt:     #161e2e;
+      --gold:         #d4a843;
+      --gold-light:   #f0c060;
+      --teal:         #22d3ee;
+      --text:         #e5e7eb;
+      --muted:        #9ca3af;
+      --border:       rgba(212, 168, 67, 0.18);
+      --border-active: rgba(212, 168, 67, 0.55);
+      --danger:       #f87171;
+      --green:        #34d399;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    /* ─── Top nav ──────────────────────────────────────────────── */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 700; color: var(--gold); letter-spacing: .04em; }
+    .nav-back  { font-size: .875rem; color: var(--muted); text-decoration: none; }
+    .nav-back:hover { color: var(--gold); }
+
+    /* ─── Hero ─────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 3.5rem 1.5rem 2rem;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: rgba(212,168,67,.12);
+      color: var(--gold);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: .3rem .85rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold-light), var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+    .hero p {
+      max-width: 52ch;
+      margin: 1rem auto 0;
+      color: var(--muted);
+      font-size: .975rem;
+      line-height: 1.6;
+    }
+
+    /* ─── Upsell banner ────────────────────────────────────────── */
+    #upsell-banner {
+      display: none;
+      margin: 1rem auto;
+      max-width: 900px;
+      padding: 1rem 1.5rem;
+      background: rgba(212,168,67,.07);
+      border: 1px solid var(--border-active);
+      border-radius: .75rem;
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+    #upsell-banner .upsell-inner {
+      display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap;
+    }
+    #upsell-banner .upsell-msg { flex: 1; min-width: 0; color: var(--text); }
+    #upsell-banner .upsell-cta {
+      white-space: nowrap;
+      background: var(--gold);
+      color: #0a0e1a;
+      font-weight: 700;
+      font-size: .8rem;
+      padding: .45rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    #upsell-banner .upsell-cta:hover { background: var(--gold-light); }
+    #upsell-banner .dismiss { font-size: .75rem; color: var(--muted); cursor: pointer; margin-left: .5rem; }
+    #upsell-banner .dismiss:hover { color: var(--text); }
+
+    /* ─── Section label ────────────────────────────────────────── */
+    .section-label {
+      text-align: center;
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 2rem 0 1.25rem;
+    }
+
+    /* ─── Bundle grid ──────────────────────────────────────────── */
+    .bundles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 1.5rem 2rem;
+    }
+
+    /* ─── Bundle card ──────────────────────────────────────────── */
+    .bundle-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.75rem 1.5rem 1.5rem;
+      display: flex; flex-direction: column; gap: 1.25rem;
+      transition: border-color .2s, transform .15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .bundle-card:hover { border-color: var(--border-active); transform: translateY(-2px); }
+    .bundle-card.recommended {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, #111827 0%, #1a2035 100%);
+    }
+    .bundle-card.recommended::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--teal));
+    }
+
+    .bundle-badge {
+      display: inline-block;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      padding: .25rem .7rem;
+      border-radius: 999px;
+    }
+    .badge-recommended { background: var(--gold); color: #0a0e1a; }
+    .badge-ultimate    { background: linear-gradient(135deg, #7c3aed, var(--teal)); color: #fff; }
+
+    .bundle-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; }
+    .bundle-name { font-size: 1.15rem; font-weight: 700; color: var(--gold-light); }
+    .bundle-slot-label { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+
+    .bundle-price {
+      display: flex; align-items: baseline; gap: .35rem;
+    }
+    .bundle-price .amount { font-size: 2rem; font-weight: 800; color: var(--text); }
+    .bundle-price .per    { font-size: .85rem; color: var(--muted); }
+    .bundle-savings {
+      font-size: .78rem;
+      color: var(--green);
+      font-weight: 600;
+      margin-top: .2rem;
+    }
+
+    /* ─── Module picker ────────────────────────────────────────── */
+    .module-picker { display: flex; flex-direction: column; gap: .6rem; }
+    .module-picker-label {
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .module-chip {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .6rem .85rem;
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: .6rem;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      user-select: none;
+    }
+    .module-chip.selected {
+      border-color: var(--gold);
+      background: rgba(212,168,67,.07);
+    }
+    .module-chip.locked {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+    .module-chip-icon  { font-size: 1.1rem; }
+    .module-chip-name  { flex: 1; font-size: .88rem; font-weight: 600; }
+    .module-chip-price { font-size: .75rem; color: var(--muted); text-decoration: line-through; }
+    .module-chip input[type="checkbox"] { display: none; }
+    .check-circle {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s, border-color .15s;
+    }
+    .module-chip.selected .check-circle {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+    .check-circle::after {
+      content: '';
+      width: 6px; height: 6px;
+      background: #0a0e1a;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity .1s;
+    }
+    .module-chip.selected .check-circle::after { opacity: 1; }
+
+    .slot-counter {
+      font-size: .78rem;
+      color: var(--muted);
+      text-align: right;
+    }
+    .slot-counter span { color: var(--gold); font-weight: 700; }
+
+    /* ─── CTA button ───────────────────────────────────────────── */
+    .bundle-cta {
+      display: block;
+      width: 100%;
+      padding: .9rem 1rem;
+      text-align: center;
+      border-radius: .7rem;
+      font-size: .92rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: opacity .15s, transform .1s;
+    }
+    .bundle-cta:hover { opacity: .88; transform: translateY(-1px); }
+    .bundle-cta:active { transform: translateY(0); }
+    .cta-recommended { background: var(--gold); color: #0a0e1a; }
+    .cta-standard    { background: rgba(212,168,67,.12); color: var(--gold); border: 1px solid var(--border-active); }
+    .cta-ultimate    { background: linear-gradient(135deg, #7c3aed, var(--teal)); color: #fff; }
+    .bundle-cta:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    /* ─── Individual add-ons section ───────────────────────────── */
+    .addons-section {
+      max-width: 1000px; margin: 0 auto; padding: 0 1.5rem 3rem;
+    }
+    .addons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .addon-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: .85rem;
+      padding: 1.25rem;
+      display: flex; flex-direction: column; gap: .75rem;
+    }
+    .addon-icon   { font-size: 1.5rem; }
+    .addon-name   { font-weight: 700; font-size: .95rem; }
+    .addon-desc   { font-size: .82rem; color: var(--muted); line-height: 1.45; }
+    .addon-price  { font-size: .88rem; font-weight: 700; color: var(--gold); }
+    .addon-btn {
+      display: block;
+      padding: .55rem .75rem;
+      text-align: center;
+      font-size: .82rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: .5rem;
+      background: rgba(212,168,67,.1);
+      color: var(--gold);
+      border: 1px solid var(--border-active);
+      transition: background .15s;
+    }
+    .addon-btn:hover { background: rgba(212,168,67,.2); }
+
+    /* ─── Footer note ──────────────────────────────────────────── */
+    .footer-note {
+      text-align: center;
+      font-size: .8rem;
+      color: var(--muted);
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ─── Mobile adjustments ─────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .bundles-grid { grid-template-columns: 1fr; }
+      /* Sovereign first on mobile */
+      .bundle-card-sovereign { order: -1; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">FACTS</div>
+  <a class="nav-back" href="/app">← Back to Dashboard</a>
+</nav>
+
+<main>
+  <section class="hero">
+    <span class="hero-tag">Elite Add-Ons</span>
+    <h1>Sovereign Architecture.<br/>Bundle &amp; Save.</h1>
+    <p>Combine Elite modules into a bundle — or activate them one at a time. Your privacy architecture, your choice.</p>
+  </section>
+
+  <!-- Upsell banner (shown dynamically) -->
+  <div id="upsell-banner">
+    <div class="upsell-inner">
+      <div class="upsell-msg" id="upsell-msg"></div>
+      <a id="upsell-cta-btn" class="upsell-cta" href="#">View Bundle</a>
+      <span class="dismiss" onclick="dismissUpsell()">Dismiss</span>
+    </div>
+  </div>
+
+  <!-- Bundles -->
+  <div class="section-label">Choose a Bundle</div>
+  <div class="bundles-grid" id="bundles-grid">
+
+    <!-- BNDL_STARTER — Privacy Starter -->
+    <div class="bundle-card bundle-card-starter">
+      <div class="bundle-card-header">
+        <div>
+          <div class="bundle-name">Privacy Starter</div>
+          <div class="bundle-slot-label">Pick any 2 modules</div>
+        </div>
+      </div>
+      <div>
+        <div class="bundle-price">
+          <span class="amount">$39</span><span class="per">/mo</span>
+        </div>
+        <div class="bundle-savings" id="starter-savings">Save up to $19/mo vs. a-la-carte</div>
+      </div>
+      <div class="module-picker">
+        <div class="module-picker-label">Select 2 modules</div>
+        <label class="module-chip" data-bundle="starter" data-module="sanitized_importer" onclick="toggleModule(this,'starter',2)">
+          <input type="checkbox" />
+          <span class="module-chip-icon">🛡️</span>
+          <span class="module-chip-name">Sanitized Importer</span>
+          <span class="module-chip-price">$19.99</span>
+          <span class="check-circle"></span>
+        </label>
+        <label class="module-chip" data-bundle="starter" data-module="vault_automation" onclick="toggleModule(this,'starter',2)">
+          <input type="checkbox" />
+          <span class="module-chip-icon">🏛️</span>
+          <span class="module-chip-name">Vault Automation</span>
+          <span class="module-chip-price">$29</span>
+          <span class="check-circle"></span>
+        </label>
+        <label class="module-chip" data-bundle="starter" data-module="lending_desk" onclick="toggleModule(this,'starter',2)">
+          <input type="checkbox" />
+          <span class="module-chip-icon">⚡</span>
+          <span class="module-chip-name">Sovereign Lending</span>
+          <span class="module-chip-price">$29</span>
+          <span class="check-circle"></span>
+        </label>
+        <label class="module-chip" data-bundle="starter" data-module="legacy_lens" onclick="toggleModule(this,'starter',2)">
+          <input type="checkbox" />
+          <span class="module-chip-icon">🔭</span>
+          <span class="module-chip-name">Legacy Lens</span>
+          <span class="module-chip-price">$29</span>
+          <span class="check-circle"></span>
+        </label>
+        <div class="slot-counter"><span id="starter-count">0</span>/2 selected</div>
+      </div>
+      <a id="starter-cta" class="bundle-cta cta-standard" href="https://buy.stripe.com/cNibJ25lFc9b5NEfG37Re0h" onclick="checkBundleSelection(event,'starter',2)">
+        Activate Privacy Starter — $39/mo
+      </a>
+    </div>
+
+    <!-- BNDL_SOVEREIGN — Sovereign Architect (RECOMMENDED) -->
+    <div class="bundle-card bundle-card-sovereign recommended">
+      <div class="bundle-card-header">
+        <div>
+          <div class="bundle-name">Sovereign Architect</div>
+          <div class="bundle-slot-label">Pick any 3 modules</div>
+        </div>
+        <span class="bundle-badge badge-recommended">RECOMMENDED</span>
+      </div>
+      <div>
+        <div class="bundle-price">
+          <span class="amount">$59</span><span class="per">/mo</span>
+        </div>
+        <div class="bundle-savings">Save up to $28/mo vs. a-la-carte</div>
+      </div>
+      <div class="module-picker">
+        <div class="module-picker-label">Select 3 modules</div>
+        <label class="module-chip" data-bundle="sovereign" data-module="sanitized_importer" onclick="toggleModule(this,'sovereign',3)">
+          <input type="checkbox" />
+          <span class="module-chip-icon">🛡️</span>
+          <span class="module-chip-name">Sanitized Importer</span>
+          <span class="module-chip-price">$19.99</span>
+          <span class="check-circle"></span>
+        </label>
+        <label class="module-chip" data-bundle="sovereign" data-module="vault_automation" onclick="toggleModule(this,'sovereign',3)">
+          <input type="checkbox" />
+          <span class="module-chip-icon">🏛️</span>
+          <span class="module-chip-name">Vault Automation</span>
+          <span class="module-chip-price">$29</span>
+          <span class="check-circle"></span>
+        </label>
+        <label class="module-chip" data-bundle="sovereign" data-module="lending_desk" onclick="toggleModule(this,'sovereign',3)">
+          <input type="checkbox" />
+          <span class="module-chip-icon">⚡</span>
+          <span class="module-chip-name">Sovereign Lending</span>
+          <span class="module-chip-price">$29</span>
+          <span class="check-circle"></span>
+        </label>
+        <label class="module-chip" data-bundle="sovereign" data-module="legacy_lens" onclick="toggleModule(this,'sovereign',3)">
+          <input type="checkbox" />
+          <span class="module-chip-icon">🔭</span>
+          <span class="module-chip-name">Legacy Lens</span>
+          <span class="module-chip-price">$29</span>
+          <span class="check-circle"></span>
+        </label>
+        <div class="slot-counter"><span id="sovereign-count">0</span>/3 selected</div>
+      </div>
+      <a id="sovereign-cta" class="bundle-cta cta-recommended" href="https://buy.stripe.com/8x2bJ229tddf1xo79x7Re0i" onclick="checkBundleSelection(event,'sovereign',3)">
+        Activate Sovereign Architect — $59/mo
+      </a>
+    </div>
+
+    <!-- BNDL_LEGACY — Legacy Protocol Suite -->
+    <div class="bundle-card bundle-card-legacy">
+      <div class="bundle-card-header">
+        <div>
+          <div class="bundle-name">Legacy Protocol Suite</div>
+          <div class="bundle-slot-label">All 4 modules included</div>
+        </div>
+        <span class="bundle-badge badge-ultimate">ULTIMATE PRIVACY</span>
+      </div>
+      <div>
+        <div class="bundle-price">
+          <span class="amount">$79</span><span class="per">/mo</span>
+        </div>
+        <div class="bundle-savings">Save $27.99/mo vs. a-la-carte</div>
+      </div>
+      <div class="module-picker">
+        <div class="module-picker-label">Includes all 4 modules</div>
+        <div class="module-chip selected locked"><span class="module-chip-icon">🛡️</span><span class="module-chip-name">Sanitized Importer</span><span class="check-circle"></span></div>
+        <div class="module-chip selected locked"><span class="module-chip-icon">🏛️</span><span class="module-chip-name">Vault Automation</span><span class="check-circle"></span></div>
+        <div class="module-chip selected locked"><span class="module-chip-icon">⚡</span><span class="module-chip-name">Sovereign Lending</span><span class="check-circle"></span></div>
+        <div class="module-chip selected locked"><span class="module-chip-icon">🔭</span><span class="module-chip-name">Legacy Lens</span><span class="check-circle"></span></div>
+      </div>
+      <a class="bundle-cta cta-ultimate" href="https://buy.stripe.com/eVq8wQ15p2yB6RIbpN7Re0j">
+        Activate Legacy Protocol — $79/mo
+      </a>
+    </div>
+
+  </div><!-- /bundles-grid -->
+
+  <!-- Individual Add-Ons -->
+  <div class="section-label">Or Activate Individually</div>
+  <div class="addons-section">
+    <div class="addons-grid">
+      <div class="addon-card">
+        <div class="addon-icon">🛡️</div>
+        <div class="addon-name">Sanitized Importer</div>
+        <div class="addon-desc">Bulk CSV portfolio import with Zero-PII firewall. Air-gaps your brokerage data from your identity.</div>
+        <div class="addon-price">$19.99/mo</div>
+        <a class="addon-btn" href="https://buy.stripe.com/8x2eVe4hB8WZ7VMalJ7Re0g">Activate — $19.99/mo</a>
+      </div>
+      <div class="addon-card">
+        <div class="addon-icon">🏛️</div>
+        <div class="addon-name">Vault Automation</div>
+        <div class="addon-desc">Auto-file receipts, milestone PDFs, and achievement archives. Your documents, organized.</div>
+        <div class="addon-price">$29/mo</div>
+        <a class="addon-btn" href="https://buy.stripe.com/bJe28scO7flngsi1Pd7Re0l">Activate — $29/mo</a>
+      </div>
+      <div class="addon-card">
+        <div class="addon-icon">⚡</div>
+        <div class="addon-name">Sovereign Lending</div>
+        <div class="addon-desc">9-pod lending architecture. Behavioral underwriting. HELOC strike power. No external credit data.</div>
+        <div class="addon-price">$29/mo</div>
+        <a class="addon-btn" href="https://buy.stripe.com/dRm3cwdSba13foe65t7Re0k">Activate — $29/mo</a>
+      </div>
+      <div class="addon-card">
+        <div class="addon-icon">🔭</div>
+        <div class="addon-name">Legacy Lens</div>
+        <div class="addon-desc">Entity hierarchy visualizer. Sovereign Health Score. Equity across digital assets, IP, and info systems.</div>
+        <div class="addon-price">$29/mo</div>
+        <a class="addon-btn" href="https://buy.stripe.com/9B6fZi01l3CFdg679x7Re0m">Activate — $29/mo</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer-note">
+  Bundles require Elite tier ($147/mo). Business and Sovereignty plans include all modules.<br/>
+  Payments processed securely via Stripe. Cancel anytime from your account settings.
+</footer>
+
+<script>
+  const bundleSelections = { starter: [], sovereign: [] };
+
+  function toggleModule(chipEl, bundleId, maxSlots) {
+    // Prevent locked chips
+    if (chipEl.classList.contains('locked')) return;
+
+    const module = chipEl.dataset.module;
+    const isSelected = chipEl.classList.contains('selected');
+
+    if (!isSelected) {
+      // Trying to add — check slot limit
+      if (bundleSelections[bundleId].length >= maxSlots) return;
+      chipEl.classList.add('selected');
+      bundleSelections[bundleId].push(module);
+    } else {
+      chipEl.classList.remove('selected');
+      bundleSelections[bundleId] = bundleSelections[bundleId].filter(m => m !== module);
+    }
+
+    updateSlotCounter(bundleId, maxSlots);
+    updateBundleCTA(bundleId, maxSlots);
+  }
+
+  function updateSlotCounter(bundleId, maxSlots) {
+    const count = bundleSelections[bundleId].length;
+    const el = document.getElementById(`${bundleId}-count`);
+    if (el) el.textContent = count;
+  }
+
+  function updateBundleCTA(bundleId, maxSlots) {
+    const count = bundleSelections[bundleId].length;
+    const cta = document.getElementById(`${bundleId}-cta`);
+    if (!cta) return;
+
+    if (count < maxSlots) {
+      cta.style.opacity = '0.45';
+      cta.style.cursor  = 'not-allowed';
+    } else {
+      cta.style.opacity = '';
+      cta.style.cursor  = '';
+    }
+  }
+
+  function checkBundleSelection(event, bundleId, maxSlots) {
+    const count = bundleSelections[bundleId].length;
+    if (count < maxSlots) {
+      event.preventDefault();
+      const label = bundleId === 'starter' ? 'Privacy Starter' : 'Sovereign Architect';
+      alert(`Please select ${maxSlots} module${maxSlots > 1 ? 's' : ''} for the ${label} bundle.`);
+    }
+    // else — let the href through to Stripe
+  }
+
+  // ─── Load upsell triggers from API ───────────────────────────────────────
+  let currentTrigger = null;
+  async function loadUpsellTriggers() {
+    try {
+      const res = await fetch('/api/mod_bundle_engine/upsell/triggers');
+      if (!res.ok) return;
+      const { triggers } = await res.json();
+      if (triggers && triggers.length > 0) {
+        currentTrigger = triggers[0];
+        showUpsellBanner(currentTrigger);
+      }
+    } catch (_) {}
+  }
+
+  function showUpsellBanner(trigger) {
+    const banner = document.getElementById('upsell-banner');
+    const msg    = document.getElementById('upsell-msg');
+    const btn    = document.getElementById('upsell-cta-btn');
+    if (!banner || !msg || !btn) return;
+    msg.textContent = trigger.message;
+    btn.textContent = trigger.cta;
+    btn.href        = trigger.stripe_link || '#';
+    banner.style.display = 'block';
+  }
+
+  async function dismissUpsell() {
+    if (!currentTrigger) return;
+    document.getElementById('upsell-banner').style.display = 'none';
+    try {
+      await fetch('/api/mod_bundle_engine/upsell/dismiss', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trigger_id: currentTrigger.trigger_id })
+      });
+    } catch (_) {}
+  }
+
+  // ─── Initialize ────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    // Disable CTAs initially (no modules selected)
+    updateBundleCTA('starter', 2);
+    updateBundleCTA('sovereign', 3);
+
+    // Load upsell triggers
+    loadUpsellTriggers();
+  });
+</script>
+<script src="/analytics-tracker.js" defer></script>
+<script defer src="/legal-disclaimer.js"></script>
+</body>
+</html>
