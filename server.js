@@ -201,6 +201,19 @@ app.use(session(sessionOpts));
 
 const { createAuthRouter } = require('./routes/auth');
 app.use('/api/auth', createAuthRouter());
+app.set('db', pool);
+const { router: betaNdaRouter, enforceNda } = require('./routes/betaNda');
+app.use(betaNdaRouter);
+
+// NDA Gate Page Route
+app.get('/nda', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'nda.html'));
+});
+
+// Apply NDA Enforcement to the protected dashboard
+app.get('/dashboard', enforceNda, (req, res) => {
+  res.redirect('/app');
+});
 
 // Auth middleware — attaches req.user if session exists
 function requireAuth(req, res, next) {
@@ -237,6 +250,7 @@ pzDeadlineModule.applyDeadlineLockoutMiddleware(app, pool);
     '/reset-password', '/reset-password.html',
     '/health', '/compliance-disclaimer.js',
     '/terms-of-service', '/terms-of-service.html',
+    '/nda', '/nda.html', '/dashboard',
     '/privacy-policy', '/privacy-policy.html'
   ];
   var PZ_EXT_RE = /\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp|map|json|txt|xml)$/i;
@@ -16523,7 +16537,7 @@ app.get('/', optionalAuth, (req, res) => {
 // and /app.html — otherwise it intercepts the request, serves raw app.html
 // without auth injection, and the user sees the marketing page. This was the
 // root cause of the post-login redirect bug (4 attempts to fix).
-app.get('/app', requireAuth, (req, res) => {
+app.get('/app', requireAuth, enforceNda, (req, res) => {
   const slug = process.env.POLSIA_ANALYTICS_SLUG || '';
   const htmlPath = path.join(__dirname, 'public', 'app.html');
 
