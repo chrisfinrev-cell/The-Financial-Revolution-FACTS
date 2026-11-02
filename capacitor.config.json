@@ -1,0 +1,9 @@
+{
+  "appId": "com.thefinancialrevolution.app",
+  "appName": "The Financial Revolution",
+  "webDir": "public",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false
+  }
+}

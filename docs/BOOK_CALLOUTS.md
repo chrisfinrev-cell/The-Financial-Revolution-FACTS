@@ -15,7 +15,7 @@
 > * 🛡️ The Liquid Reserve & Runway Estimator
 > 
 > Access all interactive tools at no cost:
-> 📲 **financialrevolution.net/companion**
+> 📲 **www.thefinancialrevolution.net/companion**
 > 
 > *(Note: These standalone calculators offer instant math and reference. For dynamic automated ledgers and multi-bucket tracking, explore the complete FACTS Program inside your portal.)*
 
@@ -28,7 +28,7 @@
 > 
 > Don't manually total your Convenience Drag fees line-by-line. Use our online interactive audit matrix to categorize your last 90 days of transactions, isolate recurring micro-subscriptions, and reveal your exact monthly reclaimed cash flow.
 > 
-> 📲 **Run your audit:** **financialrevolution.net/audit**
+> 📲 **Run your audit:** **www.thefinancialrevolution.net/audit**
 > ---
 
 ## 3. Chapter 2: The 6-Bucket Allocation Standard
@@ -40,7 +40,7 @@
 > 
 > Want to calculate your custom dollar splits across NEC, VEL, RES, GRO, LIF, and LEG in under 60 seconds? Enter your net income into our free calculator to generate your target allocation map instantly.
 > 
-> 📲 **Calculate your splits:** **financialrevolution.net/buckets**
+> 📲 **Calculate your splits:** **www.thefinancialrevolution.net/buckets**
 > ---
 
 ## 4. Chapter 5: The Velocity Debt Avalanche Engine
@@ -52,5 +52,5 @@
 > 
 > Model how reallocating an extra $50 or $100 from your recovered leaks shortens your debt payoff horizon. See your exact projected zero-balance date and total interest saved.
 > 
-> 📲 **Visualize your payoff date:** **financialrevolution.net/payoff**
+> 📲 **Visualize your payoff date:** **www.thefinancialrevolution.net/payoff**
 > ---

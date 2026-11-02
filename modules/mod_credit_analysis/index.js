@@ -20,6 +20,11 @@
  *   POST /posture        — read-only educational classification of a transaction list (CROA-safe)
  *   GET  /analysis/:id   — retrieve a previously run analysis
  *   GET  /history        — list user's analyses (authenticated only)
+ *   PATCH /items/:itemId | /audit-items/:id — strike-through / resolved checklist
+ *   POST  /items/:itemId/letter — educational letter draft (auto-archives; user sends)
+ *   POST  /letters | /audit-letters — archive edited educational letter content
+ *   GET   /letters — list archived drafts (authenticated)
+ *   POST  /audit-items/link-to-bucket-2 — link liability into debts (Bucket 2) ledger
  *
  * Unified vault + forensic (authenticated Import Documents flow):
  *   POST /api/vault/upload-credit-report  — store PDF in vault, clear credit gate, run analyzeReport
@@ -44,8 +49,14 @@ const {
   seedActionItems,
   listActionItems,
   setItemResolved,
-  buildEducationalLetter
+  buildEducationalLetter,
+  saveAuditLetter,
+  listAuditLetters
 } = require('./actionItems');
+const {
+  syncAuditLiabilitiesToBucket2,
+  linkAuditItemToBucket2
+} = require('./bucketDebtSync');
 
 function newAccessToken() {
   return crypto.randomBytes(32).toString('hex');
@@ -344,11 +355,24 @@ router.post('/analyze', upload.single('credit_report'), asyncRoute(async (req, r
     );
 
     let actionItems = [];
+    let debtsMapped = 0;
     try {
       await seedActionItems(pool, { analysisId, userId: limit.userId, analysis });
       actionItems = await listActionItems(pool, analysisId);
     } catch (seedErr) {
       console.warn('[mod_credit_analysis] action item seed:', seedErr.message);
+    }
+    if (limit.userId) {
+      try {
+        const synced = await syncAuditLiabilitiesToBucket2(pool, {
+          userId: limit.userId,
+          analysisId,
+          analysis
+        });
+        debtsMapped = synced.mapped || 0;
+      } catch (debtErr) {
+        console.warn('[mod_credit_analysis] bucket debt sync:', debtErr.message);
+      }
     }
 
     return res.json({
@@ -357,6 +381,7 @@ router.post('/analyze', upload.single('credit_report'), asyncRoute(async (req, r
       access_token: accessToken,
       analysis,
       action_items: actionItems,
+      debts_mapped: debtsMapped,
       authenticated: !!limit.userId,
       tier: limit.tier,
       disclaimer: 'Educational analysis only. Not credit-repair services, legal advice, or a guarantee of score/item outcomes. Consult a licensed professional before acting.',
@@ -452,74 +477,187 @@ router.get('/analysis/:id/items', asyncRoute(async (req, res) => {
   return res.json({ items, analysis_id: id });
 }));
 
-// PATCH /items/:itemId — toggle strike-through / resolved
-router.patch('/items/:itemId', asyncRoute(async (req, res) => {
-  const pool = getPool();
-  await ensureActionItemsSchema(pool);
-  const itemId = parseInt(req.params.itemId, 10);
-  if (!itemId) return res.status(400).json({ error: 'Invalid item id.' });
-
-  const userId = req.session?.userId || null;
-  const resolved = req.body?.resolved;
-  if (typeof resolved !== 'boolean') {
-    return res.status(400).json({ error: 'resolved boolean required.' });
-  }
-
-  const { rows: owned } = await pool.query(
-    `SELECT i.*, a.user_id AS analysis_user_id, a.access_token
-     FROM credit_audit_items i
-     JOIN credit_analyses a ON a.id = i.analysis_id
-     WHERE i.id = $1`,
-    [itemId]
-  );
-  const row = owned[0];
-  if (!row) return res.status(404).json({ error: 'Item not found.' });
-
-  const token = String(req.body?.token || req.query.token || req.get('x-analysis-token') || '').trim();
-  const isOwner = !!(userId && row.analysis_user_id && Number(row.analysis_user_id) === Number(userId));
-  const tokenOk = !!(token && row.access_token && token === row.access_token);
-  if (!isOwner && !tokenOk) return res.status(404).json({ error: 'Item not found.' });
-
-  const updated = await setItemResolved(pool, {
-    itemId,
-    userId: row.analysis_user_id || userId,
-    resolved
-  });
-  return res.json({ success: true, item: updated });
-}));
-
-// POST /items/:itemId/letter — educational dispute letter draft (user sends themselves)
-router.post('/items/:itemId/letter', asyncRoute(async (req, res) => {
-  const pool = getPool();
-  await ensureActionItemsSchema(pool);
-  const itemId = parseInt(req.params.itemId, 10);
-  if (!itemId) return res.status(400).json({ error: 'Invalid item id.' });
-
+async function authorizeAuditItem(pool, itemId, req) {
   const userId = req.session?.userId || null;
   const { rows } = await pool.query(
-    `SELECT i.*, a.user_id AS analysis_user_id, a.access_token, u.name AS user_name
-     FROM credit_audit_items i
+    `SELECT i.*, a.id AS analysis_id, a.user_id AS analysis_user_id, a.access_token, u.name AS user_name
+     FROM audit_items i
      JOIN credit_analyses a ON a.id = i.analysis_id
      LEFT JOIN users u ON u.id = a.user_id
      WHERE i.id = $1`,
     [itemId]
   );
   const row = rows[0];
-  if (!row) return res.status(404).json({ error: 'Item not found.' });
+  if (!row) return { errorStatus: 404, error: 'Audit item not found or unauthorized.' };
 
   const token = String(req.body?.token || req.query.token || req.get('x-analysis-token') || '').trim();
   const isOwner = !!(userId && row.analysis_user_id && Number(row.analysis_user_id) === Number(userId));
   const tokenOk = !!(token && row.access_token && token === row.access_token);
-  if (!isOwner && !tokenOk) return res.status(404).json({ error: 'Item not found.' });
+  if (!isOwner && !tokenOk) {
+    return { errorStatus: 404, error: 'Audit item not found or unauthorized.' };
+  }
+  return { row, userId };
+}
 
-  const letter = buildEducationalLetter(row, req.body?.full_name || row.user_name);
+async function handlePatchAuditItem(req, res) {
+  const pool = getPool();
+  await ensureActionItemsSchema(pool);
+  const itemId = parseInt(req.params.itemId || req.params.id, 10);
+  if (!itemId) return res.status(400).json({ error: 'Invalid item id.' });
+
+  const resolved = req.body?.resolved;
+  if (typeof resolved !== 'boolean') {
+    return res.status(400).json({ error: 'Invalid or missing "resolved" boolean state.' });
+  }
+
+  const authz = await authorizeAuditItem(pool, itemId, req);
+  if (authz.error) return res.status(authz.errorStatus).json({ error: authz.error });
+
+  const updated = await setItemResolved(pool, {
+    itemId,
+    userId: authz.row.analysis_user_id || authz.userId,
+    resolved
+  });
+  if (!updated) {
+    return res.status(404).json({ error: 'Audit item not found or unauthorized.' });
+  }
+  return res.json({
+    success: true,
+    message: 'Audit item resolution status updated.',
+    item: updated
+  });
+}
+
+async function handleGenerateLetter(req, res) {
+  const pool = getPool();
+  await ensureActionItemsSchema(pool);
+  const itemId = parseInt(req.params.itemId || req.body?.auditItemId, 10);
+  if (!itemId) return res.status(400).json({ error: 'Invalid item id.' });
+
+  const authz = await authorizeAuditItem(pool, itemId, req);
+  if (authz.error) return res.status(authz.errorStatus).json({ error: authz.error });
+
+  const letter = buildEducationalLetter(authz.row, req.body?.full_name || authz.row.user_name);
+  let archived = null;
+  try {
+    archived = await saveAuditLetter(pool, {
+      userId: authz.row.analysis_user_id || authz.userId,
+      auditItemId: itemId,
+      analysisId: authz.row.analysis_id,
+      bureau: req.body?.bureau || authz.row.bureau || null,
+      letterContent: letter
+    });
+  } catch (archiveErr) {
+    console.warn('[mod_credit_analysis] letter archive:', archiveErr.message);
+  }
+
   return res.json({
     success: true,
     item_id: itemId,
     letter,
+    letter_id: archived?.id || null,
     disclaimer:
       'Educational template only. FACTS does not send this letter, contact bureaus, or provide credit-repair services. You are solely responsible for any letter you send.'
   });
+}
+
+async function handleSaveLetter(req, res) {
+  const pool = getPool();
+  await ensureActionItemsSchema(pool);
+  const userId = req.session?.userId || null;
+  const auditItemId = parseInt(req.body?.auditItemId || req.body?.audit_item_id, 10);
+  const letterContent = req.body?.letterContent || req.body?.letter_content;
+  const bureau = req.body?.bureau || null;
+
+  if (!auditItemId || !letterContent) {
+    return res.status(400).json({ error: 'Missing audit item reference or letter content.' });
+  }
+
+  const authz = await authorizeAuditItem(pool, auditItemId, req);
+  if (authz.error) return res.status(authz.errorStatus).json({ error: authz.error });
+
+  const saved = await saveAuditLetter(pool, {
+    userId: authz.row.analysis_user_id || userId,
+    auditItemId,
+    analysisId: authz.row.analysis_id,
+    bureau: bureau || authz.row.bureau,
+    letterContent
+  });
+
+  return res.status(201).json({
+    success: true,
+    message: 'Educational letter draft archived.',
+    letterId: saved.id,
+    created_at: saved.created_at,
+    disclaimer:
+      'Archived for your records only. FACTS does not send letters to bureaus or furnishers.'
+  });
+}
+
+// PATCH /items/:itemId — toggle strike-through / resolved
+router.patch('/items/:itemId', asyncRoute(handlePatchAuditItem));
+// Alias matching product sketch: /api/mod_credit_analysis/audit-items/:id
+router.patch('/audit-items/:id', asyncRoute(handlePatchAuditItem));
+
+// POST /items/:itemId/letter — generate + auto-archive educational draft
+router.post('/items/:itemId/letter', asyncRoute(handleGenerateLetter));
+
+// POST /letters | /audit-letters — archive edited letter content
+router.post('/letters', asyncRoute(handleSaveLetter));
+router.post('/audit-letters', asyncRoute(handleSaveLetter));
+
+// GET /letters — list archived drafts for authenticated user
+router.get('/letters', asyncRoute(async (req, res) => {
+  const userId = req.session?.userId;
+  if (!userId) return res.status(401).json({ error: 'Authentication required.' });
+  const pool = getPool();
+  const letters = await listAuditLetters(pool, userId);
+  return res.json({ letters });
+}));
+
+/**
+ * POST /audit-items/link-to-bucket-2
+ * Links or updates an audited debt item into the Bucket 2 Debt Obligations ledger.
+ */
+router.post('/audit-items/link-to-bucket-2', asyncRoute(async (req, res) => {
+  try {
+    const userId = req.session?.userId;
+    if (!userId) return res.status(401).json({ error: 'Authentication required.' });
+
+    const auditItemId = parseInt(req.body?.auditItemId || req.body?.audit_item_id, 10);
+    const { balance, monthlyPayment, monthly_payment } = req.body || {};
+    if (!auditItemId) {
+      return res.status(400).json({ error: 'Missing audit item reference.' });
+    }
+
+    // Session + analysis-token gate (sketch used verifyToken)
+    const pool = getPool();
+    const authz = await authorizeAuditItem(pool, auditItemId, req);
+    if (authz.error) {
+      return res.status(authz.errorStatus).json({ error: 'Audit item not found or unauthorized.' });
+    }
+
+    const linked = await linkAuditItemToBucket2(pool, {
+      userId: authz.row.analysis_user_id || userId,
+      auditItemId,
+      balance,
+      monthlyPayment: monthlyPayment ?? monthly_payment
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Debt item successfully linked to Bucket 2 ledger.',
+      bucketDebtId: linked.bucketDebtId
+    });
+  } catch (err) {
+    const status = err.status || 500;
+    console.error('Error linking debt to Bucket 2:', err.message);
+    return res.status(status).json({
+      error: status === 404 || status === 400
+        ? err.message
+        : 'Failed to link debt item to ledger.'
+    });
+  }
 }));
 
 // GET /history — list this user's analyses (authenticated)
@@ -629,11 +767,27 @@ router.post('/run-from-vault', asyncRoute(async (req, res) => {
     ).catch(() => {});
 
     let actionItems = [];
+    let debtsMapped = 0;
     try {
-      await seedActionItems(pool, { analysisId, userId, analysis: parsed.analysis });
+      await seedActionItems(pool, {
+        analysisId,
+        userId,
+        analysis: parsed.analysis,
+        documentId
+      });
       actionItems = await listActionItems(pool, analysisId);
     } catch (seedErr) {
       console.warn('[mod_credit_analysis] run-from-vault seed:', seedErr.message);
+    }
+    try {
+      const synced = await syncAuditLiabilitiesToBucket2(pool, {
+        userId,
+        analysisId,
+        analysis: parsed.analysis
+      });
+      debtsMapped = synced.mapped || 0;
+    } catch (debtErr) {
+      console.warn('[mod_credit_analysis] run-from-vault bucket debt sync:', debtErr.message);
     }
 
     return res.json({
@@ -644,6 +798,7 @@ router.post('/run-from-vault', asyncRoute(async (req, res) => {
       access_token: accessToken,
       analysis: parsed.analysis,
       action_items: actionItems,
+      debts_mapped: debtsMapped,
       audit_status: 'audited',
       redirect: '/credit-analysis?id=' + analysisId + '&token=' + encodeURIComponent(accessToken),
       disclaimer: 'Educational analysis only. Not credit-repair services, legal advice, or a guarantee of score/item outcomes.'

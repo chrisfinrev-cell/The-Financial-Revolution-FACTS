@@ -313,9 +313,9 @@
 <script>
 // ── State ────────────────────────────────────────────────────────────────
 const params  = new URLSearchParams(location.search);
-const KID_ID  = params.get('kid') || params.get('kid_id');
+const CHILD_ID = params.get('child') || params.get('child_id') || params.get('kid') || params.get('kid_id');
 const CODE    = params.get('code');
-let kidData   = null;
+let childData = null;
 let allData   = null;
 let prevLevel = 1;
 
@@ -342,13 +342,13 @@ const bootInterval = setInterval(() => {
 
 // ── Init ─────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
-  if (!KID_ID || !CODE) { showInvalid(); return; }
+  if (!CHILD_ID || !CODE) { showInvalid(); return; }
   try {
-    const res  = await fetch(`/api/junior/kid-dashboard?kid_id=${KID_ID}&code=${encodeURIComponent(CODE)}`);
+    const res  = await fetch(`/api/junior/child-dashboard?child_id=${CHILD_ID}&code=${encodeURIComponent(CODE)}`);
     if (!res.ok) { showInvalid(); return; }
     allData    = await res.json();
-    kidData    = allData.kid;
-    prevLevel  = kidData.level;
+    childData  = allData.child || allData.kid;
+    prevLevel  = childData.level;
     document.getElementById('boot-bar').style.width = '100%';
     await new Promise(r => setTimeout(r, 400));
     document.getElementById('loading-screen').style.display = 'none';
@@ -376,7 +376,7 @@ function renderAll() {
 }
 
 function renderHeader() {
-  const k = kidData;
+  const k = childData;
   document.getElementById('hdr-avatar').textContent = k.avatar_emoji || '🧒';
   document.getElementById('hdr-name').textContent   = k.name.toUpperCase();
   document.getElementById('hdr-xp').textContent     = k.xp + ' XP';
@@ -386,7 +386,7 @@ function renderHeader() {
 }
 
 function renderXPBar() {
-  const k = kidData;
+  const k = childData;
   const n = k.next_xp;
   const lv = k.level;
   if (lv >= 6) {
@@ -460,7 +460,7 @@ async function requestConfirm(missionId) {
     const res = await fetch(`/api/junior/missions/${missionId}/request-confirm`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kid_id: KID_ID, code: CODE })
+      body: JSON.stringify({ child_id: CHILD_ID, code: CODE })
     });
     const data = await res.json();
     if (res.ok) {
@@ -479,7 +479,7 @@ async function requestConfirm(missionId) {
 }
 
 function renderFortress() {
-  const lv = kidData.level;
+  const lv = childData.level;
   document.getElementById('fortress-main-emoji').textContent = LEVEL_EMOJIS[lv];
   document.getElementById('fortress-main-name').textContent  = FORTRESS_NAMES[lv];
   document.getElementById('fortress-main-desc').textContent  = FORTRESS_DESCS[lv];
@@ -579,7 +579,7 @@ function renderVault() {
 
 async function openVaultEntry(entryId) {
   try {
-    const res  = await fetch(`/api/junior/vault-entry/${entryId}?kid_id=${KID_ID}&code=${encodeURIComponent(CODE)}`);
+    const res  = await fetch(`/api/junior/vault-entry/${entryId}?child_id=${CHILD_ID}&code=${encodeURIComponent(CODE)}`);
     const data = await res.json();
     if (!res.ok) { showToast('Cannot open entry', 'error'); return; }
     const e = data.entry;

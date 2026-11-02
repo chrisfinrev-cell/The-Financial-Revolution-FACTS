@@ -3409,9 +3409,24 @@ function restartTour() {
 }
 </script>
 
+<!-- --- INACTIVITY WARNING MODAL --- -->
+<div id="inactivity-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center;">
+    <div style="background: #131827; border: 1px solid rgba(255, 255, 255, 0.12); padding: 32px; border-radius: 16px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 12px 32px rgba(0,0,0,0.5);">
+        <h3 style="color: #ffffff; margin-top: 0; font-size: 1.25rem;">Session Expiring Soon</h3>
+        <p style="color: #94a3b8; font-size: 0.95rem; line-height: 1.5; margin-bottom: 24px;">
+            You have been inactive for a while. For your security, you will be automatically logged out in <span id="idle-countdown" style="color: #f59e0b; font-weight: bold;">60</span> seconds.
+        </p>
+        <button id="stay-logged-in-btn" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; font-weight: 600; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1rem;">
+            Stay Logged In
+        </button>
+    </div>
+</div>
+
 <!-- nav-bar excluded (app page has its own header) -->
 <script defer src="/legal-disclaimer.js"></script>
 <script src="/analytics-tracker.js" defer></script>
+<script src="/js/facts-logout.js"></script>
+<script src="/js/inactivity-logout.js"></script>
 <script src="/js/global-footer.js"></script>
 </body>
 </html>

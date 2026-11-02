@@ -3,17 +3,25 @@
  * FACTS Finance Server
  *
  * Required environment variables:
- * - DATABASE_URL: PostgreSQL connection string
- * - SESSION_SECRET: Secret for session encryption
- * - CREATOR_EMAIL: Email address that bypasses launch gate and gets admin access
- * - LAUNCH_DATE: ISO date when launch gate lifts (default: 2026-03-31T23:59:00)
+ * - NODE_ENV: development | test | staging | production
+ * - DATABASE_URL: PostgreSQL connection string (production: prefer ?sslmode=require)
+ * - SESSION_SECRET: Secret for session encryption (>= 32 chars)
+ * - TWILIO_*: Verify OTP credentials
+ * Recommended in production:
+ * - CORS_ORIGIN: comma-separated allowlist of frontend origins
+ * - JWT_SECRET: Bearer token signing (>= 64 chars) when JWT routes are used
+ * - PORT: host-assigned listen port
+ * See .env.production.example
  */
 
-const { validateAuthEnvironment, validateBetaEnvironment } = require('./config/envCheck');
+const { validateAuthEnvironment, validateBetaEnvironment, validateProductionSecurity } = require('./config/envCheck');
 validateAuthEnvironment();
 validateBetaEnvironment();
+validateProductionSecurity();
 
 const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
 const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
@@ -47,6 +55,7 @@ const { isConfigured: twilioConfigured, sendVerification, checkVerification } = 
 
 const app = express();
 const port = process.env.PORT || 3000;
+const isProduction = String(process.env.NODE_ENV || '').toLowerCase() === 'production';
 
 // Stop a stuck database or middleware call from leaving the browser tab spinning.
 app.use(function requestTimeoutGuard(req, res, next) {
@@ -230,28 +239,100 @@ try {
 // ─── Middleware ──────────────────────────────────────────
 app.set('trust proxy', 1);
 
-// ─── Security Headers ────────────────────────────────────
-// Applied to every response before static files or routes are processed
-app.use(function (req, res, next) {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+// ─── Security Headers (Helmet) ───────────────────────────
+// HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, CSP, etc.
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: false,
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        'https://js.stripe.com',
+        'https://cdn.tailwindcss.com',
+        'https://cdnjs.cloudflare.com',
+        'https://cdn.jsdelivr.net',
+        'https://cdn.plaid.com',
+        'https://fonts.googleapis.com'
+      ],
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        'https://fonts.googleapis.com',
+        'https://cdnjs.cloudflare.com'
+      ],
+      fontSrc: [
+        "'self'",
+        'https://fonts.gstatic.com',
+        'https://cdnjs.cloudflare.com',
+        'data:'
+      ],
+      imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
+      connectSrc: [
+        "'self'",
+        'https://api.stripe.com',
+        'https://api.openai.com',
+        'https://api.coinbase.com',
+        'https://sandbox.plaid.com',
+        'https://production.plaid.com',
+        'https://cdn.plaid.com'
+      ],
+      frameSrc: [
+        'https://js.stripe.com',
+        'https://hooks.stripe.com',
+        'https://cdn.plaid.com'
+      ],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"]
+    }
+  },
+  crossOriginEmbedderPolicy: false,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  hsts: isProduction
+    ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+    : false
+}));
+// Helmet no longer ships Permissions-Policy; keep the prior lock-down header.
+app.use(function permissionsPolicyHeader(_req, res, next) {
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-  res.setHeader(
-    'Content-Security-Policy',
-    [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://js.stripe.com https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://fonts.googleapis.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
-      "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
-      "img-src 'self' data: https: blob:",
-      "connect-src 'self' https://api.stripe.com https://api.openai.com https://api.coinbase.com https://sandbox.plaid.com https://production.plaid.com",
-      "frame-src https://js.stripe.com https://hooks.stripe.com",
-      "object-src 'none'",
-      "base-uri 'self'"
-    ].join('; ')
-  );
   next();
+});
+
+// ─── Strict CORS (credentialed) ──────────────────────────
+const defaultCorsOrigins = [
+  'https://financialrevolution.net',
+  'https://www.financialrevolution.net',
+  'https://app.factsmoney.com',
+  'https://www.factsmoney.com',
+  'https://factsmoney.com'
+];
+const allowedOrigins = String(process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+const corsAllowlist = allowedOrigins.length ? allowedOrigins : defaultCorsOrigins;
+
+app.use(cors({
+  origin(origin, callback) {
+    // Same-origin / non-browser clients send no Origin header
+    if (!origin) return callback(null, true);
+    if (corsAllowlist.includes(origin)) return callback(null, true);
+    if (!isProduction && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
+// Convert CORS rejections into JSON 403 instead of unhandled errors
+app.use(function corsErrorHandler(err, req, res, next) {
+  if (err && err.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'Not allowed by CORS' });
+  }
+  return next(err);
 });
 
 // ─── In-Memory Rate Limiter for /api/* ──────────────────
@@ -13862,22 +13943,37 @@ app.get('/api/pro-status', requireAuth, async (req, res) => {
   try {
     const hasPro = await hasProAccess(req.userId);
     const creator = await isCreator(req.userId);
+    const productTier = await getUserProductTier(req.userId);
+    const hasSovereign = await hasSovereignAccess(req.userId);
 
     const userResult = await pool.query(
-      'SELECT plan, paid_until, promo_code_used, trial_used, trial_expires_at, trial_plan_type FROM users WHERE id = $1',
+      'SELECT email, plan, paid_until, promo_code_used, trial_used, trial_expires_at, trial_plan_type, pricing_tier FROM users WHERE id = $1',
       [req.userId]
     );
 
     const user = userResult.rows[0];
     const trialStatus = calculateTrialStatus(user);
+    const isOwner = isOwnerEmail(user && user.email);
+    const fullAccess = hasPro || hasSovereign || creator || isOwner || productTier === 'sovereign';
+
+    let accessType = 'free';
+    if (creator) accessType = 'creator';
+    else if (isOwner || productTier === 'sovereign' || hasSovereign) accessType = 'sovereign';
+    else if (trialStatus.active) accessType = 'trial';
+    else if (user.promo_code_used) accessType = 'promo_code';
+    else if (hasPro) accessType = 'subscription';
 
     res.json({
-      has_pro: hasPro,
+      has_pro: fullAccess,
+      has_sovereign: hasSovereign || isOwner || productTier === 'sovereign',
       is_creator: creator,
+      is_owner: isOwner,
+      product_tier: productTier,
+      pricing_tier: user.pricing_tier || null,
       trial_active: trialStatus.active,
       trial_expired: trialStatus.expired,
       trial_days_remaining: trialStatus.daysRemaining,
-      access_type: creator ? 'creator' : (trialStatus.active ? 'trial' : (user.promo_code_used ? 'promo_code' : (hasPro ? 'subscription' : 'free'))),
+      access_type: accessType,
       promo_code_used: user.promo_code_used
     });
   } catch (err) {
@@ -13913,16 +14009,27 @@ app.get('/api/elite-status', requireAuth, async (req, res) => {
       return res.json({ has_elite: true, access_type: 'creator', pricing_tier: user.pricing_tier });
     }
 
-    // Active subscription on elite or sovereign tier
-    const isEliteTier = ['tfr_elite', 'sovereign_executive'].includes(user.pricing_tier);
-    const isActiveSub = user.plan === 'paid' && user.paid_until && new Date(user.paid_until) > new Date();
+    // Owner emails get full sovereign/elite feature access (no admin rights)
+    if (isOwnerEmail(user.email)) {
+      return res.json({
+        has_elite: true,
+        access_type: 'sovereign',
+        pricing_tier: user.pricing_tier || 'sovereign_executive',
+        product_tier: 'sovereign'
+      });
+    }
 
-    const hasElite = isEliteTier && isActiveSub;
+    // Active subscription on elite or sovereign tier
+    // Sovereign Executive is lifetime — trust pricing_tier without paid_until
+    const isSovereignTier = user.pricing_tier === 'sovereign_executive';
+    const isEliteTier = user.pricing_tier === 'tfr_elite' || isSovereignTier;
+    const isActiveSub = user.plan === 'paid' && user.paid_until && new Date(user.paid_until) > new Date();
+    const hasElite = isSovereignTier || (isEliteTier && isActiveSub);
 
     res.json({
       has_elite: hasElite,
       pricing_tier: user.pricing_tier || null,
-      access_type: hasElite ? 'elite_subscription' : 'insufficient_tier',
+      access_type: isSovereignTier ? 'sovereign' : (hasElite ? 'elite_subscription' : 'insufficient_tier'),
       upgrade_plan: 'tfr_elite',
       upgrade_price_monthly: TFR_ELITE_MONTHLY_CENTS,
     });
@@ -13945,17 +14052,19 @@ app.get('/api/heloc-velocity/debt-data', requireAuth, async (req, res) => {
   try {
     const userId = req.userId;
 
-    // Check Elite access
+    // Check Elite / Sovereign / Owner access
     const eliteCheck = await pool.query(
-      'SELECT pricing_tier, plan, paid_until, is_creator FROM users WHERE id = $1',
+      'SELECT pricing_tier, plan, paid_until, is_creator, email FROM users WHERE id = $1',
       [userId]
     );
     if (!eliteCheck.rows.length) return res.status(404).json({ error: 'User not found' });
     const u = eliteCheck.rows[0];
     const isCreator = u.is_creator || (u.email && u.email.toLowerCase() === CREATOR_EMAIL);
-    const isEliteTier = ['tfr_elite', 'sovereign_executive'].includes(u.pricing_tier);
+    const isOwner = isOwnerEmail(u.email);
+    const isSovereignTier = u.pricing_tier === 'sovereign_executive';
+    const isEliteTier = u.pricing_tier === 'tfr_elite' || isSovereignTier;
     const isActiveSub = u.plan === 'paid' && u.paid_until && new Date(u.paid_until) > new Date();
-    if (!isCreator && !(isEliteTier && isActiveSub)) {
+    if (!isCreator && !isOwner && !isSovereignTier && !(isEliteTier && isActiveSub)) {
       return res.status(403).json({ error: 'Elite Pro access required' });
     }
 
@@ -18372,7 +18481,7 @@ app.delete('/api/payment-methods/custom/:id', requireAuth, async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════
-//  JUNIOR REVOLUTIONARIES — Kid Command Console, Missions & Family Panel
+//  JUNIOR REVOLUTIONARIES — Child Command Console, Missions & Family Panel
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Level thresholds (XP required to *reach* each level)
@@ -18461,7 +18570,7 @@ app.get('/junior-parent', (req, res) => {
 
 // ─── PARENT ROUTES (requireAuth) ──────────────────────────────────────────
 
-// GET /api/junior/profiles — list parent's kids
+// GET /api/junior/profiles — list parent's children
 app.get('/api/junior/profiles', requireAuth, async (req, res) => {
   try {
     const r = await pool.query(
@@ -18475,7 +18584,7 @@ app.get('/api/junior/profiles', requireAuth, async (req, res) => {
   }
 });
 
-// POST /api/junior/profiles — create kid profile
+// POST /api/junior/profiles — create child profile
 app.post('/api/junior/profiles', requireAuth, async (req, res) => {
   try {
     const { name, avatar_emoji = '🧒' } = req.body;
@@ -18486,14 +18595,14 @@ app.post('/api/junior/profiles', requireAuth, async (req, res) => {
       [req.userId, name.trim(), avatar_emoji, code]
     );
     const appUrl = process.env.APP_URL || 'https://app.factsmoney.com';
-    res.json({ profile: r.rows[0], share_url: `${appUrl}/junior-command?kid=${r.rows[0].id}&code=${code}` });
+    res.json({ profile: r.rows[0], share_url: `${appUrl}/junior-command?child=${r.rows[0].id}&code=${code}` });
   } catch (err) {
     console.error('[Junior] POST profiles:', err.message);
     res.status(500).json({ error: 'Failed to create profile' });
   }
 });
 
-// PUT /api/junior/profiles/:id — update kid profile
+// PUT /api/junior/profiles/:id — update child profile
 app.put('/api/junior/profiles/:id', requireAuth, async (req, res) => {
   try {
     const { name, avatar_emoji } = req.body;
@@ -18508,7 +18617,7 @@ app.put('/api/junior/profiles/:id', requireAuth, async (req, res) => {
   }
 });
 
-// DELETE /api/junior/profiles/:id — delete kid profile
+// DELETE /api/junior/profiles/:id — delete child profile
 app.delete('/api/junior/profiles/:id', requireAuth, async (req, res) => {
   try {
     const r = await pool.query(
@@ -18547,10 +18656,10 @@ app.get('/api/junior/family-progress', requireAuth, async (req, res) => {
         completion_rate: total ? Math.round((completed / total) * 100) : 0,
         badges,
         recent_missions: missions.slice(0, 5),
-        share_url: `${appUrl}/junior-command?kid=${k.id}&code=${k.access_code}`
+        share_url: `${appUrl}/junior-command?child=${k.id}&code=${k.access_code}`
       });
     }
-    res.json({ kids: result });
+    res.json({ children: result, kids: result });
   } catch (err) {
     console.error('[Junior] GET family-progress:', err.message);
     res.status(500).json({ error: 'Failed to load family progress' });
@@ -18561,7 +18670,7 @@ app.get('/api/junior/family-progress', requireAuth, async (req, res) => {
 app.get('/api/junior/missions/pending-confirmations', requireAuth, async (req, res) => {
   try {
     const r = await pool.query(
-      `SELECT am.*, jp.name AS kid_name, jp.avatar_emoji
+      `SELECT am.*, jp.name AS child_name, jp.name AS kid_name, jp.avatar_emoji
        FROM apprentice_missions am
        JOIN junior_profiles jp ON jp.id = am.kid_id
        WHERE am.parent_user_id = $1 AND am.status = 'pending_confirm'
@@ -18574,16 +18683,17 @@ app.get('/api/junior/missions/pending-confirmations', requireAuth, async (req, r
   }
 });
 
-// POST /api/junior/missions — assign mission to kid
+// POST /api/junior/missions — assign mission to child
 app.post('/api/junior/missions', requireAuth, async (req, res) => {
   try {
-    const { kid_id, title, description, xp_reward = 50, mission_type = 'real_world' } = req.body;
-    if (!kid_id || !title?.trim()) return res.status(400).json({ error: 'kid_id and title required' });
-    const kid = (await pool.query('SELECT id FROM junior_profiles WHERE id = $1 AND parent_user_id = $2', [kid_id, req.userId])).rows[0];
-    if (!kid) return res.status(404).json({ error: 'Kid profile not found' });
+    const child_id = req.body.child_id || req.body.kid_id;
+    const { title, description, xp_reward = 50, mission_type = 'real_world' } = req.body;
+    if (!child_id || !title?.trim()) return res.status(400).json({ error: 'child_id and title required' });
+    const child = (await pool.query('SELECT id FROM junior_profiles WHERE id = $1 AND parent_user_id = $2', [child_id, req.userId])).rows[0];
+    if (!child) return res.status(404).json({ error: 'Child profile not found' });
     const r = await pool.query(
       'INSERT INTO apprentice_missions (kid_id, parent_user_id, title, description, xp_reward, mission_type) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
-      [kid_id, req.userId, title.trim(), description || null, parseInt(xp_reward) || 50, mission_type]
+      [child_id, req.userId, title.trim(), description || null, parseInt(xp_reward) || 50, mission_type]
     );
     res.json({ mission: r.rows[0] });
   } catch (err) {
@@ -18693,30 +18803,40 @@ app.delete('/api/junior/vault/:id', requireAuth, async (req, res) => {
   }
 });
 
-// ─── KID ROUTES (access_code based, no JWT required) ─────────────────────
+// ─── CHILD ROUTES (access_code based, no JWT required) ───────────────────
 
-// GET /api/junior/kid-dashboard
-app.get('/api/junior/kid-dashboard', async (req, res) => {
+// GET /api/junior/child-dashboard (alias: /kid-dashboard)
+async function juniorChildDashboard(req, res) {
   try {
-    const { kid_id, code } = req.query;
-    if (!kid_id || !code) return res.status(400).json({ error: 'kid_id and code required' });
-    const kidRow = (await pool.query('SELECT * FROM junior_profiles WHERE id = $1 AND access_code = $2', [kid_id, code])).rows[0];
+    const child_id = req.query.child_id || req.query.kid_id || req.query.child || req.query.kid;
+    const { code } = req.query;
+    if (!child_id || !code) return res.status(400).json({ error: 'child_id and code required' });
+    const kidRow = (await pool.query('SELECT * FROM junior_profiles WHERE id = $1 AND access_code = $2', [child_id, code])).rows[0];
     if (!kidRow) return res.status(403).json({ error: 'Invalid access' });
     const lv     = calcJrLevel(kidRow.xp);
     if (lv !== kidRow.level) {
-      await pool.query('UPDATE junior_profiles SET level = $1 WHERE id = $2', [lv, kid_id]);
+      await pool.query('UPDATE junior_profiles SET level = $1 WHERE id = $2', [lv, child_id]);
       kidRow.level = lv;
     }
-    const missions  = (await pool.query("SELECT * FROM apprentice_missions WHERE kid_id = $1 ORDER BY created_at DESC", [kid_id])).rows;
-    const badges    = (await pool.query('SELECT * FROM junior_badges WHERE kid_id = $1 ORDER BY earned_at ASC', [kid_id])).rows;
+    const missions  = (await pool.query("SELECT * FROM apprentice_missions WHERE kid_id = $1 ORDER BY created_at DESC", [child_id])).rows;
+    const badges    = (await pool.query('SELECT * FROM junior_badges WHERE kid_id = $1 ORDER BY earned_at ASC', [child_id])).rows;
     const earnedKeys = new Set(badges.map(b => b.badge_key));
     const allBadges  = BADGE_DEFS.map(b => ({ ...b, earned: earnedKeys.has(b.key), earned_at: badges.find(x => x.badge_key === b.key)?.earned_at || null }));
     const vaultRows  = (await pool.query(
       'SELECT id, title, emoji, level_required, created_at FROM knowledge_vault_entries WHERE parent_user_id = $1 ORDER BY level_required ASC, created_at DESC',
       [kidRow.parent_user_id]
     )).rows;
+    const profile = {
+      ...kidRow,
+      level: lv,
+      level_name: JR_LEVEL_NAMES[lv],
+      level_emoji: JR_LEVEL_EMOJIS[lv],
+      fortress_name: JR_FORTRESS_NAMES[lv],
+      next_xp: xpToNextLevel(kidRow.xp, lv)
+    };
     res.json({
-      kid: { ...kidRow, level: lv, level_name: JR_LEVEL_NAMES[lv], level_emoji: JR_LEVEL_EMOJIS[lv], fortress_name: JR_FORTRESS_NAMES[lv], next_xp: xpToNextLevel(kidRow.xp, lv) },
+      child: profile,
+      kid: profile, // legacy alias
       missions: {
         active:    missions.filter(m => m.status === 'active'),
         pending:   missions.filter(m => m.status === 'pending_confirm'),
@@ -18726,16 +18846,19 @@ app.get('/api/junior/kid-dashboard', async (req, res) => {
       vault: vaultRows.map(e => ({ ...e, locked: e.level_required > lv }))
     });
   } catch (err) {
-    console.error('[Junior] GET kid-dashboard:', err.message);
+    console.error('[Junior] GET child-dashboard:', err.message);
     res.status(500).json({ error: 'Failed to load dashboard' });
   }
-});
+}
+app.get('/api/junior/child-dashboard', juniorChildDashboard);
+app.get('/api/junior/kid-dashboard', juniorChildDashboard);
 
-// GET /api/junior/vault-entry/:id — kid reads unlocked vault entry
+// GET /api/junior/vault-entry/:id — child reads unlocked vault entry
 app.get('/api/junior/vault-entry/:id', async (req, res) => {
   try {
-    const { kid_id, code } = req.query;
-    const kidRow = (await pool.query('SELECT * FROM junior_profiles WHERE id = $1 AND access_code = $2', [kid_id, code])).rows[0];
+    const child_id = req.query.child_id || req.query.kid_id || req.query.child || req.query.kid;
+    const { code } = req.query;
+    const kidRow = (await pool.query('SELECT * FROM junior_profiles WHERE id = $1 AND access_code = $2', [child_id, code])).rows[0];
     if (!kidRow) return res.status(403).json({ error: 'Invalid access' });
     const lv = calcJrLevel(kidRow.xp);
     const entry = (await pool.query(
@@ -18750,16 +18873,17 @@ app.get('/api/junior/vault-entry/:id', async (req, res) => {
   }
 });
 
-// POST /api/junior/missions/:id/request-confirm — kid requests parent confirmation
+// POST /api/junior/missions/:id/request-confirm — child requests parent confirmation
 app.post('/api/junior/missions/:id/request-confirm', async (req, res) => {
   try {
-    const { kid_id, code } = req.body;
-    if (!kid_id || !code) return res.status(400).json({ error: 'kid_id and code required' });
-    const kidRow = (await pool.query('SELECT * FROM junior_profiles WHERE id = $1 AND access_code = $2', [kid_id, code])).rows[0];
+    const child_id = req.body.child_id || req.body.kid_id;
+    const { code } = req.body;
+    if (!child_id || !code) return res.status(400).json({ error: 'child_id and code required' });
+    const kidRow = (await pool.query('SELECT * FROM junior_profiles WHERE id = $1 AND access_code = $2', [child_id, code])).rows[0];
     if (!kidRow) return res.status(403).json({ error: 'Invalid access' });
     const mission = (await pool.query(
       "SELECT * FROM apprentice_missions WHERE id = $1 AND kid_id = $2 AND status = 'active'",
-      [req.params.id, kid_id]
+      [req.params.id, child_id]
     )).rows[0];
     if (!mission) return res.status(404).json({ error: 'Active mission not found' });
     await pool.query("UPDATE apprentice_missions SET status = 'pending_confirm' WHERE id = $1", [req.params.id]);
@@ -23506,13 +23630,19 @@ const resourceUpload = multer({
   }
 });
 
-// GET /api/resources — list active resources (filtered by pro access)
+// GET /api/resources — list active resources (filtered by pro/sovereign access)
 app.get('/api/resources', requireAuth, async (req, res) => {
   try {
     const user = await pool.query('SELECT * FROM users WHERE id = $1', [req.userId]);
     if (!user.rows.length) return res.status(401).json({ error: 'User not found' });
-    const hasPro = await hasProAccess(user.rows[0]);
+    const u = user.rows[0];
+    const hasPro = await hasProAccess(u);
+    const hasSovereign = await hasSovereignAccess(req.userId);
+    const productTier = await getUserProductTier(req.userId);
     const creator = await isCreator(req.userId);
+    const isOwner = isOwnerEmail(u.email);
+    // Sovereign / Owner / Creator bypass all resource paywall locks
+    const fullAccess = hasPro || hasSovereign || creator || isOwner || productTier === 'sovereign';
 
     const { category, search } = req.query;
 
@@ -23542,7 +23672,7 @@ app.get('/api/resources', requireAuth, async (req, res) => {
     // Mark items as locked for free users (but still return them so UI can show lock)
     const items = result.rows.map(item => ({
       ...item,
-      locked: item.is_pro_only && !hasPro && !creator
+      locked: item.is_pro_only && !fullAccess
     }));
 
     // Get distinct categories for filter UI
@@ -23554,7 +23684,10 @@ app.get('/api/resources', requireAuth, async (req, res) => {
       success: true,
       resources: items,
       categories: catResult.rows.map(r => r.category),
-      has_pro: hasPro
+      has_pro: fullAccess,
+      has_sovereign: hasSovereign || isOwner || productTier === 'sovereign',
+      product_tier: productTier,
+      is_owner: isOwner
     });
   } catch (err) {
     console.error('GET /api/resources error:', err.message);
@@ -23567,8 +23700,12 @@ app.get('/api/resources/:id/download', requireAuth, async (req, res) => {
   try {
     const user = await pool.query('SELECT * FROM users WHERE id = $1', [req.userId]);
     if (!user.rows.length) return res.status(401).json({ error: 'User not found' });
-    const hasPro = await hasProAccess(user.rows[0]);
+    const u = user.rows[0];
+    const hasPro = await hasProAccess(u);
+    const hasSovereign = await hasSovereignAccess(req.userId);
+    const productTier = await getUserProductTier(req.userId);
     const creator = await isCreator(req.userId);
+    const fullAccess = hasPro || hasSovereign || creator || isOwnerEmail(u.email) || productTier === 'sovereign';
 
     const result = await pool.query(
       'SELECT * FROM resource_center_items WHERE id = $1 AND is_active = true',
@@ -23578,8 +23715,8 @@ app.get('/api/resources/:id/download', requireAuth, async (req, res) => {
 
     const item = result.rows[0];
 
-    // Pro gate
-    if (item.is_pro_only && !hasPro && !creator) {
+    // Pro / Sovereign / Owner gate
+    if (item.is_pro_only && !fullAccess) {
       return res.status(403).json({ error: 'Paid plan required', upgrade_required: true });
     }
 

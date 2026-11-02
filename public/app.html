@@ -2251,10 +2251,12 @@
                 <button id="pwa-push-header-btn" title="Notification settings"
                   style="display:none;background:none;border:1px solid rgba(255,255,255,0.12);color:#94a3b8;cursor:pointer;padding:6px 10px;border-radius:8px;font-size:0.85rem;transition:all 0.15s ease;"
                   onclick="typeof FACTS_PWA !== 'undefined' && FACTS_PWA.requestPushPermission()">🔔</button>
-                <!-- Install App Button (shown when installable) -->
-                <button id="pwa-header-install-btn" title="Install FACTS as an app"
-                  style="display:none;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;cursor:pointer;padding:6px 12px;border-radius:8px;font-size:0.82rem;font-weight:600;transition:all 0.15s ease;"
-                  onclick="typeof FACTS_PWA !== 'undefined' && FACTS_PWA.triggerInstall()">📲 Install App</button>
+                <!-- Install App Button (shown when installable via pwa.js) -->
+                <button id="installAppBtn" class="install-btn" type="button" style="display: none;"
+                  title="Install FACTS as an app" aria-label="Install FACTS App">
+                  📱 Install FACTS App
+                </button>
+                <button id="pwa-header-install-btn" type="button" style="display:none;" hidden aria-hidden="true"></button>
                 <!-- Privacy/Presentation Mode: hides all dollar amounts for screen sharing / coaching sessions -->
                 <button id="privacy-toggle-btn" onclick="togglePrivacyMode()" title="Presentation Mode — hide dollar amounts for screen sharing or coaching sessions"
                   style="background:none;border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;padding:6px 10px;border-radius:8px;font-size:0.88rem;line-height:1;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;"
@@ -6072,7 +6074,7 @@
                                 <span style="font-size:2rem;">🏰</span>
                                 <div>
                                     <div style="font-weight:700;font-size:1rem;margin-bottom:2px;color:#4ade80;">Junior Revolutionaries</div>
-                                    <div style="color:rgba(74,222,128,0.65);font-size:0.82rem;">Assign missions, track your kids' progress &amp; build their fortress</div>
+                                    <div style="color:rgba(74,222,128,0.65);font-size:0.82rem;">Assign missions, track your children's progress &amp; build their fortress</div>
                                 </div>
                             </div>
                             <a href="/junior-parent" style="background:linear-gradient(135deg,#16a34a,#22c55e);color:#030a05;font-weight:700;font-size:0.85rem;padding:10px 20px;border-radius:8px;text-decoration:none;white-space:nowrap;">
@@ -6090,7 +6092,7 @@
                                 <span style="font-size:2rem;">🏰</span>
                                 <div>
                                     <div style="font-weight:700;font-size:1rem;margin-bottom:2px;color:#4ade80;">Junior Revolutionaries</div>
-                                    <div style="color:rgba(74,222,128,0.65);font-size:0.82rem;">Teach kids financial literacy through missions and rewards</div>
+                                    <div style="color:rgba(74,222,128,0.65);font-size:0.82rem;">Teach children financial literacy through missions and rewards</div>
                                 </div>
                             </div>
                             <a href="/junior-parent" style="background:linear-gradient(135deg,#16a34a,#22c55e);color:#030a05;font-weight:700;font-size:0.85rem;padding:10px 20px;border-radius:8px;text-decoration:none;white-space:nowrap;">

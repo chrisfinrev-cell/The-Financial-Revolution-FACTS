@@ -1,0 +1,107 @@
+/* Mobile-first responsive container adjustments */
+@media (max-width: 768px) {
+  .bucket-grid, .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 12px;
+  }
+  
+  .nav-menu {
+    display: none; /* Handled by mobile hamburger menu */
+  }
+}
+
+/* --- MOBILE LAYOUT & RESPONSIVE GRID STACKING --- */
+
+/* Ensure smooth sizing and prevent layout blowout */
+* {
+  box-sizing: border-box;
+}
+
+/* Base mobile container padding adjustments */
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Force multi-column sections (like the six-bucket grid) into a clean single column */
+  .bucket-grid, 
+  .grid-container, 
+  .features-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    width: 100% !important;
+    padding: 0 16px !important;
+  }
+
+  /* Make individual cards/buckets span full width on mobile */
+  .bucket-card, 
+  .card,
+  .alloc-card {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Scale down massive hero headers for mobile screens */
+  h1 {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+  }
+}
+
+/* --- MOBILE NAVIGATION & HAMBURGER DRAWER --- */
+@media (max-width: 768px) {
+  /* Hide standard desktop nav links */
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: rgba(13, 24, 39, 0.98);
+    backdrop-filter: blur(12px);
+    flex-direction: column;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  /* Show navigation when toggled active via JS */
+  .nav-links.active {
+    display: flex !important;
+  }
+  /* Ensure hamburger button is visible and tappable */
+  .hamburger-toggle {
+    display: block !important;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ffffff;
+  }
+}
+@media (min-width: 769px) {
+  /* Hide hamburger icon on desktop viewports */
+  .hamburger-toggle {
+    display: none !important;
+  }
+}
+
+/* --- MOBILE BUCKET GRID REFINEMENTS --- */
+@media (max-width: 768px) {
+  .bucket-grid, .dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 10px 16px;
+  }
+
+  .bucket-card, .dashboard-card, .alloc-card {
+    background: rgba(25, 25, 35, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}

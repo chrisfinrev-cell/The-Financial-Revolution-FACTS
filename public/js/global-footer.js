@@ -1,3 +1,12 @@
+(function loadBetaFeedbackWidget() {
+  if (window.__FACTS_BETA_FEEDBACK_SCRIPT) return;
+  window.__FACTS_BETA_FEEDBACK_SCRIPT = true;
+  var s = document.createElement('script');
+  s.src = '/js/beta-feedback-widget.js';
+  s.defer = true;
+  document.head.appendChild(s);
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('tfr-global-footer')) return;
 

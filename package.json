@@ -29,14 +29,20 @@
     "test:sovereign-lens": "node scripts/test-sovereign-lens.js",
     "test:til": "node scripts/test-truth-in-lending.js",
     "test:affiliate": "node scripts/test-affiliate.js",
+    "test": "jest --detectOpenHandles --forceExit",
+    "test:link-bucket-2": "jest tests/link-to-bucket-2.test.js",
     "cron:forensic-milestones": "node jobs/forensic-audit-milestones.js",
     "worker:audit-milestones": "node jobs/audit-milestone-worker.js"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/ios": "^8.6.0",
     "@vercel/blob": "^0.27.3",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "connect-pg-simple": "^10.0.0",
+    "cors": "^2.8.6",
     "crypto": "^1.0.1",
     "csv-parse": "^6.1.0",
     "dotenv": "^18.0.9",
@@ -56,5 +62,10 @@
     "stripe": "^17.7.0",
     "twilio": "^5.0.0",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.0",
+    "jest": "^30.5.2",
+    "supertest": "^7.3.1"
   }
 }

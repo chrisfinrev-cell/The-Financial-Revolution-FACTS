@@ -213,8 +213,8 @@
         <div style="font-size: 13px; color: #6b7280;" id="countLabel">Loading...</div>
       </div>
 
-      <!-- Pro Upgrade Banner (for free users) -->
-      <div id="proBanner" style="display:none; margin-bottom: 28px; padding: 16px 20px; background: linear-gradient(135deg, rgba(201,162,39,0.1), rgba(201,162,39,0.05)); border: 1px solid rgba(201,162,39,0.3); border-radius: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <!-- Pro Upgrade Banner (free users only — hidden for Pro / Sovereign / Owner) -->
+      <div id="proBanner" style="display: none; margin-bottom: 28px; padding: 16px 20px; background: linear-gradient(135deg, rgba(201,162,39,0.1), rgba(201,162,39,0.05)); border: 1px solid rgba(201,162,39,0.3); border-radius: 1rem; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
         <div style="display: flex; align-items: center; gap: 12px;">
           <span style="font-size: 24px;">🔒</span>
           <div>
@@ -280,7 +280,19 @@
     let filteredResources = [];
     let currentCat = 'all';
     let hasPro = false;
+    let hasSovereign = false;
+    let productTier = 'free';
     let searchTimeout = null;
+
+    function isFullAccess() {
+      return hasPro || hasSovereign || productTier === 'sovereign' || productTier === 'elite' || productTier === 'business' || productTier === 'pro';
+    }
+
+    function setProBannerVisible(show) {
+      const banner = document.getElementById('proBanner');
+      if (!banner) return;
+      banner.style.display = show ? 'flex' : 'none';
+    }
 
     // ── Type config ──────────────────────────────────────────
     const TYPE_CONFIG = {
@@ -302,7 +314,7 @@
         const searchVal = document.getElementById('searchInput').value.trim();
         if (searchVal) params.set('search', searchVal);
 
-        const res = await fetch(`/api/resources?${params}`);
+        const res = await fetch(`/api/resources?${params}`, { credentials: 'include' });
         if (res.status === 401 || res.status === 302) {
           window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
           return;
@@ -311,16 +323,16 @@
 
         const data = await res.json();
         allResources = data.resources || [];
-        hasPro = data.has_pro || false;
+        hasPro = !!(data.has_pro);
+        hasSovereign = !!(data.has_sovereign || data.is_owner);
+        productTier = data.product_tier || 'free';
 
         // Build category filters
         buildCategoryFilters(data.categories || []);
 
-        // Show pro banner for free users if there are locked items
+        // Hide upgrade banner for Pro / Sovereign / Owner; show only when locked items remain
         const hasLockedItems = allResources.some(r => r.locked);
-        if (hasLockedItems && !hasPro) {
-          document.getElementById('proBanner').style.display = 'flex';
-        }
+        setProBannerVisible(hasLockedItems && !isFullAccess());
 
         renderResources(allResources);
       } catch (err) {

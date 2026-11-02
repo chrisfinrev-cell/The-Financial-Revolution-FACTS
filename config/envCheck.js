@@ -119,7 +119,57 @@ function validateAuthEnvironment(env) {
   return true;
 }
 
+/**
+ * Production-only hardening checks (warn or fail-closed for critical gaps).
+ */
+function validateProductionSecurity(env) {
+  const e = env || process.env;
+  const nodeEnv = String(e.NODE_ENV || '').trim().toLowerCase();
+  if (nodeEnv !== 'production') return true;
+
+  const warnings = [];
+  const errors = [];
+
+  const dbUrl = String(e.DATABASE_URL || '');
+  if (dbUrl && !/sslmode=(require|verify-full|verify-ca)/i.test(dbUrl) && !/neon\.tech/i.test(dbUrl)) {
+    warnings.push('DATABASE_URL should include sslmode=require (or verify-full) in production.');
+  }
+
+  if (isBlank(e.CORS_ORIGIN)) {
+    warnings.push(
+      'CORS_ORIGIN is unset — falling back to built-in production allowlist. Set CORS_ORIGIN to your frontend domain(s).'
+    );
+  }
+
+  if (!isBlank(e.JWT_SECRET)) {
+    const jwt = String(e.JWT_SECRET).trim();
+    if (jwt.length < 64) {
+      errors.push('JWT_SECRET must be at least 64 characters in production.');
+    }
+    if (WEAK_SECRETS.has(jwt) || WEAK_SECRETS.has(jwt.toLowerCase())) {
+      errors.push('JWT_SECRET is a known insecure default.');
+    }
+  } else {
+    warnings.push('JWT_SECRET is unset — Bearer JWT routes will fail if used.');
+  }
+
+  for (const w of warnings) {
+    console.warn('[envCheck]', w);
+  }
+
+  if (errors.length) {
+    console.error('[envCheck] Refusing to start — production security failed closed:');
+    for (const err of errors) {
+      console.error('  -', err);
+    }
+    process.exit(1);
+  }
+
+  return true;
+}
+
 module.exports = {
   validateAuthEnvironment,
-  validateBetaEnvironment
+  validateBetaEnvironment,
+  validateProductionSecurity
 };

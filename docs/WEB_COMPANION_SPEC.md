@@ -1,4 +1,4 @@
-# WEB COMPANION SPECIFICATIONS (financialrevolution.net)
+# WEB COMPANION SPECIFICATIONS (www.thefinancialrevolution.net)
 
 ## ROUTE STRUCTURE
 - `/companion` -> Main Hub Page (Lists all free companion calculators)

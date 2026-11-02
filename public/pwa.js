@@ -113,6 +113,19 @@
       '  font-family: inherit; transition: all 0.15s ease; white-space: nowrap;',
       '}',
       '#pwa-dismiss-btn:hover { background: rgba(255,255,255,0.1); color: #94a3b8; }',
+      /* Dashboard / onboarding install CTA */
+      '.install-btn, #installAppBtn {',
+      '  display: none; align-items: center; gap: 6px;',
+      '  background: rgba(16,185,129,0.14); border: 1px solid rgba(16,185,129,0.35);',
+      '  color: #10b981; cursor: pointer; padding: 8px 14px; border-radius: 999px;',
+      '  font-size: 0.82rem; font-weight: 700; font-family: inherit;',
+      '  transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;',
+      '  white-space: nowrap;',
+      '}',
+      '.install-btn:hover, #installAppBtn:hover {',
+      '  background: rgba(16,185,129,0.22); border-color: rgba(16,185,129,0.5);',
+      '  transform: translateY(-1px);',
+      '}',
       /* iOS Guide Overlay */
       '#pwa-ios-guide {',
       '  position: fixed; inset: 0; z-index: 100000;',
@@ -169,53 +182,42 @@
       '  0%,100% { transform: translateY(0); }',
       '  50% { transform: translateY(6px); }',
       '}',
-      /* Desktop Install Guide Overlay */
-      '#pwa-desktop-guide {',
+      /* Dynamic 1-click install card (desktop / Android — no manual 3-step list) */
+      '#pwa-install-card {',
       '  position: fixed; inset: 0; z-index: 100000;',
       '  background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);',
       '  display: flex; align-items: center; justify-content: center;',
       '  padding: 24px; animation: pwa-fade-in 0.2s ease;',
       '}',
-      '#pwa-desktop-guide .pwa-desktop-card {',
+      '#pwa-install-card .pwa-install-card-inner {',
       '  background: #1a2332; border-radius: 16px;',
-      '  padding: 28px 24px 24px; max-width: 420px; width: 100%;',
-      '  border: 1px solid rgba(245,158,11,0.2);',
+      '  padding: 28px 24px 24px; max-width: 400px; width: 100%;',
+      '  border: 1px solid rgba(16,185,129,0.28);',
       '  text-align: center;',
       '  font-family: -apple-system,"DM Sans","Segoe UI",system-ui,sans-serif;',
       '}',
-      '#pwa-desktop-guide h3 {',
+      '#pwa-install-card h3 {',
       '  font-size: 1.2rem; font-weight: 700; color: #f1f5f9;',
-      '  margin-bottom: 8px;',
+      '  margin: 0 0 8px;',
       '}',
-      '#pwa-desktop-guide p {',
+      '#pwa-install-card p {',
       '  font-size: 0.88rem; color: #94a3b8; line-height: 1.5;',
-      '  margin-bottom: 20px;',
+      '  margin: 0 0 20px;',
       '}',
-      '#pwa-desktop-guide .pwa-desktop-steps {',
-      '  list-style: none; text-align: left; margin-bottom: 20px; padding: 0;',
+      '#pwa-install-card-cta {',
+      '  background: #10b981; color: #000; border: none; cursor: pointer;',
+      '  padding: 12px 20px; border-radius: 10px; font-size: 0.95rem;',
+      '  font-family: inherit; font-weight: 700; width: 100%;',
+      '  transition: background 0.15s ease, transform 0.15s ease;',
       '}',
-      '#pwa-desktop-guide .pwa-desktop-steps li {',
-      '  display: flex; align-items: center; gap: 12px;',
-      '  padding: 10px 12px; border-radius: 10px;',
-      '  background: rgba(255,255,255,0.04);',
-      '  font-size: 0.88rem; color: #f1f5f9; margin-bottom: 8px;',
+      '#pwa-install-card-cta:hover { background: #0ea271; transform: translateY(-1px); }',
+      '#pwa-install-card-cta:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }',
+      '#pwa-install-card-dismiss {',
+      '  margin-top: 10px; background: transparent; color: #64748b;',
+      '  border: none; cursor: pointer; padding: 10px; font-size: 0.85rem;',
+      '  font-family: inherit; width: 100%;',
       '}',
-      '#pwa-desktop-guide .pwa-desktop-steps li .step-num {',
-      '  width: 24px; height: 24px; border-radius: 50%;',
-      '  background: #10b981; color: #000; font-weight: 700;',
-      '  font-size: 0.75rem; display: flex; align-items: center;',
-      '  justify-content: center; flex-shrink: 0;',
-      '}',
-      '#pwa-desktop-guide .pwa-desktop-steps li .step-icon {',
-      '  font-size: 1.2rem; flex-shrink: 0;',
-      '}',
-      '#pwa-close-desktop {',
-      '  background: rgba(255,255,255,0.08); color: #94a3b8;',
-      '  border: 1px solid rgba(255,255,255,0.1); cursor: pointer;',
-      '  padding: 11px 28px; border-radius: 10px; font-size: 0.9rem;',
-      '  font-family: inherit; font-weight: 500; width: 100%;',
-      '}',
-      '#pwa-close-desktop:hover { background: rgba(255,255,255,0.12); }',
+      '#pwa-install-card-dismiss:hover { color: #94a3b8; }',
       /* Safe area spacing for bottom banner */
       '@supports (padding-bottom: env(safe-area-inset-bottom)) {',
       '  #pwa-install-banner { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }',
@@ -259,12 +261,21 @@
   var deferredPrompt = null; // Android/Desktop install prompt
   var promptConsumed = false; // Track if we already tried prompt()
 
-  // Update all install buttons across the page (header + banner)
+  // Show/hide custom install CTAs (#installAppBtn + legacy header ids)
   function updateInstallButtons(visible) {
-    // Update header install button if it exists
-    var headerBtn = document.getElementById('pwa-header-install-btn');
-    if (headerBtn) {
-      headerBtn.style.display = visible ? 'inline-flex' : 'none';
+    var ids = ['installAppBtn', 'pwa-header-install-btn', 'fn-pwa-install'];
+    for (var i = 0; i < ids.length; i++) {
+      var btn = document.getElementById(ids[i]);
+      if (!btn || btn.hidden) continue;
+      // inline-flex keeps pill CTAs aligned in nav; falls back to block if needed
+      btn.style.display = visible ? 'inline-flex' : 'none';
+      if (!btn.dataset.pwaBound) {
+        btn.dataset.pwaBound = '1';
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          triggerInstall();
+        });
+      }
     }
   }
 
@@ -331,63 +342,61 @@
   }
 
   // ── Install Trigger ────────────────────────────────────────────────────────
+  function runNativePrompt() {
+    if (!deferredPrompt || promptConsumed) return false;
+    promptConsumed = true;
+    var promptEvent = deferredPrompt;
+    try {
+      promptEvent.prompt();
+      promptEvent.userChoice.then(function (result) {
+        console.log('User response to the install prompt: ' + result.outcome);
+        deferredPrompt = null;
+        hideInstallCard();
+        updateInstallButtons(false);
+        if (result.outcome === 'accepted') {
+          hideBanner(true);
+          showToast('FACTS installed! Check your apps.');
+        } else {
+          showToast('You can install later anytime.');
+        }
+      }).catch(function (err) {
+        console.warn('[PWA] userChoice error:', err);
+        deferredPrompt = null;
+        promptConsumed = false;
+        updateInstallButtons(true);
+        showToast('Install prompt unavailable right now. Try again in a moment.');
+      });
+      return true;
+    } catch (err) {
+      console.warn('[PWA] prompt() error:', err);
+      deferredPrompt = null;
+      promptConsumed = false;
+      return false;
+    }
+  }
+
   function triggerInstall() {
     console.log('[PWA] triggerInstall called. iOS:', isIOS(), 'deferredPrompt:', !!deferredPrompt, 'consumed:', promptConsumed);
 
-    // iOS: always show the manual guide
+    // iOS Safari has no beforeinstallprompt — short 2-step Add to Home Screen card only
     if (isIOS()) {
       showIOSGuide();
       hideBanner(false);
       return;
     }
 
-    // Android/Desktop: try the native prompt first
-    if (deferredPrompt && !promptConsumed) {
-      promptConsumed = true;
-      try {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(function (result) {
-          console.log('[PWA] User choice:', result.outcome);
-          if (result.outcome === 'accepted') {
-            console.log('[PWA] User accepted install');
-            hideBanner(true);
-            updateInstallButtons(false);
-            showToast('FACTS installed! Check your apps.');
-          } else {
-            console.log('[PWA] User dismissed install prompt');
-            // Prompt was dismissed — show fallback instructions
-            showToast('You can install later from the browser menu.');
-          }
-          deferredPrompt = null;
-        }).catch(function (err) {
-          console.warn('[PWA] userChoice error:', err);
-          deferredPrompt = null;
-          showDesktopGuide();
-        });
-      } catch (err) {
-        console.warn('[PWA] prompt() error:', err);
-        deferredPrompt = null;
-        // Prompt failed — show manual instructions
-        showDesktopGuide();
-      }
+    // Chrome / Edge / Brave / Android Chromium: 1-click native prompt — never show manual steps
+    if (runNativePrompt()) {
+      hideBanner(false);
       return;
     }
 
-    // Fallback: prompt not available (already consumed, never fired, or unsupported browser)
-    if (isAndroid()) {
-      // Android without beforeinstallprompt — show visual guide
-      showAndroidGuide();
-    } else if (isChromium()) {
-      // Desktop Chrome/Edge — show visual guide
-      showDesktopGuide();
-    } else {
-      // Firefox, Safari desktop, etc.
-      showDesktopGuide();
-    }
+    // Prompt not ready yet — show clean install card with a single primary CTA (no 3-step list)
+    showInstallCard();
     hideBanner(false);
   }
 
-  // ── iOS Install Guide ─────────────────────────────────────────────────────────
+  // ── iOS Install Guide (2 steps only) ────────────────────────────────────────
   function showIOSGuide() {
     if (document.getElementById('pwa-ios-guide')) return;
 
@@ -403,25 +412,20 @@
     card.innerHTML = [
       '<div class="pwa-arrow">\u2B07</div>',
       '<h3>Add FACTS to Home Screen</h3>',
-      '<p>Install FACTS as an app for full-screen mode, faster access, and home screen icon.</p>',
+      '<p>Safari doesn\u2019t support 1-click install. Use these two steps:</p>',
       '<ol class="pwa-ios-steps">',
       '  <li>',
       '    <span class="step-num">1</span>',
       '    <span class="step-icon">\u2B06</span>',
-      '    <span>Tap the <strong>Share</strong> button at the bottom of Safari</span>',
+      '    <span>Tap the <strong>Share</strong> button</span>',
       '  </li>',
       '  <li>',
       '    <span class="step-num">2</span>',
       '    <span class="step-icon">\u2795</span>',
-      '    <span>Scroll down and tap <strong>"Add to Home Screen"</strong></span>',
-      '  </li>',
-      '  <li>',
-      '    <span class="step-num">3</span>',
-      '    <span class="step-icon">\u2705</span>',
-      '    <span>Tap <strong>"Add"</strong> in the top-right corner</span>',
+      '    <span>Tap <strong>"Add to Home Screen"</strong></span>',
       '  </li>',
       '</ol>',
-      '<button id="pwa-close-ios">Got it</button>',
+      '<button id="pwa-close-ios" type="button">Got it</button>',
     ].join('');
 
     overlay.appendChild(card);
@@ -432,118 +436,64 @@
 
   function hideIOSGuide() {
     var overlay = document.getElementById('pwa-ios-guide');
-    if (overlay) overlay.parentNode.removeChild(overlay);
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
   }
 
-  // ── Android Install Guide (fallback when native prompt unavailable) ─────────
-  function showAndroidGuide() {
-    if (document.getElementById('pwa-android-guide')) return;
+  // ── Clean install card (desktop/Android) — single CTA, no manual browser steps ─
+  function showInstallCard() {
+    if (document.getElementById('pwa-install-card')) return;
+    // Remove any leftover legacy overlays if still in the DOM
+    ['pwa-desktop-guide', 'pwa-android-guide'].forEach(function (id) {
+      var legacy = document.getElementById(id);
+      if (legacy && legacy.parentNode) legacy.parentNode.removeChild(legacy);
+    });
 
     var overlay = document.createElement('div');
-    overlay.id = 'pwa-android-guide';
-    overlay.style.cssText = [
-      'position:fixed;inset:0;z-index:100000;',
-      'background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);',
-      'display:flex;align-items:center;justify-content:center;',
-      'padding:24px;animation:pwa-fade-in 0.2s ease;',
-    ].join('');
+    overlay.id = 'pwa-install-card';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-label', 'Install FACTS App');
     overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) hideAndroidGuide();
+      if (e.target === overlay) hideInstallCard();
     });
 
     var card = document.createElement('div');
-    card.style.cssText = [
-      'background:#1a2332;border-radius:16px;',
-      'padding:28px 24px 24px;max-width:400px;width:100%;',
-      'border:1px solid rgba(245,158,11,0.2);text-align:center;',
-      'font-family:-apple-system,"DM Sans","Segoe UI",system-ui,sans-serif;',
-    ].join('');
-
+    card.className = 'pwa-install-card-inner';
     card.innerHTML = [
-      '<h3 style="font-size:1.2rem;font-weight:700;color:#f1f5f9;margin:0 0 8px;">Install FACTS on Android</h3>',
-      '<p style="font-size:0.88rem;color:#94a3b8;line-height:1.5;margin:0 0 20px;">Get a home screen icon, full-screen app experience, and offline access.</p>',
-      '<ol style="list-style:none;text-align:left;margin:0 0 20px;padding:0;">',
-      '  <li style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.04);font-size:0.88rem;color:#f1f5f9;margin-bottom:8px;">',
-      '    <span style="width:24px;height:24px;border-radius:50%;background:#10b981;color:#000;font-weight:700;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>',
-      '    <span>Tap the <strong>three-dot menu</strong> (\u22EE) in the top-right of Chrome</span>',
-      '  </li>',
-      '  <li style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.04);font-size:0.88rem;color:#f1f5f9;margin-bottom:8px;">',
-      '    <span style="width:24px;height:24px;border-radius:50%;background:#10b981;color:#000;font-weight:700;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>',
-      '    <span>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></span>',
-      '  </li>',
-      '  <li style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.04);font-size:0.88rem;color:#f1f5f9;margin-bottom:8px;">',
-      '    <span style="width:24px;height:24px;border-radius:50%;background:#10b981;color:#000;font-weight:700;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>',
-      '    <span>Tap <strong>"Install"</strong> to confirm</span>',
-      '  </li>',
-      '</ol>',
-      '<button id="pwa-close-android" style="background:rgba(255,255,255,0.08);color:#94a3b8;border:1px solid rgba(255,255,255,0.1);cursor:pointer;padding:11px 28px;border-radius:10px;font-size:0.9rem;font-family:inherit;font-weight:500;width:100%;">Got it</button>',
-    ].join('');
-
-    overlay.appendChild(card);
-    document.body.appendChild(overlay);
-    card.querySelector('#pwa-close-android').addEventListener('click', hideAndroidGuide);
-  }
-
-  function hideAndroidGuide() {
-    var overlay = document.getElementById('pwa-android-guide');
-    if (overlay) overlay.parentNode.removeChild(overlay);
-  }
-
-  // ── Desktop Install Guide (fallback when native prompt unavailable) ─────────
-  function showDesktopGuide() {
-    if (document.getElementById('pwa-desktop-guide')) return;
-
-    var overlay = document.createElement('div');
-    overlay.id = 'pwa-desktop-guide';
-    overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) hideDesktopGuide();
-    });
-
-    var card = document.createElement('div');
-    card.className = 'pwa-desktop-card';
-
-    // Detect browser for specific instructions
-    var isEdge = /edg/i.test(navigator.userAgent);
-    var browserName = isEdge ? 'Edge' : 'Chrome';
-    var menuIcon = isEdge ? '\u22EF' : '\u22EE';
-    var menuDesc = isEdge ? 'the three-dot menu (<strong>\u22EF</strong>) in the top-right' : 'the three-dot menu (<strong>\u22EE</strong>) in the top-right';
-
-    card.innerHTML = [
-      '<h3>Install FACTS as an App</h3>',
-      '<p>Get a desktop app icon, full-screen experience, and quick access.</p>',
-      '<ol class="pwa-desktop-steps">',
-      '  <li>',
-      '    <span class="step-num">1</span>',
-      '    <span class="step-icon">' + menuIcon + '</span>',
-      '    <span>Click ' + menuDesc + ' corner of ' + browserName + '</span>',
-      '  </li>',
-      '  <li>',
-      '    <span class="step-num">2</span>',
-      '    <span class="step-icon">\uD83D\uDCE5</span>',
-      '    <span>Click <strong>"Install FACTS"</strong> or <strong>"Install app"</strong></span>',
-      '  </li>',
-      '  <li>',
-      '    <span class="step-num">3</span>',
-      '    <span class="step-icon">\u2705</span>',
-      '    <span>Click <strong>"Install"</strong> in the confirmation dialog</span>',
-      '  </li>',
-      '</ol>',
-      '<p style="font-size:0.8rem;color:#64748b;margin-bottom:16px;">',
-      '  Look for the <strong>install icon</strong> (\uD83D\uDCE5) in the address bar too!',
-      '</p>',
-      '<button id="pwa-close-desktop">Got it</button>',
+      '<div style="font-size:2rem;margin-bottom:10px;">\uD83D\uDCF1</div>',
+      '<h3>Install FACTS App</h3>',
+      '<p>One tap installs FACTS to your device for faster access and a full-screen experience.</p>',
+      '<button id="pwa-install-card-cta" type="button">Install FACTS App Now</button>',
+      '<button id="pwa-install-card-dismiss" type="button">Not now</button>',
     ].join('');
 
     overlay.appendChild(card);
     document.body.appendChild(overlay);
 
-    card.querySelector('#pwa-close-desktop').addEventListener('click', hideDesktopGuide);
+    card.querySelector('#pwa-install-card-dismiss').addEventListener('click', hideInstallCard);
+    card.querySelector('#pwa-install-card-cta').addEventListener('click', function () {
+      var cta = card.querySelector('#pwa-install-card-cta');
+      if (deferredPrompt && !promptConsumed) {
+        cta.disabled = true;
+        cta.textContent = 'Opening installer\u2026';
+        if (runNativePrompt()) return;
+        cta.disabled = false;
+        cta.textContent = 'Install FACTS App Now';
+      }
+      // Waiting for beforeinstallprompt — keep card open and tip the user
+      showToast('Installer is preparing\u2026 tap again in a second.');
+    });
   }
 
-  function hideDesktopGuide() {
-    var overlay = document.getElementById('pwa-desktop-guide');
-    if (overlay) overlay.parentNode.removeChild(overlay);
+  function hideInstallCard() {
+    var overlay = document.getElementById('pwa-install-card');
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
   }
+
+  // Legacy aliases — never show old 3-step / three-dot menus again
+  function showAndroidGuide() { showInstallCard(); }
+  function showDesktopGuide() { showInstallCard(); }
+  function hideDesktopGuide() { hideInstallCard(); }
+  function hideAndroidGuide() { hideInstallCard(); }
 
   // ── Push Notifications ────────────────────────────────────────────────────────
   function isPushSupported() {
@@ -731,15 +681,22 @@
     // Log diagnostics after a short delay (after SW registers, before prompt fires)
     setTimeout(logDiagnostic, 2000);
 
-    // Capture Android/Desktop install prompt (single authoritative listener)
+    // Capture Android/Desktop install prompt (prevent Chrome mini-infobar; stash for custom CTA)
     window.addEventListener('beforeinstallprompt', function (e) {
       e.preventDefault();
       deferredPrompt = e;
       promptConsumed = false;
       console.log('[PWA] beforeinstallprompt fired — native install available');
 
-      // Show the header install button immediately
+      // Show custom install button (#installAppBtn)
       updateInstallButtons(true);
+
+      // If the install card is already open, enable 1-click native install immediately
+      var openCta = document.getElementById('pwa-install-card-cta');
+      if (openCta) {
+        openCta.disabled = false;
+        openCta.textContent = 'Install FACTS App Now';
+      }
 
       // On mobile: also show the bottom banner after delay
       // On desktop: header button is enough (no duplicate UI)
@@ -747,7 +704,7 @@
         setTimeout(showBanner, BANNER_DELAY_MS);
       } else if (!isMobile() && shouldShowBanner()) {
         // On desktop, show banner only if there's no header button
-        var headerBtn = document.getElementById('pwa-header-install-btn');
+        var headerBtn = document.getElementById('installAppBtn') || document.getElementById('pwa-header-install-btn');
         if (!headerBtn) {
           setTimeout(showBanner, BANNER_DELAY_MS);
         }
@@ -784,10 +741,12 @@
     // non-standalone browsers — no auto-popup needed. Auto-showing a fixed banner
     // breaks layout in DuckDuckGo Android (frozen top half, broken initial render).
 
-    // Track install success
+    // Hide button if already installed / just installed
     window.addEventListener('appinstalled', function () {
-      console.log('[PWA] App installed successfully!');
+      console.log('FACTS was successfully installed.');
       hideBanner(true);
+      hideInstallCard();
+      hideIOSGuide();
       updateInstallButtons(false);
       deferredPrompt = null;
       showToast('FACTS installed successfully!');

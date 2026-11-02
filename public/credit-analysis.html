@@ -385,11 +385,20 @@
       background: rgba(148,163,184,0.15); color: #94a3b8; margin-right: 6px; text-transform: uppercase;
       letter-spacing: 0.04em; font-weight: 700;
     }
-    .btn-draft-letter {
-      flex-shrink: 0; padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer;
-      background: #059669; color: #fff; font-size: 0.75rem; font-weight: 700;
+    .action-center-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .btn-draft-letter, .btn-link-bucket {
+      padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer;
+      font-size: 0.75rem; font-weight: 700; white-space: nowrap;
+      transition: background 0.15s ease, color 0.15s ease;
     }
+    .btn-draft-letter { background: #059669; color: #fff; }
     .btn-draft-letter:hover { background: #10b981; }
+    .btn-link-bucket { background: #059669; color: #fff; }
+    .btn-link-bucket:hover { background: #10b981; }
+    .btn-link-bucket.synced {
+      background: #334155; color: #34d399; cursor: default;
+    }
+    .btn-link-bucket:disabled { opacity: 0.85; cursor: default; }
     .letter-modal-backdrop {
       display: none; position: fixed; inset: 0; z-index: 2000;
       background: rgba(0,0,0,0.72); align-items: center; justify-content: center; padding: 16px;
@@ -411,8 +420,70 @@
       padding: 9px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600;
     }
     .letter-btn-close { background: #334155; color: #cbd5e1; }
+    .letter-btn-save { background: #1d4ed8; color: #fff; }
     .letter-btn-copy { background: #059669; color: #fff; }
     .letter-disclaimer { font-size: 0.72rem; color: #94a3b8; margin-top: 10px; line-height: 1.4; }
+
+    /* Onboarding modal — FACTS Forensic Credit Workflow */
+    @keyframes onboardingFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .onboarding-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 2100;
+      background: rgba(0,0,0,0.7); align-items: center; justify-content: center;
+      padding: 16px; animation: onboardingFadeIn 0.2s ease;
+    }
+    .onboarding-backdrop.open { display: flex; }
+    .onboarding-modal {
+      background: #0f172a; border: 1px solid #1e293b; border-radius: 10px;
+      max-width: 42rem; width: 100%; max-height: 90vh; display: flex; flex-direction: column;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.55); color: #f1f5f9;
+    }
+    .onboarding-header {
+      padding: 22px 24px; border-bottom: 1px solid #1e293b;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    }
+    .onboarding-header h2 {
+      margin: 0; font-size: 1.15rem; font-weight: 700; color: #34d399;
+      font-family: 'Syne', sans-serif;
+    }
+    .onboarding-close {
+      background: none; border: none; color: #94a3b8; font-size: 1.4rem;
+      font-weight: 700; cursor: pointer; line-height: 1; padding: 4px 8px;
+    }
+    .onboarding-close:hover { color: #e2e8f0; }
+    .onboarding-body {
+      padding: 22px 24px; overflow-y: auto; font-size: 0.875rem; color: #cbd5e1;
+    }
+    .onboarding-quote {
+      background: rgba(30,41,59,0.5); border: 1px solid #1e293b; border-radius: 8px;
+      padding: 14px 16px; margin-bottom: 22px; color: #e2e8f0; font-style: italic; line-height: 1.5;
+    }
+    .onboarding-step { margin-bottom: 18px; }
+    .onboarding-step h3 {
+      margin: 0 0 4px; font-size: 1rem; font-weight: 600; color: #e2e8f0;
+    }
+    .onboarding-step p { margin: 0; color: #94a3b8; line-height: 1.55; }
+    .onboarding-step strong { color: #e2e8f0; font-weight: 600; }
+    .onboarding-note {
+      margin-top: 8px; font-size: 0.72rem; color: #64748b; line-height: 1.45;
+    }
+    .onboarding-footer {
+      padding: 14px 24px; border-top: 1px solid #1e293b; display: flex; justify-content: flex-end;
+    }
+    .onboarding-begin {
+      padding: 9px 18px; font-size: 0.875rem; background: #059669; color: #fff;
+      border: none; border-radius: 6px; font-weight: 600; cursor: pointer;
+      box-shadow: 0 8px 20px rgba(6,78,59,0.35);
+    }
+    .onboarding-begin:hover { background: #10b981; }
+    .btn-how-it-works {
+      background: transparent; border: 1px solid var(--border); color: var(--text-sec);
+      padding: 7px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+    }
+    .btn-how-it-works:hover { color: var(--text); border-color: var(--border-glow); }
 
     /* Report header */
     .report-header {
@@ -922,6 +993,7 @@
 <header class="top-bar">
   <a href="/factsmoney" class="logo">FACTS <span>// FORENSIC CREDIT SCAN</span></a>
   <div class="top-bar-right">
+    <button type="button" class="btn-how-it-works" onclick="openOnboardingModal()">How it works</button>
     <a href="/login" class="btn-ghost">Log In</a>
     <a href="/signup" class="btn-primary">Create Free Account</a>
   </div>
@@ -1120,7 +1192,43 @@
     <p class="letter-disclaimer">Educational template only. FACTS is not a credit repair organization and does not contact bureaus, furnishers, or collectors for you. Outcomes are not guaranteed. Consult a licensed professional before sending.</p>
     <div class="letter-modal-actions">
       <button type="button" class="letter-btn-close" onclick="closeLetterModal()">Close</button>
+      <button type="button" class="letter-btn-save" onclick="saveLetterDraft()">Save Archive</button>
       <button type="button" class="letter-btn-copy" onclick="copyLetterDraft()">Copy Letter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Onboarding: FACTS Forensic Credit Workflow -->
+<div class="onboarding-backdrop" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+  <div class="onboarding-modal">
+    <div class="onboarding-header">
+      <h2 id="onboardingTitle">FACTS Forensic Credit Workflow</h2>
+      <button type="button" class="onboarding-close" onclick="closeOnboardingModal()" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="onboarding-body">
+      <div class="onboarding-quote">
+        "Welcome to the Financial Revolution. Your credit report is a vital instrument of financial leverage. The FACTS forensic credit engine transforms raw data into an actionable execution dashboard."
+      </div>
+      <div class="onboarding-step">
+        <h3>Step 1: The Intake Gate (Document Vault)</h3>
+        <p>Upload your credit report PDF directly to your secure Document Vault, or select an existing report from your vault history and click <strong>"Start Audit."</strong></p>
+      </div>
+      <div class="onboarding-step">
+        <h3>Step 2: The Forensic Scan &amp; Vulnerability Mapping</h3>
+        <p>Watch as your credit report is parsed into structured categories—isolating collections, stale addresses, hard inquiries, and late payment markers.</p>
+      </div>
+      <div class="onboarding-step">
+        <h3>Step 3: The Action Center (Execution &amp; Self-Advocacy)</h3>
+        <p>Track your progress with real-time strike-through checklist updates and click <strong>"Draft Letter"</strong> to generate educational FCRA self-advocacy letter drafts you can review, edit, and send yourself.</p>
+      </div>
+      <div class="onboarding-step">
+        <h3>Step 4: The Wealth Sync (Bucket 2 Integration)</h3>
+        <p>When verified debt liabilities are identified, click <strong>"Sync to Bucket 2"</strong> to transition those obligations into your Debt Elimination &amp; Allocation ledger.</p>
+      </div>
+      <p class="onboarding-note">Educational workflow only. FACTS is not a credit repair organization and does not contact bureaus, furnishers, or collectors on your behalf. Outcomes are not guaranteed.</p>
+    </div>
+    <div class="onboarding-footer">
+      <button type="button" class="onboarding-begin" onclick="closeOnboardingModal(true)">Got it, let's begin</button>
     </div>
   </div>
 </div>
@@ -1138,6 +1246,9 @@
   let currentId    = null;
   let currentToken = null;
   let actionItemsCache = [];
+  let currentLetterItemId = null;
+  let syncingId = null;
+  let syncedItems = {};
 
   // ─── File selection ───────────────────────────────────────────────────────
   const fileInput   = document.getElementById('fileInput');
@@ -1298,6 +1409,15 @@
     }
     content.innerHTML = '<div class="action-center-list">' + actionItemsCache.map(item => {
       const resolved = !!item.resolved;
+      const itemType = String(item.item_type || item.type || '').toLowerCase();
+      const metaType = String((item.meta && (item.meta.type || item.meta.item_type)) || '').toLowerCase();
+      // Match sketch: show Sync only for collection liabilities
+      const isCollection = itemType === 'collection' || metaType === 'collection';
+      const isSyncing = syncingId === item.id;
+      const isSynced = !!syncedItems[item.id];
+      let bucketBtnLabel = 'Sync to Bucket 2';
+      if (isSyncing) bucketBtnLabel = 'Syncing...';
+      else if (isSynced) bucketBtnLabel = '\u2713 In Bucket 2';
       return `
         <div class="action-center-row ${resolved ? 'resolved' : ''}" data-item-id="${item.id}">
           <div class="action-center-main">
@@ -1311,9 +1431,66 @@
               <div class="action-center-meta">${escHtml(item.details || '')}${item.bureau ? ' · ' + escHtml(item.bureau) : ''}</div>
             </div>
           </div>
-          <button type="button" class="btn-draft-letter" onclick="draftLetterForItem(${item.id})">Draft Letter</button>
+          <div class="action-center-actions">
+            ${isCollection ? `<button type="button" class="btn-link-bucket${isSynced ? ' synced' : ''}"
+              ${isSyncing || isSynced ? 'disabled' : ''}
+              onclick="handleSyncToBucket2(${item.id})">${bucketBtnLabel}</button>` : ''}
+            <button type="button" class="btn-draft-letter" onclick="draftLetterForItem(${item.id})">Draft Letter</button>
+          </div>
         </div>`;
     }).join('') + '</div>';
+  }
+
+  async function handleSyncToBucket2(itemId) {
+    const item = actionItemsCache.find(i => i.id === itemId);
+    if (!item || syncingId != null || syncedItems[item.id]) return;
+
+    const account = item.creditor || item.label || item.account || 'Debt item';
+    const balance = item.amount != null && item.amount !== ''
+      ? Number(item.amount)
+      : (item.balance != null ? Number(item.balance) : 0);
+    const monthlyPayment = item.monthlyPayment != null
+      ? Number(item.monthlyPayment)
+      : (item.minimum_payment != null ? Number(item.minimum_payment) : 0);
+
+    try {
+      syncingId = item.id;
+      renderActionCenter(actionItemsCache);
+
+      const response = await fetch('/api/mod_credit_analysis/audit-items/link-to-bucket-2', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: analysisAuthHeaders(),
+        body: JSON.stringify({
+          auditItemId: item.id,
+          balance: Number.isFinite(balance) ? balance : 0,
+          monthlyPayment: Number.isFinite(monthlyPayment) ? monthlyPayment : 0,
+          token: currentToken || undefined
+        })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to sync debt item.');
+      }
+
+      syncedItems = Object.assign({}, syncedItems, { [item.id]: true });
+      showStatus(
+        'Successfully linked "' + account + '" to Bucket 2 (Debt Obligations)' +
+        (data.bucketDebtId ? ' · #' + data.bucketDebtId : '') + '.',
+        'info'
+      );
+    } catch (err) {
+      console.error('Sync error:', err);
+      showStatus('Error: ' + (err.message || 'Failed to sync debt item.'), 'error');
+    } finally {
+      syncingId = null;
+      renderActionCenter(actionItemsCache);
+    }
+  }
+
+  // Alias used by older markup / sketches
+  async function linkItemToBucket2(itemId) {
+    return handleSyncToBucket2(itemId);
   }
 
   async function toggleActionItem(itemId, resolved) {
@@ -1345,6 +1522,7 @@
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Could not draft letter');
+      currentLetterItemId = itemId;
       const item = actionItemsCache.find(i => i.id === itemId);
       document.getElementById('letterModalSub').textContent =
         (item ? (item.label + ' · ') : '') + 'Educational self-advocacy draft — you send it yourself';
@@ -1357,6 +1535,34 @@
 
   function closeLetterModal() {
     document.getElementById('letterModal').classList.remove('open');
+    currentLetterItemId = null;
+  }
+
+  async function saveLetterDraft() {
+    const text = (document.getElementById('letterModalText').value || '').trim();
+    if (!currentLetterItemId || !text) {
+      showStatus('Open a draft and edit the letter before saving.', 'error');
+      return;
+    }
+    const item = actionItemsCache.find(i => i.id === currentLetterItemId);
+    try {
+      const res = await fetch('/api/mod_credit_analysis/audit-letters', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: analysisAuthHeaders(),
+        body: JSON.stringify({
+          auditItemId: currentLetterItemId,
+          bureau: item?.bureau || undefined,
+          letterContent: text,
+          token: currentToken || undefined
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not archive letter');
+      showStatus('Letter draft archived to your records.', 'info');
+    } catch (err) {
+      showStatus(err.message || 'Failed to archive letter.', 'error');
+    }
   }
 
   async function copyLetterDraft() {
@@ -1364,6 +1570,9 @@
     try {
       await navigator.clipboard.writeText(text);
       showStatus('Letter copied to clipboard.', 'info');
+      if (currentLetterItemId && text.trim()) {
+        saveLetterDraft().catch(() => {});
+      }
     } catch (err) {
       document.getElementById('letterModalText').select();
       showStatus('Select the letter text and copy manually (Ctrl/Cmd+C).', 'info');
@@ -1578,6 +1787,25 @@
     return String(str || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
+  const ONBOARDING_KEY = 'facts_forensic_credit_onboarding_v1';
+
+  function openOnboardingModal() {
+    const el = document.getElementById('onboardingModal');
+    if (el) el.classList.add('open');
+  }
+
+  function closeOnboardingModal(markSeen) {
+    const el = document.getElementById('onboardingModal');
+    if (el) el.classList.remove('open');
+    if (markSeen) {
+      try { localStorage.setItem(ONBOARDING_KEY, '1'); } catch (_) {}
+    }
+  }
+
+  document.getElementById('onboardingModal')?.addEventListener('click', function (e) {
+    if (e.target === this) closeOnboardingModal(false);
+  });
+
   // Deep-link from Import Documents unified upload: /credit-analysis?id=&token=
   (async function loadExistingAnalysisFromQuery() {
     try {
@@ -1598,6 +1826,16 @@
     } catch (err) {
       console.warn('Could not load linked analysis:', err.message);
     }
+  })();
+
+  // First-visit onboarding (skip when deep-linking into an existing report)
+  (function maybeShowOnboarding() {
+    try {
+      const params = new URLSearchParams(window.location.search || '');
+      if (params.get('id')) return;
+      if (localStorage.getItem(ONBOARDING_KEY) === '1') return;
+      openOnboardingModal();
+    } catch (_) {}
   })();
 </script>
 <script defer src="/legal-disclaimer.js"></script>

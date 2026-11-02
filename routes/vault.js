@@ -183,15 +183,15 @@ router.post('/upload-credit-report', requireAuth, (req, res, next) => {
         [JSON.stringify(analysis), parsed.rawText, analysisId]
       );
 
-      // 4) Best-effort debt ledger mapping from negative items + revolving balances
-      debtsMapped = await mapCreditAnalysisToDebts(pool, userId, analysis);
+      // 4) Seed Action Center items, then link debt liabilities into Bucket 2 ledger
       await markDocumentAudited(pool, document.id, analysisId, analysis);
       try {
         const { seedActionItems } = require('../modules/mod_credit_analysis/actionItems');
-        await seedActionItems(pool, { analysisId, userId, analysis });
+        await seedActionItems(pool, { analysisId, userId, analysis, documentId: document.id });
       } catch (seedErr) {
         console.warn('[Vault] action item seed:', seedErr.message);
       }
+      debtsMapped = await mapCreditAnalysisToDebts(pool, userId, analysis, analysisId);
       document.audit_status = 'audited';
       document.analysis_id = analysisId;
       document.audit_headline = analysis?.summary_headline || null;
@@ -321,14 +321,14 @@ router.post('/run-credit-audit', requireAuth, async (req, res) => {
         [userId]
       ).catch(() => {});
 
-      const debtsMapped = await mapCreditAnalysisToDebts(pool, userId, analysis);
       await markDocumentAudited(pool, documentId, analysisId, analysis);
       try {
         const { seedActionItems } = require('../modules/mod_credit_analysis/actionItems');
-        await seedActionItems(pool, { analysisId, userId, analysis });
+        await seedActionItems(pool, { analysisId, userId, analysis, documentId });
       } catch (seedErr) {
         console.warn('[Vault] action item seed:', seedErr.message);
       }
+      const debtsMapped = await mapCreditAnalysisToDebts(pool, userId, analysis, analysisId);
 
       return res.json({
         success: true,
@@ -405,58 +405,22 @@ async function markDocumentAudited(db, documentId, analysisId, analysis) {
 }
 
 /**
- * Map educational forensic findings into debts ledger (best-effort, non-fatal).
- * Does not invent APRs; balance-only rows for awareness / velocity planning.
+ * Map educational forensic findings into Bucket 2 debts ledger (best-effort).
+ * Prefers linking audit_items → debts.audit_item_id when analysisId is set.
  */
-async function mapCreditAnalysisToDebts(db, userId, analysis) {
-  if (!analysis || typeof analysis !== 'object') return 0;
-  let mapped = 0;
-
-  const candidates = [];
-  for (const item of analysis.negative_items || []) {
-    const amount = Number(item.amount);
-    if (!item.creditor || !Number.isFinite(amount) || amount <= 0) continue;
-    candidates.push({
-      name: String(item.creditor).slice(0, 200) + (item.type ? ` (${item.type})` : ''),
-      balance: amount,
-      notes: 'Imported from credit report forensic scan (educational)'
+async function mapCreditAnalysisToDebts(db, userId, analysis, analysisId = null) {
+  try {
+    const { syncAuditLiabilitiesToBucket2 } = require('../modules/mod_credit_analysis/bucketDebtSync');
+    const result = await syncAuditLiabilitiesToBucket2(db, {
+      userId,
+      analysisId,
+      analysis
     });
+    return result.mapped || 0;
+  } catch (mapErr) {
+    console.warn('[Vault] debt map failed:', mapErr.message);
+    return 0;
   }
-  for (const acct of analysis.accounts || []) {
-    const balance = Number(acct.balance);
-    if (!acct.creditor || !Number.isFinite(balance) || balance <= 0) continue;
-    if (acct.account_type && !['revolving', 'installment', 'other'].includes(acct.account_type)) continue;
-    candidates.push({
-      name: String(acct.creditor).slice(0, 220),
-      balance,
-      notes: 'Imported revolving/installment balance from credit report scan (educational)'
-    });
-  }
-
-  for (const row of candidates.slice(0, 40)) {
-    try {
-      const existing = await db.query(
-        `SELECT id FROM debts WHERE user_id = $1 AND LOWER(name) = LOWER($2) LIMIT 1`,
-        [userId, row.name]
-      );
-      if (existing.rows[0]) {
-        await db.query(
-          `UPDATE debts SET balance = $2, notes = COALESCE(notes, $3), updated_at = NOW() WHERE id = $1`,
-          [existing.rows[0].id, row.balance, row.notes]
-        );
-      } else {
-        await db.query(
-          `INSERT INTO debts (user_id, name, balance, interest_rate, minimum_payment, notes)
-           VALUES ($1, $2, $3, 0, 0, $4)`,
-          [userId, row.name, row.balance, row.notes]
-        );
-      }
-      mapped += 1;
-    } catch (mapErr) {
-      console.warn('[Vault] debt map skip:', mapErr.message);
-    }
-  }
-  return mapped;
 }
 
 // GET /api/vault/summary — count + last upload per category

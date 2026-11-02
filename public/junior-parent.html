@@ -98,9 +98,9 @@
     .emoji-btn.selected { border-color: #fbbf24; background: rgba(201,162,39,0.15); }
     .emoji-btn:hover { background: rgba(255,255,255,0.08); }
 
-    /* Kid card */
-    .kid-card { background: linear-gradient(145deg, #13192a, #1a2235); border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; transition: border-color 0.2s; }
-    .kid-card:hover { border-color: rgba(201,162,39,0.2); }
+    /* Child card */
+    .child-card { background: linear-gradient(145deg, #13192a, #1a2235); border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; transition: border-color 0.2s; }
+    .child-card:hover { border-color: rgba(201,162,39,0.2); }
   </style>
   <script defer src="/nav-bar.js"></script>
 </head>
@@ -143,7 +143,7 @@
         <div id="pending-badge" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;">
           🔔 <span id="pending-count">0</span>
         </div>
-        <button onclick="openAddKid()" class="btn-gold px-3.5 py-2 text-sm">+ Add Kid</button>
+        <button onclick="openAddChild()" class="btn-gold px-3.5 py-2 text-sm">+ Add Child</button>
       </div>
     </div>
   </header>
@@ -162,13 +162,13 @@
 
     <!-- ──── OVERVIEW TAB ──── -->
     <div id="tab-overview" class="tab-pane active">
-      <div id="no-kids" class="hidden text-center py-16">
+      <div id="no-children" class="hidden text-center py-16">
         <div style="font-size:4rem;margin-bottom:1rem;">👨‍👩‍👧</div>
         <div class="font-military text-lg gold-text mb-3">ADD YOUR FIRST JUNIOR</div>
-        <p class="text-gray-400 mb-6 max-w-sm mx-auto">Create kid profiles to assign missions, track their progress, and unlock knowledge vault entries.</p>
-        <button onclick="openAddKid()" class="btn-gold px-8 py-3 text-base">+ Add Kid Profile</button>
+        <p class="text-gray-400 mb-6 max-w-sm mx-auto">Create child profiles to assign missions, track their progress, and unlock knowledge vault entries.</p>
+        <button onclick="openAddChild()" class="btn-gold px-8 py-3 text-base">+ Add Child Profile</button>
       </div>
-      <div id="kids-grid" class="grid sm:grid-cols-2 gap-4"></div>
+      <div id="children-grid" class="grid sm:grid-cols-2 gap-4"></div>
     </div>
 
     <!-- ──── CONFIRMATIONS TAB ──── -->
@@ -185,9 +185,9 @@
           <div class="font-military text-xs mb-3" style="color:rgba(201,162,39,0.7);">ASSIGN NEW MISSION</div>
           <div class="card p-4">
             <div class="mb-3">
-              <label class="inp-label">Select Kid</label>
-              <select id="mission-kid-select" class="inp">
-                <option value="">— choose kid —</option>
+              <label class="inp-label">Select Child</label>
+              <select id="mission-child-select" class="inp">
+                <option value="">— choose child —</option>
               </select>
             </div>
             <div class="mb-3">
@@ -266,12 +266,12 @@
 </div>
 
 <!-- ── ADD KID MODAL ──────────────────────────────────────────────────────── -->
-<div id="add-kid-modal" class="modal-overlay" onclick="if(event.target===this)closeAddKid()">
+<div id="add-child-modal" class="modal-overlay" onclick="if(event.target===this)closeAddChild()">
   <div class="modal-box">
     <div class="font-military text-base gold-text mb-4">ADD KID PROFILE</div>
     <div class="mb-4">
-      <label class="inp-label">Kid's Name</label>
-      <input id="new-kid-name" type="text" class="inp" placeholder="e.g. Alex, Emma, Tyler">
+      <label class="inp-label">Child's Name</label>
+      <input id="new-child-name" type="text" class="inp" placeholder="e.g. Alex, Emma, Tyler">
     </div>
     <div class="mb-5">
       <label class="inp-label">Avatar</label>
@@ -280,14 +280,14 @@
       </div>
     </div>
     <div class="flex gap-3">
-      <button onclick="closeAddKid()" class="btn-outline flex-1 py-2.5 text-sm">Cancel</button>
-      <button onclick="createKid()" class="btn-gold flex-1 py-2.5 text-sm">Create Profile</button>
+      <button onclick="closeAddChild()" class="btn-outline flex-1 py-2.5 text-sm">Cancel</button>
+      <button onclick="createChild()" class="btn-gold flex-1 py-2.5 text-sm">Create Profile</button>
     </div>
   </div>
 </div>
 
 <!-- ── KID DETAIL MODAL ───────────────────────────────────────────────────── -->
-<div id="kid-detail-modal" class="modal-overlay" onclick="if(event.target===this)closeKidDetail()">
+<div id="child-detail-modal" class="modal-overlay" onclick="if(event.target===this)closeChildDetail()">
   <div class="modal-box">
     <div class="flex items-center gap-3 mb-4">
       <div id="kd-avatar" style="font-size:2.5rem;"></div>
@@ -297,7 +297,7 @@
       </div>
     </div>
     <div class="mb-4">
-      <div class="text-xs mb-1" style="color:rgba(255,255,255,0.4);">SHARE LINK (send this to your kid)</div>
+      <div class="text-xs mb-1" style="color:rgba(255,255,255,0.4);">SHARE LINK (send this to your child)</div>
       <div class="share-url" id="kd-share-url"></div>
       <button onclick="copyShareUrl()" class="btn-outline mt-2 w-full py-1.5 text-xs">📋 Copy Link</button>
     </div>
@@ -306,8 +306,8 @@
       <div id="kd-missions"></div>
     </div>
     <div class="flex gap-3 mt-4">
-      <button onclick="closeKidDetail()" class="btn-outline flex-1 py-2 text-sm">Close</button>
-      <button onclick="deleteKidConfirm()" class="btn-danger flex-1 py-2 text-sm">Delete Profile</button>
+      <button onclick="closeChildDetail()" class="btn-outline flex-1 py-2 text-sm">Close</button>
+      <button onclick="deleteChildConfirm()" class="btn-danger flex-1 py-2 text-sm">Delete Profile</button>
     </div>
   </div>
 </div>
@@ -333,9 +333,9 @@ const token = localStorage.getItem('facts_token') || localStorage.getItem('token
 let familyData  = null;
 let templates   = [];
 let vaultData   = [];
-let selectedKidId = null;
+let selectedChildId = null;
 let selectedAvatar = '🧒';
-let kdDetailKid = null;
+let kdDetailChild = null;
 
 const AVATARS = ['🧒','👦','👧','🧑','👶','🦸','🦹','🧙','🦊','🐼','🐶','🦁','🐯','🐸','🦋','🌟','🚀','🎮','⚽','🎸'];
 const LEVEL_NAMES  = ['','Recruit','Cadet','Specialist','Sergeant','Commander','General'];
@@ -365,9 +365,9 @@ async function loadFamily() {
     const res = await apiFetch('/api/junior/family-progress');
     if (!res.ok) return;
     const data = await res.json();
-    familyData = data.kids;
+    familyData = data.children || data.kids;
     renderOverview();
-    renderKidSelects();
+    renderChildSelects();
     loadConfirmations();
   } catch (e) { console.error('loadFamily error', e); }
 }
@@ -400,8 +400,8 @@ async function loadVault() {
 
 // ── Overview ─────────────────────────────────────────────────────────────
 function renderOverview() {
-  const grid = document.getElementById('kids-grid');
-  const none = document.getElementById('no-kids');
+  const grid = document.getElementById('children-grid');
+  const none = document.getElementById('no-children');
 
   if (!familyData?.length) {
     none.classList.remove('hidden');
@@ -421,7 +421,7 @@ function renderOverview() {
   }
 
   grid.innerHTML = familyData.map(k => `
-    <div class="kid-card p-5 cursor-pointer" onclick='openKidDetail(${JSON.stringify(JSON.stringify(k))})'>
+    <div class="child-card p-5 cursor-pointer" onclick='openChildDetail(${JSON.stringify(JSON.stringify(k))})'>
       <div class="flex items-start justify-between mb-4">
         <div class="flex items-center gap-3">
           <div style="font-size:2rem;">${escHtml(k.avatar_emoji)}</div>
@@ -487,7 +487,7 @@ function renderConfirmations(missions) {
         <div class="flex items-start gap-3">
           <div style="font-size:1.5rem;">${escHtml(m.avatar_emoji)}</div>
           <div class="flex-1 min-w-0">
-            <div class="text-xs text-gray-500 mb-0.5">${escHtml(m.kid_name)} says they completed:</div>
+            <div class="text-xs text-gray-500 mb-0.5">${escHtml(m.child_name || m.kid_name)} says they completed:</div>
             <div class="font-bold text-sm text-white">${escHtml(m.title)}</div>
             ${m.description ? `<p class="text-xs text-gray-400 mt-1">${escHtml(m.description)}</p>` : ''}
             <div class="text-xs mt-1.5" style="color:#fbbf24;">Reward: +${m.xp_reward} XP</div>
@@ -533,9 +533,9 @@ async function confirmMission(missionId, action) {
 }
 
 // ── Missions ─────────────────────────────────────────────────────────────
-function renderKidSelects() {
-  const sel = document.getElementById('mission-kid-select');
-  sel.innerHTML = '<option value="">— choose kid —</option>' +
+function renderChildSelects() {
+  const sel = document.getElementById('mission-child-select');
+  sel.innerHTML = '<option value="">— choose child —</option>' +
     (familyData || []).map(k => `<option value="${k.id}">${k.avatar_emoji} ${escHtml(k.name)}</option>`).join('');
 }
 
@@ -560,18 +560,18 @@ function applyTemplate(tStr) {
 }
 
 async function assignMission() {
-  const kid_id     = document.getElementById('mission-kid-select').value;
+  const child_id     = document.getElementById('mission-child-select').value;
   const title      = document.getElementById('mission-title').value.trim();
   const description = document.getElementById('mission-desc').value.trim();
   const xp_reward  = parseInt(document.getElementById('mission-xp').value) || 50;
   const mission_type = document.getElementById('mission-type').value;
 
-  if (!kid_id) { showToast('Select a kid first', 'error'); return; }
+  if (!child_id) { showToast('Select a child first', 'error'); return; }
   if (!title) { showToast('Mission title required', 'error'); return; }
 
   try {
     const res  = await apiFetch('/api/junior/missions', {
-      method: 'POST', body: JSON.stringify({ kid_id, title, description: description || null, xp_reward, mission_type })
+      method: 'POST', body: JSON.stringify({ child_id, title, description: description || null, xp_reward, mission_type })
     });
     const data = await res.json();
     if (res.ok) {
@@ -594,7 +594,7 @@ function renderVaultEntries() {
   if (!vaultData.length) {
     el.innerHTML = `<div class="card p-6 text-center">
       <div style="font-size:2.5rem;margin-bottom:0.5rem;">📚</div>
-      <p class="text-sm text-gray-500">No vault entries yet. Add knowledge for your kids to discover!</p>
+      <p class="text-sm text-gray-500">No vault entries yet. Add knowledge for your children to discover!</p>
     </div>`;
     return;
   }
@@ -654,7 +654,7 @@ function openVaultView(eStr) {
 }
 function closeVaultView() { document.getElementById('vault-view-modal').classList.remove('show'); }
 
-// ── Kid Profile CRUD ──────────────────────────────────────────────────────
+// ── Child Profile CRUD ──────────────────────────────────────────────────────
 function populateAvatarPicker() {
   const el = document.getElementById('avatar-picker');
   el.innerHTML = AVATARS.map(a => `
@@ -666,11 +666,11 @@ function selectAvatar(a) {
   document.querySelectorAll('.emoji-btn').forEach(b => b.classList.toggle('selected', b.textContent === a));
 }
 
-function openAddKid()  { document.getElementById('add-kid-modal').classList.add('show'); document.getElementById('new-kid-name').focus(); }
-function closeAddKid() { document.getElementById('add-kid-modal').classList.remove('show'); }
+function openAddChild()  { document.getElementById('add-child-modal').classList.add('show'); document.getElementById('new-child-name').focus(); }
+function closeAddChild() { document.getElementById('add-child-modal').classList.remove('show'); }
 
-async function createKid() {
-  const name = document.getElementById('new-kid-name').value.trim();
+async function createChild() {
+  const name = document.getElementById('new-child-name').value.trim();
   if (!name) { showToast('Name is required', 'error'); return; }
   try {
     const res  = await apiFetch('/api/junior/profiles', {
@@ -679,8 +679,8 @@ async function createKid() {
     const data = await res.json();
     if (res.ok) {
       showToast(`🎉 ${name}'s profile created!`, 'success');
-      closeAddKid();
-      document.getElementById('new-kid-name').value = '';
+      closeAddChild();
+      document.getElementById('new-child-name').value = '';
       await loadFamily();
       // Show share URL
       setTimeout(() => {
@@ -694,9 +694,9 @@ async function createKid() {
   }
 }
 
-function openKidDetail(kStr) {
+function openChildDetail(kStr) {
   const k = JSON.parse(kStr);
-  kdDetailKid = k;
+  kdDetailChild = k;
   document.getElementById('kd-avatar').textContent = k.avatar_emoji;
   document.getElementById('kd-name').textContent   = k.name;
   const rb = document.getElementById('kd-rank');
@@ -719,9 +719,9 @@ function openKidDetail(kStr) {
     missions.innerHTML = '<p class="text-xs text-gray-600">No missions yet.</p>';
   }
 
-  document.getElementById('kid-detail-modal').classList.add('show');
+  document.getElementById('child-detail-modal').classList.add('show');
 }
-function closeKidDetail() { document.getElementById('kid-detail-modal').classList.remove('show'); }
+function closeChildDetail() { document.getElementById('child-detail-modal').classList.remove('show'); }
 
 function copyShareUrl() {
   const url = document.getElementById('kd-share-url').textContent;
@@ -730,14 +730,14 @@ function copyShareUrl() {
   });
 }
 
-async function deleteKidConfirm() {
-  if (!kdDetailKid) return;
-  if (!confirm(`Delete ${kdDetailKid.name}'s profile? This cannot be undone — all their missions and badges will be lost.`)) return;
+async function deleteChildConfirm() {
+  if (!kdDetailChild) return;
+  if (!confirm(`Delete ${kdDetailChild.name}'s profile? This cannot be undone — all their missions and badges will be lost.`)) return;
   try {
-    const res = await apiFetch(`/api/junior/profiles/${kdDetailKid.id}`, { method: 'DELETE' });
+    const res = await apiFetch(`/api/junior/profiles/${kdDetailChild.id}`, { method: 'DELETE' });
     if (res.ok) {
       showToast('Profile deleted', 'success');
-      closeKidDetail();
+      closeChildDetail();
       await loadFamily();
     } else showToast('Failed to delete', 'error');
   } catch (e) { showToast('Error', 'error'); }

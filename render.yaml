@@ -1,31 +1,54 @@
+# FACTS — Render Blueprint
+# Sensitive keys use sync: false — set values in the Render Dashboard (never commit secrets).
+# Region options: oregon, frankfurt, singapore, ohio, etc.
+
 services:
   - type: web
+    name: facts-backend
     runtime: node
-    name: app
+    region: oregon
+    plan: starter
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: node server.js
     healthCheckPath: /health
     envVars:
+      # Public environment configuration
       - key: NODE_ENV
         value: production
+      - key: CORS_ORIGIN
+        value: https://financialrevolution.net
+
+      # Sensitive secrets managed securely via Render Dashboard
       - key: DATABASE_URL
+        sync: false # e.g., postgresql://user:pass@host:5432/dbname?sslmode=require
+      - key: JWT_SECRET
+        sync: false # Min 64-character random string
+      - key: SESSION_SECRET
+        sync: false # Cryptographically secure secret
+
+      # Required by FACTS boot (envCheck) — set in Dashboard
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_VERIFY_SERVICE_ID
         sync: false
       - key: RESEND_API_KEY
         sync: false
       - key: RESEND_FROM
         sync: false
-      - key: SESSION_SECRET
-        sync: false
       - key: VAULT_ENCRYPTION_KEY
         sync: false
-      # Option A: integer affiliates.id that receives the company keep on each split cycle.
-      # Option B: leave unset and set affiliates.is_master_node = true on the master row.
+      - key: OPENAI_API_KEY
+        sync: false
       - key: COMPANY_ROOT_ID
         sync: false
 
   - type: worker
-    runtime: node
     name: facts-audit-worker
+    runtime: node
+    region: oregon
+    plan: starter
     buildCommand: npm install
     startCommand: npm run worker
     envVars:

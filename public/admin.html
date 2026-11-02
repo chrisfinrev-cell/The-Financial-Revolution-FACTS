@@ -109,11 +109,39 @@
     .header h1 span { color: #10b981; }
     .header a { color: #6366f1; text-decoration: none; font-size: 14px; }
 
-    /* Tabs */
-    .tabs { display: flex; flex-wrap: wrap; background: #1a1b23; border-bottom: 1px solid #27272a; padding: 0 24px 4px; gap: 0; }
-    .tab { padding: 12px 20px; cursor: pointer; font-size: 14px; font-weight: 500; color: #71717a; border-bottom: 2px solid transparent; transition: all .2s; white-space: nowrap; flex-shrink: 0; }
-    .tab:hover { color: #a1a1aa; }
-    .tab.active { color: #10b981; border-bottom-color: #10b981; }
+    /* Consolidated admin top nav (dropdown hubs) */
+    .admin-top-nav, .tabs {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 4px 2px;
+      background: #1a1b23; border-bottom: 1px solid #27272a; padding: 6px 16px 8px;
+    }
+    .admin-top-nav .nav-item, .admin-top-nav .dropbtn, .tab {
+      padding: 10px 14px; cursor: pointer; font-size: 13px; font-weight: 600;
+      color: #a1a1aa; border: none; background: transparent; border-radius: 8px;
+      transition: all .15s; white-space: nowrap; text-decoration: none; font-family: inherit;
+    }
+    .admin-top-nav .nav-item:hover, .admin-top-nav .dropbtn:hover, .tab:hover { color: #e4e4e7; background: rgba(255,255,255,0.05); }
+    .admin-top-nav .nav-item.active, .admin-top-nav .dropbtn.active, .tab.active {
+      color: #10b981; background: rgba(16,185,129,0.12);
+    }
+    .nav-dropdown { position: relative; }
+    .nav-dropdown .dropdown-content {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; min-width: 220px;
+      background: #111827; border: 1px solid #334155; border-radius: 10px; padding: 6px 0;
+      z-index: 1000; box-shadow: 0 12px 28px rgba(0,0,0,0.45);
+    }
+    .nav-dropdown:hover .dropdown-content,
+    .nav-dropdown:focus-within .dropdown-content,
+    .nav-dropdown.open .dropdown-content { display: block; }
+    .nav-dropdown .dropdown-content a {
+      display: block; padding: 9px 14px; color: #cbd5e1; text-decoration: none;
+      font-size: 13px; font-weight: 500;
+    }
+    .nav-dropdown .dropdown-content a:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-dropdown .dropdown-content a.active { color: #34d399; background: rgba(16,185,129,0.1); }
+    @media (max-width: 900px) {
+      .admin-top-nav { padding: 6px 10px; }
+      .admin-top-nav .nav-item, .admin-top-nav .dropbtn { padding: 8px 10px; font-size: 12px; }
+    }
 
     /* Main */
     .main { max-width: 1400px; margin: 0 auto; padding: 24px; }
@@ -256,32 +284,69 @@
     </div>
   </div>
 
-  <div class="tabs">
-    <div class="tab active" data-tab="agg-dashboard">📊 Dashboard</div>
-    <div class="tab" data-tab="support-tickets">🎫 Support Tickets</div>
-    <div class="tab" data-tab="tree">Future Generations Tree</div>
-    <div class="tab" data-tab="commissions">Commission Verify</div>
-    <div class="tab" data-tab="accounts">👥 Accounts</div>
-    <div class="tab" data-tab="test">Test Mode</div>
-    <div class="tab" data-tab="promo">Promo Codes</div>
-    <div class="tab" data-tab="education">📚 Education</div>
-    <div class="tab" data-tab="shop-save">📡 Rate Radar</div>
-    <div class="tab" data-tab="nda">🔏 NDA Status</div>
-    <div class="tab" data-tab="beta-invites">🎟️ Beta Invites</div>
-    <div class="tab" data-tab="users">🗑️ Users</div>
-    <div class="tab" data-tab="succession">⚜️ Succession</div>
-    <div class="tab" data-tab="trials">🧪 Trials</div>
-    <div class="tab" data-tab="resources">📂 Resources</div>
-    <div class="tab" data-tab="feed">📰 Feed</div>
-    <div class="tab" data-tab="waitlist">🔔 Waitlist</div>
-    <div class="tab" data-tab="launch-waitlist">🌐 Launch List</div>
-    <div class="tab" data-tab="phase-zero">🔄 Phase Zero</div>
-    <div class="tab" data-tab="sovereign-flags">⚔️ Sovereign Flags</div>
-    <div class="tab" data-tab="job-triggers">⚙️ Job Triggers</div>
-    <div class="tab" data-tab="gamification">🧠 Gamification</div>
-    <div class="tab" data-tab="presentations">📊 Presentations</div>
-    <div class="tab" data-tab="vault-cycles">🏦 Vault Cycles</div>
-  </div>
+  <nav class="admin-top-nav tabs" aria-label="Admin navigation">
+    <a href="#agg-dashboard" class="nav-item tab active" data-tab="agg-dashboard">Dashboard</a>
+
+    <!-- 1. Future Generations Hub -->
+    <div class="nav-dropdown">
+      <button type="button" class="dropbtn">👥 Future Generations ▾</button>
+      <div class="dropdown-content">
+        <a href="#tree" class="tab" data-tab="tree">Future Generations Tree</a>
+        <a href="#commissions" class="tab" data-tab="commissions">Commission Verify</a>
+        <a href="#accounts" class="tab" data-tab="accounts">Accounts</a>
+        <a href="#succession" class="tab" data-tab="succession">Succession</a>
+      </div>
+    </div>
+
+    <!-- 2. Pre-Launch Hub -->
+    <div class="nav-dropdown">
+      <button type="button" class="dropbtn">🚀 Pre-Launch ▾</button>
+      <div class="dropdown-content">
+        <a href="#beta-invites" class="tab" data-tab="beta-invites">Beta Invites</a>
+        <a href="#promo" class="tab" data-tab="promo">Promo Codes</a>
+        <a href="#nda" class="tab" data-tab="nda">NDA Status</a>
+        <a href="#trials" class="tab" data-tab="trials">Trials</a>
+      </div>
+    </div>
+
+    <!-- 3. Operations & Support -->
+    <div class="nav-dropdown">
+      <button type="button" class="dropbtn">🛠️ Operations ▾</button>
+      <div class="dropdown-content">
+        <a href="#support-tickets" class="tab" data-tab="support-tickets">Support Tickets</a>
+        <a href="#waitlist" class="tab" data-tab="waitlist">Waitlist</a>
+        <a href="#launch-waitlist" class="tab" data-tab="launch-waitlist">Launch List</a>
+        <a href="#shop-save" class="tab" data-tab="shop-save">Rate Radar</a>
+        <a href="#vault-cycles" class="tab" data-tab="vault-cycles">Vault Cycles</a>
+      </div>
+    </div>
+
+    <!-- 4. System & Diagnostics -->
+    <div class="nav-dropdown">
+      <button type="button" class="dropbtn">⚙️ System ▾</button>
+      <div class="dropdown-content">
+        <a href="#job-triggers" class="tab" data-tab="job-triggers">Job Triggers</a>
+        <a href="#test" class="tab" data-tab="test">Test Mode</a>
+        <a href="#phase-zero" class="tab" data-tab="phase-zero">Phase Zero</a>
+        <a href="#sovereign-flags" class="tab" data-tab="sovereign-flags">Sovereign Flags</a>
+      </div>
+    </div>
+
+    <!-- 5. Content & Education -->
+    <div class="nav-dropdown">
+      <button type="button" class="dropbtn">📚 Content ▾</button>
+      <div class="dropdown-content">
+        <a href="#resources" class="tab" data-tab="resources">Resources</a>
+        <a href="#education" class="tab" data-tab="education">Education</a>
+        <a href="#presentations" class="tab" data-tab="presentations">Presentations</a>
+        <a href="#gamification" class="tab" data-tab="gamification">Gamification</a>
+        <a href="#feed" class="tab" data-tab="feed">Feed</a>
+      </div>
+    </div>
+
+    <!-- Standalone Quick Links -->
+    <a href="#users" class="nav-item tab" data-tab="users">Users</a>
+  </nav>
 
   <!-- Loading -->
   <div id="loading" class="loading-center" style="padding-top: 80px;">
@@ -2330,18 +2395,46 @@
       if (tabs) tabs.style.display = '';
       if (panel) panel.style.display = 'block';
       initTierSwitcher();
-      document.querySelectorAll('.tab').forEach(function (tab) {
+      document.querySelectorAll('.tab[data-tab]').forEach(function (tab) {
         if (tab.dataset.bound === '1') return;
         tab.dataset.bound = '1';
-        tab.addEventListener('click', function () { switchTab(tab.dataset.tab); });
+        tab.addEventListener('click', function (e) {
+          e.preventDefault();
+          switchTab(tab.dataset.tab);
+        });
       });
+      document.querySelectorAll('.nav-dropdown .dropbtn').forEach(function (btn) {
+        if (btn.dataset.bound === '1') return;
+        btn.dataset.bound = '1';
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          var dd = btn.closest('.nav-dropdown');
+          document.querySelectorAll('.nav-dropdown.open').forEach(function (other) {
+            if (other !== dd) other.classList.remove('open');
+          });
+          if (dd) dd.classList.toggle('open');
+        });
+      });
+      if (!document.body.dataset.adminNavOutside) {
+        document.body.dataset.adminNavOutside = '1';
+        document.addEventListener('click', function (e) {
+          if (e.target.closest && e.target.closest('.nav-dropdown')) return;
+          document.querySelectorAll('.nav-dropdown.open').forEach(function (dd) {
+            dd.classList.remove('open');
+          });
+        });
+      }
     }
 
     function startAdminPanel(user) {
       openAdminWorkspace(user);
       hidePageLoader();
       try {
-        switchTab(DEFAULT_ADMIN_TAB);
+        var hashTab = (location.hash || '').replace(/^#/, '');
+        var initial = hashTab && document.querySelector('.tab[data-tab="' + hashTab + '"]')
+          ? hashTab
+          : DEFAULT_ADMIN_TAB;
+        switchTab(initial);
       } catch (err) {
         console.error('Admin tab load failed:', err);
       }
@@ -2744,8 +2837,18 @@
 
     function switchTab(tabName) {
       armPanelWatch();
-      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+      document.querySelectorAll('.tab, .admin-top-nav .nav-item').forEach(function (t) {
+        t.classList.toggle('active', t.dataset.tab === tabName);
+      });
+      document.querySelectorAll('.nav-dropdown').forEach(function (dd) {
+        var hasActive = !!dd.querySelector('.tab.active, a.active');
+        var btn = dd.querySelector('.dropbtn');
+        if (btn) btn.classList.toggle('active', hasActive);
+      });
       document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === `panel-${tabName}`));
+      try {
+        if (history.replaceState) history.replaceState(null, '', '#' + tabName);
+      } catch (_) {}
       try {
         if (tabName === 'agg-dashboard') loadAggDashboard();
         if (tabName === 'promo') loadPromoCodes();
