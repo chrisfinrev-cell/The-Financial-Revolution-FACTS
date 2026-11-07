@@ -54,11 +54,11 @@ async function sendEmail(to, subject, htmlBody) {
 
 function getWelcomeEmail(affiliateCode) {
   return {
-    subject: '🌿 Welcome to Future Generations (Affiliate)!',
+    subject: '🌿 Welcome to The Freedom Engine (Affiliate)!',
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f1a;color:#f0f0f0;padding:32px;border-radius:12px;">
-        <h2 style="color:#d4af37;">Welcome to Future Generations (Affiliate)!</h2>
-        <p>You're now an official Future Generations member. Here's everything you need to know:</p>
+        <h2 style="color:#d4af37;">Welcome to The Freedom Engine (Affiliate)!</h2>
+        <p>You're now an official The Freedom Engine member. Here's everything you need to know:</p>
 
         <h3 style="color:#d4af37;">Your Referral Link:</h3>
         <p><strong>${APP_URL}/pricing.html?ref=${affiliateCode}</strong></p>
@@ -82,7 +82,7 @@ function getWelcomeEmail(affiliateCode) {
         </ul>
 
         <h3 style="color:#d4af37;">3:1 Merit Gate — How Company Placements Work:</h3>
-        <p>The Future Generations system uses a <strong>3:1 Merit Gate</strong>. You may receive up to 3 company-gifted orphan placements over your lifetime (at Slots 1, 5, and 9) — but only when you earn them through merit:</p>
+        <p>The Freedom Engine system uses a <strong>3:1 Merit Gate</strong>. You may receive up to 3 company-gifted orphan placements over your lifetime (at Slots 1, 5, and 9) — but only when you earn them through merit:</p>
         <ul>
           <li>Slot 1: Awarded when you qualify for orphan placement</li>
           <li>Slot 5: Requires ≥3 active personal recruits before receiving your 2nd gift</li>
@@ -91,7 +91,7 @@ function getWelcomeEmail(affiliateCode) {
         <p><strong>No auto-fill.</strong> Company placements are not automatic safety nets — they are merit-based rewards distributed through the Master Valve queue.</p>
 
         <h3 style="color:#d4af37;">Heartbeat Compliance &amp; the 90-Day Cliff:</h3>
-        <p>Your Future Generations status depends on completing your <strong>monthly Heartbeat Audit</strong> (due on the 7th of each month):</p>
+        <p>Your The Freedom Engine status depends on completing your <strong>monthly Heartbeat Audit</strong> (due on the 7th of each month):</p>
         <ul>
           <li><strong>Miss the 7th:</strong> Your commissions are locked in <strong>escrow</strong> beginning the 8th. You can still complete late and release escrow instantly.</li>
           <li><strong>3 consecutive missed heartbeats (90-day cliff):</strong> Your pending and escrowed commissions are <strong>permanently forfeited</strong> and rolled up to the Company Master Node. This is irreversible.</li>
@@ -104,7 +104,7 @@ function getWelcomeEmail(affiliateCode) {
         <p style="margin-top:24px;"><a href="${APP_URL}/affiliate-dashboard.html" style="background:#d4af37;color:#0a0f1a;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:700;">View Your Dashboard</a></p>
 
         <p style="color:#64748b;font-size:12px;margin-top:24px;border-top:1px solid rgba(255,255,255,0.06);padding-top:16px;">
-          <strong>Disclosure:</strong> FACTS is an educational platform. We are not a bank, RIA, or broker-dealer. We do not guarantee outcomes. All financial decisions are made solely by the user. As a Future Generations affiliate, you earn commissions when others subscribe using your referral link. You must disclose this material connection whenever you promote FACTS.
+          <strong>Disclosure:</strong> FACTS is an educational platform. We are not a bank, RIA, or broker-dealer. We do not guarantee outcomes. All financial decisions are made solely by the user. As a Freedom Engine affiliate, you earn commissions when others subscribe using your referral link. You must disclose this material connection whenever you promote FACTS.
         </p>
 
         <p>— The FACTS Team</p>
@@ -212,10 +212,10 @@ function getDay7WarningEmail(paymentFailedDate, gracePeriodEnds) {
     year: 'numeric', month: 'long', day: 'numeric'
   });
   return {
-    subject: 'Action Required: Your Future Generations Status',
+    subject: 'Action Required: Your The Freedom Engine Status',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #dc2626;">Action Required: Your Future Generations Status</h2>
+        <h2 style="color: #dc2626;">Action Required: Your The Freedom Engine Status</h2>
 
         <p>Your subscription payment failed on <strong>${failedDateStr}</strong>. You have <strong>14 days remaining</strong> to resolve this before your pending commissions and Affiliate status are forfeited.</p>
 
@@ -256,7 +256,7 @@ function getDay14WarningEmail(pendingBalanceCents, gracePeriodEnds) {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #dc2626;">⚠️ Warning: 7 Days Until Deactivation</h2>
 
-        <p>Your Future Generations node is at risk of <strong>permanent deactivation</strong>. You have <strong>7 days left</strong>.</p>
+        <p>Your The Freedom Engine node is at risk of <strong>permanent deactivation</strong>. You have <strong>7 days left</strong>.</p>
 
         <p>Your pending balance of <strong style="color: #dc2626;">$${pendingAmount}</strong> and your entire organizational position will be <strong>permanently forfeited</strong> if payment is not resolved.</p>
 
@@ -284,10 +284,10 @@ function getDay14WarningEmail(pendingBalanceCents, gracePeriodEnds) {
 function getDay21FinalNoticeEmail(forfeitedCents) {
   const forfeitedAmount = (forfeitedCents / 100).toFixed(2);
   return {
-    subject: 'Deactivation: Your Future Generations Status Has Been Revoked',
+    subject: 'Deactivation: Your The Freedom Engine Status Has Been Revoked',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #dc2626;">Your Future Generations Status Has Been Revoked</h2>
+        <h2 style="color: #dc2626;">Your The Freedom Engine Status Has Been Revoked</h2>
 
         <p>Your subscription payment remained unresolved for 21 days. The following actions have been taken:</p>
 
@@ -298,7 +298,7 @@ function getDay21FinalNoticeEmail(forfeitedCents) {
         </ol>
 
         <h3>Want to Rejoin?</h3>
-        <p>You can reactivate your paid subscription and rejoin Future Generations anytime. However, your previous organizational position and pending commissions cannot be restored.</p>
+        <p>You can reactivate your paid subscription and rejoin The Freedom Engine anytime. However, your previous organizational position and pending commissions cannot be restored.</p>
 
         <p style="margin: 24px 0;">
           <a href="${APP_URL}/pricing.html"
@@ -1112,8 +1112,8 @@ async function checkSuccessionProbation(pool) {
         try {
           await sendEmail(
             c.successor_email,
-            'Your Future Generations Position Has Been Deactivated',
-            `<p>Your inherited Future Generations affiliate position has been deactivated because compliance requirements were not met within 90 days.</p>
+            'Your The Freedom Engine Position Has Been Deactivated',
+            `<p>Your inherited The Freedom Engine affiliate position has been deactivated because compliance requirements were not met within 90 days.</p>
              <ul>
                ${!proMet ? '<li>Paid subscriber requirement (due day 30): <strong>NOT MET</strong></li>' : ''}
                ${!certMet ? '<li>FACTS Certification requirement (due day 60): <strong>NOT MET</strong></li>' : ''}
@@ -1135,8 +1135,8 @@ async function checkSuccessionProbation(pool) {
         try {
           await sendEmail(
             c.successor_email,
-            'Action Required: Upgrade Now to Maintain Your Future Generations Position',
-            `<p>Your inherited Future Generations affiliate position requires an active paid subscription.</p>
+            'Action Required: Upgrade Now to Maintain Your The Freedom Engine Position',
+            `<p>Your inherited The Freedom Engine affiliate position requires an active paid subscription.</p>
              <p>Your 30-day grace period has expired. <strong>Your commissions are now on hold.</strong></p>
              <p>You still have until <strong>${new Date(c.probation_cert_deadline).toLocaleDateString()}</strong> to complete FACTS Certification and until <strong>${new Date(c.probation_deactivation_deadline).toLocaleDateString()}</strong> before your node is permanently deactivated.</p>
              <p><a href="${APP_URL}/settings">Upgrade Now →</a></p>`

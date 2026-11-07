@@ -1181,7 +1181,7 @@ router.post('/legacy-placement', requireAuth, async (req, res) => {
     }
     const existingAffiliate = await pool.query('SELECT id FROM affiliates WHERE user_id = $1', [recruit_user_id]);
     if (existingAffiliate.rows.length > 0) {
-      return res.status(409).json({ error: 'Recruit is already a Future Generations member' });
+      return res.status(409).json({ error: 'Recruit is already a Freedom Engine member' });
     }
 
     // Validate enroller is an active affiliate

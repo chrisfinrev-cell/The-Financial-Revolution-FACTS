@@ -220,13 +220,13 @@
         cta: { label: 'Open the masterclass', href: '/benefits-masterclass.html' }
       },
       {
-        id: 'future-generations',
-        title: 'Future Generations',
-        eyebrow: 'Legacy & affiliate',
-        icon: '🌿',
-        desc: 'Teach the protocol forward. Affiliate architecture, junior command, and household transmission of the system.',
-        includes: ['Affiliate program', 'Household seats', 'Junior command'],
-        cta: { label: 'Legacy path', href: FACTS_APP + '/future-generations.html' }
+        id: 'freedom-engine',
+        title: 'The Freedom Engine',
+        eyebrow: 'Affiliate residual engine',
+        icon: '⚙️',
+        desc: 'The automated passive residual engine for active dues-paying FACTS members. Keep your membership active, stay financially disciplined, and turn network growth into predictable residual income.',
+        includes: ['5-level residuals', 'Referral link unlock', 'Sovereign dashboard'],
+        cta: { label: 'Open The Freedom Engine', href: FACTS_APP + '/freedom-engine.html' }
       }
     ],
 

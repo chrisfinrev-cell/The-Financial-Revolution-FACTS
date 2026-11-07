@@ -215,26 +215,59 @@ CREATE INDEX IF NOT EXISTS junior_profiles_parent_idx ON junior_profiles (parent
 CREATE TABLE IF NOT EXISTS households (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  owner_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  owner_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  co_admin_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  is_incubator BOOLEAN NOT NULL DEFAULT FALSE,
+  cancelled_at TIMESTAMPTZ,
+  cancellation_grace_ends_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE TABLE IF NOT EXISTS household_members (
   id SERIAL PRIMARY KEY,
   household_id INTEGER NOT NULL REFERENCES households(id) ON DELETE CASCADE,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   role VARCHAR(32) NOT NULL DEFAULT 'member',
+  status VARCHAR(32) NOT NULL DEFAULT 'active',
+  is_sub_account BOOLEAN NOT NULL DEFAULT FALSE,
+  broke_away_at TIMESTAMPTZ,
+  commission_eligible BOOLEAN NOT NULL DEFAULT FALSE,
+  affiliate_id INTEGER,
   joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (household_id, user_id)
 );
 CREATE TABLE IF NOT EXISTS household_invites (
   id SERIAL PRIMARY KEY,
   household_id INTEGER NOT NULL REFERENCES households(id) ON DELETE CASCADE,
-  code VARCHAR(64) NOT NULL UNIQUE,
+  invite_code VARCHAR(64),
+  code VARCHAR(64),
   created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  invited_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  email TEXT,
+  role VARCHAR(32) DEFAULT 'adult',
+  token VARCHAR(128),
+  status VARCHAR(32) NOT NULL DEFAULT 'pending',
   expires_at TIMESTAMPTZ,
   max_uses INTEGER DEFAULT 1,
   use_count INTEGER NOT NULL DEFAULT 0,
+  uses_count INTEGER NOT NULL DEFAULT 0,
+  accepted_at TIMESTAMPTZ,
+  declined_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS household_offboarding_records (
+  id SERIAL PRIMARY KEY,
+  household_id INTEGER REFERENCES households(id) ON DELETE SET NULL,
+  household_name TEXT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  removal_type VARCHAR(32) NOT NULL,
+  removed_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  grace_expires_at TIMESTAMPTZ,
+  offboarded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  reintegrated_at TIMESTAMPTZ,
+  data_exported_at TIMESTAMPTZ,
+  welcome_shown_at TIMESTAMPTZ
 );
 CREATE TABLE IF NOT EXISTS household_links (
   id SERIAL PRIMARY KEY,

@@ -95,7 +95,7 @@
   }
 
   // Pages that don't get the bar at all (landing, app, marketing pages, full-HUD experiences)
-  var excluded = ['/', '/index', '/app', '/pricing', '/future-generations', '/ssc', '/shopping-calculator'];
+  var excluded = ['/', '/index', '/app', '/pricing', '/freedom-engine', '/ssc', '/shopping-calculator'];
   if (excluded.indexOf(pathname) !== -1) return;
 
   // Auth pages: back arrow only (no shortcuts — keep them clean)

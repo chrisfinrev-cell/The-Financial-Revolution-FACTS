@@ -287,11 +287,11 @@
   <nav class="admin-top-nav tabs" aria-label="Admin navigation">
     <a href="#agg-dashboard" class="nav-item tab active" data-tab="agg-dashboard">Dashboard</a>
 
-    <!-- 1. Future Generations Hub -->
+    <!-- 1. The Freedom Engine Hub -->
     <div class="nav-dropdown">
-      <button type="button" class="dropbtn">👥 Future Generations ▾</button>
+      <button type="button" class="dropbtn">👥 The Freedom Engine ▾</button>
       <div class="dropdown-content">
-        <a href="#tree" class="tab" data-tab="tree">Future Generations Tree</a>
+        <a href="#tree" class="tab" data-tab="tree">The Freedom Engine Tree</a>
         <a href="#commissions" class="tab" data-tab="commissions">Commission Verify</a>
         <a href="#accounts" class="tab" data-tab="accounts">Accounts</a>
         <a href="#succession" class="tab" data-tab="succession">Succession</a>
@@ -566,12 +566,12 @@
       <!-- ═══════ ACCOUNTS TAB ═══════ -->
       <div class="panel" id="panel-accounts">
 
-        <!-- Future Generations Account Manager -->
+        <!-- The Freedom Engine Account Manager -->
         <div class="stats-row" id="accounts-stats"></div>
 
         <div class="section">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-            <h2>Future Generations Account Manager</h2>
+            <h2>The Freedom Engine Account Manager</h2>
             <div style="display:flex; gap:8px; align-items:center;">
               <input type="text" id="affiliate-search" placeholder="Search by name or email..." style="width:240px;" oninput="filterAffiliates()">
               <select id="affiliate-status-filter" onchange="filterAffiliates()">
@@ -664,7 +664,7 @@
         <div class="modal">
           <h3>💰 Adjust Balance</h3>
           <p style="font-size:13px; color:#71717a; margin-bottom:16px;">
-            Future Generations member: <strong id="balance-modal-email"></strong>
+            The Freedom Engine member: <strong id="balance-modal-email"></strong>
           </p>
           <div style="display:flex; flex-direction:column; gap:12px;">
             <div class="form-group">
@@ -1335,7 +1335,7 @@
               <label>Category *</label>
               <select id="res-form-category" style="width:100%;">
                 <option value="Getting Started">Getting Started</option>
-                <option value="Future Generations (Affiliate)">Future Generations (Affiliate)</option>
+                <option value="The Freedom Engine (Affiliate)">The Freedom Engine (Affiliate)</option>
                 <option value="Compliance">Compliance</option>
                 <option value="Financial Tools">Financial Tools</option>
                 <option value="Training &amp; Education">Training &amp; Education</option>
@@ -3063,7 +3063,7 @@
         if (!treeRes.ok || data.success === false) {
           allUsers = [];
           showTreeMessage(
-            'Could not load the Future Generations tree.',
+            'Could not load The Freedom Engine tree.',
             data.error || ('Request failed (' + treeRes.status + ').'),
             true
           );
@@ -3084,7 +3084,7 @@
         const timedOut = err && (err.name === 'AbortError' || /aborted|timed out/i.test(err.message || ''));
         allUsers = [];
         showTreeMessage(
-          timedOut ? 'The organization chart took too long.' : 'Could not load the Future Generations tree.',
+          timedOut ? 'The organization chart took too long.' : 'Could not load The Freedom Engine tree.',
           timedOut ? 'This tab is only the referral chart. Create codes under Beta Invites. Enter income and expenses in the app.' : (err.message || 'Unknown error'),
           true
         );

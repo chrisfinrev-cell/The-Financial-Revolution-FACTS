@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Create Future Generations accounts with sovereign feature access.
+ * Create owner allowlist accounts with sovereign feature access (not Freedom Engine affiliates).
  *
  * Access model (two tiers):
  *   Admin (chris.finrev@gmail.com):  is_creator=true — full admin panel + all features
- *   Future Gen (ecci2760, dianes3cps): is_creator=false — sovereign features via
+ *   Owner emails (ecci2760, dianes3cps): is_creator=false — sovereign features via
  *                                       isOwnerEmail() check in hasProAccess(), NO admin panel
  *
- * IMPORTANT: Future Gen accounts do NOT get is_creator=true. Access is granted via
+ * IMPORTANT: Owner accounts do NOT get is_creator=true. Access is granted via
  * the FUTURE_GEN_EMAILS env var in server.js (isOwnerEmail/isFutureGenEmail checks).
  * is_creator=true is reserved for chris.finrev@gmail.com only.
  *
@@ -21,7 +21,7 @@ const { Pool } = require('pg');
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-// Future Generations accounts — no admin panel, no affiliate eligibility.
+// Owner allowlist accounts — no admin panel, no Freedom Engine affiliate eligibility.
 // Access granted via FUTURE_GEN_EMAILS list in server.js (isOwnerEmail check).
 const ACCOUNTS = [
   { email: 'ecci2760@gmail.com', name: 'Christopher' },
@@ -64,7 +64,7 @@ async function seedUserAllocations(client, userId) {
 }
 
 async function main() {
-  console.log('=== Creating Future Generations Accounts ===\n');
+  console.log('=== Creating Owner Allowlist Accounts ===\n');
   if (GENERATED_TEMP_PASSWORD) {
     console.log(`Temporary password: ${TEMP_PASSWORD} (generated — store securely; set EXEMPT_ACCOUNT_TEMP_PASSWORD to pin)`);
   } else {
@@ -88,7 +88,7 @@ async function main() {
           // Only chris.finrev should have is_creator=true — correct for admin account
           console.log(`  → Account exists (id=${user.id}). is_creator=${user.is_creator} — no change needed.`);
         } else {
-          console.log(`  → Account exists (id=${user.id}). is_creator=false — correct for Future Gen.`);
+          console.log(`  → Account exists (id=${user.id}). is_creator=false — correct for owner allowlist.`);
         }
         await client.query(
           `UPDATE users SET name = COALESCE(name, $2), updated_at = NOW() WHERE id = $1`,
@@ -129,7 +129,7 @@ async function main() {
     }
 
     console.log('=== Done ===');
-    console.log('Future Generations accounts have:');
+    console.log('Owner allowlist accounts have:');
     console.log('  ✓ Sovereign feature access (via FUTURE_GEN_EMAILS in server.js, isOwnerEmail())');
     console.log('  ✓ All paywalls bypassed (Phase Zero, tiers, gamification)');
     console.log('  ✓ Eligible for XP, rewards, Sovereign Credits');

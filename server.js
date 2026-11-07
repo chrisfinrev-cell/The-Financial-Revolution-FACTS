@@ -7,12 +7,17 @@
  * - DATABASE_URL: PostgreSQL connection string (production: prefer ?sslmode=require)
  * - SESSION_SECRET: Secret for session encryption (>= 32 chars)
  * - TWILIO_*: Verify OTP credentials
+ * - PLAID_CLIENT_ID / PLAID_SECRET / PLAID_ENV (sandbox|production) for bank link
  * Recommended in production:
  * - CORS_ORIGIN: comma-separated allowlist of frontend origins
  * - JWT_SECRET: Bearer token signing (>= 64 chars) when JWT routes are used
  * - PORT: host-assigned listen port
+ * - PLAID_WEBHOOK_URL: public HTTPS webhook for TRANSACTIONS sync
  * See .env.production.example
  */
+
+// Load local .env for development (Render/Railway inject env vars in prod)
+require('dotenv').config();
 
 const { validateAuthEnvironment, validateBetaEnvironment, validateProductionSecurity } = require('./config/envCheck');
 validateAuthEnvironment();
@@ -517,7 +522,8 @@ app.use('/api/shared-budget-expenses', sharedBudgetExpensesRouter);
 app.use('/api/tfr', tfrRouter);
 app.use('/api/engagement', engagementRouter);
 app.use('/api/rewards', rewardsRouter);
-app.use('/api/future-generations', futureGenerationsRouter);
+app.use('/api/freedom-engine', futureGenerationsRouter);
+app.use('/api/future-generations', futureGenerationsRouter); // legacy alias
 app.use(gamificationPageRouter);
 app.set('db', pool);
 const { router: betaNdaRouter, enforceNda } = require('./routes/betaNda');
@@ -11317,7 +11323,7 @@ app.get('/api/pricing/info', async (req, res) => {
 // Old 50%/10% model removed — all commission rates are in FG_INITIAL_RATES / FG_RECURRING_RATES below
 const PAYOUT_MINIMUM_CENTS = 5000;
 
-// Future Generations 5-Level Commission Rates (percentage of payment)
+// Freedom Engine 5-Level Commission Rates (percentage of payment)
 // Flat rate: same for initial AND all renewals. 31% total max payout, 69% margin.
 // relationship_tag (FAMILY / CLOSE_CONTACT) is disclosure-only — never alter these standard rates.
 // Use lib/relationshipTags.resolveCommissionRates() for payout parity helpers.
@@ -12105,11 +12111,11 @@ app.post('/api/affiliate/join', async (req, res) => {
     const hasPro = await hasProAccess(user.id);
 
     if (!hasPro) {
-      return res.status(403).json({ error: 'Only active paid subscribers can join Future Generations.' });
+      return res.status(403).json({ error: 'Only active paid subscribers can join The Freedom Engine.' });
     }
 
-    // Admin and Future Generations accounts are permanently blocked from affiliate enrollment.
-    // Future Generations (OWNER_EMAILS) get free sovereign access but earn no commissions or referral payouts.
+    // Admin and owner (ex-Future Gen allowlist) accounts are permanently blocked from affiliate enrollment.
+    // Owner emails (OWNER_EMAILS) get free sovereign access but earn no commissions or referral payouts.
     if (isAdminIncomeBlockedUser(user)) {
       return res.status(403).json({ error: INCOME_BLOCK_ERROR, code: 'ADMIN_INCOME_BLOCKED' });
     }
@@ -12197,7 +12203,7 @@ app.post('/api/affiliate/join', async (req, res) => {
     res.json({ message: 'Welcome to the affiliate program!', affiliate: newAffiliate, placement_type: enrollmentType });
   } catch (err) {
     console.error('POST /api/affiliate/join error:', err.message);
-    res.status(500).json({ error: 'Failed to join Future Generations' });
+    res.status(500).json({ error: 'Failed to join The Freedom Engine' });
   }
 });
 
@@ -13502,8 +13508,8 @@ async function processCommission(subscriptionId, isRenewal = false) {
           if (ancestorResult.rows.length === 0) break;
           const ancestor = ancestorResult.rows[0];
 
-          // Block admin (CREATOR_EMAIL) and Future Generations accounts from receiving commissions.
-          // Future Generations get free sovereign access but are not eligible for affiliate payouts.
+          // Block admin (CREATOR_EMAIL) and owner allowlist accounts from receiving commissions.
+          // Owner allowlist accounts get free sovereign access but are not eligible for affiliate payouts.
           if (isAdminIncomeBlockedUser(ancestor)) {
             console.log(`[Commission] Skipping ineligible email — blocked from payout (user ${ancestor.id})`);
             level++;
@@ -13595,7 +13601,7 @@ async function processCommission(subscriptionId, isRenewal = false) {
 // ─── FUTURE GENERATIONS ─────────────────────────────────
 // ═══════════════════════════════════════════════════════════
 
-// Join Future Generations — any authenticated user can join
+// Join The Freedom Engine — any authenticated user can join
 app.post('/api/future-generations/join', requireAuth, async (req, res) => {
   try {
     const userId = req.userId;
@@ -13604,7 +13610,7 @@ app.post('/api/future-generations/join', requireAuth, async (req, res) => {
     const existing = await pool.query('SELECT * FROM affiliates WHERE user_id = $1', [userId]);
     if (existing.rows.length > 0) {
       return res.json({
-        message: 'Already a member of Future Generations',
+        message: 'Already a member of The Freedom Engine',
         affiliate: existing.rows[0]
       });
     }
@@ -13650,7 +13656,7 @@ app.post('/api/future-generations/join', requireAuth, async (req, res) => {
     }
 
     res.json({
-      message: 'Welcome to Future Generations!',
+      message: 'Welcome to The Freedom Engine!',
       affiliate: result.rows[0]
     });
   } catch (err) {
@@ -13662,11 +13668,11 @@ app.post('/api/future-generations/join', requireAuth, async (req, res) => {
         return res.json({ message: 'Already a member', affiliate: existing.rows[0] });
       }
     }
-    res.status(500).json({ error: 'Failed to join Future Generations' });
+    res.status(500).json({ error: 'Failed to join The Freedom Engine' });
   }
 });
 
-// Future Generations Dashboard
+// Freedom Engine Dashboard
 app.get('/api/future-generations/dashboard', requireAuth, async (req, res) => {
   try {
     const userId = req.userId;
@@ -13826,7 +13832,7 @@ app.get('/api/future-generations/dashboard', requireAuth, async (req, res) => {
     });
   } catch (err) {
     console.error('GET /api/future-generations/dashboard error:', err.message);
-    res.status(500).json({ error: 'Failed to fetch Future Generations dashboard' });
+    res.status(500).json({ error: 'Failed to fetch Freedom Engine dashboard' });
   }
 });
 
@@ -15242,8 +15248,16 @@ function requirePlaid(req, res, next) {
   next();
 }
 
-// POST /api/plaid/create-link-token - Create Plaid Link token for frontend
-app.post('/api/plaid/create-link-token', requireAuth, requirePlaid, async (req, res) => {
+// ─── LEGACY Plaid create/exchange DISABLED by default ─────────────────────────
+// Canonical implementation: modules/mod_plaid (AES-encrypted access_token in
+// mod_plaid.user_items). These legacy handlers stored plaintext tokens in
+// public.plaid_accounts (table not present on Neon) and shadowed mod_plaid
+// because they registered before ModuleLoader.mountModules().
+// Set PLAID_USE_LEGACY=1 only for emergency rollback.
+const PLAID_USE_LEGACY = process.env.PLAID_USE_LEGACY === '1';
+
+// POST /api/plaid/create-link-token — legacy (opt-in). Prefer modules/mod_plaid.
+if (PLAID_USE_LEGACY) app.post('/api/plaid/create-link-token', requireAuth, requirePlaid, async (req, res) => {
   try {
     // Check Pro access
     const hasPro = await hasProAccess(req.userId);
@@ -15278,8 +15292,8 @@ app.post('/api/plaid/create-link-token', requireAuth, requirePlaid, async (req, 
   }
 });
 
-// POST /api/plaid/exchange-token - Exchange public token for access token and save accounts
-app.post('/api/plaid/exchange-token', requireAuth, requirePlaid, async (req, res) => {
+// POST /api/plaid/exchange-token — legacy (opt-in). Prefer modules/mod_plaid.
+if (PLAID_USE_LEGACY) app.post('/api/plaid/exchange-token', requireAuth, requirePlaid, async (req, res) => {
   const client = await pool.connect();
   try {
     // Check Pro access
@@ -15397,8 +15411,8 @@ app.post('/api/plaid/exchange-token', requireAuth, requirePlaid, async (req, res
   }
 });
 
-// GET /api/plaid/accounts - List all connected accounts with current balances
-app.get('/api/plaid/accounts', requireAuth, requirePlaid, async (req, res) => {
+// GET /api/plaid/accounts — legacy (opt-in). Prefer modules/mod_plaid.
+if (PLAID_USE_LEGACY) app.get('/api/plaid/accounts', requireAuth, requirePlaid, async (req, res) => {
   try {
     // Check Pro access
     const hasPro = await hasProAccess(req.userId);
@@ -15427,8 +15441,8 @@ app.get('/api/plaid/accounts', requireAuth, requirePlaid, async (req, res) => {
   }
 });
 
-// POST /api/plaid/sync - Sync transactions and balances for all connected accounts
-app.post('/api/plaid/sync', requireAuth, requirePlaid, async (req, res) => {
+// POST /api/plaid/sync — legacy (opt-in). Prefer modules/mod_plaid sync-transactions.
+if (PLAID_USE_LEGACY) app.post('/api/plaid/sync', requireAuth, requirePlaid, async (req, res) => {
   const client = await pool.connect();
   try {
     // Check Pro access
@@ -15552,8 +15566,8 @@ app.post('/api/plaid/sync', requireAuth, requirePlaid, async (req, res) => {
   }
 });
 
-// GET /api/plaid/transactions - Get imported Plaid transactions (not yet imported to FACTS)
-app.get('/api/plaid/transactions', requireAuth, requirePlaid, async (req, res) => {
+// GET /api/plaid/transactions — legacy (opt-in)
+if (PLAID_USE_LEGACY) app.get('/api/plaid/transactions', requireAuth, requirePlaid, async (req, res) => {
   try {
     // Check Pro access
     const hasPro = await hasProAccess(req.userId);
@@ -15584,8 +15598,8 @@ app.get('/api/plaid/transactions', requireAuth, requirePlaid, async (req, res) =
   }
 });
 
-// POST /api/plaid/import-transaction - Import a Plaid transaction into FACTS
-app.post('/api/plaid/import-transaction', requireAuth, requirePlaid, async (req, res) => {
+// POST /api/plaid/import-transaction — legacy (opt-in)
+if (PLAID_USE_LEGACY) app.post('/api/plaid/import-transaction', requireAuth, requirePlaid, async (req, res) => {
   const client = await pool.connect();
   try {
     // Check Pro access
@@ -15670,8 +15684,8 @@ app.post('/api/plaid/import-transaction', requireAuth, requirePlaid, async (req,
   }
 });
 
-// DELETE /api/plaid/accounts/:id - Disconnect a Plaid account
-app.delete('/api/plaid/accounts/:id', requireAuth, requirePlaid, async (req, res) => {
+// DELETE /api/plaid/accounts/:id — legacy (opt-in)
+if (PLAID_USE_LEGACY) app.delete('/api/plaid/accounts/:id', requireAuth, requirePlaid, async (req, res) => {
   try {
     // Check Pro access
     const hasPro = await hasProAccess(req.userId);
@@ -22069,7 +22083,7 @@ app.post('/api/discovery-scan/complete', requireAuth, async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════════════════
-//  SOVEREIGN DASHBOARD — Future Generations Command Center
+//  SOVEREIGN DASHBOARD — Freedom Engine Command Center
 // ══════════════════════════════════════════════════════════════════════════════
 
 const SOVEREIGN_PHASES = [
@@ -22819,7 +22833,7 @@ app.post('/api/succession/sign/:token', async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ─── RETAIL-TO-AFFILIATE CONVERSION FLOW ─────────────────────────────────────
-// Phase 2 / Task 4 of Future Generations rebuild.
+// Phase 2 / Task 4 of Freedom Engine rebuild.
 // These routes power the Graduation Screen that appears when a Pro user
 // completes their FACTS Certification and has not yet joined as an affiliate.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -23019,13 +23033,13 @@ app.post('/api/affiliate/graduate', requireAuth, async (req, res) => {
     const user = userRes.rows[0];
 
     if (user.is_creator) {
-      return res.status(403).json({ error: 'This account is not eligible to join Future Generations.' });
+      return res.status(403).json({ error: 'This account is not eligible to join The Freedom Engine.' });
     }
 
     // Must be Pro
     const isPro = await hasProAccess(userId);
     if (!isPro) {
-      return res.status(403).json({ error: 'Only active paid subscribers can unlock Future Generations affiliate status.' });
+      return res.status(403).json({ error: 'Only active paid subscribers can unlock Freedom Engine affiliate status.' });
     }
 
     // Must be FACTS certified
@@ -23107,7 +23121,7 @@ app.post('/api/affiliate/graduate', requireAuth, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Welcome to Future Generations! Your affiliate link is active.',
+      message: 'Welcome to The Freedom Engine! Your affiliate link is active.',
       referral_code: referralCode,
       referral_link: referralLink,
       affiliate_status: 'active',
@@ -23123,7 +23137,7 @@ app.post('/api/affiliate/graduate', requireAuth, async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ─── CERTIFICATION GATE ──────────────────────────────────────────────────────
-// Controls access to the Future Generations referral link.
+// Controls access to the Freedom Engine referral link.
 // All 5 conditions must be met before the referral link is revealed.
 //
 //   1. Active Pro subscription         (hasProAccess)
@@ -23428,7 +23442,7 @@ app.post('/api/certification/acknowledge-sweep', requireAuth, async (req, res) =
 // ─── SOVEREIGN OATH — DIGITAL SIGNING FLOW ───────────────
 // ═══════════════════════════════════════════════════════════
 // The mandatory digital contract every user must sign before
-// their Future Generations referral link is revealed.
+// their Freedom Engine referral link is revealed.
 // This is the final step of the Certification Gate.
 // ─────────────────────────────────────────────────────────────────────────────
 

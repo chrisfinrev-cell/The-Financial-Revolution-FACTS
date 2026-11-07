@@ -37,6 +37,8 @@ const { asyncRoute } = require('../../module-error-boundary');
 // Do NOT request auth (routing/account numbers), transfer, payment_initiation,
 // or investments products — FACTS never initiates ACH or trades.
 // Account balances are read via accountsGet after link (no separate product needed).
+// Intentionally transactions-only. Do NOT add 'auth' — that exposes routing/account
+// numbers and violates FACTS non-custodial / educational bank-link posture.
 const PLAID_PRODUCTS = ['transactions'];
 const SYNC_ACCOUNT_TYPES = new Set(['depository', 'credit']);
 const SYNC_ACCOUNT_SUBTYPES = new Set(['checking', 'savings', 'credit card', 'paypal']);
@@ -107,12 +109,24 @@ function decrypt(payload) {
 }
 
 // ─── Tier helpers ─────────────────────────────────────────────────────────────
-const PLAID_ALLOWED_TIERS = ['elite', 'business', 'sovereignty'];
+const PLAID_ALLOWED_TIERS = ['elite', 'business', 'sovereignty', 'sovereign'];
 const SOVEREIGNTY_TIER = 'sovereignty';
+const OWNER_EMAILS = (process.env.OWNER_EMAILS || process.env.FUTURE_GEN_EMAILS || 'ecci2760@gmail.com,ecci2760f@gmail.com,dianes3cps@gmail.com')
+  .split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
 
 function userTier(user) {
-  const tier = (user.subscription_tier || user.plan || '').toLowerCase();
-  if (tier === 'sovereignty') return 'sovereignty';
+  if (!user) return 'free';
+  if (user.is_creator) return SOVEREIGNTY_TIER;
+  const email = String(user.email || '').toLowerCase();
+  if (email && OWNER_EMAILS.includes(email)) return SOVEREIGNTY_TIER;
+
+  const pricing = String(user.pricing_tier || '').toLowerCase();
+  if (pricing === 'sovereign_executive' || pricing === 'sovereign') return SOVEREIGNTY_TIER;
+  if (pricing === 'tfr_elite' || pricing === 'elite') return 'elite';
+  if (pricing === 'business_core' || pricing === 'business_bundle' || pricing === 'business') return 'business';
+
+  const tier = String(user.subscription_tier || user.plan || '').toLowerCase();
+  if (tier === 'sovereignty' || tier === 'sovereign') return SOVEREIGNTY_TIER;
   if (tier === 'business') return 'business';
   if (tier === 'elite') return 'elite';
   if (user.subscription_status === 'active' && user.subscription_plan) return 'elite';
@@ -464,13 +478,18 @@ async function handleCreateLinkToken(req, res) {
   const user = req.plaidUser;
   const client = req.plaidClient;
 
-  const response = await client.linkTokenCreate({
+  const linkRequest = {
     user: { client_user_id: String(user.id) },
     client_name: 'Financial Revolution',
     products: PLAID_PRODUCTS,
     country_codes: ['US'],
     language: 'en',
-  });
+  };
+  if (process.env.PLAID_WEBHOOK_URL) {
+    linkRequest.webhook = process.env.PLAID_WEBHOOK_URL;
+  }
+
+  const response = await client.linkTokenCreate(linkRequest);
 
   res.json({
     link_token: response.data.link_token,
@@ -513,6 +532,7 @@ async function handleExchangePublicToken(req, res) {
     console.error('[mod_plaid] Balance pull after exchange failed:', err.message);
   }
 
+  // Never return access_token to the client — only encrypted copy stays in DB
   res.json({
     success: true,
     user_item_id: userItem.id,
@@ -522,14 +542,79 @@ async function handleExchangePublicToken(req, res) {
   });
 }
 
+async function handlePlaidWebhook(req, res) {
+  // Acknowledge immediately; process sync asynchronously when possible
+  const body = req.body || {};
+  const webhookType = body.webhook_type || body.webhookType;
+  const webhookCode = body.webhook_code || body.webhookCode;
+  const itemId = body.item_id || body.itemId;
+
+  console.log('[mod_plaid] webhook', { webhookType, webhookCode, itemId });
+
+  // Always 200 so Plaid does not retry aggressively on our processing errors
+  res.status(200).json({ received: true });
+
+  if (!itemId) return;
+
+  const isTxnSync =
+    String(webhookType || '').toUpperCase() === 'TRANSACTIONS' &&
+    ['SYNC_UPDATES_AVAILABLE', 'DEFAULT_UPDATE', 'INITIAL_UPDATE', 'HISTORICAL_UPDATE']
+      .includes(String(webhookCode || '').toUpperCase());
+
+  if (!isTxnSync) return;
+
+  setImmediate(async () => {
+    try {
+      const client = getPlaidClient();
+      const pool = getPool();
+      if (!client || !pool) return;
+
+      const itemRes = await pool.query(
+        `SELECT * FROM mod_plaid.user_items WHERE item_id = $1 AND status = 'active' LIMIT 1`,
+        [itemId]
+      );
+      const userItem = itemRes.rows[0];
+      if (!userItem) {
+        console.warn('[mod_plaid] webhook item not found:', itemId);
+        return;
+      }
+
+      let accessToken;
+      try {
+        accessToken = decrypt(userItem.access_token_encrypted);
+      } catch (err) {
+        console.error('[mod_plaid] webhook decrypt failed:', err.message);
+        return;
+      }
+
+      const bal = await syncBalancesForItem(client, pool, userItem, accessToken);
+      const synced = await syncTransactionsForItem(client, pool, userItem, accessToken);
+      console.log('[mod_plaid] webhook sync complete', { itemId, bal, synced });
+    } catch (err) {
+      console.error('[mod_plaid] webhook sync error:', err.message);
+    }
+  });
+}
+
 async function handleSyncTransactions(req, res) {
   const user = req.plaidUser;
   const client = req.plaidClient;
   const pool = getPool();
 
-  const items = await getActiveUserItems(pool, user.id);
+  const filterItemId = req.body?.item_id || req.body?.itemId || null;
+  let items = await getActiveUserItems(pool, user.id);
+  if (filterItemId) {
+    items = items.filter((it) => String(it.item_id) === String(filterItemId));
+  }
   if (items.length === 0) {
-    return res.json({ success: true, synced: 0, balances_updated: 0, message: 'No active Plaid items' });
+    return res.json({
+      success: true,
+      synced: 0,
+      balances_updated: 0,
+      message: filterItemId
+        ? `No active Plaid item matching item_id=${filterItemId}`
+        : 'No active Plaid items'
+    });
   }
 
   let totalSynced = 0;
@@ -581,6 +666,9 @@ function registerPlaidRoutes(target) {
   target.post('/exchange-token', ...plaidGuard, asyncRoute(handleExchangePublicToken));
   target.post('/exchange_public_token', ...plaidGuard, asyncRoute(handleExchangePublicToken));
   target.post('/sync-transactions', ...plaidGuard, asyncRoute(handleSyncTransactions));
+  // Webhook — no session auth (gated in module-loader requireAuthFinancial)
+  target.post('/webhook', asyncRoute(handlePlaidWebhook));
+  target.post('/webhooks', asyncRoute(handlePlaidWebhook));
 }
 
 registerPlaidRoutes(router);

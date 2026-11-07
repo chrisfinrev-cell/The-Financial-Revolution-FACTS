@@ -216,7 +216,7 @@
     '<ul>',
     '<li><a href="/about">Our Mission</a></li>',
     '<li><a href="https://thefinancialrevolution.net">The Financial Revolution</a></li>',
-    '<li><a href="https://app.factsmoney.com/future-generations.html">Affiliate Program</a></li>',
+    '<li><a href="https://app.factsmoney.com/freedom-engine.html">Affiliate Program</a></li>',
     '<li><a href="https://app.factsmoney.com/terms-of-service.html">Terms of Service</a></li>',
     '</ul></div>',
 

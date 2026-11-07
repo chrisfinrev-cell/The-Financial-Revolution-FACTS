@@ -93,7 +93,7 @@ function heartbeatReminderEmail({ firstName, daysLeft, monthLabel, isUrgent = fa
       </div>
 
       <p style="color:#6b7280;font-size:0.8rem;text-align:center;margin-top:32px;">
-        FACTS Financial · Future Generations Affiliate Program
+        FACTS Financial · The Freedom Engine Affiliate Program
       </p>
     </div>
   `;
@@ -146,7 +146,7 @@ function heartbeatEscrowEmail({ firstName, monthLabel, escrowAmountDollars, cons
       </div>
 
       <p style="color:#6b7280;font-size:0.8rem;text-align:center;margin-top:32px;">
-        FACTS Financial · Future Generations Affiliate Program
+        FACTS Financial · The Freedom Engine Affiliate Program
       </p>
     </div>
   `;
@@ -194,7 +194,7 @@ function heartbeatDay60WarningEmail({ firstName, escrowAmountDollars, consecutiv
       </div>
 
       <p style="color:#6b7280;font-size:0.8rem;text-align:center;margin-top:32px;">
-        FACTS Financial · Future Generations Affiliate Program
+        FACTS Financial · The Freedom Engine Affiliate Program
       </p>
     </div>
   `;
@@ -211,7 +211,7 @@ function heartbeatForfeitureNoticeEmail({ firstName, forfeitedAmountDollars }) {
 
       <p>Hi ${firstName},</p>
       <p style="line-height:1.6;">
-        You have missed <strong>3 consecutive Monthly Heartbeats</strong>. As per the Future Generations
+        You have missed <strong>3 consecutive Monthly Heartbeats</strong>. As per The Freedom Engine
         Agreement, your escrowed commissions of
         <strong style="color:#ef4444;">$${forfeitedAmountDollars}</strong> have been
         <strong>permanently forfeited</strong> and routed to the Company Master Node.
@@ -236,7 +236,7 @@ function heartbeatForfeitureNoticeEmail({ firstName, forfeitedAmountDollars }) {
       </div>
 
       <p style="color:#6b7280;font-size:0.8rem;text-align:center;margin-top:32px;">
-        FACTS Financial · Future Generations Affiliate Program
+        FACTS Financial · The Freedom Engine Affiliate Program
       </p>
     </div>
   `;
@@ -274,7 +274,7 @@ function heartbeatEscrowReleasedEmail({ firstName, releasedAmountDollars, monthL
       </div>
 
       <p style="color:#6b7280;font-size:0.8rem;text-align:center;margin-top:32px;">
-        FACTS Financial · Future Generations Affiliate Program
+        FACTS Financial · The Freedom Engine Affiliate Program
       </p>
     </div>
   `;
@@ -346,7 +346,7 @@ function squadHealthReportEmail({ firstName, monthLabel, daysLeft, teamRows, anc
       </div>
 
       <p style="color:#6b7280;font-size:0.8rem;text-align:center;margin-top:32px;">
-        FACTS Financial · Future Generations Affiliate Program<br>
+        FACTS Financial · The Freedom Engine Affiliate Program<br>
         You're receiving this because you have team members in your organization.
       </p>
     </div>
@@ -377,7 +377,7 @@ function familyLegacyAlertEmail({ sponsorFirstName, memberName, memberEmail, mon
       </div>
 
       <p style="color:#6b7280;font-size:0.8rem;text-align:center;margin-top:32px;">
-        FACTS Financial · Future Generations Family Legacy Program
+        FACTS Financial · The Freedom Engine Family Legacy Program
       </p>
     </div>
   `;

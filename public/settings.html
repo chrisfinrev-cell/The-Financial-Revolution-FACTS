@@ -477,7 +477,7 @@
     <button class="nav-item" onclick="scrollTo('notifications')">🔔 Notifications</button>
     <button class="nav-item" onclick="scrollTo('connected')">🏦 Connected Accounts</button>
     <button class="nav-item" onclick="scrollTo('security')">🛡️ Security</button>
-    <button class="nav-item" onclick="scrollTo('succession')" id="nav-succession" style="display:none;">⚜️ Future Generations</button>
+    <button class="nav-item" onclick="scrollTo('succession')" id="nav-succession" style="display:none;">⚜️ The Freedom Engine</button>
     <button class="nav-item" onclick="scrollTo('heir')" id="nav-heir" style="display:none;">🗝️ Succession Key</button>
     <button class="nav-item" onclick="scrollTo('vantage')" id="nav-vantage">👁 Vantage Point</button>
     <button class="nav-item" onclick="scrollTo('disclaimer')">⚖️ Disclaimer</button>
@@ -677,7 +677,7 @@
           <!-- FG Commission -->
           <div class="toggle-row">
             <div class="toggle-info">
-              <div class="toggle-label">Future Generations Commission Notifications</div>
+              <div class="toggle-label">The Freedom Engine Commission Notifications</div>
               <div class="toggle-desc">Alert when you earn affiliate commissions</div>
             </div>
             <label class="toggle-switch">
@@ -897,7 +897,7 @@
       <div class="section-header">
         <div class="section-icon">⚜️</div>
         <div class="section-title-group">
-          <div class="section-title">Future Generations</div>
+          <div class="section-title">The Freedom Engine</div>
           <div class="section-subtitle" id="succ-section-subtitle">Designate a successor for your affiliate position</div>
         </div>
       </div>
@@ -911,7 +911,7 @@
             <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
               <div style="font-size:2rem;flex-shrink:0;margin-top:2px;">🔗</div>
               <div style="flex:1;min-width:220px;">
-                <div style="font-weight:700;font-size:0.95rem;color:#e8c96a;margin-bottom:6px;">Unlock Your Future Generations Link</div>
+                <div style="font-weight:700;font-size:0.95rem;color:#e8c96a;margin-bottom:6px;">Unlock Your The Freedom Engine Link</div>
                 <div style="font-size:0.83rem;color:#9ca3af;line-height:1.6;margin-bottom:14px;">
                   You previously chose to remain a Retail user — and that's perfectly fine.
                   If you'd like to unlock your referral link and earn a 16% Service Commission,
@@ -1387,7 +1387,7 @@
         <div class="danger-item">
           <div class="danger-item-info">
             <h4>Delete Account</h4>
-            <p>Permanently delete your account and all financial data. This cannot be undone. Your active subscription will be cancelled and any Future Generations commissions will be forfeited.</p>
+            <p>Permanently delete your account and all financial data. This cannot be undone. Your active subscription will be cancelled and any The Freedom Engine commissions will be forfeited.</p>
           </div>
           <button class="btn btn-danger" onclick="openDeleteModal()" style="flex-shrink:0;">Delete Account</button>
         </div>
@@ -1406,7 +1406,7 @@
     <ul class="modal-warning-list">
       <li>All transactions, allocations, and financial data erased</li>
       <li>Active subscription will be cancelled</li>
-      <li>Future Generations commissions will be forfeited</li>
+      <li>The Freedom Engine commissions will be forfeited</li>
       <li>family memberships will be removed</li>
       <li>Your email cannot be recovered or reused for 30 days</li>
     </ul>
@@ -2532,7 +2532,7 @@ async function loadSuccessionPlan() {
 }
 
 // ─── Sovereign Oath — Legacy Vault Viewer ─────────────────────────────────────
-// Shows the signed Sovereign Oath record in the Future Generations section.
+// Shows the signed Sovereign Oath record in The Freedom Engine section.
 // Runs independently of affiliate status — any user who has signed can view it.
 async function loadOathVault() {
   try {
@@ -2639,7 +2639,7 @@ async function submitUnlockAffiliate() {
       succEl.innerHTML = `
         <div style="font-weight:700;color:#4ade80;margin-bottom:8px;">🎉 Affiliate link activated!</div>
         <div style="font-size:0.82rem;color:#9ca3af;margin-bottom:10px;line-height:1.5;">
-          You're now a Future Generations Affiliate. Your referral link is live.
+          You're now a Freedom Engine Affiliate. Your referral link is live.
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
           <input type="text" value="${escHtml(link)}" readonly

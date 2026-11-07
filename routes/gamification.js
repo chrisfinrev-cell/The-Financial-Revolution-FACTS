@@ -1,13 +1,13 @@
 'use strict';
 
 /**
- * TFR Points, engagement streaks/challenges, rewards, Future Generations points.
+ * TFR Points, engagement streaks/challenges, rewards, Freedom Engine points.
  * Mount (URL-preserving):
  *   app.use('/api/tfr', tfrRouter)
  *   app.use('/api/engagement', engagementRouter)
  *   app.use('/api/rewards', rewardsRouter)
- *   app.use('/api/future-generations', futureGenerationsRouter)
- *   app.use(pageRouter)  // /sovereign, /rewards, /future-generations, etc.
+ *   app.use('/api/freedom-engine', futureGenerationsRouter) // alias: /api/future-generations
+ *   app.use(pageRouter)  // /sovereign, /rewards, /freedom-engine, etc.
  */
 
 const express = require('express');
@@ -81,17 +81,25 @@ const TFR_RANKS = new Proxy([], { get(_t, prop) { const ranks = getTfrRanks(); r
 const TFR_PHASE_NAMES = new Proxy({}, { get(_t, prop) { return getTfrPhaseNames()[prop]; } });
 const TFR_PHASE_THEMES = new Proxy({}, { get(_t, prop) { return getTfrPhaseThemes()[prop]; } });
 
-// ── Future Generations points API + pages ──
+// ── Freedom Engine points API + pages (legacy path: Future Generations) ──
 const PUBLIC = path.join(__dirname, '..', 'public');
 
-// GET /future-generations — Info landing page
-pageRouter.get('/future-generations', (req, res) => {
-  res.sendFile(path.join(PUBLIC, 'future-generations.html'));
+// GET /freedom-engine — Info landing page
+pageRouter.get('/freedom-engine', (req, res) => {
+  res.sendFile(path.join(PUBLIC, 'freedom-engine.html'));
 });
 
-// GET /future-generations/dashboard — Points dashboard
+// GET /freedom-engine/dashboard — Points dashboard
+pageRouter.get('/freedom-engine/dashboard', (req, res) => {
+  res.sendFile(path.join(PUBLIC, 'freedom-engine-dashboard.html'));
+});
+
+// Legacy redirects — old Future Generations URLs
+pageRouter.get('/future-generations', (req, res) => {
+  res.redirect(301, '/freedom-engine');
+});
 pageRouter.get('/future-generations/dashboard', (req, res) => {
-  res.sendFile(path.join(PUBLIC, 'future-generations-dashboard.html'));
+  res.redirect(301, '/freedom-engine/dashboard');
 });
 
 // GET /sovereign-dashboard — Sovereign Command Center (affiliate 4x5 map, wallets, compliance)
@@ -99,12 +107,15 @@ pageRouter.get('/sovereign-dashboard', optionalAuth, (req, res) => {
   res.sendFile(path.join(PUBLIC, 'sovereign-dashboard.html'));
 });
 
-// GET /future-generations/sovereign — alias
-pageRouter.get('/future-generations/sovereign', optionalAuth, (req, res) => {
+// GET /freedom-engine/sovereign — alias (+ legacy /future-generations/sovereign)
+pageRouter.get('/freedom-engine/sovereign', optionalAuth, (req, res) => {
   res.sendFile(path.join(PUBLIC, 'sovereign-dashboard.html'));
 });
+pageRouter.get('/future-generations/sovereign', optionalAuth, (req, res) => {
+  res.redirect(301, '/freedom-engine/sovereign');
+});
 
-// GET /api/future-generations/status — Auth + Pro status for the current user
+// GET /api/freedom-engine/status (+ legacy /api/future-generations/status)
 futureGenerationsRouter.get('/status', optionalAuth, async (req, res) => {
   try {
     if (!req.userId) {

@@ -32,7 +32,7 @@ const { asyncRoute } = require('../../module-error-boundary');
 
 // ─── Admin allow-list ────────────────────────────────────────────────────────
 // chris.finrev@gmail.com — sole admin. No other accounts have gamification admin access.
-// Future Generations accounts (ecci2760, dianes3cps) get full gamification access
+// The Freedom Engine accounts (ecci2760, dianes3cps) get full gamification access
 // (XP, levels, rewards, Sovereign Credits) but NOT admin controls.
 const ADMIN_EMAILS = [
   'chris.finrev@gmail.com'

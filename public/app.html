@@ -1446,7 +1446,7 @@
             font-weight: 600; flex-shrink: 0;
         }
 
-        /* ─── Future Generations Widget (legacy, kept for unused styles) ─── */
+        /* ─── The Freedom Engine Widget (legacy, kept for unused styles) ─── */
         .fg-widget {
             background: linear-gradient(135deg, var(--bg-card) 0%, rgba(16,185,129,0.08) 100%);
             border: 1px solid rgba(16,185,129,0.25);
@@ -2234,7 +2234,7 @@
                 <button class="app-tab" onclick="window.location.href='/tier-upgrade'" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;border:none;">Upgrade</button>
                 <button class="app-tab" id="level2-nav-btn" onclick="handleLevel2NavClick(event)" title="Requires Level 1 completion">🔒 Level 2</button>
                 <button class="app-tab" data-tab="education">📚 Education</button>
-                <button class="app-tab" data-tab="future-generations">🌿 Future Gen</button>
+                <button class="app-tab" data-tab="freedom-engine">⚙️ Freedom Engine</button>
                 <button class="app-tab" data-tab="archive">🗄️ Archive</button>
                 <button class="app-tab" onclick="window.location.href='/sovereign'" style="color:#c9a227;font-weight:700;background:rgba(201,162,39,0.10);border:1px solid rgba(201,162,39,0.20);">⚔️ Sovereign</button>
                 <button class="app-tab creator-only" style="display:none;color:#f59e0b;" onclick="openAdminGate(event)">🔐 Admin</button>
@@ -2333,7 +2333,7 @@
                     <button class="mobile-menu-item" onclick="switchTab('credit-score');closeMobileMenu()">📊 Credit Score</button>
                     <button class="mobile-menu-item" onclick="switchTab('fi-calculator');closeMobileMenu()">🎯 FI Calculator</button>
                     <button class="mobile-menu-item" onclick="switchTab('education');closeMobileMenu()">📚 Education</button>
-                    <button class="mobile-menu-item" onclick="switchTab('future-generations');closeMobileMenu()">🌿 Generations</button>
+                    <button class="mobile-menu-item" onclick="switchTab('freedom-engine');closeMobileMenu()">⚙️ Freedom Engine</button>
                     <button class="mobile-menu-item" onclick="switchTab('archive');closeMobileMenu()">🗄️ Archive</button>
                     <button class="mobile-menu-item" onclick="window.location.href='/sovereign';closeMobileMenu()" style="color:#c9a227;">⚔️ Sovereign</button>
                 </div>
@@ -2538,7 +2538,7 @@
             </div>
             <button class="mobile-tab" onclick="window.location.href='/tier-upgrade'" style="color:#34d399;font-weight:700;"><span class="tab-icon">⬆️</span>Upgrade</button>
             <button class="mobile-tab" data-tab="education"><span class="tab-icon">📚</span>Education</button>
-            <button class="mobile-tab" data-tab="future-generations"><span class="tab-icon">🌿</span>Generations</button>
+            <button class="mobile-tab" data-tab="freedom-engine"><span class="tab-icon">⚙️</span>Freedom Engine</button>
             <button class="mobile-tab" data-tab="archive"><span class="tab-icon">🗄️</span>Archive</button>
             <button class="mobile-tab" onclick="window.location.href='/sovereign'" style="color:#c9a227;font-weight:700;"><span class="tab-icon">⚔️</span>Sovereign</button>
             <button class="mobile-tab creator-only" style="display:none;color:#f59e0b;" onclick="openAdminGate(event)"><span class="tab-icon">🔐</span>Admin</button>
@@ -3002,9 +3002,9 @@
                     <div id="referral-count-badge" style="font-size:0.78rem; color:var(--text-muted); margin-top:6px;"></div>
                 </div>
 
-                <!-- ── 5. Affiliate Status (Future Generations) ───────────── -->
+                <!-- ── 5. Affiliate Status (The Freedom Engine) ───────────── -->
                 <!-- Small FG Stats Card -->
-                <a id="fg-small-card" href="/future-generations" class="fg-small-card" style="display:none;">
+                <a id="fg-small-card" href="/freedom-engine" class="fg-small-card" style="display:none;">
                     <div class="fg-small-card-icon">🌿</div>
                     <div class="fg-small-card-stats">
                         <div class="fg-small-card-stat">
@@ -3016,9 +3016,9 @@
                             <div class="fg-small-card-lbl">Organization</div>
                         </div>
                     </div>
-                    <span class="fg-small-card-arrow">Future Generations →</span>
+                    <span class="fg-small-card-arrow">The Freedom Engine →</span>
                 </a>
-                <!-- Hidden elements kept for backward compat with loadFutureGenerations() -->
+                <!-- Hidden elements kept for backward compat with loadFreedomEngine() -->
                 <div style="display:none;">
                     <div id="fg-join-state"></div>
                     <div id="fg-member-state"></div>
@@ -5968,8 +5968,8 @@
                 </div>
             </div>
 
-            <!-- Future Generations Tab -->
-            <div id="tab-future-generations" class="tab-content">
+            <!-- The Freedom Engine Tab -->
+            <div id="tab-freedom-engine" class="tab-content">
                 <!-- Loading state -->
                 <div id="fgtab-loading" style="text-align:center;padding:60px 20px;">
                     <div style="font-size:2.5rem;margin-bottom:12px;">🌿</div>
@@ -5979,7 +5979,7 @@
                 <!-- Pro gate (non-Pro users) -->
                 <div id="fgtab-pro-gate" style="display:none;text-align:center;padding:60px 20px;">
                     <div style="font-size:3rem;margin-bottom:16px;">🔒</div>
-                    <h3 style="font-size:1.4rem;margin-bottom:8px;">Future Generations is a <span style="color:#c9a227;">Paid Feature</span></h3>
+                    <h3 style="font-size:1.4rem;margin-bottom:8px;">The Freedom Engine is a <span style="color:#c9a227;">Paid Feature</span></h3>
                     <p style="color:var(--text-secondary);max-width:400px;margin:0 auto 24px;font-size:0.95rem;">Build your referral network and earn commissions through five levels of connection. Included with all paid plans.</p>
                     <button class="upgrade-btn" onclick="window.location.href='/tier-upgrade'" style="display:inline-block;padding:12px 32px;">Upgrade Now →</button>
                 </div>
@@ -5987,9 +5987,9 @@
                 <!-- Join state (Pro but not yet joined) -->
                 <div id="fgtab-join-state" style="display:none;text-align:center;padding:60px 20px;">
                     <div style="font-size:3rem;margin-bottom:16px;">🌱</div>
-                    <h3 style="font-size:1.4rem;margin-bottom:8px;">Join Future Generations</h3>
+                    <h3 style="font-size:1.4rem;margin-bottom:8px;">Join The Freedom Engine</h3>
                     <p style="color:var(--text-secondary);max-width:420px;margin:0 auto 24px;font-size:0.95rem;">Build your financial family tree. Earn commissions from 5 levels of referrals and grow wealth that outlasts you.</p>
-                    <button class="fg-join-btn" onclick="joinFutureGenerationsTab()">Join Future Generations →</button>
+                    <button class="fg-join-btn" onclick="joinFreedomEngineTab()">Join The Freedom Engine →</button>
                 </div>
 
                 <!-- Main content (Pro + joined) -->
@@ -5999,11 +5999,11 @@
                         <div style="display:flex;align-items:center;gap:10px;">
                             <span style="font-size:1.8rem;">🌿</span>
                             <div>
-                                <h2 style="font-size:1.3rem;font-weight:700;margin:0;">Future Generations</h2>
+                                <h2 style="font-size:1.3rem;font-weight:700;margin:0;">The Freedom Engine</h2>
                                 <p style="color:var(--text-secondary);font-size:0.8rem;margin:2px 0 0;">Your referral network &amp; commission history</p>
                             </div>
                         </div>
-                        <a href="/future-generations"
+                        <a href="/freedom-engine"
                            style="background:rgba(201,162,39,0.1);color:#e8c96a;border:1px solid rgba(201,162,39,0.25);padding:8px 16px;border-radius:10px;font-size:0.8rem;font-weight:600;text-decoration:none;white-space:nowrap;">
                             Program Details →
                         </a>
@@ -6130,7 +6130,7 @@
 
           <!-- Body -->
           <div style="background:rgba(201,162,39,0.06);border:1px solid rgba(201,162,39,0.15);border-radius:14px;padding:20px 22px;margin-bottom:28px;line-height:1.7;font-size:0.93rem;color:#d1d5db;">
-            You've officially mapped your FACTS. You are eligible to upgrade to <strong style="color:#e8c96a;">Future Generations Affiliate status</strong> at no additional cost.
+            You've officially mapped your FACTS. You are eligible to upgrade to <strong style="color:#e8c96a;">The Freedom Engine Affiliate status</strong> at no additional cost.
             <br><br>
             This unlocks your referral link and allows you to earn a <strong style="color:#c9a227;">16% Service Commission</strong> for every person you lead toward their own financial clarity.
           </div>
@@ -6165,7 +6165,7 @@
               style="width:100%;padding:16px;background:linear-gradient(135deg,#c9a227,#e8c96a);color:#0d1117;border:none;border-radius:12px;font-weight:800;font-size:1rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all 0.2s ease;letter-spacing:0.02em;"
               onmouseover="this.style.opacity='0.9';this.style.transform='translateY(-1px)'"
               onmouseout="this.style.opacity='1';this.style.transform='translateY(0)'">
-              🔓 Unlock My Future Generations Link
+              🔓 Unlock My Freedom Engine Link
             </button>
             <button onclick="gradChooseRetail()"
               style="width:100%;padding:12px;background:rgba(255,255,255,0.04);color:#9ca3af;border:1px solid rgba(255,255,255,0.1);border-radius:12px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all 0.2s ease;"
@@ -6193,7 +6193,7 @@
 
           <!-- Oath Text -->
           <div style="background:rgba(201,162,39,0.05);border:1px solid rgba(201,162,39,0.2);border-radius:14px;padding:20px 22px;margin-bottom:24px;font-size:0.83rem;color:#d1d5db;line-height:1.8;font-style:italic;">
-            "I, the undersigned, affirm that I am an active FACTS subscriber in good standing. I commit to promoting this program honestly, leading with the software's value — not the income opportunity. I understand that commissions are earned, not guaranteed, and I accept full responsibility for how I represent Future Generations to others."
+            "I, the undersigned, affirm that I am an active FACTS subscriber in good standing. I commit to promoting this program honestly, leading with the software's value — not the income opportunity. I understand that commissions are earned, not guaranteed, and I accept full responsibility for how I represent The Freedom Engine to others."
           </div>
 
           <div id="grad-oath-error" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.85rem;color:#fca5a5;"></div>
@@ -6230,7 +6230,7 @@
           <div style="text-align:center;margin-bottom:24px;">
             <div style="font-size:3rem;margin-bottom:12px;filter:drop-shadow(0 0 12px rgba(34,197,94,0.5));">🎉</div>
             <h2 style="font-size:1.4rem;font-weight:800;margin:0 0 8px;color:#4ade80;">
-              You're a Future Generations Affiliate!
+              You're a Freedom Engine Affiliate!
             </h2>
             <p style="color:#9ca3af;font-size:0.88rem;line-height:1.5;max-width:380px;margin:0 auto;">
               Your link is live. Here's how the game works.
@@ -6300,7 +6300,7 @@
             <p style="color:#9ca3af;font-size:0.88rem;line-height:1.6;max-width:360px;margin:0 auto;">
               Your choice has been recorded. You're using FACTS as a standalone financial tool. No pressure, ever.
               <br><br>
-              If you change your mind, you can unlock your affiliate link at any time from <strong style="color:#c9a227;">Settings → Future Generations</strong>.
+              If you change your mind, you can unlock your affiliate link at any time from <strong style="color:#c9a227;">Settings → The Freedom Engine</strong>.
             </p>
           </div>
           <button onclick="gradDismiss()"
@@ -6855,7 +6855,7 @@
                     if (btn) btn.textContent = upgradeCTA;
                 }
 
-                // FG (Future Generations) gate
+                // FG (The Freedom Engine) gate
                 const fgGate = document.getElementById('fgtab-pro-gate');
                 if (fgGate) {
                     const h3 = fgGate.querySelector('h3');
@@ -7409,7 +7409,7 @@
         if (tabName === 'fi-calculator') initFICalculator();
         if (tabName === 'whatif') loadWhatIfScenario();
         if (tabName === 'debt-consolidation') loadDebtConsolidationTab();
-        if (tabName === 'future-generations') loadFutureGenerationsTab();
+        if (tabName === 'freedom-engine' || tabName === 'future-generations') loadFreedomEngineTab();
         if (tabName === 'education') loadEducationTab();
         if (tabName === 'shop-save') {} // Rate Radar now served at /rate-radar
         if (tabName === 'loans') loadLoans();
@@ -7567,7 +7567,7 @@
                 const validTabs = ['dashboard','add','transactions','allocations','import','family',
                     'bills','accounts','banks','gift-cards','debts','loans','credit-cards','crypto-accounts','brokerage',
                     'fi-calculator','whatif','debt-consolidation','portfolio','credit-score',
-                    'pro','education','future-generations','shop-save','archive'];
+                    'pro','education','freedom-engine','future-generations','shop-save','archive'];
                 if (validTabs.indexOf(tab) !== -1) switchTab(tab);
             };
             if (document.readyState === 'loading') {
@@ -7914,7 +7914,7 @@
             loadAccountSwitcher();
 
             // Load FG stats card (L1 count + org size)
-            loadFutureGenerations();
+            loadFreedomEngine();
 
             // Load TFR level status card
             loadDashboardLevelCard();
@@ -11943,10 +11943,10 @@
         toast._hideTimer = setTimeout(() => { toast.classList.remove('show'); }, 2800);
     }
 
-    // ─── Future Generations ───
-    async function loadFutureGenerations() {
+    // ─── The Freedom Engine ───
+    async function loadFreedomEngine() {
         try {
-            const res = await fetch('/api/future-generations/dashboard');
+            const res = await fetch('/api/freedom-engine/dashboard');
             if (!res.ok) return;
             const data = await res.json();
 
@@ -12011,14 +12011,14 @@
                     if (fgCardOrg) fgCardOrg.textContent = orgSize > 0 ? orgSize : '—';
                     // Change arrow text for non-members
                     const arrow = fgCard.querySelector('.fg-small-card-arrow');
-                    if (arrow) arrow.textContent = 'Join Future Generations →';
+                    if (arrow) arrow.textContent = 'Join The Freedom Engine →';
                     fgCard.style.display = 'flex';
                 }
 
                 // FG card already shows org count for non-members above
             }
         } catch (err) {
-            console.error('Failed to load Future Generations', err);
+            console.error('Failed to load The Freedom Engine', err);
         }
     }
 
@@ -12036,22 +12036,25 @@
         }
     }
 
+    async function joinFreedomEngine() {
+      return joinFutureGenerations();
+    }
     async function joinFutureGenerations() {
         try {
-            const res = await fetch('/api/future-generations/join', {
+            const res = await fetch('/api/freedom-engine/join', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
             const data = await res.json();
 
             if (res.ok) {
-                showToast('Welcome to Future Generations! 🌱', 'success');
-                loadFutureGenerations();
+                showToast('Welcome to The Freedom Engine! 🌱', 'success');
+                loadFreedomEngine();
             } else {
                 showToast(data.error || 'Failed to join', 'error');
             }
         } catch (err) {
-            showToast('Failed to join Future Generations', 'error');
+            showToast('Failed to join The Freedom Engine', 'error');
         }
     }
 
@@ -12066,8 +12069,8 @@
         showToast('Referral link copied! 🔗', 'success');
     }
 
-    // ─── Future Generations Tab ───
-    async function loadFutureGenerationsTab() {
+    // ─── The Freedom Engine Tab ───
+    async function loadFreedomEngineTab() {
         // Reset states
         document.getElementById('fgtab-loading').style.display = 'block';
         document.getElementById('fgtab-pro-gate').style.display = 'none';
@@ -12084,7 +12087,7 @@
             }
 
             // Load FG dashboard (commission data only — points are separate in Aura Restored)
-            const dashRes = await fetch('/api/future-generations/dashboard');
+            const dashRes = await fetch('/api/freedom-engine/dashboard');
             const dash = await dashRes.json().catch(() => null);
 
             document.getElementById('fgtab-loading').style.display = 'none';
@@ -12170,7 +12173,7 @@
             }
 
         } catch (err) {
-            console.error('Failed to load Future Generations tab', err);
+            console.error('Failed to load The Freedom Engine tab', err);
             document.getElementById('fgtab-loading').style.display = 'none';
             document.getElementById('fgtab-pro-gate').style.display = 'block';
         }
@@ -12187,21 +12190,24 @@
         showToast('Referral link copied! 🔗', 'success');
     }
 
+    async function joinFreedomEngineTab() {
+      return joinFutureGenerationsTab();
+    }
     async function joinFutureGenerationsTab() {
         try {
-            const res = await fetch('/api/future-generations/join', {
+            const res = await fetch('/api/freedom-engine/join', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
             const data = await res.json();
             if (res.ok) {
-                showToast('Welcome to Future Generations! 🌱', 'success');
-                loadFutureGenerationsTab();
+                showToast('Welcome to The Freedom Engine! 🌱', 'success');
+                loadFreedomEngineTab();
             } else {
                 showToast(data.error || 'Failed to join', 'error');
             }
         } catch (err) {
-            showToast('Failed to join Future Generations', 'error');
+            showToast('Failed to join The Freedom Engine', 'error');
         }
     }
 

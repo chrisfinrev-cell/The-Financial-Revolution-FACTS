@@ -44,6 +44,14 @@ function requireAuthFinancial(req, res, next) {
   if (req.method === 'GET' && (req.path === '/health' || req.path === '/')) {
     return next();
   }
+  // Plaid server-to-server webhooks (no user session)
+  if (
+    req.method === 'POST' &&
+    (req.path === '/webhook' || req.path === '/webhooks') &&
+    (req.baseUrl === '/api/plaid' || req.baseUrl === '/api/mod_plaid')
+  ) {
+    return next();
+  }
   if (req.baseUrl === '/api/engine' && req.path === '/process' && req.method === 'POST') {
     return next();
   }
