@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Wallet,
+  Landmark,
   BookOpen,
   Users,
   Settings,
@@ -22,6 +23,7 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { href: '/dashboard', label: 'Allocation', icon: LayoutDashboard },
+  { href: '/dashboard#accounts', label: 'Bank Accounts', icon: Landmark },
   { href: '/dashboard#buckets', label: 'Buckets & Planning', icon: Wallet },
   { href: '/dashboard#modules', label: 'Program Modules', icon: BookOpen },
   {

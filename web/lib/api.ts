@@ -17,8 +17,12 @@ export const apiRoutes = {
   buckets: '/api/engine/transactions',
   plaidCreateLinkToken: '/api/mod_plaid/create-link-token',
   plaidExchangeToken: '/api/mod_plaid/exchange-token',
+  plaidCreateLinkTokenAlias: '/api/plaid/create-link-token',
+  plaidExchangeTokenAlias: '/api/plaid/exchange-token',
   plaidCreateLinkTokenV1: '/api/v1/plaid/create-link-token',
-  plaidExchangeTokenV1: '/api/v1/plaid/exchange-token'
+  plaidExchangeTokenV1: '/api/v1/plaid/exchange-token',
+  plaidStatus: '/api/mod_plaid/status',
+  plaidStatusAlias: '/api/plaid/status'
 } as const;
 
 export const api = axios.create({

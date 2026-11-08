@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
         { source: '/api/beta/:path*', destination: `${expressOrigin}/api/beta/:path*` },
         { source: '/api/engine/:path*', destination: `${expressOrigin}/api/engine/:path*` },
         { source: '/api/mod_plaid/:path*', destination: `${expressOrigin}/api/mod_plaid/:path*` },
+        { source: '/api/plaid/:path*', destination: `${expressOrigin}/api/plaid/:path*` },
         { source: '/api/nda/accept', destination: `${expressOrigin}/api/nda/accept` },
         { source: '/api/v1/nda/accept', destination: `${expressOrigin}/api/nda/accept` },
         { source: '/api/v1/plaid/:path*', destination: `${expressOrigin}/api/mod_plaid/:path*` }
